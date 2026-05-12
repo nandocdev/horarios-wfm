@@ -148,4 +148,84 @@ final class MetricFormulas
 
         return false;
     }
+
+    /**
+     * Calcula la Cobertura Operativa (Coverage Rate).
+     */
+    public static function coverageRate(int $availableAgents, int $scheduledAgents): float
+    {
+        if ($scheduledAgents <= 0) {
+            return 0.0;
+        }
+
+        return round(($availableAgents / $scheduledAgents) * 100, 1);
+    }
+
+    /**
+     * Calcula la Tasa de Ausentismo.
+     */
+    public static function absenteeismRate(float $absentMinutes, float $scheduledProductiveMinutes): float
+    {
+        if ($scheduledProductiveMinutes <= 0) {
+            return 0.0;
+        }
+
+        return round(($absentMinutes / $scheduledProductiveMinutes) * 100, 1);
+    }
+
+    /**
+     * Calcula la Ocupación (Occupancy).
+     * Presión operativa sobre el tiempo disponible real.
+     */
+    public static function occupancy(
+        float $talkTime,
+        float $holdTime,
+        float $acw,
+        float $loggedInTime,
+        float $idleTime
+    ): float {
+        $denominator = $loggedInTime - $idleTime;
+        if ($denominator <= 0) {
+            return 0.0;
+        }
+
+        return round((($talkTime + $holdTime + $acw) / $denominator) * 100, 1);
+    }
+
+    /**
+     * Calcula el Conformance.
+     * Cumplimiento de la cantidad total de tiempo programada.
+     */
+    public static function conformance(float $actualWorkedMinutes, float $scheduledWorkedMinutes): float
+    {
+        if ($scheduledWorkedMinutes <= 0) {
+            return 0.0;
+        }
+
+        return round(($actualWorkedMinutes / $scheduledWorkedMinutes) * 100, 1);
+    }
+
+    /**
+     * Calcula el ASA (Average Speed of Answer).
+     */
+    public static function asa(float $totalQueueWaitTime, int $answeredCalls): float
+    {
+        if ($answeredCalls <= 0) {
+            return 0.0;
+        }
+
+        return round($totalQueueWaitTime / $answeredCalls, 1);
+    }
+
+    /**
+     * Calcula el Service Level (Nivel de Servicio).
+     */
+    public static function serviceLevel(int $callsWithinThreshold, int $totalOfferedCalls): float
+    {
+        if ($totalOfferedCalls <= 0) {
+            return 0.0;
+        }
+
+        return round(($callsWithinThreshold / $totalOfferedCalls) * 100, 1);
+    }
 }

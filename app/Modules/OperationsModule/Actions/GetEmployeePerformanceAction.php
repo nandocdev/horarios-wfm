@@ -10,6 +10,7 @@ use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -125,6 +126,8 @@ final class GetEmployeePerformanceAction
         $status = 'present';
 
         if ($scheduledEntry && $actualEntry) {
+            $status = MetricFormulas::checkLate($scheduledEntry, $actualEntry) ? 'tardanza' : 'a_tiempo';
+            
             $actualEntryTime = Carbon::parse($actualEntry);
             $scheduledEntryTime = Carbon::parse($scheduledEntry);
             
@@ -132,7 +135,6 @@ final class GetEmployeePerformanceAction
             $scheduledDateTime = (clone $actualEntryTime)->setTime($scheduledEntryTime->hour, $scheduledEntryTime->minute, $scheduledEntryTime->second);
             
             $diff = (int) $scheduledDateTime->diffInMinutes($actualEntryTime, false);
-            $status = $diff > 5 ? 'tardanza' : 'a_tiempo';
         } elseif ($scheduledEntry && !$actualEntry) {
             $status = $exception ? 'excepción' : 'ausente';
         }
@@ -258,31 +260,27 @@ final class GetEmployeePerformanceAction
         $connectedMinutes = round($totalConnectedSeconds / 60, 1);
         $productiveMinutes = round($productiveSeconds / 60, 1);
 
-        $denominator = $scheduledMinutes;
-        
-        // Si es hoy, ajustamos el denominador al tiempo transcurrido desde el inicio del turno hasta ahora
-        if ($date->isToday() && $schedule?->start_time) {
-            $now = now();
+        $start = null;
+        $end = null;
+        if ($schedule?->start_time && $schedule?->end_time) {
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
             if ($end->lessThan($start)) $end->addDay();
-
-            // Si estamos dentro de la ventana del turno hoy
-            if ($now->between($start, $end)) {
-                $elapsed = (int) $start->diffInMinutes($now);
-                // El denominador es el tiempo transcurrido, pero nunca mayor al programado total
-                $denominator = max(1, min($scheduledMinutes, $elapsed));
-            }
         }
+
+        $denominator = MetricFormulas::utilizationDenominator(
+            $scheduledMinutes,
+            $date->isToday(),
+            $start,
+            $end
+        );
 
         return [
             'total_scheduled_minutes' => $scheduledMinutes,
             'total_productive_minutes' => $productiveMinutes,
             'total_connected_minutes' => $connectedMinutes,
-            // Productividad: % del tiempo conectado que estuvo productivo
-            'productivity_percentage' => $totalConnectedSeconds > 0 ? round(($productiveSeconds / $totalConnectedSeconds) * 100, 1) : 0,
-            // Utilización: % de la jornada transcurrida (Hoy) o total (Histórico) que estuvo productivo
-            'utilization_percentage' => $denominator > 0 ? round(($productiveMinutes / $denominator) * 100, 1) : 0
+            'productivity_percentage' => MetricFormulas::productivity((float)$productiveSeconds / 60, $connectedMinutes),
+            'utilization_percentage' => MetricFormulas::utilization($productiveMinutes, $denominator)
         ];
     }
 
@@ -291,7 +289,11 @@ final class GetEmployeePerformanceAction
         return $calls->groupBy('csq_name')
             ->map(fn($group) => [
                 'total_calls' => $group->count(),
-                'avg_handle_time' => round($group->avg(fn($c) => $c->talk_time + $c->work_time))
+                'avg_handle_time' => MetricFormulas::aht(
+                    (float) $group->sum('talk_time'),
+                    (float) $group->sum('work_time'),
+                    $group->count()
+                )
             ])
             ->toArray();
     }

@@ -9,6 +9,7 @@ use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Shared\Support\Metrics\MetricFormulas;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -263,30 +264,7 @@ class RealtimeMonitoring extends Component
 
     private function calculateAdherence(?string $real, ?string $expectedType): bool
     {
-        $real = strtoupper($real ?? 'OFFLINE');
-        $isLogoutOrOffline = in_array($real, ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
-        $productiveStates = ['READY', 'TALKING', 'WORK', 'RESERVED'];
-
-        // Si el usuario está desconectado, no evaluamos adherencia en este cálculo 
-        // (La ausencia se maneja por alertas separadas). Se retorna true para no afectar métricas de actividad.
-        if ($isLogoutOrOffline) {
-            return true;
-        }
-
-        // Si está conectado pero debería estar fuera de jornada -> No Adherente
-        if ($expectedType === 'OFF') {
-            return false;
-        }
-
-        if ($expectedType === 'SHIFT') {
-            return in_array($real, $productiveStates);
-        }
-
-        if ($expectedType === 'INTRADAY' || $expectedType === 'EXCEPTION') {
-            return $real === 'NOT_READY';
-        }
-
-        return false;
+        return MetricFormulas::checkAdherence($real, $expectedType);
     }
 
     private function generateAlerts($real, $expected, bool $isAdherent, bool $isAbsent = false, bool $isDisconnected = false): array

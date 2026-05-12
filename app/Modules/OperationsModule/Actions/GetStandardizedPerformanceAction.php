@@ -8,6 +8,7 @@ use App\Modules\OperationsModule\DTOs\StandardizedPerformanceDTO;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
+use App\Shared\Support\Metrics\MetricFormulas;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Carbon\Carbon;
@@ -89,12 +90,13 @@ final class GetStandardizedPerformanceAction
         $status = 'present';
 
         if ($scheduledEntry && $actualEntry) {
+            $status = MetricFormulas::checkLate($scheduledEntry, $actualEntry) ? 'tardanza' : 'a_tiempo';
+            
             $actualEntryTime = Carbon::parse($actualEntry);
             $scheduledEntryTime = Carbon::parse($scheduledEntry);
             $scheduledDateTime = (clone $actualEntryTime)->setTime($scheduledEntryTime->hour, $scheduledEntryTime->minute, $scheduledEntryTime->second);
             
             $diff = (int) $scheduledDateTime->diffInMinutes($actualEntryTime, false);
-            $status = $diff > 5 ? 'tardanza' : 'a_tiempo';
         } elseif ($scheduledEntry && !$actualEntry) {
             $status = !empty($schedule->exceptions) ? 'excepción' : 'ausente';
         }
@@ -187,25 +189,27 @@ final class GetStandardizedPerformanceAction
         $totalConnectedSeconds = $transitions->sum(fn($t) => $t->metadata['duration'] ?? 0);
         $connectedMinutes = round($totalConnectedSeconds / 60, 1);
 
-        $denominator = $scheduledMinutes;
-        
+        $start = null;
+        $end = null;
         if ($schedule->start_time && $schedule->end_time) {
-            $now = now();
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
             if ($end->lessThan($start)) $end->addDay();
-            if ($date->isToday() && $now->between($start, $end)) {
-                $elapsed = (int) $start->diffInMinutes($now);
-                $denominator = max(1, min($scheduledMinutes, $elapsed));
-            }
         }
+
+        $denominator = MetricFormulas::utilizationDenominator(
+            $scheduledMinutes,
+            $date->isToday(),
+            $start,
+            $end
+        );
 
         return [
             'total_scheduled_minutes' => $scheduledMinutes,
             'total_productive_minutes' => $productiveMinutes,
             'total_connected_minutes' => $connectedMinutes,
-            'productivity_percentage' => $totalConnectedSeconds > 0 ? round(($systemProductiveSeconds / $totalConnectedSeconds) * 100, 1) : 0,
-            'utilization_percentage' => $denominator > 0 ? round(($productiveMinutes / $denominator) * 100, 1) : 0
+            'productivity_percentage' => MetricFormulas::productivity($systemProductiveSeconds / 60, $connectedMinutes),
+            'utilization_percentage' => MetricFormulas::utilization($productiveMinutes, $denominator)
         ];
     }
 
@@ -214,7 +218,11 @@ final class GetStandardizedPerformanceAction
         return $calls->groupBy('csq_name')
             ->map(fn($group) => [
                 'total_calls' => $group->count(),
-                'avg_handle_time' => round($group->avg(fn($c) => $c->talk_time + $c->work_time))
+                'avg_handle_time' => MetricFormulas::aht(
+                    (float) $group->sum('talk_time'),
+                    (float) $group->sum('work_time'),
+                    $group->count()
+                )
             ])
             ->toArray();
     }

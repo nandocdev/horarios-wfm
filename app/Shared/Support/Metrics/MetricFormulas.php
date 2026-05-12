@@ -8,14 +8,12 @@ namespace App\Shared\Support\Metrics;
  * Librería de fórmulas estandarizadas para el cálculo de métricas de desempeño.
  * Asegura que todos los módulos utilicen la misma lógica matemática.
  */
-final class MetricFormulas
-{
+final class MetricFormulas {
     /**
      * Calcula el porcentaje de productividad.
      * Intensidad del trabajo mientras el agente estuvo conectado.
      */
-    public static function productivity(float $productiveMinutes, float $connectedMinutes): float
-    {
+    public static function productivity(float $productiveMinutes, float $connectedMinutes): float {
         if ($connectedMinutes <= 0) {
             return 0.0;
         }
@@ -27,8 +25,7 @@ final class MetricFormulas
      * Calcula el porcentaje de utilización.
      * Rendimiento contra lo planificado (ajustado por tiempo transcurrido si es hoy).
      */
-    public static function utilization(float $productiveMinutes, float $baseMinutes): float
-    {
+    public static function utilization(float $productiveMinutes, float $baseMinutes): float {
         if ($baseMinutes <= 0) {
             return 0.0;
         }
@@ -52,7 +49,7 @@ final class MetricFormulas
         }
 
         $now = new \DateTimeImmutable();
-        
+
         // Si el turno aún no empieza
         if ($now < $startTime) {
             return 1; // Evitar división por cero
@@ -65,32 +62,30 @@ final class MetricFormulas
 
         // Si estamos en curso del turno
         $elapsed = (int) floor(($now->getTimestamp() - $startTime->getTimestamp()) / 60);
-        
+
         return max(1, min($scheduledMinutes, $elapsed));
     }
 
     /**
      * Determina si una marca de tiempo constituye una tardanza.
      */
-    public static function checkLate(string $scheduledEntry, string $actualEntry, int $graceMinutes = 5): bool
-    {
+    public static function checkLate(string $scheduledEntry, string $actualEntry, int $graceMinutes = 5): bool {
         $scheduled = new \DateTimeImmutable($scheduledEntry);
         $actual = new \DateTimeImmutable($actualEntry);
-        
+
         // Solo comparamos la hora, minuto y segundo
         $sTime = (int) $scheduled->format('His');
         $aTime = (int) $actual->format('His');
-        
+
         $diffMinutes = ($actual->getTimestamp() - $scheduled->getTimestamp()) / 60;
-        
+
         return $diffMinutes > $graceMinutes;
     }
 
     /**
      * Calcula el AHT (Average Handle Time).
      */
-    public static function aht(float $totalTalkTime, float $totalWorkTime, int $totalCalls): float
-    {
+    public static function aht(float $totalTalkTime, float $totalWorkTime, int $totalCalls): float {
         if ($totalCalls <= 0) {
             return 0.0;
         }
@@ -101,16 +96,14 @@ final class MetricFormulas
     /**
      * Convierte segundos a minutos con precisión configurable.
      */
-    public static function secondsToMinutes(int $seconds, int $precision = 1): float
-    {
+    public static function secondsToMinutes(int $seconds, int $precision = 1): float {
         return round($seconds / 60, $precision);
     }
 
     /**
      * Formatea una duración en segundos al formato HH:MM:SS.
      */
-    public static function formatDuration(int $seconds): string
-    {
+    public static function formatDuration(int $seconds): string {
         $h = floor($seconds / 3600);
         $m = floor(($seconds % 3600) / 60);
         $s = $seconds % 60;
@@ -121,8 +114,7 @@ final class MetricFormulas
     /**
      * Verifica la adherencia de un estado real frente a un tipo esperado.
      */
-    public static function checkAdherence(?string $realState, ?string $expectedType): bool
-    {
+    public static function checkAdherence(?string $realState, ?string $expectedType): bool {
         $real = strtoupper($realState ?? 'OFFLINE');
         $isLogoutOrOffline = in_array($real, ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
         $productiveStates = ['READY', 'TALKING', 'WORK', 'RESERVED'];
@@ -152,8 +144,7 @@ final class MetricFormulas
     /**
      * Calcula la Cobertura Operativa (Coverage Rate).
      */
-    public static function coverageRate(int $availableAgents, int $scheduledAgents): float
-    {
+    public static function coverageRate(int $availableAgents, int $scheduledAgents): float {
         if ($scheduledAgents <= 0) {
             return 0.0;
         }
@@ -164,8 +155,7 @@ final class MetricFormulas
     /**
      * Calcula la Tasa de Ausentismo.
      */
-    public static function absenteeismRate(float $absentMinutes, float $scheduledProductiveMinutes): float
-    {
+    public static function absenteeismRate(float $absentMinutes, float $scheduledProductiveMinutes): float {
         if ($scheduledProductiveMinutes <= 0) {
             return 0.0;
         }
@@ -196,8 +186,7 @@ final class MetricFormulas
      * Calcula el Conformance.
      * Cumplimiento de la cantidad total de tiempo programada.
      */
-    public static function conformance(float $actualWorkedMinutes, float $scheduledWorkedMinutes): float
-    {
+    public static function conformance(float $actualWorkedMinutes, float $scheduledWorkedMinutes): float {
         if ($scheduledWorkedMinutes <= 0) {
             return 0.0;
         }
@@ -208,8 +197,7 @@ final class MetricFormulas
     /**
      * Calcula el ASA (Average Speed of Answer).
      */
-    public static function asa(float $totalQueueWaitTime, int $answeredCalls): float
-    {
+    public static function asa(float $totalQueueWaitTime, int $answeredCalls): float {
         if ($answeredCalls <= 0) {
             return 0.0;
         }
@@ -220,8 +208,7 @@ final class MetricFormulas
     /**
      * Calcula el Service Level (Nivel de Servicio).
      */
-    public static function serviceLevel(int $callsWithinThreshold, int $totalOfferedCalls): float
-    {
+    public static function serviceLevel(int $callsWithinThreshold, int $totalOfferedCalls): float {
         if ($totalOfferedCalls <= 0) {
             return 0.0;
         }

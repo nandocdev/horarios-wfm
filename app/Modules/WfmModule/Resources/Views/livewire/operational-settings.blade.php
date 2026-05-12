@@ -18,7 +18,7 @@
 
             <div class="space-y-6">
                 @foreach($settings as $index => $setting)
-                    <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-4">
                         @php
                             $labels = [
                                 'late_login_grace_period' => 'Tolerancia de Tardanza (Tiempo de Gracia)',
@@ -32,15 +32,20 @@
                             ];
                             $labelName = $labels[$setting['key']] ?? ucwords(str_replace('_', ' ', $setting['key']));
                         @endphp
-                        <flux:input 
-                            wire:model="settings.{{ $index }}.display_value" 
-                            label="{{ $labelName }}" 
-                            type="number"
-                            suffix="{{ $setting['unit'] }}"
-                        />
-                        <flux:text size="xs" class="text-zinc-500 italic">
-                            {{ $setting['description'] }}
-                        </flux:text>
+                        <div class="flex-grow">
+                            <flux:text font="bold">{{ $labelName }}</flux:text>
+                            <flux:text size="xs" class="text-zinc-500 italic">
+                                {{ $setting['description'] }}
+                            </flux:text>
+                        </div>
+                        <div class="w-32">
+                            <flux:input 
+                                wire:model="settings.{{ $index }}.display_value" 
+                                type="number"
+                                size="sm"
+                                suffix="{{ $setting['unit'] === 'segundos' ? 's' : 'm' }}"
+                            />
+                        </div>
                     </div>
                 @endforeach
             </div>

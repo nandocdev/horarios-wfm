@@ -1,0 +1,298 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\OperationsModule\Actions;
+
+use App\Modules\OperationsModule\DTOs\EmployeePerformanceDTO;
+use App\Modules\ConnectModule\Models\AgentCallPerformance;
+use App\Modules\ConnectModule\Models\AgentStateTransition;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Models\ScheduleException;
+use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+
+final class GetEmployeePerformanceAction
+{
+    public function execute(Employee $employee, Carbon $date): EmployeePerformanceDTO
+    {
+        // 1. Obtener Programación
+        $schedule = $this->getSchedule($employee, $date);
+        
+        // 2. Obtener Datos UCCX Normalizados
+        $transitions = $this->getTransitions($employee, $date);
+        $callRecords = $this->getRawCallRecords($employee, $date);
+        
+        if ($transitions->isEmpty() && $callRecords->isEmpty() && !$schedule) {
+            return EmployeePerformanceDTO::empty($date->toDateString());
+        }
+
+        // 3. Calcular Minutos Programados Totales (Soporte Midnight Crossing)
+        $scheduledMinutes = 0;
+        if ($schedule?->start_time && $schedule?->end_time) {
+            $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
+            $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
+            
+            if ($end->lessThan($start)) {
+                $end->addDay();
+            }
+            
+            $scheduledMinutes = (int) $start->diffInMinutes($end);
+        }
+
+        // 4. Calcular Asistencia y Adherencia de Pausas
+        $exception = $this->getException($employee, $date);
+        $attendance = $this->calculateAttendance($schedule, $transitions, $callRecords, $exception);
+
+        // 5. Calcular Tiempos por Actividad y Reason
+        $reasons = $this->calculateTimeByReason($transitions);
+        $activities = $this->calculateTimeByActivity($transitions, $scheduledMinutes, $date, $attendance['actual_entry'], $schedule);
+
+        // 6. Métricas de Productividad y Utilización
+        $metrics = $this->calculateProductivity($transitions, $scheduledMinutes, $date, $schedule);
+        $metrics['total_logout_minutes'] = $activities['Logout'] ?? 0;
+
+        // 7. Volumen de Llamadas
+        $queues = $this->getCallVolumeSummary($callRecords);
+
+        return new EmployeePerformanceDTO(
+            date: $date->toDateString(),
+            attendance: $attendance,
+            activities: $activities,
+            reasons: $reasons,
+            metrics: $metrics,
+            queues: $queues
+        );
+    }
+
+    private function getRawCallRecords(Employee $employee, Carbon $date): Collection
+    {
+        return AgentCallPerformance::query()
+            ->where('employee_id', $employee->id)
+            ->whereDate('start_time', $date->toDateString())
+            ->orderBy('start_time')
+            ->get();
+    }
+
+    private function getSchedule(Employee $employee, Carbon $date): ?WeeklyScheduleAssignment
+    {
+        return WeeklyScheduleAssignment::query()
+            ->where('employee_id', $employee->id)
+            ->whereHas('weeklySchedule', function($q) use ($date) {
+                $q->where('week_start_date', '<=', $date->toDateString())
+                  ->where('week_end_date', '>=', $date->toDateString());
+            })
+            ->where('day_of_week', $date->dayOfWeekIso)
+            ->first();
+    }
+
+    private function getTransitions(Employee $employee, Carbon $date): Collection
+    {
+        return AgentStateTransition::query()
+            ->where('employee_id', $employee->id)
+            ->whereDate('transition_time', $date->toDateString())
+            ->orderBy('transition_time')
+            ->get()
+            ->map(function ($t) {
+                $t->agent_state = trim((string)$t->agent_state);
+                $t->reason_code = $t->reason_code ? trim((string)$t->reason_code) : null;
+                return $t;
+            });
+    }
+
+    private function getException(Employee $employee, Carbon $date): ?ScheduleException
+    {
+        return ScheduleException::query()
+            ->with('reason')
+            ->where('employee_id', $employee->id)
+            ->where(function($q) use ($date) {
+                $q->whereDate('start_at', '<=', $date->toDateString())
+                  ->whereDate('end_at', '>=', $date->toDateString());
+            })
+            ->first();
+    }
+
+    private function calculateAttendance(?WeeklyScheduleAssignment $schedule, Collection $transitions, Collection $calls, ?ScheduleException $exception = null): array
+    {
+        // Entrada real: El primer estado que NO sea Logout y que tenga al menos 10 segundos de duración
+        $firstValidTransition = $transitions->first(fn($t) => $t->agent_state !== 'Logout' && $t->duration > 10);
+        $actualEntry = $firstValidTransition ? $firstValidTransition->transition_time : null;
+
+        $scheduledEntry = $schedule?->start_time;
+        $diff = 0;
+        $status = 'present';
+
+        if ($scheduledEntry && $actualEntry) {
+            $actualEntryTime = Carbon::parse($actualEntry);
+            $scheduledEntryTime = Carbon::parse($scheduledEntry);
+            
+            // Normalizar fecha de entrada programada a la fecha de la actividad
+            $scheduledDateTime = (clone $actualEntryTime)->setTime($scheduledEntryTime->hour, $scheduledEntryTime->minute, $scheduledEntryTime->second);
+            
+            $diff = (int) $scheduledDateTime->diffInMinutes($actualEntryTime, false);
+            $status = $diff > 5 ? 'tardanza' : 'a_tiempo';
+        } elseif ($scheduledEntry && !$actualEntry) {
+            $status = $exception ? 'excepción' : 'ausente';
+        }
+
+        return [
+            'scheduled_entry' => $scheduledEntry ? Carbon::parse($scheduledEntry)->format('H:i:s') : null,
+            'actual_entry' => $actualEntry ? Carbon::parse($actualEntry)->format('H:i:s') : null,
+            'diff_minutes' => $diff,
+            'status' => $status,
+            'exception_reason' => $exception?->reason?->name ?? $exception?->remarks,
+            'lunch' => $this->calculateStateAdherence($transitions, $schedule, 'lunch'),
+            'break' => $this->calculateStateAdherence($transitions, $schedule, 'break'),
+        ];
+    }
+
+    private function calculateStateAdherence(Collection $transitions, ?WeeklyScheduleAssignment $schedule, string $type): array
+    {
+        $keywords = $type === 'lunch' ? ['almuerzo', 'lunch', 'comida'] : ['break', 'descanso', 'pausa'];
+        $scheduledDuration = $type === 'lunch' ? ($schedule?->lunch_minutes ?? 45) : ($schedule?->break_minutes ?? 15);
+
+        // Sumar duración total de todos los tramos que coincidan con motivos conocidos
+        $actualSeconds = $transitions->filter(function ($t) use ($keywords) {
+            $reason = strtolower((string)$t->reason_code);
+            foreach ($keywords as $kw) {
+                if (str_contains($reason, $kw)) return true;
+            }
+            return false;
+        })->sum('duration');
+
+        $match = $transitions->first(function ($t) use ($keywords) {
+            $reason = strtolower((string)$t->reason_code);
+            foreach ($keywords as $kw) {
+                if (str_contains($reason, $kw)) return true;
+            }
+            return false;
+        });
+
+        // Fallback dinámico por duración (Solo si no hay motivos detectados)
+        if ($actualSeconds === 0) {
+            $fallback = $transitions->filter(fn($t) => in_array($t->agent_state, ['Not Ready', 'Auxiliary']));
+            if ($type === 'lunch') {
+                // Almuerzo: Bloque continuo más largo entre 30 y 90 minutos
+                $target = $fallback->filter(fn($t) => $t->duration >= 1800 && $t->duration <= 5400)
+                    ->sortByDesc('duration')
+                    ->first();
+                if ($target) {
+                    $actualSeconds = $target->duration;
+                    $match = $target;
+                }
+            } else {
+                // Break: Bloques entre 5 y 25 minutos
+                $actualSeconds = $fallback->filter(fn($t) => $t->duration >= 300 && $t->duration <= 1500)->sum('duration');
+                $match = $fallback->filter(fn($t) => $t->duration >= 300 && $t->duration <= 1500)->first();
+            }
+        }
+
+        return [
+            'actual_start' => $match ? Carbon::parse($match->transition_time)->format('H:i:s') : null,
+            'actual_duration' => (int) round($actualSeconds / 60),
+            'scheduled_duration' => $scheduledDuration,
+        ];
+    }
+
+    private function calculateTimeByReason(Collection $transitions): array
+    {
+        return $transitions->whereNotNull('reason_code')
+            ->groupBy('reason_code')
+            ->map(fn($group) => [
+                'minutes' => round($group->sum('duration') / 60, 1),
+                'count'   => $group->count(),
+            ])
+            ->toArray();
+    }
+
+    private function calculateTimeByActivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?string $actualEntry, ?WeeklyScheduleAssignment $schedule): array
+    {
+        $activities = $transitions->groupBy('agent_state')
+            ->map(fn($group) => round($group->sum('duration') / 60, 1))
+            ->toArray();
+
+        $totalConnectedMinutes = round($transitions->sum('duration') / 60, 1);
+        
+        $isToday = $date->isToday();
+        
+        // Determinar si estamos dentro de la ventana de jornada hoy
+        $isWithinSchedule = false;
+        if ($isToday && $schedule?->start_time && $schedule?->end_time) {
+            $now = now();
+            $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
+            $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
+            if ($end->lessThan($start)) $end->addDay();
+            
+            $isWithinSchedule = $now->between($start, $end);
+        }
+
+        if ($isToday && $actualEntry && $isWithinSchedule) {
+            $now = now();
+            $entry = Carbon::parse($actualEntry);
+            
+            // Logout hoy: (Ahora - inicio real) - Tiempo conectado
+            $elapsedSinceEntry = $entry->diffInMinutes($now);
+            
+            $logoutMinutes = round($elapsedSinceEntry - $totalConnectedMinutes, 1);
+            $activities['Logout'] = max(0, $logoutMinutes);
+        } else {
+            // Para días pasados o si ya terminó su jornada
+            if ($scheduledMinutes > $totalConnectedMinutes) {
+                $activities['Logout'] = round($scheduledMinutes - $totalConnectedMinutes, 1);
+            } else {
+                $activities['Logout'] = 0;
+            }
+        }
+
+        return $activities;
+    }
+
+    private function calculateProductivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?WeeklyScheduleAssignment $schedule): array
+    {
+        $productiveStates = ['Ready', 'Reserved', 'Talking', 'Work'];
+        $totalConnectedSeconds = $transitions->sum('duration');
+        $productiveSeconds = $transitions->whereIn('agent_state', $productiveStates)->sum('duration');
+        
+        $connectedMinutes = round($totalConnectedSeconds / 60, 1);
+        $productiveMinutes = round($productiveSeconds / 60, 1);
+
+        $denominator = $scheduledMinutes;
+        
+        // Si es hoy, ajustamos el denominador al tiempo transcurrido desde el inicio del turno hasta ahora
+        if ($date->isToday() && $schedule?->start_time) {
+            $now = now();
+            $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
+            $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
+            if ($end->lessThan($start)) $end->addDay();
+
+            // Si estamos dentro de la ventana del turno hoy
+            if ($now->between($start, $end)) {
+                $elapsed = (int) $start->diffInMinutes($now);
+                // El denominador es el tiempo transcurrido, pero nunca mayor al programado total
+                $denominator = max(1, min($scheduledMinutes, $elapsed));
+            }
+        }
+
+        return [
+            'total_scheduled_minutes' => $scheduledMinutes,
+            'total_productive_minutes' => $productiveMinutes,
+            'total_connected_minutes' => $connectedMinutes,
+            // Productividad: % del tiempo conectado que estuvo productivo
+            'productivity_percentage' => $totalConnectedSeconds > 0 ? round(($productiveSeconds / $totalConnectedSeconds) * 100, 1) : 0,
+            // Utilización: % de la jornada transcurrida (Hoy) o total (Histórico) que estuvo productivo
+            'utilization_percentage' => $denominator > 0 ? round(($productiveMinutes / $denominator) * 100, 1) : 0
+        ];
+    }
+
+    private function getCallVolumeSummary(Collection $calls): array
+    {
+        return $calls->groupBy('csq_name')
+            ->map(fn($group) => [
+                'total_calls' => $group->count(),
+                'avg_handle_time' => round($group->avg(fn($c) => $c->talk_time + $c->work_time))
+            ])
+            ->toArray();
+    }
+}

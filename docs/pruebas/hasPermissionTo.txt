@@ -1,0 +1,164 @@
+return $user->hasPermissionTo('teams.viewAny');
+return $user->hasPermissionTo('teams.viewAny');
+return $user->hasPermissionTo('teams.create');
+return $user->hasPermissionTo('teams.update');
+return $user->hasPermissionTo('teams.delete');
+return $user->hasPermissionTo('departments.viewAny');
+return $user->hasPermissionTo('departments.viewAny');
+return $user->hasPermissionTo('departments.create');
+return $user->hasPermissionTo('departments.update');
+return $user->hasPermissionTo('departments.delete');
+return $user->hasPermissionTo('directorates.viewAny');
+return $user->hasPermissionTo('directorates.viewAny');
+return $user->hasPermissionTo('directorates.create');
+return $user->hasPermissionTo('directorates.update');
+return $user->hasPermissionTo('directorates.delete');
+return $user->hasPermissionTo('positions.viewAny');
+return $user->hasPermissionTo('positions.viewAny');
+return $user->hasPermissionTo('positions.create');
+return $user->hasPermissionTo('positions.update');
+return $user->hasPermissionTo('positions.delete');
+return $user->hasPermissionTo('intraday.view');
+return $user->hasPermissionTo('intraday.manage');
+return $user->hasPermissionTo('intraday.manage');
+return $user->hasPermissionTo('weekly_schedules.view');
+return $user->hasPermissionTo('weekly_schedules.edit') && $weeklySchedule->status === 'draft';
+return $user->hasPermissionTo('schedules.view');
+return $user->hasPermissionTo('schedules.view');
+return $user->hasPermissionTo('schedules.create');
+return $user->hasPermissionTo('schedules.edit');
+return $user->hasPermissionTo('schedules.delete');
+return $user->hasPermissionTo('coverage.view');
+return $user->hasPermissionTo('audit.view');
+return $user->hasPermissionTo('attendance.view');
+return $user->hasPermissionTo('attendance.manage');
+return $user->hasPermissionTo('attendance.manage');
+return $user->hasPermissionTo('weekly_schedules.view');
+return $user->hasPermissionTo('weekly_schedules.view');
+return $user->hasPermissionTo('weekly_schedules.create');
+return $user->hasPermissionTo('weekly_schedules.edit') && $weeklySchedule->status === 'draft';
+return $user->hasPermissionTo('weekly_schedules.publish') && $weeklySchedule->status === 'draft';
+return $user->hasPermissionTo('weekly_schedules.delete') && $weeklySchedule->status === 'draft';
+return $user->hasPermissionTo('coverage.manage');
+return $user->hasPermissionTo('intraday.view');
+return $user->hasPermissionTo('intraday.manage_catalog');
+return $user->hasPermissionTo('schedules.swap_request');
+return $user->employee_id === $request->target_employee_id || $user->hasPermissionTo('schedules.swap_admin');
+return $user->hasPermissionTo('employees.view') || $user->hasPermissionTo('employees.view.others') || $user->hasPermissionTo('employees.view.all');
+if ($user->hasPermissionTo('employees.view.all')) { 
+return $user->hasPermissionTo('employees.view');
+return $user->hasPermissionTo('employees.view.others');
+return $user->hasPermissionTo('employees.create');
+if ($user->hasPermissionTo('employees.edit.all')) {
+return $user->hasPermissionTo('employees.edit');
+return $user->hasPermissionTo('employees.edit.others');
+if ($user->hasPermissionTo('employees.delete.all')) {
+return $user->hasPermissionTo('employees.delete');
+return $user->hasPermissionTo('employees.delete.others');
+if ($user->hasPermissionTo('employees.force_delete.all')) {
+return $user->hasPermissionTo('employees.force_delete');
+return $user->hasPermissionTo('employees.force_delete.others');
+if ($user->hasPermissionTo('employees.view.all') ||
+$user->hasPermissionTo('employees.edit.all') ||
+$user->hasPermissionTo('employees.delete.all') ||
+$user->hasPermissionTo('employees.force_delete.all')) {
+return $user->hasPermissionTo('teams.members.manage');
+return $user->hasPermissionTo('employees.export');
+return $user->hasPermissionTo('employees.import');
+if ($user->hasPermissionTo('employees.view.all')) {
+} elseif ($isOwn && $user->hasPermissionTo('employees.view')) {
+} elseif ($isSameTeam && $user->hasPermissionTo('employees.view.others')) {
+'can_update' => $employee ? $this->update($user, $target) : $user->hasPermissionTo('employees.edit') || $user->hasPermissionTo('employees.edit.others') || $user->hasPermissionTo('employees.edit.all'),
+'can_delete' => $employee ? $this->delete($user, $target) : $user->hasPermissionTo('employees.delete') || $user->hasPermissionTo('employees.delete.others') || $user->hasPermissionTo('employees.delete.all'),
+'can_force_delete' => $employee ? $this->forceDelete($user, $target) : $user->hasPermissionTo('employees.force_delete') || $user->hasPermissionTo('employees.force_delete.others') || $user->hasPermissionTo('employees.force_delete.all'),
+return $user->hasPermissionTo($permissionName);
+return $user->hasPermissionTo('case_subtypes.manage');
+return $user->hasPermissionTo('case_subtypes.manage');
+return $user->hasPermissionTo('case_subtypes.manage');
+return $user->hasPermissionTo('case_subtypes.manage');
+return $user->hasPermissionTo('channels.manage');
+return $user->hasPermissionTo('call_queues.manage');
+return $user->hasPermissionTo('call_queues.manage');
+return $user->hasPermissionTo('call_queues.manage');
+return $user->hasPermissionTo('call_queues.manage');
+return $authUser->hasPermissionTo('users.view');
+return $authUser->hasPermissionTo('users.view') || $authUser->id === $target->id;
+return $authUser->hasPermissionTo('users.create');
+if (!$authUser->hasPermissionTo('users.edit')) {
+return $authUser->hasPermissionTo('users.delete') && $this->checkHierarchy($authUser, $target);
+return $authUser->hasPermissionTo('roles.view');
+return $authUser->hasPermissionTo('roles.create');
+if (!$authUser->hasPermissionTo('roles.edit')) {
+return $authUser->hasPermissionTo('mentions.view');
+return $authUser->hasPermissionTo('mentions.view') ||
+return $authUser->hasPermissionTo('mentions.create');
+return $authUser->hasPermissionTo('mentions.edit') ||
+return $authUser->hasPermissionTo('mentions.delete') ||
+return $authUser->hasPermissionTo('mentions.restore');
+return $authUser->hasPermissionTo('mentions.force_delete');
+return $authUser->hasPermissionTo('reactions.view');
+return $authUser->hasPermissionTo('reactions.view') ||
+return $authUser->hasPermissionTo('reactions.create');
+return $authUser->hasPermissionTo('reactions.edit') ||
+return $authUser->hasPermissionTo('reactions.delete') ||
+return $authUser->hasPermissionTo('reactions.restore');
+return $authUser->hasPermissionTo('reactions.force_delete');
+return $authUser->hasPermissionTo('notifications.view');
+return $authUser->hasPermissionTo('notifications.view') ||
+return $authUser->hasPermissionTo('notifications.create');
+return $authUser->hasPermissionTo('notifications.edit') ||
+return $authUser->hasPermissionTo('notifications.delete') ||
+return $authUser->hasPermissionTo('notifications.restore');
+return $authUser->hasPermissionTo('notifications.force_delete');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('shoutouts.manage');
+return $user->hasPermissionTo('shoutouts.manage');
+return $user->hasPermissionTo('shoutouts.manage');
+return $user->hasPermissionTo('shoutouts.manage');
+return $user->hasPermissionTo('shoutouts.manage');
+return $authUser->hasPermissionTo('communications.moderate');
+return $user->hasPermissionTo('communications.moderate');
+return $user->hasPermissionTo('communications.approve');
+return $user->hasPermissionTo('communications.reject');
+return $user->hasPermissionTo('communications.archive');
+return $user->hasPermissionTo('communications.view_pending');
+return $user->hasPermissionTo('polls.manage');
+return $user->hasPermissionTo('polls.manage');
+return $user->hasPermissionTo('polls.manage');
+return $user->hasPermissionTo('polls.manage');
+return $user->hasPermissionTo('polls.manage');
+return $authUser->hasPermissionTo('communications.moderate');
+return $authUser->hasPermissionTo('news.view');
+return $authUser->hasPermissionTo('news.view');
+return $authUser->hasPermissionTo('news.create');
+return $authUser->hasPermissionTo('news.edit')
+return $authUser->hasPermissionTo('news.delete')
+return $authUser->hasPermissionTo('news.delete');
+return $authUser->hasPermissionTo('news.delete');
+return $authUser->hasPermissionTo('communications.view_pending')
+|| $authUser->hasPermissionTo('communications.moderate');
+return $authUser->hasPermissionTo('communications.moderate');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $user->hasPermissionTo('communications.manage');
+return $authUser->hasPermissionTo('comments.view');
+return $authUser->hasPermissionTo('comments.view') ||
+return $authUser->hasPermissionTo('comments.create');
+return $authUser->hasPermissionTo('comments.edit') ||
+return $authUser->hasPermissionTo('comments.delete') ||
+return $authUser->hasPermissionTo('comments.restore');
+return $authUser->hasPermissionTo('comments.force_delete');
+
+
+
+grep -oP "hasPermissionTo\('\K[^']+" /home/ferncastillo/Projects/WorkForce/horarios-wfm/docs/pruebas/hasPermissionTo.txt | sort -u > /tmp/code_permissions.txt && cat /tmp/code_permissions.txt

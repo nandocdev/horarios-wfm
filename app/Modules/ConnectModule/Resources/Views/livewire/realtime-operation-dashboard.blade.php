@@ -1,0 +1,162 @@
+<div wire:poll.{{ $refreshInterval }}s class="space-y-6">
+    <div class="flex items-center justify-between">
+        <flux:heading size="xl" level="1">Operación en Tiempo Real</flux:heading>
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+            Actualizando cada {{ $refreshInterval }}s
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Adherencia -->
+        <flux:card>
+            <div class="flex flex-col gap-1">
+                <span class="text-sm font-medium text-gray-500">Adherencia Estimada</span>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-bold {{ $this->realtimeMetrics['adherence'] < 85 ? 'text-red-600' : 'text-green-600' }}">
+                        {{ $this->realtimeMetrics['adherence'] }}%
+                    </span>
+                </div>
+            </div>
+        </flux:card>
+
+        <!-- Agentes Conectados -->
+        <flux:card>
+            <div class="flex flex-col gap-1">
+                <span class="text-sm font-medium text-gray-500">Agentes Conectados / Agendados</span>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-bold text-gray-900 dark:text-white">
+                        {{ $this->realtimeMetrics['total_connected'] }}
+                    </span>
+                    <span class="text-lg text-gray-500 mb-1">
+                        / {{ $this->realtimeMetrics['total_scheduled'] }}
+                    </span>
+                </div>
+                <div class="flex items-center gap-2 mt-1 text-xs">
+                    <span class="text-red-600 font-medium">{{ $this->realtimeMetrics['total_absent'] }} Ausentes</span>
+                    <span class="text-gray-400">&bull;</span>
+                    <span class="text-zinc-500">{{ $this->realtimeMetrics['total_exceptions'] }} Excepcionados</span>
+                </div>
+            </div>
+        </flux:card>
+
+        <!-- En Llamada (TALKING) -->
+        <flux:card>
+            <div class="flex flex-col gap-1">
+                <span class="text-sm font-medium text-gray-500">En Llamada (TALKING)</span>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-bold text-blue-600">
+                        {{ $this->realtimeMetrics['talking'] }}
+                    </span>
+                </div>
+            </div>
+        </flux:card>
+
+        <!-- Disponibles (READY) -->
+        <flux:card>
+            <div class="flex flex-col gap-1">
+                <span class="text-sm font-medium text-gray-500">Disponibles (READY)</span>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-bold text-green-600">
+                        {{ $this->realtimeMetrics['ready'] }}
+                    </span>
+                </div>
+            </div>
+        </flux:card>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Breakdown de Pausas -->
+        <div class="lg:col-span-1">
+            <flux:card>
+                <flux:heading size="lg" class="mb-4">Estados Auxiliares (NOT READY)</flux:heading>
+                
+                @if(empty($this->realtimeMetrics['not_ready_breakdown']))
+                    <div class="text-gray-500 text-sm py-4 text-center">No hay agentes en pausa.</div>
+                @else
+                    <div class="space-y-3">
+                        @foreach($this->realtimeMetrics['not_ready_breakdown'] as $reason => $count)
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $reason ?: 'Sin Razón' }}</span>
+                                <flux:badge variant="pill" color="zinc">{{ $count }}</flux:badge>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </flux:card>
+        </div>
+
+        <!-- Tabla detallada (CSQs en atención) -->
+        <div class="lg:col-span-2">
+            <flux:card>
+                <flux:heading size="lg" class="mb-4">Colas en Atención (CSQs)</flux:heading>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-gray-500 uppercase bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 min-w-[200px]">Nombre de la Cola (CSQ)</th>
+                                <th class="px-4 py-3 text-center">Espera</th>
+                                <th class="px-4 py-3 text-center">LWT</th>
+                                <th class="px-4 py-3 text-center">SL %</th>
+                                <th class="px-4 py-3 text-center">TALKING</th>
+                                <th class="px-4 py-3 text-center">OFREC</th>
+                                <th class="px-4 py-3 text-center">CONT</th>
+                                <th class="px-4 py-3 text-center text-red-500">ABAND</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @forelse($this->realtimeMetrics['csq_summary'] as $csq)
+                                @php
+                                    $isCritical = $csq->calls_waiting > 5;
+                                    $isWarning = $csq->calls_waiting > 2 && $csq->calls_waiting <= 5;
+                                    $sl = $csq->service_level_short_term;
+                                @endphp
+                                <tr class="{{ $isCritical ? 'bg-red-50/50 dark:bg-red-900/10' : '' }}">
+                                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                                        {{ $csq->csq_name }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center font-bold">
+                                        <span class="{{ $isCritical ? 'text-red-600' : ($isWarning ? 'text-amber-600' : 'text-gray-900 dark:text-zinc-300') }}">
+                                            {{ $csq->calls_waiting }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center font-mono text-xs">
+                                        {{ sprintf('%02d:%02d', floor($csq->longest_call_in_queue / 60), $csq->longest_call_in_queue % 60) }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <flux:badge :color="$sl < 80 ? 'red' : ($sl < 90 ? 'amber' : 'green')" variant="subtle" size="sm">
+                                            {{ number_format($sl, 0) }}%
+                                        </flux:badge>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="text-blue-600 font-bold">{{ $csq->agents_talking }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-zinc-600 font-semibold">
+                                        {{ $csq->total_calls_since_midnight }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-green-600 font-semibold">
+                                        {{ $csq->calls_handled_since_midnight }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-red-600 font-semibold">
+                                        {{ $csq->calls_abandoned_since_midnight }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                        No hay datos de colas disponibles. Ejecuta el comando de sincronización.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </flux:card>
+        </div>
+    </div>
+</div>

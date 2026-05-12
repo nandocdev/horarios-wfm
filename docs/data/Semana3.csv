@@ -1,0 +1,74 @@
+N°,Jefe de Servicio,Coordinador,Supervisor,Nombre,Usuario,Centro,Jornada,Horario,Almuerzo,Descanso
+1,Karl Hubner,Victor Tejada,Jose Mina,"Estrada, Zuyitza",Zestrada,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+2,Karl Hubner,Victor Tejada,Jose Mina,"Graell, Aidil",aigraell,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+3,Karl Hubner,Victor Tejada,Jose Mina,"Man, Gabriela",gman,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+4,Karl Hubner,Victor Tejada,Jose Mina,"Moreno, Genesis",genemoreno,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+5,Karl Hubner,Victor Tejada,Jose Mina,"Moreno, Lilibeth",lilmoreno,199,Vacaciones,06:00:00,11:00:00,07:45:00
+6,Karl Hubner,Victor Tejada,Jose Mina,"Vallejos, Yamileth",Yavallejos,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+7,Karl Hubner,Victor Tejada,Jose Mina,"Flores, Garla",gaflores,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+8,Karl Hubner,Victor Tejada,Jose Mina,"Nuñez, Ivonne",ivnunez,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+9,Karl Hubner,Victor Tejada,Jose Mina,"Martínez, Melva",Melmartinez,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+10,Karl Hubner,Victor Tejada,Jose Mina,"Chanis, Gloria",glchanis,199,Centro De Contacto,06:00:00,11:00:00,07:45:00
+11,Karl Hubner,Victor Tejada,Jose Mina,"Gomez, Irishabeb",irisgomez,199,Licencia,06:00:00,11:00:00,07:45:00
+12,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Isaza, Lizbeth",lizisaza,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+13,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Castillero, Rayna",raycastillero,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+14,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Collado, Carlos",cacollado,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+15,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Jaramillo, Melissa",meljaramillo,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+16,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Plicet, Vanessa",vplicett,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+17,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Batista, Danitza",danitbatista,199,Vacaciones,06:00:00,11:35:00,08:05:00
+18,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Muñoz, Yariela",yarmunoz,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+19,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Olivares, Sindy",siolivares,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+20,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Aviles, Xoshil",xaviles,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+21,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Gomez, Ingrid",inggomez,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+22,Eric Gonzalez,Valerie Quiros,Neribel Ortega,"Ramirez, Batherline",Bramirez,199,Centro De Contacto,06:00:00,11:35:00,08:05:00
+23,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"González, Yamilka",yamilgonzalez,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+24,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Navarro, Cornelio",conavarro,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+25,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Coronado, Giovanni",Gcoronado,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+26,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Molino, David",dmolino,199,Vacaciones,06:00:00,11:45:00,08:25:00
+27,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Etienne, Yvette",yetienne,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+28,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Londoño, Nitzi",Nlondono,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+29,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Santamaria, Rosilene",rossantamaria,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+30,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Polo, Tatiana",tpolo,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+31,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Villa, Norma",novilla,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+32,Eric Gonzalez,Daira Reina,Josselyn Pinzon,"Martínez, Luis",lmartinez,199,Centro De Contacto,06:00:00,11:45:00,08:25:00
+33,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Gonzalez, Norelvys",noregonzalez,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+34,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Dominguez, Karol",kdominguez,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+35,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Villaverde, Cecibel",Cvillaverde,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+36,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Arrocha, Jesus",Jearrocha,199,Traslado,07:00:00,12:25:00,09:15:00
+37,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Pile, Joany",Jpile,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+38,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Phillips, Ernesto",erphillips,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+39,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Montero, Ruth",rmontero,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+40,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Moran, Victor",vimoran,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+41,Karl Hubner,Antonia Tejada,Marjoire Lopez,"De la Cruz, Veronica",vedelacruz,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+42,Karl Hubner,Antonia Tejada,Marjoire Lopez,"González, Jinneth",Jingonzalez,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+43,Karl Hubner,Antonia Tejada,Marjoire Lopez,"Coke, Shanthal",scoke,199,Centro De Contacto,07:00:00,12:25:00,09:15:00
+44,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Rodriguez, Yulayquis",Yulrodriguez,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+45,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Juárez, Lilia",lijuarez,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+46,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Rodríguez, Sara",sarrodriguez,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+47,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Sanchez, Gisselle",gisssanchez,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+48,Karl Hubner,Glenis Guerra,Nilsa Valdés,"Morales, Ruben",Rubmorales,199,Vacaciones,09:00:00,13:00:00,10:30:00
+49,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Sandoval, Enrique",ensandoval,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+50,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Trejos, Zelhis",Ztrejos,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+51,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Gonzalez, Gira",girgonzalez,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+52,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Renteria, Amalia",arenteria,199,Centro De Contacto,09:00:00,13:00:00,10:30:00
+53,Karl Hubner,Glenis Guerra,Nilsa Valdes,"Correa, Julieta",julcorrea,199,Incapacidad Prolongada,09:00:00,13:00:00,10:30:00
+54,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Rodriguez, Celideth",celirodriguez,199,Vacaciones,09:00:00,13:10:00,10:05:00
+55,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Lorenzo, Marilyn",mlorenzo,199,Vacaciones,09:00:00,13:10:00,10:05:00
+56,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Quijada, Luis",luiquijada,199,Centro De Contacto,09:00:00,13:10:00,10:05:00
+57,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Durango, Katherina",kdurango,199,Centro De Contacto,09:00:00,13:10:00,10:05:00
+58,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Brugiatti, Julio",jbrugiatti,199,Centro De Contacto,09:00:00,13:10:00,10:05:00
+59,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Hernández, Esther",Eshernandez,199,Centro De Contacto,09:00:00,13:10:00,10:25:00
+60,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Noval, Marlene",mnoval,199,Centro De Contacto,09:00:00,13:10:00,10:25:00
+61,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Ballis, Jenifer",jballis,199,Centro De Contacto,09:00:00,13:10:00,10:25:00
+62,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Rodriguez, Gonzalo",gorodriguez,199,Centro De Contacto,09:00:00,13:10:00,10:25:00
+63,Eric Gonzalez,Daniel Fuentes,Marichel Villarreal,"Reyes, Melisa",mereyes,199,Centro De Contacto,09:00:00,13:10:00,10:25:00
+64,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Cedeño, Daniska",dancedeno,WEB,Vacaciones,06:00:00,12:00:00,08:00:00
+65,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Bennett, Khiara",kbennett,WEB,Centro De Contacto,06:00:00,11:00:00,07:15:00
+66,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Castro, Yasury",yacastro,WEB,Centro De Contacto,06:00:00,11:00:00,07:30:00
+67,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Cerrud, Lorena",locerrud,WEB,Centro De Contacto,06:00:00,11:45:00,07:00:00
+68,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Sanchez, Ariadna",ariasanchez,WEB,Vacaciones,06:00:00,11:45:00,08:15:00
+69,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Velez, Anyuri",avelez,WEB,Centro De Contacto,06:00:00,11:00:00,07:30:00
+70,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Aguilar, Rolando",rolaguilar,WEB,Centro De Contacto,09:00:00,13:00:00,10:30:00
+71,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Pineda, Yamileth",ypineda,WEB,Centro De Contacto,09:00:00,13:00:00,10:45:00
+72,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Cedeño, Carolyn",cacedeno,WEB,Centro De Contacto,09:00:00,13:00:00,10:45:00
+73,Karl Hubner,Lorena Cortes,Marielis Rodriguez,"Herrera, Maryory",maryherrera,WEB,Centro De Contacto,09:00:00,13:00:00,11:00:00

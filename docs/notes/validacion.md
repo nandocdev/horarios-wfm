@@ -1,0 +1,1 @@
+https://validacionderecho.css.gob.pa/wscss/rest/atencionmedica/validarderecho/2-725-927

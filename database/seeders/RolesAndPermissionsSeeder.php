@@ -33,6 +33,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'roles.view',
             'roles.create',
             'roles.edit',
+            'admin.system',
 
             // Organization Module
             'directorates.viewAny',
@@ -84,6 +85,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'react_to_shoutouts',
             'comment_on_news',
             'polls.manage',
+            'news.moderate',
 
             // Communications Module - Gestión
             'communications.manage',

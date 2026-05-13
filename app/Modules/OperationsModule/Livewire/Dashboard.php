@@ -20,8 +20,8 @@ class Dashboard extends Component
     #[Computed]
     public function heroKpis(): array
     {
-        // 1. Obtener universo de operadores (ID 1, 2, 5 según reglas de negocio)
-        $operatorIds = Employee::whereIn('position_id', [1, 2, 5])
+        // 1. Obtener universo de operadores (ID 1, 2, 5, 11, 13 según reglas de negocio)
+        $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
             ->where('is_active', true)
             ->pluck('id')
             ->toArray();
@@ -177,8 +177,8 @@ class Dashboard extends Component
     #[Computed]
     public function stateDistribution(): array
     {
-        // Universo de operadores
-        $operatorIds = Employee::whereIn('position_id', [1, 2, 5])->pluck('id')->toArray();
+        // Universo de operadores (ID 1, 2, 5, 11, 13)
+        $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])->pluck('id')->toArray();
         
         $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
             ->select('current_state', DB::raw('count(*) as count'))

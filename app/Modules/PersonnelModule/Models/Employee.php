@@ -126,6 +126,11 @@ class Employee extends Model
      */
     public function getManagedTeamIds(): array
     {
+        // El rol 'chief' ahora tiene visibilidad global de todos los equipos.
+        if ($this->user?->hasRole('chief')) {
+            return Team::active()->pluck('id')->toArray();
+        }
+
         $myId = $this->id;
         $subordinateIds = $this->getAllSubordinateIds();
         $allIds = array_merge([$myId], $subordinateIds);

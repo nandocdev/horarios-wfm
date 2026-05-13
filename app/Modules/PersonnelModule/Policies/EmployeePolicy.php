@@ -248,7 +248,7 @@ class EmployeePolicy
      */
     public function viewPerformance(User $user, ?Employee $employee = null): bool
     {
-        if ($user->hasRole(['admin', 'wfm', 'director'])) {
+        if ($user->hasRole(['admin', 'wfm', 'director', 'chief'])) {
             return true;
         }
 

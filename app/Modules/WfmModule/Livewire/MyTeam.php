@@ -146,7 +146,7 @@ class MyTeam extends Component {
             abort(403, 'No tienes un perfil de empleado asociado.');
         }
 
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
 
         // Validar acceso al equipo seleccionado inicialmente
         if ($this->selectedTeam && !$isPowerUser) {
@@ -172,7 +172,7 @@ class MyTeam extends Component {
     public function render() {
         $employee = Auth::user()->employee;
         $user = Auth::user();
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
 
         // Obtener equipos disponibles para este usuario
         if ($isPowerUser) {

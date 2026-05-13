@@ -164,7 +164,7 @@ class RealtimeMonitoring extends Component
 
         // Universo operativo: Cargos IDs 1, 2, 5
         $employee = auth()->user()->employee;
-        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser']);
+        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 
         $query = Employee::query()
@@ -428,7 +428,7 @@ class RealtimeMonitoring extends Component
         $this->stats['worker_last_update'] = $lastUpdate ? now()->parse($lastUpdate)->diffForHumans() : 'Nunca';
 
         $employee = auth()->user()->employee;
-        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser']);
+        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
 
         return view('operations::livewire.realtime-monitoring', [
             'agents' => $this->loadData(),

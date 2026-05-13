@@ -77,7 +77,7 @@ class Dashboard extends Component {
 
         // Service Level (Global)
         $serviceLevel = (float) (DB::table('csq_realtime_stats')
-            ->avg('service_level_short_term') ?? 0);
+            ->avg('service_level_long_term') ?? 0);
 
         // Absenteeism (Basado en la brecha de Net Capacity)
         // Usamos la fórmula estandarizada: (Scheduled sin excepciones - Conectados del grupo programado)
@@ -189,7 +189,7 @@ class Dashboard extends Component {
                     'name' => $csq->csq_name,
                     'waiting' => $csq->calls_waiting,
                     'lwt' => $csq->longest_call_in_queue,
-                    'sl' => $csq->service_level_short_term,
+                    'sl' => $csq->service_level_long_term,
                     'talking' => $talkingByQueue->get($csq->csq_name, 0),
                     'received' => $csq->total_calls_since_midnight,
                     'handled' => $csq->calls_handled_since_midnight,

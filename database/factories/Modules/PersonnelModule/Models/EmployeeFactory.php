@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Database\Factories\Modules\EmployeesModule\Models;
+namespace Database\Factories\Modules\PersonnelModule\Models;
 
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

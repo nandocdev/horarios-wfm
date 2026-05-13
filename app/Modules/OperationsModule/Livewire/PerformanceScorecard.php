@@ -69,7 +69,7 @@ class PerformanceScorecard extends Component
         $carbonDate = Carbon::parse($this->date);
         $user = auth()->user();
         $me = $user->employee;
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director']);
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director', 'chief']);
 
         $data = [];
 
@@ -145,7 +145,7 @@ class PerformanceScorecard extends Component
     {
         $user = auth()->user();
         $employee = $user->employee;
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director']);
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director', 'chief']);
 
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 

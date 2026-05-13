@@ -140,78 +140,95 @@
     </div>
 
     @if(!empty($performanceData))
-        <!-- Header KPIs with Premium Style -->
         <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
-            <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300">
-                <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
-                    <flux:icon name="chart-bar" class="w-24 h-24 text-white" />
+            <!-- Productividad -->
+            <flux:tooltip position="top" content="Intensidad: Tiempo productivo vs Tiempo total de conexión.">
+                <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 h-full">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+                        <flux:icon name="chart-bar" class="w-24 h-24 text-white" />
+                    </div>
+                    <p class="text-xs font-bold text-blue-100 uppercase tracking-widest">Productividad</p>
+                    <p class="text-3xl font-black text-white mt-1">
+                        {{ number_format(collect($performanceData)->avg('metrics.productivity_percentage'), 1) }}%
+                    </p>
+                    <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
+                        <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.productivity_percentage') }}%"></div>
+                    </div>
                 </div>
-                <p class="text-xs font-bold text-blue-100 uppercase tracking-widest">Productividad</p>
-                <p class="text-3xl font-black text-white mt-1">
-                    {{ number_format(collect($performanceData)->avg('metrics.productivity_percentage'), 1) }}%
-                </p>
-                <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
-                    <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.productivity_percentage') }}%"></div>
-                </div>
-            </div>
+            </flux:tooltip>
 
-            <div class="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-blue-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 border border-indigo-400/20">
-                <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
-                    <flux:icon name="shield-check" class="w-24 h-24 text-white" />
+            <!-- Adherencia -->
+            <flux:tooltip position="top" content="Disciplina: Tiempo productivo generado dentro de su horario programado.">
+                <div class="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-blue-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 border border-indigo-400/20 h-full">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+                        <flux:icon name="shield-check" class="w-24 h-24 text-white" />
+                    </div>
+                    <p class="text-xs font-bold text-indigo-100 uppercase tracking-widest">Adherencia</p>
+                    <p class="text-3xl font-black text-white mt-1">
+                        {{ number_format(collect($performanceData)->avg('metrics.adherence_percentage'), 1) }}%
+                    </p>
+                    <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
+                        <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.adherence_percentage') }}%"></div>
+                    </div>
                 </div>
-                <p class="text-xs font-bold text-indigo-100 uppercase tracking-widest">Adherencia</p>
-                <p class="text-3xl font-black text-white mt-1">
-                    {{ number_format(collect($performanceData)->avg('metrics.adherence_percentage'), 1) }}%
-                </p>
-                <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
-                    <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.adherence_percentage') }}%"></div>
-                </div>
-            </div>
+            </flux:tooltip>
 
-            <div class="relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 border border-orange-400/20">
-                <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
-                    <flux:icon name="bolt" class="w-24 h-24 text-white" />
+            <!-- Utilización WFM -->
+            <flux:tooltip position="top" content="Rendimiento: Producción real comparada contra la jornada completa planificada.">
+                <div class="relative overflow-hidden bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 border border-orange-400/20 h-full">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+                        <flux:icon name="bolt" class="w-24 h-24 text-white" />
+                    </div>
+                    <p class="text-xs font-bold text-amber-100 uppercase tracking-widest">Utilización WFM</p>
+                    <p class="text-3xl font-black text-white mt-1">
+                        {{ number_format(collect($performanceData)->avg('metrics.utilization_percentage'), 1) }}%
+                    </p>
+                    <p class="text-[10px] text-amber-50 mt-2 italic opacity-80">Productivo vs Programado</p>
                 </div>
-                <p class="text-xs font-bold text-amber-100 uppercase tracking-widest">Utilización WFM</p>
-                <p class="text-3xl font-black text-white mt-1">
-                    {{ number_format(collect($performanceData)->avg('metrics.utilization_percentage'), 1) }}%
-                </p>
-                <p class="text-[10px] text-amber-50 mt-2 italic opacity-80">Productivo vs Programado</p>
-            </div>
+            </flux:tooltip>
 
-            <div class="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300">
-                <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
-                    <flux:icon name="clock" class="w-24 h-24 text-white" />
+            <!-- Tiempo Productivo -->
+            <flux:tooltip position="top" content="Suma total de minutos en estados de atención (Ready, Talking, Work, Reserved).">
+                <div class="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 h-full">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+                        <flux:icon name="clock" class="w-24 h-24 text-white" />
+                    </div>
+                    <p class="text-xs font-bold text-emerald-100 uppercase tracking-widest">Tiempo Productivo</p>
+                    <p class="text-3xl font-black text-white mt-1">
+                        {{ number_format(collect($performanceData)->sum('metrics.total_productive_minutes'), 0) }}<span class="text-sm">m</span>
+                    </p>
+                    <p class="text-[10px] text-emerald-50 mt-2 italic opacity-80">Efectivo en Ready/Talking</p>
                 </div>
-                <p class="text-xs font-bold text-emerald-100 uppercase tracking-widest">Tiempo Productivo</p>
-                <p class="text-3xl font-black text-white mt-1">
-                    {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_productive_minutes')) }}
-                </p>
-                <p class="text-[10px] text-emerald-50 mt-2 italic opacity-80">Efectivo en Ready/Talking</p>
-            </div>
+            </flux:tooltip>
 
-            <div class="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-900 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300">
-                <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
-                    <flux:icon name="arrow-path" class="w-24 h-24 text-white" />
+            <!-- Conexión Total -->
+            <flux:tooltip position="top" content="Tiempo total acumulado de conexión en UCCX durante el periodo.">
+                <div class="relative overflow-hidden bg-gradient-to-br from-slate-700 to-slate-900 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 h-full">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+                        <flux:icon name="arrow-path" class="w-24 h-24 text-white" />
+                    </div>
+                    <p class="text-xs font-bold text-slate-300 uppercase tracking-widest">Conexión Total</p>
+                    <p class="text-3xl font-black text-white mt-1">
+                        {{ number_format(collect($performanceData)->sum('metrics.total_connected_minutes'), 0) }}<span class="text-sm">m</span>
+                    </p>
+                    <p class="text-[10px] text-slate-400 mt-2 italic">Tiempo logueado en UCCX</p>
                 </div>
-                <p class="text-xs font-bold text-slate-300 uppercase tracking-widest">Conexión Total</p>
-                <p class="text-3xl font-black text-white mt-1">
-                    {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_connected_minutes')) }}
-                </p>
-                <p class="text-[10px] text-slate-400 mt-2 italic">Tiempo logueado en UCCX</p>
-            </div>
+            </flux:tooltip>
 
-            <div class="relative overflow-hidden bg-gradient-to-br from-purple-600 to-fuchsia-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300">
-                <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
-                    <flux:icon name="phone" class="w-24 h-24 text-white" />
+            <!-- Llamadas -->
+            <flux:tooltip position="top" content="Cantidad total de llamadas atendidas en el periodo seleccionado.">
+                <div class="relative overflow-hidden bg-gradient-to-br from-purple-600 to-fuchsia-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 h-full">
+                    <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+                        <flux:icon name="phone" class="w-24 h-24 text-white" />
+                    </div>
+                    <p class="text-xs font-bold text-purple-100 uppercase tracking-widest">Llamadas</p>
+                    @php 
+                        $totalCalls = collect($performanceData)->flatMap(fn($d) => $d['queues'])->sum('total_calls');
+                    @endphp
+                    <p class="text-3xl font-black text-white mt-1">{{ $totalCalls }}</p>
+                    <p class="text-[10px] text-purple-100 mt-2 italic opacity-80">Suma de todas las colas</p>
                 </div>
-                <p class="text-xs font-bold text-purple-100 uppercase tracking-widest">Llamadas</p>
-                @php 
-                    $totalCalls = collect($performanceData)->flatMap(fn($d) => $d['queues'])->sum('total_calls');
-                @endphp
-                <p class="text-3xl font-black text-white mt-1">{{ $totalCalls }}</p>
-                <p class="text-[10px] text-purple-100 mt-2 italic opacity-80">Suma de todas las colas</p>
-            </div>
+            </flux:tooltip>
         </div>
 
         <div class="space-y-6">

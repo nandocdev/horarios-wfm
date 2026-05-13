@@ -31,5 +31,6 @@ class ModuleServiceProvider extends ServiceProvider
         \Livewire\Livewire::component('operations.team-performance-summary', \App\Modules\OperationsModule\Livewire\TeamPerformanceSummary::class);
         \Livewire\Livewire::component('operations.agent-realtime-card', \App\Modules\OperationsModule\Livewire\AgentRealtimeCard::class);
         \Livewire\Livewire::component('operations.agent-timeline', \App\Modules\OperationsModule\Livewire\AgentTimeline::class);
+        \Livewire\Livewire::component('operations.dashboard', \App\Modules\OperationsModule\Livewire\Dashboard::class);
     }
 }

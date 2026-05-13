@@ -34,3 +34,8 @@ Schedule::command('schedules:compile-daily-snapshots')
 Schedule::command('uccx:auto-import')
     ->hourly()
     ->withoutOverlapping();
+
+// Reconciliar asistencia (Tardanzas y Ausencias)
+Schedule::command('operations:reconcile-attendance')
+    ->dailyAt('03:00')
+    ->withoutOverlapping();

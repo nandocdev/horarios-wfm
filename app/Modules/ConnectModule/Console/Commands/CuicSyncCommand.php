@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncCuicDataAction;
+use App\Modules\OperationsModule\Actions\ReconcileEmployeeAttendanceAction;
+use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -69,6 +71,21 @@ final class CuicSyncCommand extends Command
                 ['Tipo de Datos', 'Registros'],
                 array_map(fn($k, $v) => [ucfirst($k), $v], array_keys($stats), array_values($stats))
             );
+
+            // Trigger reconciliation for today and yesterday if transitions were synced
+            if (($stats['transitions'] ?? 0) > 0) {
+                $this->line('Iniciando reconciliación de asistencia post-sync...');
+                $reconcileAction = app(ReconcileEmployeeAttendanceAction::class);
+                $employees = Employee::where('is_active', true)->get();
+                
+                // Reconciliar para hoy y ayer (Carbon::today() y Carbon::yesterday())
+                foreach ([now(), now()->subDay()] as $date) {
+                    foreach ($employees as $employee) {
+                        $reconcileAction->execute($employee, $date);
+                    }
+                }
+                $this->info('Reconciliación completada.');
+            }
 
             return self::SUCCESS;
         } catch (\Throwable $e) {

@@ -164,6 +164,17 @@ final class MetricFormulas {
     }
 
     /**
+     * Calcula la cantidad de personal ausente (Headcount).
+     * 
+     * @param int $scheduled Cantidad de personal programado para estar PRODUCTIVO 
+     *                       (Turno activo y SIN excepciones aprobadas).
+     * @param int $actual Cantidad de personal que efectivamente está conectado/presente.
+     */
+    public static function absentPersonnel(int $scheduled, int $actual): int {
+        return max(0, $scheduled - $actual);
+    }
+
+    /**
      * Calcula la Ocupación (Occupancy).
      * Presión operativa sobre el tiempo disponible real.
      */

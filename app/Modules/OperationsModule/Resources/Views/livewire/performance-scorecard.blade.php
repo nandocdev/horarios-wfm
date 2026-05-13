@@ -179,7 +179,7 @@
                     <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
                         <flux:icon name="bolt" class="w-24 h-24 text-white" />
                     </div>
-                    <p class="text-xs font-bold text-amber-100 uppercase tracking-widest">Utilización WFM</p>
+                    <p class="text-xs font-bold text-amber-100 uppercase tracking-widest">Utilización</p>
                     <p class="text-3xl font-black text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.utilization_percentage'), 1) }}%
                     </p>
@@ -195,7 +195,7 @@
                     </div>
                     <p class="text-xs font-bold text-emerald-100 uppercase tracking-widest">Tiempo Productivo</p>
                     <p class="text-3xl font-black text-white mt-1">
-                        {{ number_format(collect($performanceData)->sum('metrics.total_productive_minutes'), 0) }}<span class="text-sm">m</span>
+                        {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_productive_minutes')) }}
                     </p>
                     <p class="text-[10px] text-emerald-50 mt-2 italic opacity-80">Efectivo en Ready/Talking</p>
                 </div>
@@ -209,7 +209,7 @@
                     </div>
                     <p class="text-xs font-bold text-slate-300 uppercase tracking-widest">Conexión Total</p>
                     <p class="text-3xl font-black text-white mt-1">
-                        {{ number_format(collect($performanceData)->sum('metrics.total_connected_minutes'), 0) }}<span class="text-sm">m</span>
+                        {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_connected_minutes')) }}
                     </p>
                     <p class="text-[10px] text-slate-400 mt-2 italic">Tiempo logueado en UCCX</p>
                 </div>
@@ -323,7 +323,7 @@
                                         </div>
                                         <div class="text-right">
                                             <div class="text-lg font-black text-orange-900">
-                                                {{ $day['attendance']['lunch']['actual_duration'] }}<span class="text-[10px] opacity-60">m</span>
+                                                {{ $this->formatMinutes($day['attendance']['lunch']['actual_duration']) }}
                                             </div>
                                             <p class="text-[10px] font-bold text-orange-600 opacity-60">de {{ $day['attendance']['lunch']['scheduled_duration'] }}m</p>
                                         </div>
@@ -336,7 +336,7 @@
                                         </div>
                                         <div class="text-right">
                                             <div class="text-lg font-black text-teal-900">
-                                                {{ $day['attendance']['break']['actual_duration'] }}<span class="text-[10px] opacity-60">m</span>
+                                                {{ $this->formatMinutes($day['attendance']['break']['actual_duration']) }}
                                             </div>
                                             <p class="text-[10px] font-bold text-teal-600 opacity-60">de {{ $day['attendance']['break']['scheduled_duration'] }}m</p>
                                         </div>

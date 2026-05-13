@@ -44,7 +44,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('categorizable_type');
-            $table->string('categorizable_id');
+            $table->unsignedBigInteger('categorizable_id');
             $table->index(['categorizable_type', 'categorizable_id']);
             $table->timestamps();
 
@@ -57,7 +57,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('tag_id')->constrained()->cascadeOnDelete();
             $table->string('taggable_type');
-            $table->string('taggable_id');
+            $table->unsignedBigInteger('taggable_id');
             $table->index(['taggable_type', 'taggable_id']);
             $table->timestamps();
 

@@ -74,7 +74,7 @@
                                     <th class="px-4 py-3 text-center text-blue-600">Recibidas</th>
                                     <th class="px-4 py-3 text-center text-green-600">Atendidas</th>
                                     <th class="px-4 py-3 text-center text-red-600">Aband.</th>
-                                    <th class="px-4 py-3 text-center">LWT</th>
+                                    <th class="px-4 py-3 text-center">T. Máx. Espera</th>
                                     <th class="px-4 py-3 text-center">SL %</th>
                                 </tr>
                             </thead>

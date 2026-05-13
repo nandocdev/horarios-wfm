@@ -33,8 +33,19 @@ class Dashboard extends Component
         $now = now();
         $today = $now->toDateString();
 
-        // 2. Datos de Programación (WFM)
+        // 2. Datos de Programación (WFM) - Excluyendo excepciones activas
+        $nowTimestamp = $now->toDateTimeString();
+        
+        // Obtener IDs con excepciones activas ahora mismo
+        $idsWithExceptions = DB::table('schedule_exceptions')
+            ->whereIn('employee_id', $operatorIds)
+            ->where('start_at', '<=', $now)
+            ->where('end_at', '>=', $now)
+            ->pluck('employee_id')
+            ->toArray();
+
         $scheduled = WeeklyScheduleAssignment::whereIn('employee_id', $operatorIds)
+            ->whereNotIn('employee_id', $idsWithExceptions) // EXCLUIR EXCEPCIONES
             ->where('day_of_week', $now->dayOfWeekIso)
             ->whereHas('weeklySchedule', function($q) use ($today) {
                 $q->where('week_start_date', '<=', $today)
@@ -70,13 +81,17 @@ class Dashboard extends Component
         $serviceLevel = (float) (DB::table('csq_realtime_stats')
             ->avg('service_level_short_term') ?? 0);
 
-        // Absenteeism (Basado en incidencias del día)
-        $absences = DB::table('incidents')
-            ->whereIn('employee_id', $operatorIds)
-            ->whereDate('created_at', $today)
+        // Absenteeism (Basado en la brecha de Net Capacity)
+        // Usamos la fórmula estandarizada: (Scheduled sin excepciones - Conectados del grupo programado)
+        $scheduledIds = $scheduled->pluck('employee_id')->toArray();
+        $connectedFromScheduled = AgentRealtimeState::whereIn('employee_id', $scheduledIds)
+            ->where('current_state', '!=', 'LOGOUT')
             ->count();
-        
-        $absenteeism = $totalScheduled > 0 ? round(($absences / $totalScheduled) * 100, 1) : 0;
+
+        $absenteeism = MetricFormulas::absenteeismRate(
+            (float) MetricFormulas::absentPersonnel($totalScheduled, $connectedFromScheduled),
+            (float) $totalScheduled
+        );
 
         // Shrinkage (Híbrido)
         $shrinkage = 18.5; // Placeholder hasta implementar cálculo dinámico por intervalo
@@ -158,20 +173,53 @@ class Dashboard extends Component
     #[Computed]
     public function queueStats(): array
     {
-        return DB::table('csq_realtime_stats')
+        // 1. Obtener conteo de agentes hablando por cola desde el universo de operadores
+        $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])->pluck('id')->toArray();
+        
+        $talkingByQueue = AgentRealtimeState::whereIn('employee_id', $operatorIds)
+            ->where('current_state', 'TALKING')
+            ->get()
+            ->groupBy(function($agent) {
+                return $agent->metadata['call_info']['queue_name'] ?? 'OTROS';
+            })
+            ->map->count();
+
+        $stats = DB::table('csq_realtime_stats')
+            ->where('total_calls_since_midnight', '>', 0) // Solo colas con actividad
             ->orderByDesc('calls_waiting')
             ->get()
-            ->map(function ($csq) {
+            ->map(function ($csq) use ($talkingByQueue) {
                 return [
                     'name' => $csq->csq_name,
                     'waiting' => $csq->calls_waiting,
                     'lwt' => $csq->longest_call_in_queue,
                     'sl' => $csq->service_level_short_term,
-                    'talking' => $csq->agents_talking,
+                    'talking' => $talkingByQueue->get($csq->csq_name, 0),
+                    'received' => $csq->total_calls_since_midnight,
+                    'handled' => $csq->calls_handled_since_midnight,
+                    'abandoned' => $csq->calls_abandoned_since_midnight,
                     'status' => $csq->calls_waiting > 5 ? 'danger' : ($csq->calls_waiting > 2 ? 'warning' : 'success'),
                 ];
             })
             ->toArray();
+
+        // 2. Si hay agentes hablando fuera de las colas monitoreadas (Salientes, Directos, etc), añadirlos
+        $otherTalking = $talkingByQueue->get('OTROS', 0);
+        if ($otherTalking > 0) {
+            $stats[] = [
+                'name' => 'LLAMADAS DIRECTAS / SALIENTES',
+                'waiting' => 0,
+                'lwt' => 0,
+                'sl' => 100,
+                'talking' => $otherTalking,
+                'received' => 0,
+                'handled' => 0,
+                'abandoned' => 0,
+                'status' => 'success',
+            ];
+        }
+
+        return $stats;
     }
 
     #[Computed]

@@ -70,9 +70,12 @@
                                 <tr>
                                     <th class="px-4 py-3">Cola</th>
                                     <th class="px-4 py-3 text-center">Espera</th>
+                                    <th class="px-4 py-3 text-center">Hablando</th>
+                                    <th class="px-4 py-3 text-center text-blue-600">Recibidas</th>
+                                    <th class="px-4 py-3 text-center text-green-600">Atendidas</th>
+                                    <th class="px-4 py-3 text-center text-red-600">Aband.</th>
                                     <th class="px-4 py-3 text-center">LWT</th>
                                     <th class="px-4 py-3 text-center">SL %</th>
-                                    <th class="px-4 py-3 text-center">Hablando</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -88,17 +91,25 @@
                                                 {{ $queue['waiting'] }}
                                             </flux:badge>
                                         </td>
-                                        <td class="px-4 py-3 text-center font-mono text-xs">
+                                        <td class="px-4 py-3 text-center text-blue-600 font-bold">
+                                            {{ $queue['talking'] }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-zinc-600 dark:text-zinc-400">
+                                            {{ $queue['received'] }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-green-600 dark:text-green-400 font-medium">
+                                            {{ $queue['handled'] }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-red-600 dark:text-red-400 font-medium">
+                                            {{ $queue['abandoned'] }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center font-mono text-xs text-zinc-500">
                                             {{ sprintf('%02d:%02d', floor($queue['lwt'] / 60), $queue['lwt'] % 60) }}
                                         </td>
                                         <td class="px-4 py-3 text-center">
-                                            <span
-                                                class="font-semibold {{ $queue['sl'] < 80 ? 'text-red-600' : 'text-zinc-600' }}">
-                                                {{ number_format($queue['sl'], 0) }}%
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3 text-center text-blue-600 font-bold">
-                                            {{ $queue['talking'] }}
+                                            <flux:badge :color="$queue['sl'] < 80 ? 'red' : ($queue['sl'] < 90 ? 'amber' : 'green')" variant="outline" size="sm">
+                                                {{ round($queue['sl'], 0) }}%
+                                            </flux:badge>
                                         </td>
                                     </tr>
                                 @empty

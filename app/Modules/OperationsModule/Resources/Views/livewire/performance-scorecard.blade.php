@@ -57,6 +57,11 @@
                         <p class="text-xs text-amber-700 mt-1 italic font-mono">Real-time: (TP / TT) × 100 | Histórico: (TP / JP) × 100</p>
                         <p class="text-[10px] text-amber-600 mt-2">Mide el rendimiento real contra lo planificado (afectado por tardanzas y desconexiones).</p>
                     </div>
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <p class="text-sm font-bold text-indigo-900">Adherencia (%)</p>
+                        <p class="text-xs text-indigo-700 mt-1 italic font-mono">(Minutos Adherentes / Jornada Programada) × 100</p>
+                        <p class="text-[10px] text-indigo-600 mt-2">Mide el apego estricto al cronograma: estar en el estado correcto en el momento correcto.</p>
+                    </div>
                 </div>
 
                 <div class="space-y-3">
@@ -136,7 +141,7 @@
 
     @if(!empty($performanceData))
         <!-- Header KPIs with Premium Style -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
             <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300">
                 <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
                     <flux:icon name="chart-bar" class="w-24 h-24 text-white" />
@@ -147,6 +152,19 @@
                 </p>
                 <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
                     <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.productivity_percentage') }}%"></div>
+                </div>
+            </div>
+
+            <div class="relative overflow-hidden bg-gradient-to-br from-indigo-500 to-blue-700 p-6 rounded-2xl shadow-lg group hover:scale-[1.02] transition-transform duration-300 border border-indigo-400/20">
+                <div class="absolute top-0 right-0 -mr-4 -mt-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
+                    <flux:icon name="shield-check" class="w-24 h-24 text-white" />
+                </div>
+                <p class="text-xs font-bold text-indigo-100 uppercase tracking-widest">Adherencia</p>
+                <p class="text-3xl font-black text-white mt-1">
+                    {{ number_format(collect($performanceData)->avg('metrics.adherence_percentage'), 1) }}%
+                </p>
+                <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
+                    <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.adherence_percentage') }}%"></div>
                 </div>
             </div>
 
@@ -236,6 +254,10 @@
                             <div class="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full border border-blue-100">
                                 <flux:icon name="bolt" class="w-3 h-3 text-blue-500" />
                                 <span class="text-xs font-black text-blue-700">Util: {{ $day['metrics']['utilization_percentage'] }}%</span>
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-full border border-indigo-100">
+                                <flux:icon name="shield-check" class="w-3 h-3 text-indigo-500" />
+                                <span class="text-xs font-black text-indigo-700">Adh: {{ $day['metrics']['adherence_percentage'] }}%</span>
                             </div>
                         </div>
                     </div>

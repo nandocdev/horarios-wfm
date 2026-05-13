@@ -38,6 +38,7 @@ final readonly class StandardizedPerformanceDTO
                 'total_connected_minutes' => 0,
                 'productivity_percentage' => 0,
                 'utilization_percentage' => 0,
+                'adherence_percentage' => 0,
             ],
             queues: []
         );

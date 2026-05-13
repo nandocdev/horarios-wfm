@@ -204,12 +204,17 @@ final class GetStandardizedPerformanceAction
             $end
         );
 
+        $adherencePercentage = $scheduledMinutes > 0 
+            ? round(min(100, ($productiveMinutes / $scheduledMinutes) * 100), 1)
+            : 0;
+
         return [
             'total_scheduled_minutes' => $scheduledMinutes,
             'total_productive_minutes' => $productiveMinutes,
             'total_connected_minutes' => $connectedMinutes,
             'productivity_percentage' => MetricFormulas::productivity($systemProductiveSeconds / 60, $connectedMinutes),
-            'utilization_percentage' => MetricFormulas::utilization($productiveMinutes, $denominator)
+            'utilization_percentage' => MetricFormulas::utilization($productiveMinutes, $denominator),
+            'adherence_percentage' => $adherencePercentage,
         ];
     }
 

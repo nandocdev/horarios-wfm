@@ -1,73 +1,84 @@
-<div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-gray-900">Audit Logs</h1>
-                <div class="flex gap-2">
-                    <flux:button variant="secondary" href="{{ route('dashboard') }}">Volver</flux:button>
-                </div>
-            </div>
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <flux:heading size="xl" level="1">Auditoría de Cambios</flux:heading>
+            <flux:subheading>Trazabilidad completa de acciones y modificaciones en el sistema</flux:subheading>
         </div>
+        <div class="flex gap-2">
+            <flux:button wire:click.prevent="export('csv')" icon="document-arrow-down" variant="ghost">CSV</flux:button>
+            <flux:button wire:click.prevent="export('json')" icon="code-bracket" variant="ghost">JSON</flux:button>
+        </div>
+    </div>
 
-        <div class="p-6 space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <flux:input wire:model.debounce.250ms="search" label="Buscar" placeholder="Entidad, acción, IP" />
-                <flux:input wire:model="action" label="Acción" placeholder="created, updated, deleted" />
-                <flux:input wire:model="entityType" label="Tipo de Entidad" placeholder="App\\Modules\\..." />
+    <flux:card>
+        <div class="space-y-6">
+            <!-- Filtros -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <flux:input wire:model.debounce.250ms="search" label="Búsqueda rápida" placeholder="Entidad, acción, IP..." />
+                <flux:input wire:model="action" label="Acción específica" placeholder="created, updated, deleted" />
+                <flux:input wire:model="entityType" label="Tipo de Entidad" placeholder="Ej. Employee" />
                 <div class="grid grid-cols-2 gap-2">
                     <flux:input wire:model="dateFrom" type="date" label="Desde" />
                     <flux:input wire:model="dateTo" type="date" label="Hasta" />
                 </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Por página</label>
-                <select wire:model="perPage" class="mt-1 block w-24 rounded border-gray-300">
+            <div class="flex justify-between items-center">
+                <flux:select wire:model="perPage" label="Mostrar" class="w-24">
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
-                </select>
+                </flux:select>
             </div>
 
-            <div class="overflow-x-auto">
-                <flux:table :paginate="$auditLogs">
-                    <flux:table.columns>
-                        <flux:table.column>Fecha</flux:table.column>
-                        <flux:table.column>Entidad</flux:table.column>
-                        <flux:table.column>Acción</flux:table.column>
-                        <flux:table.column>Usuario</flux:table.column>
-                        <flux:table.column>IP</flux:table.column>
-                    </flux:table.columns>
+            <!-- Tabla -->
+            <flux:table :paginate="$auditLogs">
+                <flux:table.columns>
+                    <flux:table.column>Fecha y Hora</flux:table.column>
+                    <flux:table.column>Entidad / Recurso</flux:table.column>
+                    <flux:table.column>Acción</flux:table.column>
+                    <flux:table.column>Usuario Responsable</flux:table.column>
+                    <flux:table.column>Dirección IP</flux:table.column>
+                </flux:table.columns>
 
-                    <flux:table.rows>
-                        @forelse($auditLogs as $log)
-                            <flux:table.row :key="$log->id">
-                                <flux:table.cell>{{ $log->created_at->format('Y-m-d H:i:s') }}</flux:table.cell>
-                                <flux:table.cell>{{ class_basename($log->entity_type) }} ({{ $log->entity_id }})
-                                </flux:table.cell>
-                                <flux:table.cell>{{ ucfirst($log->action) }}</flux:table.cell>
-                                <flux:table.cell>{{ optional($log->user)->name ?? 'Sistema' }}</flux:table.cell>
-                                <flux:table.cell>{{ $log->ip_address ?? 'N/A' }}</flux:table.cell>
-                            </flux:table.row>
-                        @empty
-                            <flux:table.row>
-                                <flux:table.cell colspan="5" class="text-center py-8 text-gray-500">
-                                    No se encontraron registros.
-                                </flux:table.cell>
-                            </flux:table.row>
-                        @endforelse
-                    </flux:table.rows>
-                </flux:table>
-            </div>
-
-            <div class="mt-4 flex gap-2">
-                <flux:button wire:click.prevent="export('csv')" variant="secondary">Exportar CSV</flux:button>
-                <flux:button wire:click.prevent="export('json')" variant="secondary">Exportar JSON</flux:button>
-            </div>
-
-            @if($auditLogs->hasPages())
-                <div class="mt-4">{{ $auditLogs->links() }}</div>
-            @endif
+                <flux:table.rows>
+                    @forelse($auditLogs as $log)
+                        <flux:table.row :key="$log->id">
+                            <flux:table.cell class="font-mono text-xs">{{ $log->created_at->format('Y-m-d H:i:s') }}</flux:table.cell>
+                            <flux:table.cell>
+                                <div class="flex flex-col">
+                                    <flux:text size="sm" class="font-bold">{{ class_basename($log->entity_type) }}</flux:text>
+                                    <flux:text size="xs" class="text-zinc-400">ID: {{ $log->entity_id }}</flux:text>
+                                </div>
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="{{ match($log->action) { 'created' => 'emerald', 'updated' => 'indigo', 'deleted' => 'rose', default => 'zinc' } }}" inset="top">
+                                    {{ strtoupper($log->action) }}
+                                </flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                <div class="flex items-center gap-2">
+                                    @if($log->user)
+                                        <flux:avatar :initials="$log->user->initials()" size="xs" />
+                                        <flux:text size="sm">{{ $log->user->name }}</flux:text>
+                                    @else
+                                        <flux:icon name="cpu-chip" class="w-4 h-4 text-zinc-400" />
+                                        <flux:text size="sm" class="text-zinc-400 italic">Sistema</flux:text>
+                                    @endif
+                                </div>
+                            </flux:table.cell>
+                            <flux:table.cell class="text-xs text-zinc-500">{{ $log->ip_address ?? 'N/A' }}</flux:table.cell>
+                        </flux:table.row>
+                    @empty
+                        <flux:table.row>
+                            <flux:table.cell colspan="5" class="text-center py-12">
+                                <flux:icon name="magnifying-glass" class="w-12 h-12 text-zinc-200 mx-auto mb-3" />
+                                <flux:text class="text-zinc-400">No se encontraron registros de auditoría</flux:text>
+                            </flux:table.cell>
+                        </flux:table.row>
+                    @endforelse
+                </flux:table.rows>
+            </flux:table>
         </div>
-    </div>
+    </flux:card>
 </div>

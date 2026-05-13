@@ -247,6 +247,14 @@ class MenuHelper {
                         'permission' => 'wfm.settings.manage',
                         'icon' => 'bolt',
                     ],
+                    [
+                        'label' => __('Mantenimiento'),
+                        'route' => 'admin.system.maintenance',
+                        'pattern' => 'admin/system/maintenance*',
+                        'permission' => 'admin.system',
+                        'roles' => ['admin', 'wfm'],
+                        'icon' => 'wrench-screwdriver',
+                    ],
                 ],
             ],
 
@@ -399,7 +407,12 @@ class MenuHelper {
             return $user && $user->can($item['permission']);
         }
 
-        // 4. Gate específico
+        // 4. Roles específicos (Spatie)
+        if (isset($item['roles']) && !empty($item['roles'])) {
+            return $user && $user->hasAnyRole((array) $item['roles']);
+        }
+
+        // 5. Gate específico
         if (isset($item['gate']) && is_array($item['gate']) && count($item['gate']) >= 1) {
             [$ability, $model] = $item['gate'] + [null, null];
 

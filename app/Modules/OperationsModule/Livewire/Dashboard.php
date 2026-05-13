@@ -13,13 +13,11 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-class Dashboard extends Component
-{
+class Dashboard extends Component {
     public int $refreshInterval = 15;
 
     #[Computed]
-    public function heroKpis(): array
-    {
+    public function heroKpis(): array {
         // 1. Obtener universo de operadores (ID 1, 2, 5, 11, 13 según reglas de negocio)
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
             ->where('is_active', true)
@@ -35,7 +33,7 @@ class Dashboard extends Component
 
         // 2. Datos de Programación (WFM) - Excluyendo excepciones activas
         $nowTimestamp = $now->toDateTimeString();
-        
+
         // Obtener IDs con excepciones activas ahora mismo
         $idsWithExceptions = DB::table('schedule_exceptions')
             ->whereIn('employee_id', $operatorIds)
@@ -47,9 +45,9 @@ class Dashboard extends Component
         $scheduled = WeeklyScheduleAssignment::whereIn('employee_id', $operatorIds)
             ->whereNotIn('employee_id', $idsWithExceptions) // EXCLUIR EXCEPCIONES
             ->where('day_of_week', $now->dayOfWeekIso)
-            ->whereHas('weeklySchedule', function($q) use ($today) {
+            ->whereHas('weeklySchedule', function ($q) use ($today) {
                 $q->where('week_start_date', '<=', $today)
-                  ->where('week_end_date', '>=', $today);
+                    ->where('week_end_date', '>=', $today);
             })
             ->where('start_time', '<=', $now->toTimeString())
             ->where('end_time', '>=', $now->toTimeString())
@@ -65,10 +63,10 @@ class Dashboard extends Component
         $totalConnected = $realtimeStates->count();
 
         // 4. Cálculos de KPIs usando MetricFormulas
-        
+
         // Coverage Rate (Agentes conectados vs Programados)
-        $coverage = $totalScheduled > 0 
-            ? round(($totalConnected / $totalScheduled) * 100, 1) 
+        $coverage = $totalScheduled > 0
+            ? round(($totalConnected / $totalScheduled) * 100, 1)
             : 0;
 
         // Adherence (Simulada por ahora basado en la lógica de RealtimeMonitoring)
@@ -98,42 +96,42 @@ class Dashboard extends Component
 
         return [
             'coverage' => [
-                'label' => 'Coverage Rate',
+                'label' => 'Cobertura',
                 'value' => $coverage . '%',
                 'status' => $coverage < 90 ? 'danger' : ($coverage < 95 ? 'warning' : 'success'),
                 'delta' => '+2.1%',
                 'icon' => 'users',
             ],
             'adherence' => [
-                'label' => 'Real Time Adherence',
+                'label' => 'Adherencia',
                 'value' => $adherence . '%',
                 'status' => $adherence < 85 ? 'danger' : ($adherence < 92 ? 'warning' : 'success'),
                 'delta' => '-0.5%',
                 'icon' => 'clock',
             ],
             'occupancy' => [
-                'label' => 'Occupancy',
+                'label' => 'Ocupación',
                 'value' => round($occupancy, 1) . '%',
                 'status' => $occupancy > 90 ? 'danger' : ($occupancy > 85 ? 'warning' : 'success'),
                 'delta' => '+1.2%',
                 'icon' => 'chart-bar',
             ],
             'service_level' => [
-                'label' => 'Service Level (Global)',
+                'label' => 'Nivel de Servicio',
                 'value' => round($serviceLevel, 1) . '%',
                 'status' => $serviceLevel < 80 ? 'danger' : ($serviceLevel < 90 ? 'warning' : 'success'),
                 'delta' => '+4.0%',
                 'icon' => 'phone',
             ],
             'absenteeism' => [
-                'label' => 'Absenteeism',
+                'label' => 'Ausentismo',
                 'value' => $absenteeism . '%',
                 'status' => $absenteeism > 5 ? 'danger' : 'success',
                 'delta' => '0.0%',
                 'icon' => 'user-minus',
             ],
             'shrinkage' => [
-                'label' => 'Shrinkage',
+                'label' => 'Reductores',
                 'value' => $shrinkage . '%',
                 'status' => 'neutral',
                 'delta' => '-1.1%',
@@ -142,10 +140,10 @@ class Dashboard extends Component
         ];
     }
 
-    private function calculateAdherence($scheduled, $realtime): float
-    {
-        if ($scheduled->isEmpty()) return 100;
-        
+    private function calculateAdherence($scheduled, $realtime): float {
+        if ($scheduled->isEmpty())
+            return 100;
+
         $inState = 0;
         foreach ($scheduled as $assign) {
             $state = $realtime->firstWhere('employee_id', $assign->employee_id);
@@ -157,8 +155,7 @@ class Dashboard extends Component
         return round(($inState / $scheduled->count()) * 100, 1);
     }
 
-    private function calculateGlobalOccupancy(array $operatorIds): float
-    {
+    private function calculateGlobalOccupancy(array $operatorIds): float {
         // En un dashboard realtime, la ocupación es el ratio de agentes en TALKING/ACW vs READY+TALKING+ACW
         $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
             ->whereIn('current_state', ['READY', 'TALKING', 'WORK', 'WORK_READY'])
@@ -171,15 +168,14 @@ class Dashboard extends Component
     }
 
     #[Computed]
-    public function queueStats(): array
-    {
+    public function queueStats(): array {
         // 1. Obtener conteo de agentes hablando por cola desde el universo de operadores
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])->pluck('id')->toArray();
-        
+
         $talkingByQueue = AgentRealtimeState::whereIn('employee_id', $operatorIds)
             ->where('current_state', 'TALKING')
             ->get()
-            ->groupBy(function($agent) {
+            ->groupBy(function ($agent) {
                 return $agent->metadata['call_info']['queue_name'] ?? 'OTROS';
             })
             ->map->count();
@@ -223,11 +219,10 @@ class Dashboard extends Component
     }
 
     #[Computed]
-    public function stateDistribution(): array
-    {
+    public function stateDistribution(): array {
         // Universo de operadores (ID 1, 2, 5, 11, 13)
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])->pluck('id')->toArray();
-        
+
         $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
             ->select('current_state', DB::raw('count(*) as count'))
             ->groupBy('current_state')
@@ -244,19 +239,17 @@ class Dashboard extends Component
     }
 
     #[Computed]
-    public function pendingApprovals(): int
-    {
+    public function pendingApprovals(): int {
         return DB::table('leave_requests')
             ->where('status', 'PENDING')
-            ->count() + 
+            ->count() +
             DB::table('shift_swap_requests')
-            ->where('status', 'PENDING')
-            ->count();
+                ->where('status', 'PENDING')
+                ->count();
     }
 
     #[Computed]
-    public function recentIncidents(): array
-    {
+    public function recentIncidents(): array {
         return DB::table('incidents')
             ->join('employees', 'incidents.employee_id', '=', 'employees.id')
             ->select('employees.first_name', 'employees.last_name', 'incidents.type', 'incidents.created_at')
@@ -266,20 +259,18 @@ class Dashboard extends Component
             ->toArray();
     }
 
-    private function emptyHeroKpis(): array
-    {
+    private function emptyHeroKpis(): array {
         return [
-            'coverage' => ['label' => 'Coverage Rate', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'users'],
-            'adherence' => ['label' => 'Adherence', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'clock'],
-            'occupancy' => ['label' => 'Occupancy', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'chart-bar'],
-            'service_level' => ['label' => 'Service Level', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'phone'],
-            'absenteeism' => ['label' => 'Absenteeism', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'user-minus'],
+            'coverage' => ['label' => 'Cobertura', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'users'],
+            'adherence' => ['label' => 'Adherencia', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'clock'],
+            'occupancy' => ['label' => 'Ocupación', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'chart-bar'],
+            'service_level' => ['label' => 'Nivel de Servicio', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'phone'],
+            'absenteeism' => ['label' => 'Ausentismo', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'user-minus'],
             'shrinkage' => ['label' => 'Shrinkage', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'scissors'],
         ];
     }
 
-    public function render()
-    {
+    public function render() {
         return view('operations::livewire.dashboard')
             ->layout('layouts.app', ['title' => 'Dashboard Operativo']);
     }

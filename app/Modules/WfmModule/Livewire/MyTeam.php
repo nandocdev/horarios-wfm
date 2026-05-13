@@ -17,8 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class MyTeam extends Component
-{
+class MyTeam extends Component {
     use WithPagination;
 
     public $date;
@@ -46,8 +45,7 @@ class MyTeam extends Component
         'remarks' => '',
     ];
 
-    public function openIncidentModal($employeeId, $date)
-    {
+    public function openIncidentModal($employeeId, $date) {
         $this->incidentForm['id'] = null;
         $this->incidentForm['employee_id'] = $employeeId;
         $this->incidentForm['date'] = $date;
@@ -56,15 +54,14 @@ class MyTeam extends Component
         $this->incidentForm['reason_id'] = null;
         $this->incidentForm['start_time'] = '08:00';
         $this->incidentForm['end_time'] = '17:00';
-        
+
         $this->showIncidentModal = true;
         \Flux::modal('incident-modal')->show();
     }
 
-    public function editIncident($id)
-    {
+    public function editIncident($id) {
         $exception = ScheduleException::findOrFail($id);
-        
+
         $this->incidentForm = [
             'id' => $exception->id,
             'employee_id' => $exception->employee_id,
@@ -72,7 +69,7 @@ class MyTeam extends Component
             'reason_id' => $exception->absence_reason_code_id,
             'start_time' => $exception->start_at->format('H:i'),
             'end_time' => $exception->end_at->format('H:i'),
-            'is_full_day' => $exception->is_full_day,
+            'is_full_day' => (bool) $exception->is_full_day,
             'remarks' => $exception->remarks ?? '',
         ];
 
@@ -80,8 +77,7 @@ class MyTeam extends Component
         \Flux::modal('incident-modal')->show();
     }
 
-    public function saveIncident()
-    {
+    public function saveIncident() {
         $this->validate([
             'incidentForm.employee_id' => 'required',
             'incidentForm.date' => 'required|date',
@@ -121,36 +117,47 @@ class MyTeam extends Component
 
         $this->showIncidentModal = false;
         \Flux::modal('incident-modal')->close();
-        
+
         \Flux::toast($message);
     }
 
-    public function mount()
-    {
+    public function deleteIncident($id = null) {
+        $id = $id ?: $this->incidentForm['id'];
+        
+        if ($id) {
+            $exception = ScheduleException::findOrFail($id);
+            $exception->delete();
+
+            $this->showIncidentModal = false;
+            \Flux::modal('incident-modal')->close();
+            
+            \Flux::toast(__('Incidente eliminado correctamente.'), variant: 'warning');
+        }
+    }
+
+    public function mount() {
         $this->date = Carbon::now()->format('Y-m-d');
         $this->weekStart = Carbon::now()->startOfWeek();
         $this->weekEnd = Carbon::now()->endOfWeek();
 
         $employee = Auth::user()->employee;
-        if (! $employee) {
+        if (!$employee) {
             abort(403, 'No tienes un perfil de empleado asociado.');
         }
 
         $this->isManager = $employee->is_manager;
     }
 
-    public function updatedDate()
-    {
+    public function updatedDate() {
         $this->weekStart = Carbon::parse($this->date)->startOfWeek();
         $this->weekEnd = Carbon::parse($this->date)->endOfWeek();
     }
 
-    public function render()
-    {
+    public function render() {
         $employee = Auth::user()->employee;
         $user = Auth::user();
         $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
-        
+
         // Obtener equipos disponibles para este usuario
         if ($isPowerUser) {
             $availableTeams = Team::with('supervisor')->active()->get();
@@ -243,8 +250,7 @@ class MyTeam extends Component
         ]);
     }
 
-    protected function getWeekDays()
-    {
+    protected function getWeekDays() {
         $days = [];
         $current = $this->weekStart->copy();
         for ($i = 0; $i < 7; $i++) {

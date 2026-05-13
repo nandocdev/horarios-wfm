@@ -22,6 +22,9 @@ class TeamPerformanceSummary extends Component
     #[Url]
     public string $selectedDate = '';
 
+    #[Url]
+    public string $view = 'summary';
+
     public array $teamPerformance = [];
     public array $teamTotals = [
         'utilization' => 0,

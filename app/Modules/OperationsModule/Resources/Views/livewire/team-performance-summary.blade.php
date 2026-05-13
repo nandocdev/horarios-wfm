@@ -1,8 +1,20 @@
 <div class="space-y-6">
     <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <flux:heading size="xl" level="1">Desempeño del Equipo</flux:heading>
-            <flux:subheading>Monitoreo consolidado de KPIs y adherencia operativa</flux:subheading>
+            <flux:heading size="xl" level="1">
+                {{ match($view) {
+                    'attendance' => 'Asistencia y Puntualidad',
+                    'compliance' => 'Cumplimiento de Horario',
+                    default => 'Desempeño del Equipo'
+                } }}
+            </flux:heading>
+            <flux:subheading>
+                {{ match($view) {
+                    'attendance' => 'Análisis de entradas, salidas y puntualidad histórica',
+                    'compliance' => 'Métricas de productividad, utilización y adherencia',
+                    default => 'Monitoreo consolidado de KPIs y adherencia operativa'
+                } }}
+            </flux:subheading>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -24,44 +36,48 @@
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
-            <div class="flex justify-between items-start">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ausentismo</span>
-                <div class="flex flex-col items-end gap-1">
-                    <flux:badge size="sm" color="red" variant="pill" title="Ausencias injustificadas">
-                        {{ $teamTotals['absent_count'] ?? 0 }}
-                    </flux:badge>
-                    @if(($teamTotals['exception_count'] ?? 0) > 0)
-                        <flux:badge size="sm" color="blue" variant="pill" title="Excepciones programadas (Excluidas)">
-                            +{{ $teamTotals['exception_count'] }} Exc
+        @if($view === 'summary' || $view === 'attendance')
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ausentismo</span>
+                    <div class="flex flex-col items-end gap-1">
+                        <flux:badge size="sm" color="red" variant="pill" title="Ausencias injustificadas">
+                            {{ $teamTotals['absent_count'] ?? 0 }}
                         </flux:badge>
-                    @endif
+                        @if(($teamTotals['exception_count'] ?? 0) > 0)
+                            <flux:badge size="sm" color="blue" variant="pill" title="Excepciones programadas (Excluidas)">
+                                +{{ $teamTotals['exception_count'] }} Exc
+                            </flux:badge>
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <flux:icon name="user-minus" size="sm" class="text-red-500" />
-                <span
-                    class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['absenteeism'], 1) }}%</span>
-            </div>
-        </flux:card>
+                <div class="flex items-center gap-2">
+                    <flux:icon name="user-minus" size="sm" class="text-red-500" />
+                    <span
+                        class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['absenteeism'], 1) }}%</span>
+                </div>
+            </flux:card>
+        @endif
 
-        <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Utilización</span>
-            <div class="flex items-center gap-2">
-                <flux:icon name="bolt" size="sm" class="text-blue-500" />
-                <span
-                    class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['utilization'], 1) }}%</span>
-            </div>
-        </flux:card>
+        @if($view === 'summary' || $view === 'compliance')
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Utilización</span>
+                <div class="flex items-center gap-2">
+                    <flux:icon name="bolt" size="sm" class="text-blue-500" />
+                    <span
+                        class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['utilization'], 1) }}%</span>
+                </div>
+            </flux:card>
 
-        <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Productividad</span>
-            <div class="flex items-center gap-2">
-                <flux:icon name="chart-bar" size="sm" class="text-green-500" />
-                <span
-                    class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['productivity'], 1) }}%</span>
-            </div>
-        </flux:card>
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Productividad</span>
+                <div class="flex items-center gap-2">
+                    <flux:icon name="chart-bar" size="sm" class="text-green-500" />
+                    <span
+                        class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['productivity'], 1) }}%</span>
+                </div>
+            </flux:card>
+        @endif
 
         <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-indigo-500 hover:shadow-md transition-shadow">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">T. Productivo</span>
@@ -72,34 +88,42 @@
             </div>
         </flux:card>
 
-        <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-slate-500 hover:shadow-md transition-shadow">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Conexión Total</span>
-            <div class="flex items-center gap-2">
-                <flux:icon name="link" size="sm" class="text-slate-500" />
-                <span
-                    class="text-2xl font-black text-slate-900">{{ $this->formatMinutes($teamTotals['total_connected']) }}</span>
-            </div>
-        </flux:card>
+        @if($view === 'summary' || $view === 'compliance')
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-slate-500 hover:shadow-md transition-shadow">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Conexión Total</span>
+                <div class="flex items-center gap-2">
+                    <flux:icon name="link" size="sm" class="text-slate-500" />
+                    <span
+                        class="text-2xl font-black text-slate-900">{{ $this->formatMinutes($teamTotals['total_connected']) }}</span>
+                </div>
+            </flux:card>
 
-        <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Llamadas</span>
-            <div class="flex items-center gap-2">
-                <flux:icon name="phone" size="sm" class="text-orange-500" />
-                <span class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['total_calls']) }}</span>
-            </div>
-        </flux:card>
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Llamadas</span>
+                <div class="flex items-center gap-2">
+                    <flux:icon name="phone" size="sm" class="text-orange-500" />
+                    <span class="text-2xl font-black text-slate-900">{{ number_format($teamTotals['total_calls']) }}</span>
+                </div>
+            </flux:card>
+        @endif
     </div>
 
     <flux:card class="!p-3 overflow-hidden border-slate-200">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Operador</flux:table.column>
-                <flux:table.column>Entrada (Real)</flux:table.column>
-                <flux:table.column>Estado</flux:table.column>
-                <flux:table.column>TP / TC</flux:table.column>
-                <flux:table.column>Productividad</flux:table.column>
-                <flux:table.column>Utilización WFM</flux:table.column>
-                <flux:table.column>Logout</flux:table.column>
+                @if($view === 'summary' || $view === 'attendance')
+                    <flux:table.column>Entrada (Real)</flux:table.column>
+                    <flux:table.column>Estado</flux:table.column>
+                @endif
+                @if($view === 'summary' || $view === 'compliance')
+                    <flux:table.column>TP / TC</flux:table.column>
+                    <flux:table.column>Productividad</flux:table.column>
+                    <flux:table.column>Utilización WFM</flux:table.column>
+                @endif
+                @if($view === 'summary' || $view === 'attendance')
+                    <flux:table.column>Logout</flux:table.column>
+                @endif
                 <flux:table.column align="end"></flux:table.column>
             </flux:table.columns>
 
@@ -134,57 +158,63 @@
                             </div>
                         </flux:table.cell>
 
-                        <flux:table.cell>
-                            <div class="flex flex-col">
-                                <span
-                                    class="text-sm font-bold text-slate-700">{{ $attendance['actual_entry'] ?: '--:--' }}</span>
-                                <span class="text-[10px] text-slate-400">P:
-                                    {{ $attendance['scheduled_entry'] ?: '--:--' }}</span>
-                            </div>
-                        </flux:table.cell>
-
-                        <flux:table.cell>
-                            <flux:badge size="sm" :color="$statusColor" variant="pill">
-                                {{ $attendance['status'] === 'excepción' ? ($attendance['exception_reason'] ?? 'EXCEPCIÓN') : strtoupper($attendance['status']) }}
-                            </flux:badge>
-                        </flux:table.cell>
-
-                        <flux:table.cell>
-                            <div class="flex flex-col gap-1 min-w-[120px]">
-                                <div
-                                    class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-                                    <span>TP: {{ $this->formatMinutes($metrics['total_productive_minutes']) }}</span>
-                                    <span>TC: {{ $this->formatMinutes($metrics['total_connected_minutes']) }}</span>
+                        @if($view === 'summary' || $view === 'attendance')
+                            <flux:table.cell>
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-sm font-bold text-slate-700">{{ $attendance['actual_entry'] ?: '--:--' }}</span>
+                                    <span class="text-[10px] text-slate-400">P:
+                                        {{ $attendance['scheduled_entry'] ?: '--:--' }}</span>
                                 </div>
-                                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                    <div class="h-full bg-blue-500 rounded-full" style="width: {{ $productivity }}%"></div>
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                <flux:badge size="sm" :color="$statusColor" variant="pill">
+                                    {{ $attendance['status'] === 'excepción' ? ($attendance['exception_reason'] ?? 'EXCEPCIÓN') : strtoupper($attendance['status']) }}
+                                </flux:badge>
+                            </flux:table.cell>
+                        @endif
+
+                        @if($view === 'summary' || $view === 'compliance')
+                            <flux:table.cell>
+                                <div class="flex flex-col gap-1 min-w-[120px]">
+                                    <div
+                                        class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                                        <span>TP: {{ $this->formatMinutes($metrics['total_productive_minutes']) }}</span>
+                                        <span>TC: {{ $this->formatMinutes($metrics['total_connected_minutes']) }}</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-500 rounded-full" style="width: {{ $productivity }}%"></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </flux:table.cell>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <flux:badge size="sm" :color="$prodColor" variant="solid">
-                                {{ number_format($productivity, 1) }}%
-                            </flux:badge>
-                        </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" :color="$prodColor" variant="solid">
+                                    {{ number_format($productivity, 1) }}%
+                                </flux:badge>
+                            </flux:table.cell>
 
-                        <flux:table.cell>
-                            <div class="flex items-center gap-2">
-                                <flux:icon name="bolt" size="sm"
-                                    class="{{ $utilColor === 'red' ? 'text-red-400' : ($utilColor === 'orange' ? 'text-orange-400' : 'text-green-400') }}" />
+                            <flux:table.cell>
+                                <div class="flex items-center gap-2">
+                                    <flux:icon name="bolt" size="sm"
+                                        class="{{ $utilColor === 'red' ? 'text-red-400' : ($utilColor === 'orange' ? 'text-orange-400' : 'text-green-400') }}" />
+                                    <span
+                                        class="text-sm font-black {{ $utilColor === 'red' ? 'text-red-600' : ($utilColor === 'orange' ? 'text-orange-600' : 'text-green-600') }}">
+                                        {{ number_format($utilization, 1) }}%
+                                    </span>
+                                </div>
+                            </flux:table.cell>
+                        @endif
+
+                        @if($view === 'summary' || $view === 'attendance')
+                            <flux:table.cell>
                                 <span
-                                    class="text-sm font-black {{ $utilColor === 'red' ? 'text-red-600' : ($utilColor === 'orange' ? 'text-orange-600' : 'text-green-600') }}">
-                                    {{ number_format($utilization, 1) }}%
+                                    class="text-xs font-mono {{ $metrics['total_logout_minutes'] > 30 ? 'text-red-500 font-bold' : 'text-slate-500' }}">
+                                    {{ $this->formatMinutes($metrics['total_logout_minutes']) }}
                                 </span>
-                            </div>
-                        </flux:table.cell>
-
-                        <flux:table.cell>
-                            <span
-                                class="text-xs font-mono {{ $metrics['total_logout_minutes'] > 30 ? 'text-red-500 font-bold' : 'text-slate-500' }}">
-                                {{ $this->formatMinutes($metrics['total_logout_minutes']) }}
-                            </span>
-                        </flux:table.cell>
+                            </flux:table.cell>
+                        @endif
 
                         <flux:table.cell align="end">
                             <flux:button size="xs" variant="ghost" icon="chart-bar"

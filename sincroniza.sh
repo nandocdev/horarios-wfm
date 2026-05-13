@@ -13,6 +13,5 @@ rsync -avzPr \
   --exclude=".idea" \
   --exclude=".vscode" \
   --exclude="bootstrap/cache/" \
-  --exclude="vite.config.js" \
   --exclude="public/hot" \
   "$SRC" "$DEST"

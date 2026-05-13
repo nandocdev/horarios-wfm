@@ -38,13 +38,13 @@ class CheckMaintenanceMode
      */
     private function shouldAllowAccess(Request $request): bool
     {
-        // 1. Si la ruta ya es la de mantenimiento (para evitar bucles, aunque aquí usamos una vista directa)
-        if ($request->is('maintenance')) {
+        // 1. Permitir rutas esenciales de autenticación y mantenimiento
+        if ($request->is('maintenance') || $request->is('login') || $request->is('logout')) {
             return true;
         }
 
-        // 2. Si el usuario es administrador (puedes ajustar esta lógica según tus roles)
-        if (Auth::check() && Auth::user()->hasRole('admin')) {
+        // 2. Si el usuario es administrador o WFM (gestores del sistema)
+        if (Auth::check() && (Auth::user()->hasRole('admin') || Auth::user()->hasRole('wfm'))) {
             return true;
         }
 

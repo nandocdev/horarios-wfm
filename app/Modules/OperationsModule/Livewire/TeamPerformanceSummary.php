@@ -41,7 +41,18 @@ class TeamPerformanceSummary extends Component
         $user = auth()->user();
         $employee = $user->employee;
 
-        if ($this->teamId === null && $employee?->team_id) {
+        if (!$employee) return;
+
+        $managedIds = $user->hasRole(['admin', 'wfm', 'director']) 
+            ? null 
+            : $employee->getManagedTeamIds();
+
+        // Validar acceso al teamId si viene por URL
+        if ($this->teamId && $managedIds !== null && !in_array($this->teamId, $managedIds)) {
+            $this->teamId = null;
+        }
+
+        if ($this->teamId === null && $employee->team_id) {
             $this->teamId = $employee->team_id;
         }
 

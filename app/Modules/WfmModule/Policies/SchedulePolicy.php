@@ -59,6 +59,7 @@ class SchedulePolicy
     public function monitorRealtime(User $user): bool
     {
         return $user->can('realtime.view')
-            || $user->can('schedules.manage');
+            || $user->can('schedules.manage')
+            || ($user->employee?->hasCoordinatorRights() ?? false);
     }
 }

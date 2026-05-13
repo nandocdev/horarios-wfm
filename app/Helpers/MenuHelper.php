@@ -377,6 +377,23 @@ class MenuHelper {
             return (bool) $user;
         }
 
+        // [NUEVO] Lógica delegada para Coordinadores (Posición ID 2, etc.)
+        // Si el ítem pertenece a la sección de Equipo o Planificación Intradía, permitimos si tiene derechos de coordinador.
+        $coordinatorPermissions = [
+            'menu.team', 
+            'schedules.view_team', 
+            'wfm.leaves.manage', 
+            'operations.team-performance',
+            'wfm.realtime.view',
+            'realtime.view'
+        ];
+        
+        if (isset($item['permission']) && in_array($item['permission'], $coordinatorPermissions)) {
+            if ($user->employee?->hasCoordinatorRights()) {
+                return true;
+            }
+        }
+
         // 3. Permiso simple (Spatie)
         if (isset($item['permission']) && !empty($item['permission'])) {
             return $user && $user->can($item['permission']);

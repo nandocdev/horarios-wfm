@@ -42,6 +42,18 @@ class RealtimeMonitoring extends Component
     {
         $this->authorize('monitorRealtime', \App\Modules\WfmModule\Models\Schedule::class);
         
+        $user = auth()->user();
+        $employee = $user->employee;
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
+
+        // Validar acceso al teamId inicial
+        if ($this->teamId && !$isPowerUser) {
+            $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
+            if (!in_array($this->teamId, $managedTeamIds)) {
+                $this->teamId = null;
+            }
+        }
+
         $currentWeek = \App\Modules\WfmModule\Models\WeeklySchedule::where('week_start_date', '<=', now()->toDateString())
             ->where('week_end_date', '>=', now()->toDateString())
             ->first();
@@ -151,9 +163,18 @@ class RealtimeMonitoring extends Component
         $expectedStateAction = app(GetExpectedAgentStateAction::class);
 
         // Universo operativo: Cargos IDs 1, 2, 5
+        $employee = auth()->user()->employee;
+        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser']);
+        $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
+
         $query = Employee::query()
             ->whereIn('position_id', [1, 2, 5])
             ->with(['team', 'position']);
+
+        // Restricción de visibilidad por rol
+        if (!$isPowerUser) {
+            $query->whereIn('team_id', $managedTeamIds);
+        }
 
         if ($this->teamId) {
             $query->where('team_id', $this->teamId);
@@ -406,9 +427,14 @@ class RealtimeMonitoring extends Component
         $this->stats['worker_active'] = $lastUpdate ? now()->parse($lastUpdate)->diffInMinutes() < 2 : false;
         $this->stats['worker_last_update'] = $lastUpdate ? now()->parse($lastUpdate)->diffForHumans() : 'Nunca';
 
+        $employee = auth()->user()->employee;
+        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser']);
+
         return view('operations::livewire.realtime-monitoring', [
             'agents' => $this->loadData(),
-            'teams' => Team::all(),
+            'teams' => $isPowerUser 
+                ? Team::all() 
+                : Team::whereIn('id', $employee?->getManagedTeamIds() ?? [])->get(),
             'positions' => \App\Modules\PersonnelModule\Models\Position::all(),
             'queues' => CallQueue::all(),
             'reasons' => AgentRealtimeState::whereNotNull('reason_code')

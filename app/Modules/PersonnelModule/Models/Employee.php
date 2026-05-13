@@ -103,6 +103,25 @@ class Employee extends Model
     }
 
     /**
+     * Verifica si el empleado tiene derechos de coordinación/gestión.
+     * Incluye managers, supervisores oficiales y posiciones delegadas (ID 2).
+     */
+    public function hasCoordinatorRights(): bool
+    {
+        if ($this->is_manager) {
+            return true;
+        }
+
+        // Posiciones especiales con visibilidad de coordinador (Operador Asist. Serv. Aseg. II)
+        if ($this->position_id === 2) {
+            return true;
+        }
+
+        // Si es supervisor de algún equipo
+        return Team::where('supervisor_id', $this->id)->exists();
+    }
+
+    /**
      * Obtiene los IDs de los equipos que este empleado gestiona (directa o indirectamente).
      */
     public function getManagedTeamIds(): array
@@ -111,9 +130,17 @@ class Employee extends Model
         $subordinateIds = $this->getAllSubordinateIds();
         $allIds = array_merge([$myId], $subordinateIds);
 
-        return Team::whereIn('supervisor_id', $allIds)
+        $teamIds = Team::whereIn('supervisor_id', $allIds)
             ->pluck('id')
             ->toArray();
+
+        // Si tiene derechos de coordinador pero no es supervisor oficial, 
+        // incluimos su propio equipo para que pueda gestionarlo.
+        if ($this->hasCoordinatorRights() && $this->team_id) {
+            $teamIds[] = $this->team_id;
+        }
+
+        return array_unique($teamIds);
     }
 
     /**

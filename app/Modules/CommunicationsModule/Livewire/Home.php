@@ -55,6 +55,7 @@ class Home extends Component
     public function viewNews(int $newsId): void
     {
         $this->viewingNewsId = $newsId;
+        $this->commentForm['news_id'] = $newsId;
         $this->showNewsModal = true;
     }
 
@@ -207,7 +208,7 @@ class Home extends Component
     {
         $isAuthenticated = auth()->check();
 
-        $newsItems = News::with('author', 'media', 'comments.user')
+        $newsItems = News::with('author', 'media', 'comments.user', 'categories')
             ->withCount('comments')
             ->where('is_active', true)
             ->where('status', 'published')
@@ -224,7 +225,7 @@ class Home extends Component
             ->take(4)
             ->get();
 
-        $shoutoutItems = Shoutout::with('employee', 'reactions')
+        $shoutoutItems = Shoutout::with(['employee.user', 'employee.team', 'reactions'])
             ->withCount('reactions')
             ->where('is_active', true)
             ->where('status', 'published')
@@ -250,6 +251,8 @@ class Home extends Component
                 : [];
         });
 
+        $featuredShoutout = $shoutoutItems->sortByDesc('reactions_count')->first();
+
         /** @var Poll|null $activePoll */
         $activePoll = Poll::where('is_active', true)
             ->where('status', 'published')
@@ -272,7 +275,9 @@ class Home extends Component
             : null;
 
         $viewingNews = $this->viewingNewsId
-            ? News::with('author', 'media')->find($this->viewingNewsId)
+            ? News::with(['author', 'media', 'categories', 'comments.user' => function($q) {
+                $q->where('is_active', true)->latest();
+            }])->find($this->viewingNewsId)
             : null;
 
         $recentNotifications = $isAuthenticated
@@ -295,6 +300,7 @@ class Home extends Component
             'selectedNews' => $selectedNews,
             'viewingNews' => $viewingNews,
             'recentNotifications' => $recentNotifications,
+            'featuredShoutout' => $featuredShoutout,
         ])->layout('layouts.app', [
             'title' => 'Comunicaciones',
         ]);

@@ -33,6 +33,12 @@ class PerformanceScorecard extends Component
     {
         $this->date = $this->date ?: now()->toDateString();
         $this->authorize('viewPerformance', Employee::class);
+
+        $employee = auth()->user()->employee;
+        if (!$this->employeeId && $employee) {
+            $this->employeeId = $employee->id;
+        }
+
         $this->loadPerformance();
     }
 
@@ -43,6 +49,7 @@ class PerformanceScorecard extends Component
 
     public function updatedTeamId(): void
     {
+        $this->employeeId = null; // Reset employee when changing team
         $this->loadPerformance();
     }
 
@@ -60,11 +67,21 @@ class PerformanceScorecard extends Component
     {
         $action = app(GetStandardizedPerformanceAction::class);
         $carbonDate = Carbon::parse($this->date);
-        
+        $user = auth()->user();
+        $me = $user->employee;
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director']);
+
         $data = [];
 
         if ($this->employeeId) {
             $employee = Employee::find($this->employeeId);
+            
+            // Validar acceso al empleado solicitado
+            if (!$employee || (!$isPowerUser && !$user->can('viewPerformance', $employee))) {
+                $this->employeeId = $me?->id;
+                $employee = $me;
+            }
+
             if (!$employee) return;
 
             $dates = match($this->periodType) {
@@ -86,12 +103,18 @@ class PerformanceScorecard extends Component
                 ->whereIn('position_id', [1, 2, 5])
                 ->with(['team', 'position']);
 
+            if (!$isPowerUser) {
+                $managedTeamIds = $me?->getManagedTeamIds() ?? [];
+                $query->whereIn('team_id', $managedTeamIds);
+            }
+
             if ($this->teamId) {
                 $query->where('team_id', $this->teamId);
             }
 
             if ($this->search) {
-                $query->where('name', 'ilike', '%' . $this->search . '%');
+                $query->where('first_name', 'ilike', '%' . $this->search . '%')
+                      ->orWhere('last_name', 'ilike', '%' . $this->search . '%');
             }
 
             $employees = $query->get();
@@ -120,15 +143,31 @@ class PerformanceScorecard extends Component
 
     public function render()
     {
-        $employees = Employee::query()
+        $user = auth()->user();
+        $employee = $user->employee;
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director']);
+
+        $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
+
+        $teams = $isPowerUser 
+            ? Team::all() 
+            : Team::whereIn('id', $managedTeamIds)->get();
+
+        $employeesQuery = Employee::query()
             ->whereIn('position_id', [1, 2, 5])
-            ->when($this->teamId, fn($q) => $q->where('team_id', $this->teamId))
-            ->orderBy('first_name')
-            ->get();
+            ->orderBy('first_name');
+
+        if (!$isPowerUser) {
+            $employeesQuery->whereIn('team_id', $managedTeamIds);
+        }
+
+        if ($this->teamId) {
+            $employeesQuery->where('team_id', $this->teamId);
+        }
 
         return view('operations::livewire.performance-scorecard', [
-            'teams' => Team::all(),
-            'employees' => $employees,
+            'teams' => $teams,
+            'employees' => $employeesQuery->get(),
         ]);
     }
 }

@@ -260,9 +260,11 @@ class EmployeePolicy
             return true;
         }
 
-        if ($user->hasRole(['chief', 'coordinator', 'supervisor']) && $user->employee) {
+        if (($user->hasRole(['chief', 'coordinator', 'supervisor']) || $user->employee?->hasCoordinatorRights()) && $user->employee) {
+            $managedTeamIds = $user->employee->getManagedTeamIds();
+            
             return $user->employee->isSupervisorOf($employee->id) 
-                || $employee->team_id === $user->employee->team_id;
+                || in_array($employee->team_id, $managedTeamIds);
         }
 
         return false;

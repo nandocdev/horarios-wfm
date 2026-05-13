@@ -343,6 +343,9 @@
                         @if($selectedAgent->reason_code)
                             <flux:text size="sm" class="italic">({{ $selectedAgent->reason_code }})</flux:text>
                         @endif
+                        @if($selectedAgent->current_queue && $selectedAgent->current_state === 'TALKING')
+                            <flux:badge size="sm" color="blue" icon="phone">{{ $selectedAgent->current_queue }}</flux:badge>
+                        @endif
                     </div>
                 </flux:card>
                 <flux:card class="p-3 bg-zinc-50 dark:bg-zinc-900/50">

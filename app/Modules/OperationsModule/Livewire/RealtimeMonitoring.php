@@ -120,6 +120,7 @@ class RealtimeMonitoring extends Component
                 'current_state' => $real?->current_state ?? 'OFFLINE',
                 'last_changed_at' => $real?->last_changed_at,
                 'reason_code' => $real?->reason_code,
+                'current_queue' => ($real->metadata['call_info']['queue_name'] ?? ($real->metadata['queue_name'] ?? ($real->metadata['csq_name'] ?? null))),
                 'expected_state' => $expected,
             ];
 
@@ -214,7 +215,7 @@ class RealtimeMonitoring extends Component
                 'current_state' => $currentState,
                 'last_changed_at' => $real?->last_changed_at,
                 'reason_code' => $real?->reason_code,
-                'current_queue' => ($real->metadata['queue_name'] ?? ($real->metadata['csq_name'] ?? null)),
+                'current_queue' => ($real->metadata['call_info']['queue_name'] ?? ($real->metadata['queue_name'] ?? ($real->metadata['csq_name'] ?? null))),
                 'expected_state' => $expected,
                 'expected_type' => $expected['type'] ?? 'OFF',
                 'is_adherent' => $isAdherent,

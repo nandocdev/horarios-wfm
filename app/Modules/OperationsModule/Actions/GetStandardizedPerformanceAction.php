@@ -142,8 +142,8 @@ final class GetStandardizedPerformanceAction
 
     private function calculateTimeByReason(Collection $transitions): array
     {
-        return $transitions->whereNotNull('reason_code')
-            ->groupBy('reason_code')
+        return $transitions->filter(fn($t) => $t->current_state === 'Not Ready')
+            ->groupBy(fn($t) => $t->reason_code ?: '')
             ->map(fn($group) => [
                 'minutes' => round($group->sum(fn($t) => $t->metadata['duration'] ?? 0) / 60, 1),
                 'count'   => $group->count(),

@@ -37,7 +37,7 @@
                             <div x-show="open" 
                                  class="mt-1 space-y-1 ml-4 border-l border-zinc-200 dark:border-zinc-700 pl-2">
                                 @foreach($item['submenu'] as $subItem)
-                                    <a href="{{ isset($subItem['route']) ? route($subItem['route']) : '#' }}"
+                                    <a href="{{ isset($subItem['route']) ? route($subItem['route'], $subItem['params'] ?? []) : '#' }}"
                                        wire:navigate
                                        class="flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm transition-colors
                                               {{ $subItem['is_active'] 
@@ -60,7 +60,7 @@
                             </div>
                         </div>
                     @else
-                        <flux:sidebar.item :icon="$item['icon']" :href="isset($item['route']) ? route($item['route']) : '#'"
+                        <flux:sidebar.item :icon="$item['icon']" :href="isset($item['route']) ? route($item['route'], $item['params'] ?? []) : '#'"
                             :current="$item['is_active']" wire:navigate>
                             {{ $item['label'] }}
                         </flux:sidebar.item>

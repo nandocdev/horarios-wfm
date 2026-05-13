@@ -176,25 +176,54 @@ class MenuHelper {
                 ],
             ],
 
-            // ===== 5. REPORTES =====
             [
                 'label' => __('Reportes'),
                 'icon' => 'document-chart-bar',
                 'permission' => 'menu.reports',
                 'submenu' => [
                     [
-                        'label' => __('Asistencia'),
-                        'route' => null,
-                        'pattern' => 'reports/attendance*',
+                        'label' => __('Asistencia y Puntualidad'),
+                        'route' => 'operations.team-performance',
+                        'params' => ['view' => 'attendance'],
+                        'pattern' => 'operations/team-performance*',
                         'permission' => 'reports.attendance',
                         'icon' => 'clipboard-document-check',
                     ],
                     [
-                        'label' => __('Cumplimiento'),
-                        'route' => null,
-                        'pattern' => 'reports/compliance*',
+                        'label' => __('Cumplimiento de Horario'),
+                        'route' => 'operations.team-performance',
+                        'params' => ['view' => 'compliance'],
+                        'pattern' => 'operations/team-performance*',
                         'permission' => 'reports.compliance',
                         'icon' => 'chart-bar-square',
+                    ],
+                    [
+                        'label' => __('Scorecard de Desempeño'),
+                        'route' => 'operations.performance',
+                        'pattern' => 'operations/performance*',
+                        'permission' => 'reports.scorecard',
+                        'icon' => 'identification',
+                    ],
+                    [
+                        'label' => __('Inventario de Staffing'),
+                        'route' => 'personnel.staffing-summary',
+                        'pattern' => 'personnel/reports/staffing*',
+                        'permission' => 'reports.staffing',
+                        'icon' => 'user-group',
+                    ],
+                    [
+                        'label' => __('Resumen de Solicitudes'),
+                        'route' => 'schedules.request-summary',
+                        'pattern' => 'schedules/reports/requests*',
+                        'permission' => 'reports.requests',
+                        'icon' => 'envelope-open',
+                    ],
+                    [
+                        'label' => __('Auditoría de Cambios'),
+                        'route' => 'audit.index',
+                        'pattern' => 'admin/audit*',
+                        'permission' => 'audit.view',
+                        'icon' => 'finger-print',
                     ],
                 ],
             ],
@@ -443,6 +472,15 @@ class MenuHelper {
      * Determina si el elemento o alguno de sus hijos está activo.
      */
     protected static function isActive(array $item): bool {
+        // Si tiene parámetros específicos, deben coincidir todos con la request actual
+        if (isset($item['params'])) {
+            foreach ($item['params'] as $key => $value) {
+                if (request()->query($key) != $value) {
+                    return false;
+                }
+            }
+        }
+
         // Si tiene patrón específico
         if (isset($item['pattern']) && request()->is($item['pattern'])) {
             return true;

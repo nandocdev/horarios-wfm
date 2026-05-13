@@ -56,4 +56,8 @@ Route::middleware(['web', 'auth'])->prefix('schedules')->name('schedules.')->gro
     Route::get('/agent-states', ManageAgentStates::class)->name('agent-states');
     Route::get('/scheduled-activities', ManageScheduledActivities::class)->name('scheduled-activities');
     Route::get('/operational-settings', OperationalSettings::class)->name('operational-settings');
+
+    Route::get('/reports/requests', \App\Modules\WfmModule\Livewire\RequestSummary::class)
+        ->name('request-summary')
+        ->can('reports.requests');
 });

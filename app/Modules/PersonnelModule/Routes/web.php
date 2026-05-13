@@ -95,4 +95,8 @@ Route::group(['prefix' => 'personnel', 'as' => 'personnel.'], function () {
     Route::get('/', function() {
         return redirect()->route('employees.index');
     })->name('index');
+
+    Route::get('/reports/staffing', \App\Modules\PersonnelModule\Livewire\StaffingSummary::class)
+        ->name('staffing-summary')
+        ->can('reports.staffing');
 });

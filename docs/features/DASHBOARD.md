@@ -39,7 +39,7 @@ Vista inmediata de salud operacional.
 
 ---
 
-# 2.1 Hero KPIs (Top Row)
+# 2.1 Hero KPIs (Top Row) (Completado ✅)
 
 6 métricas máximas.
 
@@ -87,7 +87,7 @@ Cada card debe incluir:
 
 ---
 
-# 3. Sección Realtime Operacional
+# 3. Sección Realtime Operacional (Completado ✅)
 
 ## Objetivo
 
@@ -605,24 +605,21 @@ Construye SOLO:
 ---
 
 ## Row 1
-
-* Coverage
-* Adherence
-* Occupancy
-* SLA
+* Coverage ✅
+* Adherence ✅
+* Occupancy ✅
+* SLA ✅
 
 ---
 
 ## Row 2
-
-* Queue state
-* Team criticality
-* Agents realtime states
+* Queue state ✅
+* Team criticality (Pendiente)
+* Agents realtime states ✅
 
 ---
 
 ## Row 3
-
-* Absences
-* Pending approvals
-* Intraday activities
+* Absences ✅
+* Pending approvals ✅
+* Intraday activities (Pendiente)

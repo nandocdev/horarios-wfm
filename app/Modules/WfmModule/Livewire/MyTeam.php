@@ -36,6 +36,7 @@ class MyTeam extends Component
     // Propiedades para el modal de incidentes
     public bool $showIncidentModal = false;
     public $incidentForm = [
+        'id' => null,
         'employee_id' => null,
         'date' => null,
         'reason_id' => null,
@@ -47,13 +48,36 @@ class MyTeam extends Component
 
     public function openIncidentModal($employeeId, $date)
     {
+        $this->incidentForm['id'] = null;
         $this->incidentForm['employee_id'] = $employeeId;
         $this->incidentForm['date'] = $date;
         $this->incidentForm['is_full_day'] = true;
         $this->incidentForm['remarks'] = '';
+        $this->incidentForm['reason_id'] = null;
+        $this->incidentForm['start_time'] = '08:00';
+        $this->incidentForm['end_time'] = '17:00';
         
         $this->showIncidentModal = true;
-        flux()->show('incident-modal');
+        \Flux::modal('incident-modal')->show();
+    }
+
+    public function editIncident($id)
+    {
+        $exception = ScheduleException::findOrFail($id);
+        
+        $this->incidentForm = [
+            'id' => $exception->id,
+            'employee_id' => $exception->employee_id,
+            'date' => $exception->start_at->format('Y-m-d'),
+            'reason_id' => $exception->absence_reason_code_id,
+            'start_time' => $exception->start_at->format('H:i'),
+            'end_time' => $exception->end_at->format('H:i'),
+            'is_full_day' => $exception->is_full_day,
+            'remarks' => $exception->remarks ?? '',
+        ];
+
+        $this->showIncidentModal = true;
+        \Flux::modal('incident-modal')->show();
     }
 
     public function saveIncident()
@@ -76,7 +100,7 @@ class MyTeam extends Component
             $endAt = Carbon::parse($this->incidentForm['date'] . ' ' . $this->incidentForm['end_time']);
         }
 
-        ScheduleException::create([
+        $data = [
             'employee_id' => $this->incidentForm['employee_id'],
             'absence_reason_code_id' => $this->incidentForm['reason_id'],
             'start_at' => $startAt,
@@ -84,12 +108,21 @@ class MyTeam extends Component
             'is_full_day' => $this->incidentForm['is_full_day'],
             'remarks' => $this->incidentForm['remarks'],
             'created_by' => Auth::id(),
-        ]);
+        ];
+
+        if ($this->incidentForm['id']) {
+            $exception = ScheduleException::findOrFail($this->incidentForm['id']);
+            $exception->update($data);
+            $message = __('Incidente actualizado correctamente.');
+        } else {
+            ScheduleException::create($data);
+            $message = __('Incidente registrado correctamente.');
+        }
 
         $this->showIncidentModal = false;
-        flux()->close('incident-modal');
+        \Flux::modal('incident-modal')->close();
         
-        flux()->toast(__('Incidente registrado correctamente.'));
+        \Flux::toast($message);
     }
 
     public function mount()

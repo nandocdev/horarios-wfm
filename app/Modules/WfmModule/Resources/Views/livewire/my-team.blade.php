@@ -54,33 +54,39 @@
                                     @php
                                         $dayOfWeek = $day->dayOfWeekIso;
                                         $assignment = $assignments->get($member->id)?->firstWhere('day_of_week', $dayOfWeek);
-                                        $exception = $exceptions->get($member->id)?->filter(function($ex) use ($day) {
+                                        $dayExceptions = $exceptions->get($member->id)?->filter(function($ex) use ($day) {
                                             return $day->between($ex->start_at->startOfday(), $ex->end_at->endOfDay());
-                                        })->first();
+                                        }) ?? collect();
                                     @endphp
-                                    <td class="py-2 px-1 text-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                                        wire:click="openIncidentModal({{ $member->id }}, '{{ $day->toDateString() }}')">
-                                         @if($exception)
-                                             <div class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto" 
-                                                  style="background-color: {{ $exception->reason?->color ?? '#ef4444' }}20; color: {{ $exception->reason?->color ?? '#ef4444' }}; border: 1px solid {{ $exception->reason?->color ?? '#ef4444' }}40;"
-                                                  title="{{ $exception->reason?->name }}">
-                                                 {{ $exception->reason?->name }}
-                                             </div>
-                                         @elseif($assignment)
-                                             @php
-                                                 $startTime = $assignment->start_time ? $assignment->start_time->format('H:i') : ($assignment->schedule?->start_time ? \Carbon\Carbon::parse($assignment->schedule->start_time)->format('H:i') : '--:--');
-                                                 $endTime = $assignment->end_time ? $assignment->end_time->format('H:i') : ($assignment->schedule?->end_time ? \Carbon\Carbon::parse($assignment->schedule->end_time)->format('H:i') : '--:--');
-                                             @endphp
-                                             <div class="flex flex-col gap-0.5">
-                                                 <span class="text-xs font-semibold">{{ $startTime }} - {{ $endTime }}</span>
-                                                 @if($assignment->schedule)
-                                                     <span class="text-[9px] text-zinc-500 uppercase">{{ $assignment->schedule->name }}</span>
-                                                 @endif
-                                             </div>
-                                         @else
-                                             <span class="text-xs text-zinc-400 italic">{{ __('Libre') }}</span>
-                                         @endif
-                                     </td>
+                                    <td class="py-2 px-1 text-center min-h-[60px]">
+                                        <div class="flex flex-col gap-1">
+                                            @foreach($dayExceptions as $ex)
+                                                <div class="group relative flex items-center justify-between gap-1 px-2 py-1 rounded bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm">
+                                                    <span class="text-[10px] font-bold uppercase truncate" style="color: {{ $ex->reason?->color ?? '#ef4444' }};">
+                                                        {{ $ex->reason?->name }}
+                                                    </span>
+                                                    <flux:button variant="ghost" size="xs" icon="pencil" wire:click.stop="editIncident({{ $ex->id }})" class="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </div>
+                                            @endforeach
+
+                                            @if($dayExceptions->isEmpty() && $assignment)
+                                                @php
+                                                    $startTime = $assignment->start_time ? $assignment->start_time->format('H:i') : ($assignment->schedule?->start_time ? \Carbon\Carbon::parse($assignment->schedule->start_time)->format('H:i') : '--:--');
+                                                    $endTime = $assignment->end_time ? $assignment->end_time->format('H:i') : ($assignment->schedule?->end_time ? \Carbon\Carbon::parse($assignment->schedule->end_time)->format('H:i') : '--:--');
+                                                @endphp
+                                                <div class="flex flex-col gap-0.5 mb-1">
+                                                    <span class="text-xs font-semibold">{{ $startTime }} - {{ $endTime }}</span>
+                                                    @if($assignment->schedule)
+                                                        <span class="text-[9px] text-zinc-500 uppercase">{{ $assignment->schedule->name }}</span>
+                                                    @endif
+                                                </div>
+                                            @elseif($dayExceptions->isEmpty())
+                                                <span class="text-xs text-zinc-400 italic block mb-1">{{ __('Libre') }}</span>
+                                            @endif
+
+                                            <flux:button variant="ghost" size="xs" icon="plus" wire:click="openIncidentModal({{ $member->id }}, '{{ $day->toDateString() }}')" class="mx-auto text-zinc-400 hover:text-accent" />
+                                        </div>
+                                    </td>
                                 @endforeach
                             </tr>
                         @empty

@@ -59,6 +59,9 @@
                                         $dayExceptions = $exceptions->get($member->id)?->filter(function ($ex) use ($day) {
                                             return $day->between($ex->start_at->startOfday(), $ex->end_at->endOfDay());
                                         }) ?? collect();
+                                        $dayPending = ($pendingRequests[$member->id] ?? collect())->filter(function ($req) use ($day) {
+                                            return $day->between($req->start_time->startOfDay(), $req->end_time->endOfDay());
+                                        });
                                     @endphp
                                     <td class="py-2 px-1 text-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                                         wire:click="openIncidentModal({{ $member->id }}, '{{ $day->toDateString() }}')">
@@ -72,7 +75,15 @@
                                                 </div>
                                             @endforeach
 
-                                            @if($dayExceptions->isEmpty())
+                                            @foreach($dayPending as $pending)
+                                                <div class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto opacity-60 border border-dashed border-zinc-400 bg-zinc-100 dark:bg-zinc-800"
+                                                    title="{{ __('Solicitud Pendiente') }}: {{ $pending->type }}">
+                                                    {{ $pending->type }}
+                                                    <span class="block text-[8px] italic text-zinc-500">{{ __('Pendiente') }}</span>
+                                                </div>
+                                            @endforeach
+
+                                            @if($dayExceptions->isEmpty() && $dayPending->isEmpty())
                                                 @if($assignment)
                                                     @php
                                                         $startTime = $assignment->start_time ? $assignment->start_time->format('H:i') : ($assignment->schedule?->start_time ? \Carbon\Carbon::parse($assignment->schedule->start_time)->format('H:i') : '--:--');

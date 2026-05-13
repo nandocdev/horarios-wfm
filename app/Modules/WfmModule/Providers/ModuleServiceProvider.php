@@ -81,6 +81,9 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('wfm.my-schedule', MySchedule::class);
         Livewire::component('wfm.my-day', MyDay::class);
         Livewire::component('wfm.my-metrics', MyMetrics::class);
+
+        // Registro de Observadores
+        \App\Modules\WorkflowsModule\Models\LeaveRequest::observe(\App\Modules\WfmModule\Observers\LeaveRequestObserver::class);
     }
 
     /**

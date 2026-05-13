@@ -222,6 +222,16 @@ class MyTeam extends Component {
             ->get()
             ->groupBy('employee_id');
 
+        // Cargar solicitudes de permiso pendientes (no aprobadas aún) para la grilla
+        $pendingRequests = LeaveRequest::whereIn('employee_id', $memberIds)
+            ->where('status', 'pending')
+            ->where(function ($q) {
+                $q->whereBetween('start_time', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
+                    ->orWhereBetween('end_time', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()]);
+            })
+            ->get()
+            ->groupBy('employee_id');
+
         // Cargar actividad reciente para los paneles
         $this->recentSwaps = ShiftSwapRequest::with(['requester', 'recipient'])
             ->where(function ($q) use ($memberIds) {
@@ -243,6 +253,7 @@ class MyTeam extends Component {
             'members' => $members,
             'assignments' => $assignments,
             'exceptions' => $exceptions,
+            'pendingRequests' => $pendingRequests,
             'days' => $this->getWeekDays(),
             'weeklySchedule' => $weeklySchedule,
             'teams' => $availableTeams,

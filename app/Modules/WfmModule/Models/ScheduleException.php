@@ -20,6 +20,8 @@ class ScheduleException extends Model
         'remarks',
         'created_by',
         'metadata',
+        'origin_type',
+        'origin_id',
     ];
 
     protected $casts = [
@@ -28,6 +30,11 @@ class ScheduleException extends Model
         'is_full_day' => 'boolean',
         'metadata' => 'array',
     ];
+
+    public function origin(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo();
+    }
 
     public function employee(): BelongsTo
     {

@@ -54,6 +54,11 @@
                         </flux:table.cell>
                         <flux:table.cell align="end">
                             <div class="flex justify-end gap-2">
+                                @if($item->canBeEdited())
+                                    <flux:button href="{{ route('communications.shoutouts.edit', $item) }}" 
+                                        variant="ghost" icon="pencil-square" size="sm" wire:navigate />
+                                @endif
+
                                 <flux:button wire:click="deleteShoutout({{ $item->id }})" 
                                     wire:confirm="¿Estás seguro de eliminar este reconocimiento?"
                                     variant="ghost" color="red" icon="trash" size="sm" />

@@ -55,6 +55,7 @@ Route::middleware(['auth'])->prefix('admin/communications')->name('communication
     // Reconocimientos
     Route::get('/shoutouts', \App\Modules\CommunicationsModule\Livewire\ListShoutouts::class)->name('shoutouts.index');
     Route::get('/shoutouts/create', \App\Modules\CommunicationsModule\Livewire\CreateShoutout::class)->name('shoutouts.create');
+    Route::get('/shoutouts/{shoutout}/edit', \App\Modules\CommunicationsModule\Livewire\EditShoutout::class)->name('shoutouts.edit');
 });
 
 // Rutas públicas para interacciones sociales

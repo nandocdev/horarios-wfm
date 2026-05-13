@@ -6,13 +6,14 @@
         </div>
 
         <div class="flex items-center gap-4">
-            @if($teams->count() > 1)
-                <flux:select wire:model.live="selectedTeam" placeholder="{{ __('Seleccionar Equipo') }}" class="w-64">
-                    @foreach($teams as $team)
-                        <flux:select.option value="{{ $team->id }}">{{ $team->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            @endif
+            <flux:select wire:model.live="selectedTeam" placeholder="{{ __('Filtrar por Equipo') }}" class="w-64">
+                <flux:select.option value="">{{ __('Todos los equipos') }}</flux:select.option>
+                @foreach($teams as $team)
+                    <flux:select.option value="{{ $team->id }}">
+                        {{ $team->name }} - {{ $team->supervisor?->full_name ?? __('Sin Coordinador') }}
+                    </flux:select.option>
+                @endforeach
+            </flux:select>
 
             <flux:input type="date" wire:model.live="date" class="w-48" />
         </div>
@@ -57,28 +58,29 @@
                                             return $day->between($ex->start_at->startOfday(), $ex->end_at->endOfDay());
                                         })->first();
                                     @endphp
-                                    <td class="py-2 px-1 text-center">
-                                        @if($exception)
-                                            <div class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto" 
-                                                 style="background-color: {{ $exception->reason?->color ?? '#ef4444' }}20; color: {{ $exception->reason?->color ?? '#ef4444' }}; border: 1px solid {{ $exception->reason?->color ?? '#ef4444' }}40;"
-                                                 title="{{ $exception->reason?->name }}">
-                                                {{ $exception->reason?->name }}
-                                            </div>
-                                        @elseif($assignment)
-                                            @php
-                                                $startTime = $assignment->start_time ? $assignment->start_time->format('H:i') : ($assignment->schedule?->start_time ? \Carbon\Carbon::parse($assignment->schedule->start_time)->format('H:i') : '--:--');
-                                                $endTime = $assignment->end_time ? $assignment->end_time->format('H:i') : ($assignment->schedule?->end_time ? \Carbon\Carbon::parse($assignment->schedule->end_time)->format('H:i') : '--:--');
-                                            @endphp
-                                            <div class="flex flex-col gap-0.5">
-                                                <span class="text-xs font-semibold">{{ $startTime }} - {{ $endTime }}</span>
-                                                @if($assignment->schedule)
-                                                    <span class="text-[9px] text-zinc-500 uppercase">{{ $assignment->schedule->name }}</span>
-                                                @endif
-                                            </div>
-                                        @else
-                                            <span class="text-xs text-zinc-400 italic">{{ __('Libre') }}</span>
-                                        @endif
-                                    </td>
+                                    <td class="py-2 px-1 text-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                        wire:click="openIncidentModal({{ $member->id }}, '{{ $day->toDateString() }}')">
+                                         @if($exception)
+                                             <div class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto" 
+                                                  style="background-color: {{ $exception->reason?->color ?? '#ef4444' }}20; color: {{ $exception->reason?->color ?? '#ef4444' }}; border: 1px solid {{ $exception->reason?->color ?? '#ef4444' }}40;"
+                                                  title="{{ $exception->reason?->name }}">
+                                                 {{ $exception->reason?->name }}
+                                             </div>
+                                         @elseif($assignment)
+                                             @php
+                                                 $startTime = $assignment->start_time ? $assignment->start_time->format('H:i') : ($assignment->schedule?->start_time ? \Carbon\Carbon::parse($assignment->schedule->start_time)->format('H:i') : '--:--');
+                                                 $endTime = $assignment->end_time ? $assignment->end_time->format('H:i') : ($assignment->schedule?->end_time ? \Carbon\Carbon::parse($assignment->schedule->end_time)->format('H:i') : '--:--');
+                                             @endphp
+                                             <div class="flex flex-col gap-0.5">
+                                                 <span class="text-xs font-semibold">{{ $startTime }} - {{ $endTime }}</span>
+                                                 @if($assignment->schedule)
+                                                     <span class="text-[9px] text-zinc-500 uppercase">{{ $assignment->schedule->name }}</span>
+                                                 @endif
+                                             </div>
+                                         @else
+                                             <span class="text-xs text-zinc-400 italic">{{ __('Libre') }}</span>
+                                         @endif
+                                     </td>
                                 @endforeach
                             </tr>
                         @empty
@@ -153,4 +155,39 @@
             </flux:card>
         </div>
     </div>
+    
+    <flux:modal name="incident-modal" class="md:w-[500px]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">{{ __('Registrar Incidente / Novedad') }}</flux:heading>
+                <flux:subheading>{{ __('Modificar el estado del turno para el día seleccionado.') }}</flux:subheading>
+            </div>
+
+            <form wire:submit="saveIncident" class="space-y-4">
+                <flux:select wire:model="incidentForm.reason_id" label="{{ __('Motivo / Incidente') }}" placeholder="{{ __('Seleccionar motivo') }}">
+                    @foreach($reasons as $reason)
+                        <flux:select.option value="{{ $reason->id }}">{{ $reason->name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+
+                <flux:checkbox wire:model.live="incidentForm.is_full_day" label="{{ __('Día Completo') }}" />
+
+                @if(!$incidentForm['is_full_day'])
+                    <div class="grid grid-cols-2 gap-4">
+                        <flux:input type="time" wire:model="incidentForm.start_time" label="{{ __('Hora Inicio') }}" />
+                        <flux:input type="time" wire:model="incidentForm.end_time" label="{{ __('Hora Fin') }}" />
+                    </div>
+                @endif
+
+                <flux:textarea wire:model="incidentForm.remarks" label="{{ __('Observaciones / Justificación') }}" placeholder="{{ __('Detalles adicionales...') }}" />
+
+                <div class="flex gap-2 justify-end">
+                    <flux:modal.close>
+                        <flux:button variant="ghost">{{ __('Cancelar') }}</flux:button>
+                    </flux:modal.close>
+                    <flux:button type="submit" variant="primary">{{ __('Guardar Novedad') }}</flux:button>
+                </div>
+            </form>
+        </div>
+    </flux:modal>
 </div>

@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
@@ -28,13 +29,68 @@ class MyTeam extends Component
 
     public $selectedTeam = null;
 
-    public $teams = [];
-
     public $isManager = false;
-
     public $recentSwaps = [];
-
     public $upcomingExceptions = [];
+
+    // Propiedades para el modal de incidentes
+    public bool $showIncidentModal = false;
+    public $incidentForm = [
+        'employee_id' => null,
+        'date' => null,
+        'reason_id' => null,
+        'start_time' => null,
+        'end_time' => null,
+        'is_full_day' => true,
+        'remarks' => '',
+    ];
+
+    public function openIncidentModal($employeeId, $date)
+    {
+        $this->incidentForm['employee_id'] = $employeeId;
+        $this->incidentForm['date'] = $date;
+        $this->incidentForm['is_full_day'] = true;
+        $this->incidentForm['remarks'] = '';
+        
+        $this->showIncidentModal = true;
+        flux()->show('incident-modal');
+    }
+
+    public function saveIncident()
+    {
+        $this->validate([
+            'incidentForm.employee_id' => 'required',
+            'incidentForm.date' => 'required|date',
+            'incidentForm.reason_id' => 'required',
+            'incidentForm.remarks' => 'nullable|string',
+        ]);
+
+        $startAt = Carbon::parse($this->incidentForm['date']);
+        $endAt = Carbon::parse($this->incidentForm['date']);
+
+        if ($this->incidentForm['is_full_day']) {
+            $startAt = $startAt->startOfDay();
+            $endAt = $endAt->endOfDay();
+        } else {
+            $startAt = Carbon::parse($this->incidentForm['date'] . ' ' . $this->incidentForm['start_time']);
+            $endAt = Carbon::parse($this->incidentForm['date'] . ' ' . $this->incidentForm['end_time']);
+        }
+
+        ScheduleException::create([
+            'employee_id' => $this->incidentForm['employee_id'],
+            'absence_reason_code_id' => $this->incidentForm['reason_id'],
+            'start_at' => $startAt,
+            'end_at' => $endAt,
+            'is_full_day' => $this->incidentForm['is_full_day'],
+            'remarks' => $this->incidentForm['remarks'],
+            'created_by' => Auth::id(),
+        ]);
+
+        $this->showIncidentModal = false;
+        flux()->close('incident-modal');
+        
+        flux()->toast(__('Incidente registrado correctamente.'));
+    }
 
     public function mount()
     {
@@ -48,20 +104,6 @@ class MyTeam extends Component
         }
 
         $this->isManager = $employee->is_manager;
-
-        // Cargar equipos bajo su mando
-        // Si es supervisor directo en la tabla Team
-        $directTeams = Team::where('supervisor_id', $employee->id)->get();
-
-        // Si es manager, podría tener equipos de sus subordinados
-        $subordinateIds = $employee->getAllSubordinateIds();
-        $indirectTeams = Team::whereIn('supervisor_id', $subordinateIds)->get();
-
-        $this->teams = $directTeams->concat($indirectTeams)->unique('id');
-
-        if ($this->teams->count() > 0) {
-            $this->selectedTeam = $this->teams->first()->id;
-        }
     }
 
     public function updatedDate()
@@ -73,24 +115,41 @@ class MyTeam extends Component
     public function render()
     {
         $employee = Auth::user()->employee;
-        $subordinateIds = $employee->getAllSubordinateIds();
+        $user = Auth::user();
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
+        
+        // Obtener equipos disponibles para este usuario
+        if ($isPowerUser) {
+            $availableTeams = Team::with('supervisor')->active()->get();
+        } else {
+            $directTeams = Team::with('supervisor')->where('supervisor_id', $employee->id)->get();
+            $subordinateIds = $employee->getAllSubordinateIds();
+            $indirectTeams = Team::with('supervisor')->whereIn('supervisor_id', $subordinateIds)->get();
+            $availableTeams = $directTeams->concat($indirectTeams)->unique('id');
+        }
 
-        // Si hay un equipo seleccionado, filtramos por los miembros de ese equipo que sean subordinados
-        // O si es el supervisor directo del equipo, todos los miembros activos del equipo
+        $subordinateIds = $isPowerUser ? [] : $employee->getAllSubordinateIds();
+
+        // Si hay un equipo seleccionado, filtramos por los miembros de ese equipo
         $query = Employee::query()->active();
 
         if ($this->selectedTeam) {
             $team = Team::find($this->selectedTeam);
             $teamMemberIds = $team->users()->pluck('employees.id')->toArray();
 
-            // Solo puede ver si es supervisor del equipo o si los empleados son sus subordinados
-            if ($team->supervisor_id === $employee->id || $this->isManager) {
+            // Administradores y WFM ven todo el equipo.
+            // Supervisores ven su equipo o sus subordinados dentro de ese equipo.
+            if ($isPowerUser || $team->supervisor_id === $employee->id || $this->isManager) {
                 $query->whereIn('id', $teamMemberIds);
             } else {
                 $query->whereIn('id', array_intersect($teamMemberIds, $subordinateIds));
             }
         } else {
-            $query->whereIn('id', $subordinateIds);
+            // Si no hay equipo, Admin/WFM ve todo (o podrías limitar a un grupo grande)
+            // Por ahora, si es Admin/WFM y no hay equipo, mostramos todos los activos
+            if (!$isPowerUser) {
+                $query->whereIn('id', $subordinateIds);
+            }
         }
 
         $members = $query->with(['position'])->orderBy('first_name')->get();
@@ -146,6 +205,8 @@ class MyTeam extends Component
             'exceptions' => $exceptions,
             'days' => $this->getWeekDays(),
             'weeklySchedule' => $weeklySchedule,
+            'teams' => $availableTeams,
+            'reasons' => AbsenceReasonCode::all(),
         ]);
     }
 

@@ -1,0 +1,124 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\OperationsModule\Actions;
+
+use App\Modules\OperationsModule\Models\AttendanceIncident;
+use App\Modules\OperationsModule\Models\IncidentType;
+use App\Modules\PersonnelModule\Models\Employee;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Log;
+
+/**
+ * Acción para reconciliar la asistencia de un empleado y generar incidentes operativos.
+ * 
+ * [RIESGOS]
+ * - Duplicidad de incidentes: Se mitiga buscando por employee_id, date y type.
+ * - Falsos positivos: Depende de la calidad de datos en ConnectModule (Cisco).
+ */
+final class ReconcileEmployeeAttendanceAction
+{
+    public function __construct(
+        private readonly GetEmployeePerformanceAction $performanceAction
+    ) {}
+
+    /**
+     * Ejecuta la reconciliación para un empleado en una fecha específica.
+     */
+    public function execute(Employee $employee, CarbonInterface $date): array
+    {
+        $carbonDate = Carbon::instance($date);
+        $performance = $this->performanceAction->execute($employee, $carbonDate);
+        $attendance = $performance->attendance;
+        $results = [];
+
+        // 1. Reconciliar Tardanza
+        if ($attendance['status'] === 'tardanza') {
+            $incident = $this->recordIncident(
+                $employee,
+                'LATE',
+                $date,
+                $attendance['scheduled_entry'],
+                $attendance['actual_entry'],
+                "Tardanza detectada automáticamente: {$attendance['diff_minutes']} minutos."
+            );
+            if ($incident) $results[] = 'LATE';
+        }
+
+        // 2. Reconciliar Ausencia (Solo si el turno ya debió haber terminado o si es un día pasado)
+        if ($attendance['status'] === 'ausente') {
+            if ($this->shouldMarkAsAbsent($attendance, $date)) {
+                $incident = $this->recordIncident(
+                    $employee,
+                    'ABSENT',
+                    $date,
+                    $attendance['scheduled_entry'],
+                    null,
+                    "Ausencia detectada: No se registraron marcas en Cisco para la jornada programada."
+                );
+                if ($incident) $results[] = 'ABSENT';
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Determina si ya es momento de marcar una ausencia.
+     */
+    private function shouldMarkAsAbsent(array $attendance, CarbonInterface $date): bool
+    {
+        if (!$date->isToday()) {
+            return true;
+        }
+
+        if (empty($attendance['scheduled_entry'])) {
+            return false;
+        }
+
+        // Si es hoy, solo marcar ausencia si ya pasaron 2 horas desde el inicio programado
+        // Esto evita marcar como ausente a alguien que llega 15 mins tarde antes de que se procese su tardanza.
+        $scheduledStart = Carbon::parse($attendance['scheduled_entry'])->setDate($date->year, $date->month, $date->day);
+        
+        return now()->diffInMinutes($scheduledStart, false) > 120;
+    }
+
+    /**
+     * Registra un incidente si no existe uno previo para el mismo tipo y día.
+     */
+    private function recordIncident(
+        Employee $employee,
+        string $typeCode,
+        CarbonInterface $date,
+        ?string $startTime,
+        ?string $endTime,
+        string $comment
+    ): ?AttendanceIncident {
+        $type = IncidentType::where('code', $typeCode)->first();
+        if (!$type) {
+            Log::warning("ReconcileAttendance: No se encontró el tipo de incidente {$typeCode}");
+            return null;
+        }
+
+        // Verificar si ya existe un incidente similar para evitar spam
+        $exists = AttendanceIncident::where('employee_id', $employee->id)
+            ->where('incident_type_id', $type->id)
+            ->whereDate('incident_date', $date->toDateString())
+            ->exists();
+
+        if ($exists) {
+            return null;
+        }
+
+        return AttendanceIncident::create([
+            'employee_id' => $employee->id,
+            'incident_type_id' => $type->id,
+            'incident_date' => $date->toDateString(),
+            'start_time' => $startTime,
+            'end_time' => $endTime,
+            'admin_comment' => $comment,
+        ]);
+    }
+}

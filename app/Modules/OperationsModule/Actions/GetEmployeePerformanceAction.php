@@ -126,14 +126,13 @@ final class GetEmployeePerformanceAction
         $status = 'present';
 
         if ($scheduledEntry && $actualEntry) {
-            $status = MetricFormulas::checkLate($scheduledEntry, $actualEntry) ? 'tardanza' : 'a_tiempo';
-            
             $actualEntryTime = Carbon::parse($actualEntry);
             $scheduledEntryTime = Carbon::parse($scheduledEntry);
             
             // Normalizar fecha de entrada programada a la fecha de la actividad
             $scheduledDateTime = (clone $actualEntryTime)->setTime($scheduledEntryTime->hour, $scheduledEntryTime->minute, $scheduledEntryTime->second);
             
+            $status = MetricFormulas::checkLate($scheduledDateTime, $actualEntryTime) ? 'tardanza' : 'a_tiempo';
             $diff = (int) $scheduledDateTime->diffInMinutes($actualEntryTime, false);
         } elseif ($scheduledEntry && !$actualEntry) {
             $status = $exception ? 'excepción' : 'ausente';

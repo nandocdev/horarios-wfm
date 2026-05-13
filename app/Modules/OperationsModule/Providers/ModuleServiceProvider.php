@@ -13,10 +13,20 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->singleton(
             \App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction::class
         );
+
+        $this->app->singleton(
+            \App\Modules\OperationsModule\Services\PerformanceService::class
+        );
     }
 
     public function boot(): void
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand::class,
+            ]);
+        }
+
         // Registro de rutas, vistas, etc.
         if (file_exists(__DIR__.'/../Routes/web.php')) {
             $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');

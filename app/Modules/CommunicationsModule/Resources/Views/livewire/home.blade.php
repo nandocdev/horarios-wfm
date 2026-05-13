@@ -1,136 +1,158 @@
 <div class="flex w-full flex-col">
-    <!-- Hero Section: Empleado del Mes (Dinamizar pronto con un modelo Shoutout/Recognition) -->
-    <section class="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800">
-        <div class="absolute inset-x-0 top-0 h-48 bg-gradient-to-r from-cyan-800 to-cyan-500 to-transparent"></div>
+    <!-- Hero Section: Dinamizada con el mejor Shoutout o Mensaje de Bienvenida -->
+    <section class="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-cyan-500/10 to-transparent"></div>
+        
+        <div class="relative mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+            <div class="grid gap-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-center">
+                <div class="space-y-8">
+                    @if($featuredShoutout)
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 text-xs font-black uppercase tracking-widest animate-pulse">
+                            <flux:icon name="sparkles" class="w-4 h-4" />
+                            Reconocimiento del Mes
+                        </div>
 
-        <div class="relative mx-auto max-w-[85rem] px-4 py-8 sm:px-6 lg:px-8 sm:py-10 lg:py-12">
-            <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-                <flux:card class="shadow-sm">
-                    <flux:badge color="blue" size="sm" inset="top bottom" class="uppercase tracking-[0.18em]">
-                        Reconocimiento destacado
-                    </flux:badge>
+                        <div class="space-y-4">
+                            <flux:heading size="xl" class="text-4xl lg:text-5xl font-black leading-tight">
+                                "{{ $featuredShoutout->message }}"
+                            </flux:heading>
+                            
+                            <div class="flex items-center gap-4 py-2">
+                                <flux:avatar src="{{ $featuredShoutout->employee->user?->avatar_url }}" name="{{ $featuredShoutout->employee->full_name }}" size="lg" />
+                                <div>
+                                    <flux:text class="text-lg font-bold text-zinc-900 dark:text-white">{{ $featuredShoutout->employee->full_name }}</flux:text>
+                                    <flux:text class="text-sm text-zinc-500">{{ $featuredShoutout->employee->position->name ?? 'Colaborador' }}</flux:text>
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-black uppercase tracking-widest">
+                            <flux:icon name="megaphone" class="w-4 h-4" />
+                            Canal Oficial de Comunicaciones
+                        </div>
 
-                    <flux:heading size="xl" level="2" class="mt-4">
-                        Reconocimientos Operativos
-                    </flux:heading>
+                        <div class="space-y-4">
+                            <flux:heading size="xl" class="text-4xl lg:text-6xl font-black leading-tight">
+                                Conecta con tu <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">Comunidad Operativa</span>
+                            </flux:heading>
+                            <flux:text class="text-lg max-w-2xl text-zinc-600 dark:text-zinc-400">
+                                Un espacio diseñado para mantenerte al tanto de las novedades, reconocer el talento de tus compañeros y participar en la toma de decisiones.
+                            </flux:text>
+                        </div>
+                    @endif
 
-                    <flux:text class="mt-4 max-w-2xl text-base">
-                        Celebramos el compromiso de nuestros equipos. Revisa los shoutouts destacados del mes.
-                    </flux:text>
-
-                    <div class="mt-6 flex flex-wrap gap-3">
-                        @if($isAuthenticated)
-                            <flux:button variant="primary" href="#">
-                                Ver publicación completa
-                            </flux:button>
-                            <flux:button variant="outline" href="#">
-                                Explorar reconocimientos
-                            </flux:button>
-                        @else
-                            <flux:button variant="primary" href="{{ route('login') }}" wire:navigate>
-                                Iniciar sesión para interactuar
-                            </flux:button>
-                            <flux:button variant="outline" href="#">
-                                Explorar reconocimientos
-                            </flux:button>
-                        @endif
+                    <div class="flex flex-wrap gap-4 pt-4">
+                        <flux:button variant="primary" size="lg" icon="plus" class="shadow-lg shadow-cyan-500/20">
+                            Publicar Reconocimiento
+                        </flux:button>
+                        <flux:button variant="outline" size="lg" href="#noticias">
+                            Explorar Novedades
+                        </flux:button>
                     </div>
-                </flux:card>
+                </div>
 
-                <flux:card class="p-2 shadow-sm">
-                    <img src="{{ asset('img/user-placeholder.png') }}" alt="Reconocimiento"
-                        class="h-full min-h-[18rem] w-full rounded-xl object-cover">
-                </flux:card>
+                <div class="hidden lg:block relative">
+                    <div class="absolute -inset-4 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-3xl blur-2xl opacity-20 animate-pulse"></div>
+                    <flux:card class="relative overflow-hidden p-2 shadow-2xl border-white dark:border-zinc-800 rotate-2 hover:rotate-0 transition-transform duration-500">
+                        <img src="{{ $featuredShoutout && $featuredShoutout->employee->user?->avatar_url ? $featuredShoutout->employee->user->avatar_url : asset('img/comms-hero.jpg') }}" 
+                             alt="Comunicaciones"
+                             class="aspect-square w-full rounded-2xl object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        @if($featuredShoutout)
+                            <div class="absolute bottom-6 left-6 right-6 text-center">
+                                <flux:text class="text-white font-bold italic">#OrgulloCSS</flux:text>
+                            </div>
+                        @endif
+                    </flux:card>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Contenido Principal -->
-    <div class="mx-auto w-full max-w-[85rem] px-4 py-8 sm:px-6 lg:px-8">
-        <div class="grid gap-8 lg:grid-cols-3">
-
-            <!-- COLUMNA IZQUIERDA: Noticias Dinámicas -->
-            <div class="space-y-10 lg:col-span-2">
-                <section class="space-y-6">
-                    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-6 lg:px-8">
+        <div class="grid gap-12 lg:grid-cols-3">
+            <div id="noticias" class="space-y-10 lg:col-span-2">
+                <section class="space-y-8">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-zinc-100 dark:border-zinc-800 pb-6">
                         <div>
-                            <flux:heading size="xl" level="2">Noticias Internas</flux:heading>
+                            <flux:heading size="xl" level="2" class="font-black">Noticias Internas</flux:heading>
                             <flux:subheading>Actualizaciones y novedades del Centro de Contactos.</flux:subheading>
                         </div>
 
                         <flux:button href="#" variant="ghost" icon-trailing="chevron-right" size="sm" wire:navigate>
-                            Ver todas
+                            Archivo Histórico
                         </flux:button>
                     </div>
 
-                    <div class="grid gap-6 md:grid-cols-2">
+                    <div class="grid gap-8 md:grid-cols-2">
                         @forelse ($newsItems as $news)
                             <flux:card
-                                class="group flex flex-col overflow-hidden p-0 transition hover:-translate-y-0.5 hover:shadow-md">
-                                <div class="h-48 w-full overflow-hidden border-b border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 relative">
-                                    <button wire:click="viewNews({{ $news->id }})" class="block h-full w-full text-left">
-                                        <img src="{{ $news->getFirstMediaUrl('featured_image') ?: asset('img/news-placeholder.png') }}"
-                                            alt="{{ $news->title }}"
-                                            class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]">
-                                    </button>
-                                </div>
-                                <div class="flex flex-1 flex-col p-5">
-                                    <div class="mb-3 flex items-center justify-between">
-                                        <flux:badge color="blue" size="sm" inset="top bottom">Módulo Operativo</flux:badge>
-                                        <flux:button wire:click="viewNews({{ $news->id }})" variant="ghost" size="xs" icon-trailing="chevron-right">
-                                            Leer noticia
+                                class="group flex flex-col overflow-hidden p-0 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 border-none bg-zinc-50/50 dark:bg-zinc-800/30">
+                                <div class="relative h-56 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
+                                    <img src="{{ $news->getFirstMediaUrl('featured_image') ?: asset('img/news-placeholder.png') }}"
+                                        alt="{{ $news->title }}"
+                                        class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                                        <flux:button wire:click="viewNews({{ $news->id }})" variant="primary" size="sm" class="w-full">
+                                            Leer Artículo Completo
                                         </flux:button>
                                     </div>
-                                    <button wire:click="viewNews({{ $news->id }})" class="hover:underline decoration-cyan-500 underline-offset-4 text-left">
-                                        <flux:heading size="lg">{{ $news->title }}</flux:heading>
+                                    <div class="absolute top-4 left-4">
+                                        <flux:badge color="cyan" size="sm" class="backdrop-blur-md bg-white/80 dark:bg-zinc-900/80">
+                                            {{ $news->categories->first()->name ?? 'General' }}
+                                        </flux:badge>
+                                    </div>
+                                </div>
+                                <div class="flex flex-1 flex-col p-6">
+                                    <flux:text class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2">{{ $news->published_at->translatedFormat('d M, Y') }}</flux:text>
+                                    
+                                    <button wire:click="viewNews({{ $news->id }})" class="text-left group-hover:text-cyan-600 transition-colors">
+                                        <flux:heading size="lg" class="line-clamp-2 leading-tight font-black">{{ $news->title }}</flux:heading>
                                     </button>
-                                    <flux:text class="mt-2 line-clamp-2 flex-1">{{ $news->excerpt ?: str($news->content)->limit(100) }}</flux:text>
-                                    <div class="mt-5 flex items-center justify-between gap-3">
+                                    
+                                    <flux:text class="mt-3 line-clamp-3 text-sm leading-relaxed flex-1 text-zinc-500 dark:text-zinc-400">
+                                        {{ $news->excerpt ?: str($news->content)->limit(120) }}
+                                    </flux:text>
+
+                                    <div class="mt-6 flex items-center justify-between border-t border-zinc-100 dark:border-zinc-700/50 pt-4">
                                         <div class="flex items-center gap-2">
                                             <flux:button
                                                 wire:click="toggleComments({{ $news->id }})"
-                                                variant="ghost"
-                                                size="sm"
-                                                icon="chat-bubble-left"
-                                                class="-ml-3">
-                                                {{ $news->comments_count }} comentarios
+                                                variant="subtle"
+                                                size="xs"
+                                                icon="chat-bubble-left">
+                                                {{ $news->comments_count }}
                                             </flux:button>
-                                            @if($isAuthenticated)
-                                                <flux:button
-                                                    wire:click="selectNewsForComment({{ $news->id }})"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    icon="plus">
-                                                    Comentar
-                                                </flux:button>
-                                            @else
-                                                <flux:button href="{{ route('login') }}" wire:navigate variant="ghost" size="sm" icon="lock-closed">
-                                                    Inicia sesión
-                                                </flux:button>
-                                            @endif
+                                            <flux:button
+                                                wire:click="selectNewsForComment({{ $news->id }})"
+                                                variant="ghost"
+                                                size="xs"
+                                                icon="plus">
+                                                Comentar
+                                            </flux:button>
                                         </div>
-                                        <flux:text class="text-xs">{{ $news->published_at->diffForHumans() }}</flux:text>
+                                        
+                                        <div class="flex -space-x-2">
+                                            @foreach($news->comments->take(3) as $comment)
+                                                <flux:avatar src="{{ $comment->user->avatar_url }}" name="{{ $comment->user->name }}" size="xs" class="border-2 border-white dark:border-zinc-800" />
+                                            @endforeach
+                                        </div>
                                     </div>
 
-                                    <!-- Formulario de comentario -->
+                                    <!-- Formulario de comentario simplificado -->
                                     @if($isAuthenticated && $commentForm['news_id'] === $news->id)
-                                        <div class="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+                                        <div class="mt-4 animate-fade-in">
                                             <form wire:submit="submitComment" class="space-y-3">
                                                 <flux:textarea
                                                     wire:model="commentForm.content"
-                                                    placeholder="Escribe tu comentario..."
-                                                    rows="3"
+                                                    placeholder="Escribe tu opinión..."
+                                                    rows="2"
+                                                    size="sm"
                                                     required />
                                                 <div class="flex gap-2">
-                                                    <flux:button type="submit" variant="primary" size="sm">
-                                                        Publicar
-                                                    </flux:button>
-                                                    <flux:button
-                                                        wire:click="$set('commentForm.news_id', null)"
-                                                        variant="ghost"
-                                                        size="sm">
-                                                        Cancelar
-                                                    </flux:button>
+                                                    <flux:button type="submit" variant="primary" size="xs">Enviar</flux:button>
+                                                    <flux:button wire:click="$set('commentForm.news_id', null)" variant="ghost" size="xs">Cerrar</flux:button>
                                                 </div>
                                             </form>
                                         </div>
@@ -180,290 +202,254 @@
             </div>
 
             <!-- COLUMNA DERECHA: Sidebar -->
-            <aside class="space-y-6">
-                <!-- Accesos Rápidos -->
-                <flux:card class="shadow-sm">
-                    <flux:heading size="lg">Accesos rápidos</flux:heading>
-                    <flux:subheading class="mb-4">Atajos frecuentes operativos.</flux:subheading>
+            <aside class="space-y-8">
+                <!-- Accesos Rápidos Premium -->
+                <flux:card class="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white border-none shadow-xl">
+                    <flux:heading size="lg" class="text-white">Accesos Rápidos</flux:heading>
+                    <flux:subheading class="text-zinc-400 mb-6">Herramientas esenciales.</flux:subheading>
 
-                    <div class="flex flex-col gap-1">
-                        @foreach ([['icon' => 'users', 'label' => 'Proyectos'],
-                                  ['icon' => 'map', 'label' => 'Sistemas Internos'],
-                                  ['icon' => 'lifebuoy', 'label' => 'Soporte IT'],
-                                  ['icon' => 'chart-bar', 'label' => 'Reportes WFM'],
-                                  ['icon' => 'folder', 'label' => 'Directorio'],
-                                  ['icon' => 'calendar', 'label' => 'Gestión de Turnos'],
+                    <div class="grid grid-cols-2 gap-3">
+                        @foreach ([['icon' => 'calendar', 'label' => 'Horarios', 'color' => 'cyan'],
+                                  ['icon' => 'chart-pie', 'label' => 'Métricas', 'color' => 'blue'],
+                                  ['icon' => 'lifebuoy', 'label' => 'Soporte', 'color' => 'purple'],
+                                  ['icon' => 'folder-open', 'label' => 'Docs', 'color' => 'amber'],
                               ] as $item)
-                            <flux:button variant="subtle" icon="{{ $item['icon'] }}" class="w-full justify-start" href="#">
-                                {{ $item['label'] }}
-                            </flux:button>
+                            <button class="flex flex-col items-center gap-3 p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors group">
+                                <div class="w-10 h-10 rounded-xl bg-{{ $item['color'] }}-500/20 flex items-center justify-center text-{{ $item['color'] }}-400 group-hover:scale-110 transition-transform">
+                                    <flux:icon name="{{ $item['icon'] }}" class="w-5 h-5" />
+                                </div>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-zinc-300">{{ $item['label'] }}</span>
+                            </button>
                         @endforeach
                     </div>
                 </flux:card>
 
                 <!-- Encuesta Dinámica -->
                 @if($activePoll)
-                    <flux:card>
-                        <flux:heading size="lg">Encuesta Rápida</flux:heading>
-                        <flux:subheading class="mb-4">{{ $activePoll->question }}</flux:subheading>
+                    <flux:card class="overflow-hidden relative border-none shadow-lg">
+                        <div class="absolute top-0 right-0 p-4 opacity-5">
+                            <flux:icon name="presentation-chart-line" class="w-20 h-20" />
+                        </div>
+                        <flux:heading size="lg" class="font-black">Voz del Operador</flux:heading>
+                        <flux:subheading class="mb-6 leading-relaxed">{{ $activePoll->question }}</flux:subheading>
 
                         @if($isAuthenticated)
                             @if($hasVotedInActivePoll)
-                                <div class="space-y-3 py-2">
-                                    <flux:badge color="green" class="w-full justify-center">Ya has participado</flux:badge>
-                                    
-                                    <div class="space-y-3 mt-4">
+                                <div class="space-y-4">
+                                    @php
+                                        $totalVotes = collect($activePoll->options)->sum(fn($opt) => $opt['votes'] ?? 0);
+                                    @endphp
+                                    @foreach($activePoll->options as $option)
                                         @php
-                                            $totalVotes = collect($activePoll->options)->sum(fn($opt) => $opt['votes'] ?? 0);
+                                            $votes = $option['votes'] ?? 0;
+                                            $percentage = $totalVotes > 0 ? round(($votes / $totalVotes) * 100) : 0;
                                         @endphp
-                                        @foreach($activePoll->options as $option)
-                                            @php
-                                                $votes = $option['votes'] ?? 0;
-                                                $percentage = $totalVotes > 0 ? round(($votes / $totalVotes) * 100) : 0;
-                                            @endphp
-                                            <div class="space-y-1">
-                                                <div class="flex justify-between text-xs font-medium">
-                                                    <span>{{ $option['text'] }}</span>
-                                                    <span>{{ $percentage }}% ({{ $option['votes'] ?? 0 }})</span>
-                                                </div>
-                                                <div class="w-full bg-zinc-100 rounded-full h-2 dark:bg-zinc-800">
-                                                    <div class="bg-{{ $option['color'] ?? 'blue' }}-500 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
-                                                </div>
+                                        <div class="space-y-1.5">
+                                            <div class="flex justify-between text-xs font-bold text-zinc-600 dark:text-zinc-400">
+                                                <span>{{ $option['text'] }}</span>
+                                                <span>{{ $percentage }}%</span>
                                             </div>
-                                        @endforeach
+                                            <div class="w-full bg-zinc-100 rounded-full h-1.5 dark:bg-zinc-800 overflow-hidden">
+                                                <div class="bg-cyan-500 h-full rounded-full transition-all duration-1000" style="width: {{ $percentage }}%"></div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                    <div class="pt-4 border-t border-zinc-100 dark:border-zinc-800 text-center">
+                                        <flux:badge color="green" size="sm">¡Voto registrado!</flux:badge>
                                     </div>
-                                    <flux:text class="text-xs text-center mt-4 italic">Gracias por tu participación.</flux:text>
                                 </div>
                             @else
                                 <form wire:submit="submitPoll" class="space-y-4">
-                                    <flux:radio.group wire:model="pollForm.answer" variant="cards" class="flex-col">
+                                    <flux:radio.group wire:model="pollForm.answer" variant="cards" class="flex-col gap-2">
                                         @foreach($activePoll->options as $option)
-                                            <flux:radio value="{{ $option['text'] }}" label="{{ $option['text'] }}" />
+                                            <flux:radio value="{{ $option['text'] }}" label="{{ $option['text'] }}" class="text-sm" />
                                         @endforeach
                                     </flux:radio.group>
 
-                                    <flux:button type="submit" variant="primary" class="w-full">
-                                        Votar
+                                    <flux:button type="submit" variant="primary" class="w-full shadow-lg shadow-cyan-500/20">
+                                        Enviar Voto
                                     </flux:button>
                                 </form>
                             @endif
                         @else
-                            <div class="space-y-3">
-                                <div class="space-y-2">
-                                    @foreach($activePoll->options as $option)
-                                        <div class="rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700">
-                                            {{ $option['text'] }}
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <flux:text class="text-xs text-zinc-500">Inicia sesión para votar y ver tu participación.</flux:text>
+                            <div class="space-y-4 text-center py-4">
+                                <flux:text class="text-sm text-zinc-500">Inicia sesión para participar en esta encuesta y ver los resultados reales.</flux:text>
                                 <flux:button href="{{ route('login') }}" wire:navigate variant="outline" class="w-full">
-                                    Iniciar sesión
+                                    Iniciar Sesión
                                 </flux:button>
                             </div>
                         @endif
-                    </flux:card>
-                @endif
-
-                <!-- Notificaciones Recientes -->
-                @if($isAuthenticated && $recentNotifications->count() > 0)
-                    <flux:card class="shadow-sm">
-                        <flux:heading size="lg">Notificaciones</flux:heading>
-                        <flux:subheading class="mb-4">Actualizaciones recientes.</flux:subheading>
-
-                        <div class="space-y-3">
-                            @foreach($recentNotifications as $notification)
-                                <div class="flex gap-3 p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
-                                    <div class="flex-shrink-0 mt-0.5">
-                                        @switch($notification->type)
-                                            @case('comment')
-                                                <span class="text-blue-500">💬</span>
-                                                @break
-                                            @case('reaction')
-                                                <span class="text-red-500">❤️</span>
-                                                @break
-                                            @case('mention')
-                                                <span class="text-green-500">@</span>
-                                                @break
-                                            @default
-                                                <span class="text-gray-500">🔔</span>
-                                        @endswitch
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <flux:text class="text-sm line-clamp-2">{{ $notification->message }}</flux:text>
-                                        <flux:text class="text-xs text-zinc-500 mt-1">{{ $notification->created_at->diffForHumans() }}</flux:text>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-700">
-                            <flux:button href="#" variant="ghost" size="sm" class="w-full" wire:navigate>
-                                Ver todas las notificaciones
-                            </flux:button>
-                        </div>
-                    </flux:card>
-                @elseif(!$isAuthenticated)
-                    <flux:card class="shadow-sm">
-                        <flux:heading size="lg">Participa en Comunicaciones</flux:heading>
-                        <flux:subheading class="mb-4">Con sesión iniciada podrás comentar, reaccionar y recibir notificaciones.</flux:subheading>
-
-                        <flux:button href="{{ route('login') }}" wire:navigate variant="primary" class="w-full">
-                            Iniciar sesión
-                        </flux:button>
                     </flux:card>
                 @endif
             </aside>
         </div>
     </div>
 
-    <!-- Abajo: Shoutouts -->
-    <section class="mx-auto w-full max-w-[85rem] px-4 pb-16 sm:px-6 lg:px-8">
-        <div class="mb-6 flex items-end justify-between gap-4">
-            <div>
-                <flux:heading size="lg">Shout-outs</flux:heading>
-                <flux:subheading>Mensajes rápidos de reconocimiento entre equipos operativos.</flux:subheading>
+    <!-- Sección de Shoutouts: Estilo Feed Social -->
+    <section class="bg-zinc-50 dark:bg-zinc-900/50 border-y border-zinc-200 dark:border-zinc-800">
+        <div class="mx-auto w-full max-w-[85rem] px-4 py-16 sm:px-6 lg:px-8">
+            <div class="mb-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div>
+                    <flux:heading size="xl" class="font-black italic">Shout-outs ⚡</flux:heading>
+                    <flux:subheading>Reconocimientos rápidos que impulsan la cultura del equipo.</flux:subheading>
+                </div>
+                
+                <flux:button icon="plus" variant="primary" class="rounded-full px-8">
+                    Dar un Reconocimiento
+                </flux:button>
             </div>
-        </div>
 
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            @forelse ($shoutoutItems as $shoutout)
-                <flux:card class="transition hover:-translate-y-0.5 hover:shadow-md">
-                    <div class="mb-4 flex items-center gap-3">
-                        <flux:avatar src="{{ $shoutout->employee->user?->avatar_url }}" name="{{ $shoutout->employee->name }}" />
-                        <div>
-                            <flux:heading size="sm">{{ $shoutout->employee->name }}</flux:heading>
-                            <flux:text class="text-xs uppercase tracking-[0.16em]">Reconocimiento</flux:text>
+            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                @forelse ($shoutoutItems as $shoutout)
+                    <flux:card class="relative flex flex-col p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white dark:bg-zinc-800 border-none">
+                        <div class="mb-6 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <flux:avatar src="{{ $shoutout->employee->user?->avatar_url }}" name="{{ $shoutout->employee->full_name }}" class="ring-2 ring-cyan-500/20" />
+                                <div>
+                                    <flux:heading size="sm" class="font-black">{{ $shoutout->employee->full_name }}</flux:heading>
+                                    <flux:text class="text-[9px] font-black uppercase text-cyan-600 tracking-widest">{{ $shoutout->employee->team->name ?? 'Equipo' }}</flux:text>
+                                </div>
+                            </div>
+                            <flux:icon name="sparkles" class="w-5 h-5 text-amber-400 opacity-40" />
                         </div>
-                    </div>
-                    <flux:text class="line-clamp-3 mb-4">{{ $shoutout->message }}</flux:text>
 
-                    <!-- Reacciones -->
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-1">
-                            @php
-                                $reactionTypes = ['like' => '👍', 'love' => '❤️', 'celebrate' => '🎉', 'support' => '🤝'];
-                            @endphp
-                            @foreach($reactionTypes as $type => $emoji)
+                        <div class="flex-1">
+                            <flux:text class="text-base leading-relaxed text-zinc-700 dark:text-zinc-300 italic">
+                                "{{ $shoutout->message }}"
+                            </flux:text>
+                        </div>
+
+                        <!-- Interacciones Premium -->
+                        <div class="mt-8 pt-4 border-t border-zinc-100 dark:border-zinc-700 flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
                                 @php
-                                    $count = $shoutout->reactions->where('type', $type)->count();
-                                    $userReacted = in_array($type, $shoutout->user_reactions ?? []);
+                                    $reactionTypes = ['like' => '👍', 'love' => '❤️', 'celebrate' => '🎉', 'support' => '🤝'];
                                 @endphp
-                                @if($isAuthenticated)
-                                    <flux:button
+                                @foreach($reactionTypes as $type => $emoji)
+                                    @php
+                                        $count = $shoutout->reactions->where('type', $type)->count();
+                                        $userReacted = in_array($type, $shoutout->user_reactions ?? []);
+                                    @endphp
+                                    <button 
                                         wire:click="toggleReaction({{ $shoutout->id }}, '{{ $type }}')"
-                                        variant="{{ $userReacted ? 'primary' : 'ghost' }}"
-                                        size="sm"
-                                        class="h-8 px-2 text-xs">
-                                        {{ $emoji }} {{ $count }}
-                                    </flux:button>
-                                @else
-                                    <flux:button
-                                        variant="ghost"
-                                        size="sm"
-                                        class="h-8 px-2 text-xs"
-                                        disabled>
-                                        {{ $emoji }} {{ $count }}
-                                    </flux:button>
-                                @endif
-                            @endforeach
+                                        @disabled(!$isAuthenticated)
+                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold transition-all {{ $userReacted ? 'bg-cyan-500 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 hover:bg-zinc-200' }}">
+                                        {{ $emoji }} <span>{{ $count }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
+                            <flux:text class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{{ $shoutout->created_at->diffForHumans(null, true) }}</flux:text>
                         </div>
-                        <flux:text class="text-xs text-zinc-500">{{ $shoutout->created_at->diffForHumans() }}</flux:text>
+                    </flux:card>
+                @empty
+                    <div class="col-span-full py-20 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl">
+                        <flux:icon name="users" class="w-12 h-12 mx-auto text-zinc-300 mb-4" />
+                        <flux:heading size="md">Cultura de equipo</flux:heading>
+                        <flux:text class="mt-1">Sé el primero en reconocer el buen trabajo de un compañero.</flux:text>
                     </div>
-                </flux:card>
-            @empty
-                <flux:card class="col-span-full border-dashed bg-zinc-50/50 py-8 text-center dark:bg-zinc-800/50">
-                    <flux:heading size="sm">Todavía no hay shout-outs publicados.</flux:heading>
-                    <flux:subheading class="mt-1">Cuando alguien reconozca a un compañero, aparecerá aquí.</flux:subheading>
-                </flux:card>
-            @endforelse
+                @endforelse
+            </div>
         </div>
     </section>
 
-    <flux:modal name="news-detail-modal" wire:model="showNewsModal" class="py-4 md:min-w-[50rem] space-y-6">
+    <!-- Modal Detalle Noticia con Comentarios Integrados -->
+    <flux:modal name="news-detail-modal" wire:model="showNewsModal" class="md:min-w-[55rem] p-0 overflow-hidden">
         @if ($viewingNews)
-            <div class="space-y-6 px-4 py-2">
-                <!-- Imagen Destacada -->
-                <div class="-mx-6 -mt-6 overflow-hidden aspect-[21/9] bg-zinc-100 dark:bg-zinc-800">
-                    <img
-                        src="{{ $viewingNews->getFirstMediaUrl('featured_image') ?: asset('img/news-placeholder.png') }}"
-                        alt="{{ $viewingNews->title }}"
-                        class="w-full h-full object-cover"
-                    />
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex items-center gap-2">
-                        <flux:badge color="blue" size="sm">Novedades</flux:badge>
-                        <flux:text class="text-xs">{{ $viewingNews->published_at->format('d M, Y') }}</flux:text>
-                    </div>
-
-                    <flux:heading size="xl">{{ $viewingNews->title }}</flux:heading>
-
-                    <div class="flex items-center gap-3">
-                        <flux:avatar src="{{ $viewingNews->author?->avatar_url }}" name="{{ $viewingNews->author?->name }}" size="sm" />
-                        <flux:text class="text-sm font-medium">{{ $viewingNews->author?->name }}</flux:text>
-                    </div>
-                </div>
-
-                <flux:separator />
-
-                <!-- Contenido Principal -->
-                <div class="prose prose-zinc dark:prose-invert max-w-none prose-sm sm:prose-base">
-                    {!! Str::markdown($viewingNews->content) !!}
-                </div>
-
-                <!-- Espacio Dinámico para Multimedia y Documentos -->
-                @if ($viewingNews->hasMedia('attachments'))
-                    <flux:separator />
+            <div class="grid lg:grid-cols-[1fr_350px] h-[85vh]">
+                <!-- Lado Izquierdo: Contenido -->
+                <div class="overflow-y-auto p-8 lg:p-12 space-y-8 custom-scrollbar">
                     <div class="space-y-4">
-                        <flux:heading size="sm">Archivos y Multimedia</flux:heading>
-                        <div class="grid gap-4">
-                            @foreach ($viewingNews->getMedia('attachments') as $media)
-                                @php
-                                    $extension = strtolower($media->extension);
-                                    $isVideo = in_array($extension, ['mp4', 'webm', 'ogg']);
-                                    $isPdf = $extension === 'pdf';
-                                    $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif']);
-                                @endphp
-
-                                <flux:card class="p-4 flex flex-col gap-3">
-                                    <div class="flex items-center gap-3 overflow-hidden">
-                                        <flux:icon name="{{ $isPdf ? 'document-text' : ($isImage ? 'photo' : ($isVideo ? 'play-circle' : 'paper-clip')) }}" class="text-zinc-400" />
-                                        <flux:text class="truncate text-sm font-medium">{{ $media->file_name }}</flux:text>
-                                    </div>
-
-                                    @if ($isImage)
-                                        <img src="{{ $media->getUrl() }}" class="w-full h-32 object-cover rounded shadow-sm" />
-                                    @elseif ($isVideo)
-                                        <video controls class="w-full rounded shadow-sm">
-                                            <source src="{{ $media->getUrl() }}" type="{{ $media->mime_type }}">
-                                            Tu navegador no soporta el video.
-                                        </video>
-                                    @endif
-
-                                    <div class="mt-auto gap-2">
-                                        @if ($isPdf)
-                                            <flux:embed src="{{ $media->getUrl() }}" type="application/pdf" width="100%" title="{{ $media->file_name }}" />
-                                        @endif
-                                    </div>
-                                    <flux:button href="{{ $media->getUrl() }}" download variant="ghost" size="xs" icon="arrow-down-tray" class="flex-1">
-                                            Descargar
-                                        </flux:button>
-                                </flux:card>
-                            @endforeach
+                        <div class="flex items-center gap-3">
+                            <flux:badge color="cyan" size="sm" class="uppercase tracking-widest">{{ $viewingNews->categories->first()->name ?? 'Novedades' }}</flux:badge>
+                            <flux:text class="text-xs font-bold text-zinc-400">{{ $viewingNews->published_at->translatedFormat('d M, Y') }}</flux:text>
+                        </div>
+                        <flux:heading size="xl" class="text-3xl lg:text-4xl font-black leading-tight">{{ $viewingNews->title }}</flux:heading>
+                        
+                        <div class="flex items-center gap-3 pt-2">
+                            <flux:avatar src="{{ $viewingNews->author?->avatar_url }}" name="{{ $viewingNews->author?->name }}" size="sm" />
+                            <div>
+                                <flux:text class="text-sm font-bold">{{ $viewingNews->author?->name }}</flux:text>
+                                <flux:text class="text-[10px] uppercase text-zinc-500 font-black tracking-tighter">Autor del Artículo</flux:text>
+                            </div>
                         </div>
                     </div>
-                @endif
-            </div>
-        @else
-            <div class="flex items-center justify-center py-20">
-                <flux:icon name="loading" class="animate-spin h-8 w-8 text-zinc-400" />
+
+                    @if($viewingNews->getFirstMediaUrl('featured_image'))
+                        <div class="rounded-3xl overflow-hidden shadow-2xl">
+                            <img src="{{ $viewingNews->getFirstMediaUrl('featured_image') }}" class="w-full object-cover max-h-[400px]" />
+                        </div>
+                    @endif
+
+                    <div class="prose prose-zinc dark:prose-invert max-w-none">
+                        {!! Str::markdown($viewingNews->content) !!}
+                    </div>
+
+                    @if ($viewingNews->hasMedia('attachments'))
+                        <div class="pt-8 border-t border-zinc-100 dark:border-zinc-800 space-y-4">
+                            <flux:heading size="sm" class="font-black uppercase tracking-widest text-zinc-400">Archivos Adjuntos</flux:heading>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                @foreach ($viewingNews->getMedia('attachments') as $media)
+                                    <a href="{{ $media->getUrl() }}" download class="flex items-center gap-3 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 transition-colors border border-zinc-100 dark:border-zinc-800 group">
+                                        <flux:icon name="paper-clip" class="w-5 h-5 text-zinc-400 group-hover:text-cyan-500" />
+                                        <div class="flex-1 min-w-0">
+                                            <flux:text class="text-xs font-bold truncate">{{ $media->file_name }}</flux:text>
+                                            <flux:text class="text-[10px] text-zinc-500">{{ $media->human_readable_size }}</flux:text>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Lado Derecho: Conversación -->
+                <div class="bg-zinc-50 dark:bg-zinc-900/50 border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full">
+                    <div class="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between">
+                        <flux:heading size="md" class="font-black">Conversación</flux:heading>
+                        <flux:button wire:click="closeNewsModal" variant="ghost" icon="x-mark" size="xs" />
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                        @forelse($viewingNews->comments as $comment)
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <flux:avatar src="{{ $comment->user->avatar_url }}" name="{{ $comment->user->name }}" size="xs" />
+                                    <flux:text class="text-xs font-bold">{{ $comment->user->name }}</flux:text>
+                                    <flux:text class="text-[10px] text-zinc-400">{{ $comment->created_at->diffForHumans(null, true) }}</flux:text>
+                                </div>
+                                <div class="bg-white dark:bg-zinc-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-zinc-100 dark:border-zinc-700">
+                                    <flux:text class="text-sm leading-relaxed">{{ $comment->content }}</flux:text>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="h-full flex flex-col items-center justify-center text-center opacity-40 grayscale py-12">
+                                <flux:icon name="chat-bubble-left-right" class="w-12 h-12 mb-4" />
+                                <flux:text class="text-xs font-bold uppercase tracking-widest">Sin comentarios aún</flux:text>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    @if($isAuthenticated)
+                        <div class="p-6 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                            <form wire:submit="submitComment" class="space-y-3">
+                                <input type="hidden" wire:model="commentForm.news_id">
+                                <flux:textarea 
+                                    wire:model="commentForm.content" 
+                                    placeholder="Escribe tu opinión..." 
+                                    rows="3" 
+                                    variant="subtle"
+                                    class="text-sm rounded-2xl" />
+                                <flux:button type="submit" variant="primary" class="w-full rounded-xl">Publicar Comentario</flux:button>
+                            </form>
+                        </div>
+                    @else
+                        <div class="p-6 bg-zinc-100 dark:bg-zinc-800/50 text-center">
+                            <flux:text class="text-xs text-zinc-500 mb-4">Inicia sesión para participar.</flux:text>
+                            <flux:button href="{{ route('login') }}" wire:navigate variant="outline" size="sm" class="w-full">Entrar</flux:button>
+                        </div>
+                    @endif
+                </div>
             </div>
         @endif
-
-        <div class="flex justify-end pt-4">
-            <flux:button wire:click="closeNewsModal" variant="ghost">Cerrar</flux:button>
-        </div>
     </flux:modal>
 </div>

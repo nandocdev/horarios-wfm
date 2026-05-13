@@ -166,6 +166,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'reports.scorecard',
             'reports.attendance',
             'reports.compliance',
+            'reports.staffing',
+            'reports.requests',
 
             // Helpdesk Module
             'helpdesk.view',

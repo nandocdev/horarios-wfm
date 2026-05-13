@@ -37,6 +37,12 @@ class CreateShoutoutAction
                 $shoutout->tags()->sync($dto->tag_ids);
             }
 
+            // Almacenar imagen si existe
+            if ($dto->image) {
+                $shoutout->addMedia($dto->image)
+                    ->toMediaCollection('banner');
+            }
+
             return $shoutout;
         });
     }

@@ -33,6 +33,8 @@ class ShoutoutForm extends Form
 
     public string $workflow_action = 'save_draft';
 
+    public mixed $image = null;
+
     /**
      * Reglas de validación.
      */
@@ -40,7 +42,7 @@ class ShoutoutForm extends Form
     {
         return [
             'employee_id' => 'required|integer|exists:employees,id',
-            'message' => 'required|string|max:500',
+            'message' => 'required|string|max:200',
             'is_active' => 'boolean',
             'scheduled_at' => 'nullable|date',
             'archive_at' => 'nullable|date|after:scheduled_at',
@@ -49,6 +51,7 @@ class ShoutoutForm extends Form
             'tag_ids' => 'array',
             'tag_ids.*' => 'integer|exists:tags,id',
             'workflow_action' => 'required|string|in:save_draft,submit_review',
+            'image' => 'nullable|image|max:5120', // 5MB max
         ];
     }
 
@@ -100,7 +103,8 @@ class ShoutoutForm extends Form
             archive_at: $this->archive_at,
             category_ids: array_map('intval', $this->category_ids),
             tag_ids: array_map('intval', $this->tag_ids),
-            workflow_action: $this->workflow_action
+            workflow_action: $this->workflow_action,
+            image: $this->image
         );
     }
 }

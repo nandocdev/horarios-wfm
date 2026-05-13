@@ -18,6 +18,7 @@ readonly class ShoutoutDTO
         public array $category_ids = [],
         public array $tag_ids = [],
         public string $workflow_action = 'save_draft',
+        public mixed $image = null,
     ) {}
 
     /**

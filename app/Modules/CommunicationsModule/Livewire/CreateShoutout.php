@@ -8,12 +8,14 @@ use App\Modules\CommunicationsModule\Actions\CreateShoutoutAction;
 use App\Modules\CommunicationsModule\Livewire\Forms\ShoutoutForm;
 use App\Modules\PersonnelModule\Models\Employee;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 /**
  * Componente para la creación de un nuevo reconocimiento (shoutout).
  */
 class CreateShoutout extends Component
 {
+    use WithFileUploads;
     public ShoutoutForm $form;
 
     /**

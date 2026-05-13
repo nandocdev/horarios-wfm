@@ -26,7 +26,34 @@
                         label="Mensaje de Reconocimiento"
                         placeholder="Ej. ¡Excelente trabajo en el cierre de mes! Tu dedicación fue clave..." 
                         rows="6"
+                        maxlength="200"
+                        description="Máximo 200 caracteres."
                     />
+
+                    <div class="pt-4">
+                        <flux:label>Imagen del Banner (Opcional)</flux:label>
+                        <flux:text size="sm" class="mb-3">Esta imagen se mostrará como fondo en el carrusel de reconocimientos.</flux:text>
+                        
+                        <div class="flex items-start gap-4">
+                            @if($form->image)
+                                <div class="relative w-32 h-20 rounded-lg overflow-hidden border border-zinc-200">
+                                    <img src="{{ $form->image->temporaryUrl() }}" class="w-full h-full object-cover">
+                                </div>
+                            @elseif($mode === 'edit' && $shoutout->hasMedia('banner'))
+                                <div class="relative w-32 h-20 rounded-lg overflow-hidden border border-zinc-200">
+                                    <img src="{{ $shoutout->getFirstMediaUrl('banner', 'thumb') }}" class="w-full h-full object-cover">
+                                </div>
+                            @endif
+
+                            <div class="flex-1">
+                                <flux:input type="file" wire:model="form.image" accept="image/*" />
+                                <flux:error name="form.image" />
+                                <div wire:loading wire:target="form.image" class="mt-2 text-xs text-indigo-600 font-medium italic">
+                                    Subiendo imagen...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </flux:card>
         </div>

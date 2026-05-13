@@ -11,14 +11,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * Modelo para Shoutouts.
  *
  * Representa reconocimientos cortos entre colaboradores.
  */
-class Shoutout extends Model
+class Shoutout extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $fillable = [
         'employee_id',
         'message',
@@ -204,5 +209,26 @@ class Shoutout extends Model
                 $shoutout->addToVersionHistory();
             }
         });
+    }
+
+    /**
+     * Define las colecciones de medios.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('banner')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    /**
+     * Define las conversiones de imagen.
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(400)
+            ->height(225)
+            ->sharpen(10);
     }
 }

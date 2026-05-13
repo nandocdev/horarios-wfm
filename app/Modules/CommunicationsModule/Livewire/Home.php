@@ -27,11 +27,19 @@ class Home extends Component
         'news_id' => null,
     ];
 
+    public array $shoutoutForm = [
+        'employee_id' => null,
+        'message' => '',
+        'workflow_action' => 'submit_review',
+    ];
+
     public ?int $selectedNewsId = null;
 
     public ?int $viewingNewsId = null;
 
     public bool $showNewsModal = false;
+
+    public bool $showShoutoutModal = false;
 
     public bool $showComments = false;
 
@@ -175,6 +183,59 @@ class Home extends Component
     }
 
     /**
+     * Abre el modal para crear un nuevo reconocimiento.
+     */
+    public function openShoutoutModal(): void
+    {
+        if (! $this->ensureAuthenticated('dar un reconocimiento')) {
+            return;
+        }
+
+        $this->reset('shoutoutForm');
+        $this->shoutoutForm['workflow_action'] = 'submit_review';
+        $this->showShoutoutModal = true;
+    }
+
+    /**
+     * Cierra el modal de reconocimiento.
+     */
+    public function closeShoutoutModal(): void
+    {
+        $this->showShoutoutModal = false;
+        $this->reset('shoutoutForm');
+    }
+
+    /**
+     * Procesa la creación de un nuevo reconocimiento.
+     */
+    public function submitShoutout(\App\Modules\CommunicationsModule\Actions\CreateShoutoutAction $action): void
+    {
+        if (! $this->ensureAuthenticated('dar un reconocimiento')) {
+            return;
+        }
+
+        $this->validate([
+            'shoutoutForm.employee_id' => 'required|exists:employees,id',
+            'shoutoutForm.message' => 'required|string|min:5|max:200',
+        ], [], [
+            'shoutoutForm.employee_id' => 'compañero',
+            'shoutoutForm.message' => 'mensaje de reconocimiento',
+        ]);
+
+        $dto = \App\Modules\CommunicationsModule\DTOs\ShoutoutDTO::fromArray([
+            'employee_id' => $this->shoutoutForm['employee_id'],
+            'message' => $this->shoutoutForm['message'],
+            'workflow_action' => $this->shoutoutForm['workflow_action'],
+            'is_active' => true,
+        ]);
+
+        $action->execute($dto);
+
+        toast('¡Reconocimiento enviado correctamente! Quedará visible una vez sea aprobado.');
+        $this->closeShoutoutModal();
+    }
+
+    /**
      * Mostrar/ocultar comentarios de una noticia.
      */
     public function toggleComments(int $newsId): void
@@ -225,7 +286,7 @@ class Home extends Component
             ->take(4)
             ->get();
 
-        $shoutoutItems = Shoutout::with(['employee.user', 'employee.team', 'reactions'])
+        $shoutoutItems = Shoutout::with(['employee.user', 'employee.team', 'reactions', 'media'])
             ->withCount('reactions')
             ->where('is_active', true)
             ->where('status', 'published')
@@ -280,6 +341,13 @@ class Home extends Component
             }])->find($this->viewingNewsId)
             : null;
 
+        $employees = $isAuthenticated
+            ? \App\Modules\PersonnelModule\Models\Employee::active()
+                ->where('id', '!=', auth()->user()->employee?->id) // No auto-shoutout
+                ->orderBy('first_name')
+                ->get(['id', 'first_name', 'last_name'])
+            : collect();
+
         $recentNotifications = $isAuthenticated
             ? Notification::where('user_id', auth()->id())
                 ->where('is_read', false)
@@ -301,6 +369,7 @@ class Home extends Component
             'viewingNews' => $viewingNews,
             'recentNotifications' => $recentNotifications,
             'featuredShoutout' => $featuredShoutout,
+            'employees' => $employees,
         ])->layout('layouts.app', [
             'title' => 'Comunicaciones',
         ]);

@@ -162,10 +162,8 @@ class MyTeam extends Component {
         if ($isPowerUser) {
             $availableTeams = Team::with('supervisor')->active()->get();
         } else {
-            $directTeams = Team::with('supervisor')->where('supervisor_id', $employee->id)->get();
-            $subordinateIds = $employee->getAllSubordinateIds();
-            $indirectTeams = Team::with('supervisor')->whereIn('supervisor_id', $subordinateIds)->get();
-            $availableTeams = $directTeams->concat($indirectTeams)->unique('id');
+            $managedTeamIds = $employee->getManagedTeamIds();
+            $availableTeams = Team::with('supervisor')->whereIn('id', $managedTeamIds)->get();
         }
 
         $subordinateIds = $isPowerUser ? [] : $employee->getAllSubordinateIds();
@@ -177,18 +175,20 @@ class MyTeam extends Component {
             $team = Team::find($this->selectedTeam);
             $teamMemberIds = $team->users()->pluck('employees.id')->toArray();
 
-            // Administradores y WFM ven todo el equipo.
-            // Supervisores ven su equipo o sus subordinados dentro de ese equipo.
-            if ($isPowerUser || $team->supervisor_id === $employee->id || $this->isManager) {
+            // Administradores, WFM y usuarios con derechos de coordinador ven todo el equipo seleccionado.
+            if ($isPowerUser || $employee->hasCoordinatorRights() || $team->supervisor_id === $employee->id) {
                 $query->whereIn('id', $teamMemberIds);
             } else {
+                // Caso restringido: solo ve subordinados directos/indirectos dentro de ese equipo
                 $query->whereIn('id', array_intersect($teamMemberIds, $subordinateIds));
             }
         } else {
-            // Si no hay equipo, Admin/WFM ve todo (o podrías limitar a un grupo grande)
-            // Por ahora, si es Admin/WFM y no hay equipo, mostramos todos los activos
+            // Si no hay equipo seleccionado
             if (!$isPowerUser) {
-                $query->whereIn('id', $subordinateIds);
+                // Usuarios con derechos ven a sus subordinados + miembros de sus equipos gestionados
+                $managedTeamMemberIds = Employee::whereIn('team_id', $employee->getManagedTeamIds())->pluck('id')->toArray();
+                $allVisibleIds = array_unique(array_merge($subordinateIds, $managedTeamMemberIds));
+                $query->whereIn('id', $allVisibleIds);
             }
         }
 

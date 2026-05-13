@@ -22,11 +22,14 @@ class ManagerApprovals extends Component
             return;
         }
 
-        $subordinateIds = $manager->getAllSubordinateIds();
+        $managedTeamIds = $manager->getManagedTeamIds();
 
         $leave = LeaveRequest::where('id', $leaveId)
-            ->whereIn('employee_id', $subordinateIds)
             ->where('status', 'pending')
+            ->where(function ($q) use ($manager, $managedTeamIds) {
+                $q->whereIn('employee_id', $manager->getAllSubordinateIds())
+                  ->orWhereHas('employee', fn($sq) => $sq->whereIn('team_id', $managedTeamIds));
+            })
             ->firstOrFail();
 
         DB::transaction(function () use ($leave, $manager, $comment) {
@@ -51,11 +54,14 @@ class ManagerApprovals extends Component
             return;
         }
 
-        $subordinateIds = $manager->getAllSubordinateIds();
+        $managedTeamIds = $manager->getManagedTeamIds();
 
         $leave = LeaveRequest::where('id', $leaveId)
-            ->whereIn('employee_id', $subordinateIds)
             ->where('status', 'pending')
+            ->where(function ($q) use ($manager, $managedTeamIds) {
+                $q->whereIn('employee_id', $manager->getAllSubordinateIds())
+                  ->orWhereHas('employee', fn($sq) => $sq->whereIn('team_id', $managedTeamIds));
+            })
             ->firstOrFail();
 
         DB::transaction(function () use ($leave, $manager, $comment) {
@@ -80,12 +86,23 @@ class ManagerApprovals extends Component
 
         if ($manager) {
             $subordinateIds = $manager->getAllSubordinateIds();
+            $managedTeamIds = $manager->getManagedTeamIds();
+            
+            $query = LeaveRequest::with(['employee', 'employee.position', 'employee.team'])
+                ->where('status', 'pending');
 
-            $requests = LeaveRequest::with(['employee', 'employee.position', 'employee.team'])
-                ->whereIn('employee_id', $subordinateIds)
-                ->where('status', 'pending')
-                ->orderBy('start_time', 'asc')
-                ->paginate(15);
+            if ($manager->hasCoordinatorRights()) {
+                // Ve solicitudes de sus subordinados O de cualquier miembro de sus equipos gestionados
+                $query->where(function($q) use ($subordinateIds, $managedTeamIds) {
+                    $q->whereIn('employee_id', $subordinateIds)
+                      ->orWhereHas('employee', fn($sq) => $sq->whereIn('team_id', $managedTeamIds));
+                });
+            } else {
+                // Solo ve solicitudes de sus subordinados
+                $query->whereIn('employee_id', $subordinateIds);
+            }
+
+            $requests = $query->orderBy('start_time', 'asc')->paginate(15);
         }
 
         return view('wfm::livewire.manager-approvals', [

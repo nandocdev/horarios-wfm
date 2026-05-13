@@ -140,9 +140,25 @@ class MyTeam extends Component {
         $this->weekStart = Carbon::now()->startOfWeek();
         $this->weekEnd = Carbon::now()->endOfWeek();
 
-        $employee = Auth::user()->employee;
+        $user = Auth::user();
+        $employee = $user->employee;
         if (!$employee) {
             abort(403, 'No tienes un perfil de empleado asociado.');
+        }
+
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
+
+        // Validar acceso al equipo seleccionado inicialmente
+        if ($this->selectedTeam && !$isPowerUser) {
+            $managedTeamIds = $employee->getManagedTeamIds();
+            if (!in_array($this->selectedTeam, $managedTeamIds)) {
+                $this->selectedTeam = null;
+            }
+        }
+
+        // Seleccionar equipo propio por defecto si es coordinador
+        if ($this->selectedTeam === null && $employee->team_id && !$isPowerUser) {
+            $this->selectedTeam = $employee->team_id;
         }
 
         $this->isManager = $employee->is_manager;

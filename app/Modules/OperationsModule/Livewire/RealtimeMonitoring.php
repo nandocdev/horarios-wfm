@@ -42,6 +42,18 @@ class RealtimeMonitoring extends Component
     {
         $this->authorize('monitorRealtime', \App\Modules\WfmModule\Models\Schedule::class);
         
+        $user = auth()->user();
+        $employee = $user->employee;
+        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
+
+        // Validar acceso al teamId inicial
+        if ($this->teamId && !$isPowerUser) {
+            $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
+            if (!in_array($this->teamId, $managedTeamIds)) {
+                $this->teamId = null;
+            }
+        }
+
         $currentWeek = \App\Modules\WfmModule\Models\WeeklySchedule::where('week_start_date', '<=', now()->toDateString())
             ->where('week_end_date', '>=', now()->toDateString())
             ->first();

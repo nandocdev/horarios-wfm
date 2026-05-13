@@ -59,15 +59,18 @@ final class TelemetryService implements TelemetryServiceInterface
             ->where('transition_time', '<=', $end)
             ->orderBy('transition_time')
             ->get()
-            ->map(fn($t) => new TelemetryStateDTO(
-                $employeeId,
-                $t->agent_state,
-                $t->reason_code,
-                $t->transition_time instanceof \Illuminate\Support\Carbon ? $t->transition_time->toIso8601String() : (string) $t->transition_time,
-                [
-                    'duration' => $t->duration,
-                    'is_productive' => in_array($t->agent_state, ['Ready', 'Reserved', 'Talking', 'Work'])
-                ]
-            ));
+            ->map(function($t) use ($employeeId) {
+                $cleanState = trim((string)$t->agent_state);
+                return new TelemetryStateDTO(
+                    $employeeId,
+                    $cleanState,
+                    $t->reason_code,
+                    $t->transition_time instanceof \Illuminate\Support\Carbon ? $t->transition_time->toIso8601String() : (string) $t->transition_time,
+                    [
+                        'duration' => $t->duration,
+                        'is_productive' => in_array($cleanState, ['Ready', 'Reserved', 'Talking', 'Work'])
+                    ]
+                );
+            });
     }
 }

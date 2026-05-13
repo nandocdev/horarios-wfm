@@ -27,10 +27,16 @@ final class MetricFormulas {
      */
     public static function utilization(float $productiveMinutes, float $baseMinutes): float {
         if ($baseMinutes <= 0) {
-            return 0.0;
+            // Si el agente está produciendo pero no tiene tiempo base (ej. antes del turno), 
+            // la utilización técnica es 100% de su tiempo transcurrido (o 0 si queremos castigar extra-jornada).
+            // Por simplicidad para el dashboard: si hay producción pero no base, devolvemos 100% 
+            // solo si queremos incentivar la conexión temprana, o 0 si medimos apego estricto.
+            return $productiveMinutes > 0 ? 100.0 : 0.0;
         }
 
-        return round(($productiveMinutes / $baseMinutes) * 100, 1);
+        $rate = ($productiveMinutes / $baseMinutes) * 100;
+        
+        return round(min($rate, 100.0), 1); // Capeamos al 100% para evitar distorsiones
     }
 
     /**
@@ -52,7 +58,7 @@ final class MetricFormulas {
 
         // Si el turno aún no empieza
         if ($now < $startTime) {
-            return 1; // Evitar división por cero
+            return 0; // El turno no ha iniciado, la base es cero.
         }
 
         // Si el turno ya terminó
@@ -69,13 +75,14 @@ final class MetricFormulas {
     /**
      * Determina si una marca de tiempo constituye una tardanza.
      */
-    public static function checkLate(string $scheduledEntry, string $actualEntry, int $graceMinutes = 5): bool {
-        $scheduled = new \DateTimeImmutable($scheduledEntry);
-        $actual = new \DateTimeImmutable($actualEntry);
+    public static function checkLate(string|\DateTimeInterface $scheduledEntry, string|\DateTimeInterface $actualEntry, int $graceMinutes = 5): bool {
+        $scheduled = $scheduledEntry instanceof \DateTimeInterface 
+            ? $scheduledEntry 
+            : new \DateTimeImmutable($scheduledEntry);
 
-        // Solo comparamos la hora, minuto y segundo
-        $sTime = (int) $scheduled->format('His');
-        $aTime = (int) $actual->format('His');
+        $actual = $actualEntry instanceof \DateTimeInterface 
+            ? $actualEntry 
+            : new \DateTimeImmutable($actualEntry);
 
         $diffMinutes = ($actual->getTimestamp() - $scheduled->getTimestamp()) / 60;
 

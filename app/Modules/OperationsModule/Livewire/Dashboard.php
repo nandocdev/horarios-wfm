@@ -64,9 +64,9 @@ class Dashboard extends Component {
 
         // 4. Cálculos de KPIs usando MetricFormulas
 
-        // Coverage Rate (Agentes conectados vs Programados)
+        // Coverage Rate (Agentes conectados vs Programados) - Capeado al 100%
         $coverage = $totalScheduled > 0
-            ? round(($totalConnected / $totalScheduled) * 100, 1)
+            ? min(100, round(($totalConnected / $totalScheduled) * 100, 1))
             : 0;
 
         // Adherence (Simulada por ahora basado en la lógica de RealtimeMonitoring)

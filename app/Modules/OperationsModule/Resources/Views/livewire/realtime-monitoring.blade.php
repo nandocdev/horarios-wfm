@@ -149,9 +149,9 @@
                     <flux:table.column sortable :sorted="$sortField === 'agent'" :direction="$sortDirection"
                         wire:click="sortBy('agent')">Agente</flux:table.column>
 
+                    <flux:table.column>Estado Programado</flux:table.column>
                     <flux:table.column sortable :sorted="$sortField === 'state'" :direction="$sortDirection"
                         wire:click="sortBy('state')">Estado Real</flux:table.column>
-                    <flux:table.column>Estado Programado</flux:table.column>
                     <flux:table.column>Alertas Operativas</flux:table.column>
                     <flux:table.column sortable :sorted="$sortField === 'duration'" :direction="$sortDirection"
                         wire:click="sortBy('duration')" align="end">Duración</flux:table.column>
@@ -214,25 +214,6 @@
                             </flux:table.cell>
 
                             <flux:table.cell>
-                                <div class="flex flex-col gap-1">
-                                    <flux:badge :color="$color" size="sm" class="font-bold w-fit">
-                                        {{ $displayName }}
-                                    </flux:badge>
-                                    @if($agent->current_queue && $agent->current_state === 'TALKING')
-                                        <span
-                                            class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase truncate max-w-[120px]">
-                                            <flux:icon icon="phone" variant="micro" class="mr-1 inline" />
-                                            {{ $agent->current_queue }}
-                                        </span>
-                                    @elseif($agent->reason_code && !in_array($agent->current_state, ['READY', 'TALKING']))
-                                        <span class="text-[10px] text-zinc-500 italic truncate max-w-[120px]">
-                                            {{ $agent->reason_code }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </flux:table.cell>
-
-                            <flux:table.cell>
                                 @if(isset($agent->expected_state))
                                     <div class="flex flex-col">
                                         <div class="flex items-center gap-2">
@@ -250,6 +231,25 @@
                                         @endif
                                     </div>
                                 @endif
+                            </flux:table.cell>
+
+                            <flux:table.cell>
+                                <div class="flex flex-col gap-1">
+                                    <flux:badge :color="$color" size="sm" class="font-bold w-fit">
+                                        {{ $displayName }}
+                                    </flux:badge>
+                                    @if($agent->current_queue && $agent->current_state === 'TALKING')
+                                        <span
+                                            class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase truncate max-w-[120px]">
+                                            <flux:icon icon="phone" variant="micro" class="mr-1 inline" />
+                                            {{ $agent->current_queue }}
+                                        </span>
+                                    @elseif($agent->reason_code && !in_array($agent->current_state, ['READY', 'TALKING']))
+                                        <span class="text-[10px] text-zinc-500 italic truncate max-w-[120px]">
+                                            {{ $agent->reason_code }}
+                                        </span>
+                                    @endif
+                                </div>
                             </flux:table.cell>
 
                             <flux:table.cell align="end">

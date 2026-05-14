@@ -105,6 +105,10 @@
 
         <div class="flex flex-wrap items-center gap-4">
             <div class="w-64">
+                <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre..." icon="magnifying-glass" />
+            </div>
+
+            <div class="w-64">
                 <flux:select wire:model.live="teamId" placeholder="Filtrar por Equipo">
                     <x-slot name="icon">
                         <flux:icon name="users" variant="micro" />
@@ -121,6 +125,7 @@
                     <x-slot name="icon">
                         <flux:icon name="user" variant="micro" />
                     </x-slot>
+                    <flux:select.option value="">(Ver todos en lista)</flux:select.option>
                     @foreach($employees as $employee)
                         <flux:select.option value="{{ $employee->id }}">{{ $employee->full_name }} ({{ $employee->username }})</flux:select.option>
                     @endforeach
@@ -135,7 +140,7 @@
                 </flux:select>
             </div>
 
-            <flux:input type="date" wire:model.live="selectedDate" />
+            <flux:input type="date" wire:model.live="date" />
         </div>
     </div>
 
@@ -316,29 +321,67 @@
                                     <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Pausas Programadas</h4>
                                 </div>
                                 <div class="grid grid-cols-1 gap-3">
-                                    <div class="bg-orange-50/50 rounded-2xl p-4 border border-orange-100 flex items-center justify-between">
-                                        <div>
-                                            <p class="text-[10px] font-black text-orange-600 uppercase">Almuerzo</p>
-                                            <p class="text-xs font-mono font-bold text-orange-800 mt-1">Inicio: {{ $day['attendance']['lunch']['actual_start'] ?: '--:--' }}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-lg font-black text-orange-900">
-                                                {{ $this->formatMinutes($day['attendance']['lunch']['actual_duration']) }}
+                                    {{-- Almuerzo --}}
+                                    <div class="bg-orange-50/50 rounded-2xl p-4 border border-orange-100 shadow-sm">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <p class="text-[10px] font-black text-orange-600 uppercase">Almuerzo</p>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span class="text-[10px] font-bold text-slate-400">Prog:</span>
+                                                    <span class="text-xs font-mono font-bold text-slate-600">{{ $day['attendance']['lunch']['scheduled_start'] ?: '--:--' }}</span>
+                                                </div>
                                             </div>
-                                            <p class="text-[10px] font-bold text-orange-600 opacity-60">de {{ $day['attendance']['lunch']['scheduled_duration'] }}m</p>
+                                            <div class="text-right">
+                                                <div class="text-lg font-black text-orange-900 leading-none">
+                                                    {{ $this->formatMinutes($day['attendance']['lunch']['actual_duration']) }}
+                                                </div>
+                                                <p class="text-[10px] font-bold text-orange-600 opacity-60">de {{ $day['attendance']['lunch']['scheduled_duration'] }}m</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-between items-center pt-2 border-t border-orange-100">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[10px] font-bold text-slate-400">Real:</span>
+                                                <span class="text-xs font-mono font-bold text-orange-800">{{ $day['attendance']['lunch']['actual_start'] ?: '--:--' }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[10px] font-bold text-slate-400">Dif:</span>
+                                                <span class="text-xs font-black {{ $day['attendance']['lunch']['diff_minutes'] > 5 ? 'text-red-600' : ($day['attendance']['lunch']['diff_minutes'] > 0 ? 'text-amber-600' : 'text-emerald-600') }}">
+                                                    {{ $day['attendance']['lunch']['diff_minutes'] > 0 ? '+' : '' }}{{ $day['attendance']['lunch']['diff_minutes'] }} min
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="bg-teal-50/50 rounded-2xl p-4 border border-teal-100 flex items-center justify-between">
-                                        <div>
-                                            <p class="text-[10px] font-black text-teal-600 uppercase">Descanso</p>
-                                            <p class="text-xs font-mono font-bold text-teal-800 mt-1">Inicio: {{ $day['attendance']['break']['actual_start'] ?: '--:--' }}</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-lg font-black text-teal-900">
-                                                {{ $this->formatMinutes($day['attendance']['break']['actual_duration']) }}
+                                    {{-- Descanso --}}
+                                    <div class="bg-teal-50/50 rounded-2xl p-4 border border-teal-100 shadow-sm">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <p class="text-[10px] font-black text-teal-600 uppercase">Descanso</p>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span class="text-[10px] font-bold text-slate-400">Prog:</span>
+                                                    <span class="text-xs font-mono font-bold text-slate-600">{{ $day['attendance']['break']['scheduled_start'] ?: '--:--' }}</span>
+                                                </div>
                                             </div>
-                                            <p class="text-[10px] font-bold text-teal-600 opacity-60">de {{ $day['attendance']['break']['scheduled_duration'] }}m</p>
+                                            <div class="text-right">
+                                                <div class="text-lg font-black text-teal-900 leading-none">
+                                                    {{ $this->formatMinutes($day['attendance']['break']['actual_duration']) }}
+                                                </div>
+                                                <p class="text-[10px] font-bold text-teal-600 opacity-60">de {{ $day['attendance']['break']['scheduled_duration'] }}m</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-between items-center pt-2 border-t border-teal-100">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[10px] font-bold text-slate-400">Real:</span>
+                                                <span class="text-xs font-mono font-bold text-teal-800">{{ $day['attendance']['break']['actual_start'] ?: '--:--' }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[10px] font-bold text-slate-400">Dif:</span>
+                                                <span class="text-xs font-black {{ $day['attendance']['break']['diff_minutes'] > 5 ? 'text-red-600' : ($day['attendance']['break']['diff_minutes'] > 0 ? 'text-amber-600' : 'text-emerald-600') }}">
+                                                    {{ $day['attendance']['break']['diff_minutes'] > 0 ? '+' : '' }}{{ $day['attendance']['break']['diff_minutes'] }} min
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

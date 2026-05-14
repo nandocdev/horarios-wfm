@@ -58,6 +58,11 @@ class PerformanceScorecard extends Component
         $this->loadPerformance();
     }
 
+    public function updatedSearch(): void
+    {
+        $this->loadPerformance();
+    }
+
     public function updatedDate(): void
     {
         $this->loadPerformance();
@@ -113,8 +118,10 @@ class PerformanceScorecard extends Component
             }
 
             if ($this->search) {
-                $query->where('first_name', 'ilike', '%' . $this->search . '%')
+                $query->where(function($q) {
+                    $q->where('first_name', 'ilike', '%' . $this->search . '%')
                       ->orWhere('last_name', 'ilike', '%' . $this->search . '%');
+                });
             }
 
             $employees = $query->get();

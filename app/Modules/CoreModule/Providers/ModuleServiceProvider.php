@@ -76,6 +76,11 @@ class ModuleServiceProvider extends ServiceProvider
     {
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
+
+        // Permiso maestro para configuración del sistema (Mantenimiento)
+        Gate::define('admin.system', function (User $user) {
+            return $user->hasAnyRole(['admin', 'wfm']);
+        });
     }
 
     /**

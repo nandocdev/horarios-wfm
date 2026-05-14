@@ -43,8 +43,8 @@ class CheckMaintenanceMode
             return true;
         }
 
-        // 2. Si el usuario es administrador o WFM (gestores del sistema)
-        if (Auth::check() && (Auth::user()->hasRole('admin') || Auth::user()->hasRole('wfm'))) {
+        // 2. Si el usuario tiene privilegios de administración del sistema
+        if (Auth::check() && Auth::user()->can('admin.system')) {
             return true;
         }
 

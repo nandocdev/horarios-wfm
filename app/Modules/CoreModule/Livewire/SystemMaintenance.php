@@ -28,7 +28,7 @@ class SystemMaintenance extends Component
 
         $status = $this->enabled ? 'activado' : 'desactivado';
         
-        flux()->toast(
+        \Flux::toast(
             text: "Modo mantenimiento {$status} correctamente.",
             variant: $this->enabled ? 'warning' : 'success'
         );

@@ -28,6 +28,19 @@ class SystemMaintenance extends Component
 
         $status = $this->enabled ? 'activado' : 'desactivado';
         
+        if ($this->enabled) {
+            $dto = new \App\Shared\DTOs\NotificationDTO(
+                title: 'Mantenimiento del Sistema',
+                message: $this->message ?: 'El sistema entrará en mantenimiento en breve.',
+                icon: 'wrench-screwdriver',
+                level: 'warning'
+            );
+
+            // Notificar a todos los usuarios
+            $users = \App\Modules\IdentityModule\Models\User::all();
+            \Illuminate\Support\Facades\Notification::send($users, new \App\Modules\CoreModule\Notifications\MaintenanceModeNotification($dto));
+        }
+
         \Flux::toast(
             text: "Modo mantenimiento {$status} correctamente.",
             variant: $this->enabled ? 'warning' : 'success'

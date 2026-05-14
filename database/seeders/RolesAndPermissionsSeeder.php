@@ -23,7 +23,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Limpiar caché de permisos antes de iniciar
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        // 1. Permisos definidos explícitamente en el código actual
+        // 1. DEFINICIÓN DE TODOS LOS PERMISOS
         $permissions = [
             // Core Module
             'users.view',
@@ -54,8 +54,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'positions.create',
             'positions.update',
             'positions.delete',
-
-            // (Horarios y Break Templates eliminados aquí, centralizados abajo)
 
             // Employees Module
             'employees.view',
@@ -135,7 +133,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.delete',
             'notifications.restore',
             'notifications.force_delete',
-            // Notificaciones específicas de scheduling
             'notifications.send',
             'leave_requests.notify',
             'shift_swaps.notify',
@@ -163,14 +160,15 @@ class RolesAndPermissionsSeeder extends Seeder
 
             // Report Module
             'reports.view',
-            'reports.adherence',
-            'reports.coverage',
-            'reports.sla',
             'reports.scorecard',
             'reports.attendance',
             'reports.compliance',
             'reports.staffing',
-            'reports.requests',
+            'reports.reports',
+
+            // Helpdesk Module
+            'helpdesk.view',
+            'helpdesk.manage',
 
             // Documentation Module
             'articles.viewAny',
@@ -205,7 +203,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'wfm.settings.manage',
         ];
 
-        // Registro de permisos
+        // Registro masivo de permisos ANTES de cualquier asignación
         foreach ($permissions as $permission) {
             Permission::firstOrCreate([
                 'name' => $permission,
@@ -213,8 +211,8 @@ class RolesAndPermissionsSeeder extends Seeder
             ]);
         }
 
-        // 2. Definición de Roles base
-        $roles = [
+        // 2. CREACIÓN DE ROLES
+        $rolesData = [
             'operator' => ['name' => 'operator', 'code' => 'OP', 'level' => 1],
             'supervisor' => ['name' => 'supervisor', 'code' => 'SUP', 'level' => 2],
             'coordinator' => ['name' => 'coordinator', 'code' => 'COOR', 'level' => 3],
@@ -224,24 +222,25 @@ class RolesAndPermissionsSeeder extends Seeder
             'admin' => ['name' => 'admin', 'code' => 'ADM', 'level' => 99],
         ];
 
-        foreach ($roles as $roleData) {
+        foreach ($rolesData as $roleInfo) {
             Role::firstOrCreate(
-                ['name' => $roleData['name'], 'guard_name' => 'web'],
+                ['name' => $roleInfo['name'], 'guard_name' => 'web'],
                 [
-                    'code' => $roleData['code'],
-                    'hierarchy_level' => $roleData['level'],
+                    'code' => $roleInfo['code'],
+                    'hierarchy_level' => $roleInfo['level'],
                 ]
             );
         }
 
-        $adminRole = Role::findByName('admin', 'web');
-        $adminRole->syncPermissions(Permission::all());
+        // 3. ASIGNACIÓN DE PERMISOS POR ROL
 
-        // 3. Asignación de permisos por rol (basado en definición de accesos 2026)
+        // Admin y WFM: Acceso Total
+        $allPermissions = Permission::all();
+        Role::findByName('admin', 'web')->syncPermissions($allPermissions);
+        Role::findByName('wfm', 'web')->syncPermissions($allPermissions);
 
-        // Operator / Supervisor (Autogestión)
-        $operatorRole = Role::findByName('operator', 'web');
-        $operatorRole->syncPermissions([
+        // Operator
+        Role::findByName('operator', 'web')->syncPermissions([
             'schedules.view_own',
             'schedules.swap_request',
             'schedules.leave_request',
@@ -251,8 +250,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'articles.viewAny',
         ]);
 
-        $supervisorRole = Role::findByName('supervisor', 'web');
-        $supervisorRole->syncPermissions([
+        // Supervisor
+        Role::findByName('supervisor', 'web')->syncPermissions([
             'schedules.view_own',
             'schedules.swap_request',
             'schedules.leave_request',
@@ -263,9 +262,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'articles.viewAny',
         ]);
 
-        // Coordinator - Gestión de equipo directo
-        $coordinatorRole = Role::findByName('coordinator', 'web');
-        $coordinatorRole->syncPermissions([
+        // Coordinator
+        Role::findByName('coordinator', 'web')->syncPermissions([
             'menu.team',
             'menu.operations',
             'menu.reports',
@@ -276,22 +274,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'schedules.view_team',
             'schedules.approve_requests',
             'operations.view',
-            'operations.manage', // Para documentar incidencias
+            'operations.manage',
             'requests.view',
             'requests.manage',
             'reports.scorecard',
-            'reports.adherence',
-            'reports.coverage',
-            'reports.sla',
             'analytics.view',
             'notifications.view',
             'notifications.send',
             'articles.viewAny',
         ]);
 
-        // Chief - Gestión de múltiples equipos
-        $chiefRole = Role::findByName('chief', 'web');
-        $chiefRole->syncPermissions([
+        // Chief
+        Role::findByName('chief', 'web')->syncPermissions([
             'menu.team',
             'menu.operations',
             'menu.reports',
@@ -302,9 +296,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'operations.view',
             'requests.view',
             'reports.scorecard',
-            'reports.adherence',
-            'reports.coverage',
-            'reports.sla',
             'reports.attendance',
             'reports.compliance',
             'analytics.view',
@@ -313,9 +304,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'articles.viewAny',
         ]);
 
-        // Director - Supervisión global
-        $directorRole = Role::findByName('director', 'web');
-        $directorRole->syncPermissions([
+        // Director
+        Role::findByName('director', 'web')->syncPermissions([
             'menu.team',
             'menu.operations',
             'menu.employees',
@@ -324,9 +314,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'schedules.view_all',
             'operations.view',
             'reports.scorecard',
-            'reports.adherence',
-            'reports.coverage',
-            'reports.sla',
             'reports.attendance',
             'reports.compliance',
             'analytics.view',
@@ -334,10 +321,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'news.viewAny',
             'articles.viewAny',
         ]);
-
-        // WFM - Administración Total
-        $wfmRole = Role::findByName('wfm', 'web');
-        $wfmRole->syncPermissions(Permission::all());
 
         // Limpiar caché final
         app(PermissionRegistrar::class)->forgetCachedPermissions();

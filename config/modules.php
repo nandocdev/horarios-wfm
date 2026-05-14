@@ -27,5 +27,6 @@ return [
         App\Modules\WfmModule\Providers\ModuleServiceProvider::class,
         App\Modules\HelpdeskModule\Providers\ModuleServiceProvider::class,
         App\Modules\DocumentationModule\Providers\ModuleServiceProvider::class,
+        App\Modules\FilesystemModule\Providers\ModuleServiceProvider::class,
     ],
 ];

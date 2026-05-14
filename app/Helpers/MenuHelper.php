@@ -81,6 +81,13 @@ class MenuHelper {
                         'permission' => null,
                         'icon' => 'document-text',
                     ],
+                    [
+                        'label' => __('Archivos'),
+                        'route' => 'filesystem.index',
+                        'pattern' => 'filesystem*',
+                        'permission' => null, // Acceso base para todos los logueados
+                        'icon' => 'folder',
+                    ],
                 ],
             ],
 
@@ -107,7 +114,7 @@ class MenuHelper {
                         'icon' => 'users',
                     ],
                     [
-                        'label' => __('Solicitudes del Equipo'),
+                        'label' => __('Solicitudes'),
                         'route' => 'schedules.manager-approvals',
                         'pattern' => 'schedules/manager-approvals*',
                         'permission' => 'wfm.leaves.manage',
@@ -115,7 +122,7 @@ class MenuHelper {
                         'badge' => $counts['pending_leaves'] ?? 0,
                     ],
                     [
-                        'label' => __('Aprobación de Cambios'),
+                        'label' => __('Aprobaciones'),
                         'route' => 'schedules.wfm-approvals',
                         'pattern' => 'schedules/wfm-approvals*',
                         'permission' => 'wfm.swaps.manage',
@@ -169,7 +176,7 @@ class MenuHelper {
                 'permission' => 'wfm.realtime.view',
                 'submenu' => [
                     [
-                        'label' => __('Monitoreo Realtime'),
+                        'label' => __('Realtime'),
                         'route' => 'operations.realtime',
                         'pattern' => 'operations/realtime*',
                         'permission' => 'wfm.realtime.view',

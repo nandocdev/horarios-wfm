@@ -252,9 +252,10 @@ final class GetEmployeePerformanceAction
 
     private function calculateProductivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?WeeklyScheduleAssignment $schedule): array
     {
-        $productiveStates = ['Ready', 'Reserved', 'Talking', 'Work'];
+        $productiveStates = ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'];
         $totalConnectedSeconds = $transitions->sum('duration');
-        $productiveSeconds = $transitions->whereIn('agent_state', $productiveStates)->sum('duration');
+        $productiveSeconds = $transitions->filter(fn($t) => in_array(strtoupper(trim((string)$t->agent_state)), $productiveStates))
+            ->sum('duration');
         
         $connectedMinutes = round($totalConnectedSeconds / 60, 1);
         $productiveMinutes = round($productiveSeconds / 60, 1);

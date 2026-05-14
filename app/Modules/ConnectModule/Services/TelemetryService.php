@@ -68,7 +68,7 @@ final class TelemetryService implements TelemetryServiceInterface
                     $t->transition_time instanceof \Illuminate\Support\Carbon ? $t->transition_time->toIso8601String() : (string) $t->transition_time,
                     [
                         'duration' => $t->duration,
-                        'is_productive' => in_array($cleanState, ['Ready', 'Reserved', 'Talking', 'Work'])
+                        'is_productive' => in_array(strtoupper($cleanState), ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'])
                     ]
                 );
             });

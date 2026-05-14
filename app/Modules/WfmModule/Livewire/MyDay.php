@@ -42,22 +42,33 @@ class MyDay extends Component
 
             $totalSeconds = 0;
             $productiveSeconds = 0;
+            $availableSeconds = 0;
+
+            $productiveStates = ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'];
 
             foreach ($transitions as $t) {
                 if ($t->duration) {
                     $totalSeconds += $t->duration;
+                    $state = strtoupper(trim((string) $t->agent_state));
                     
-                    $nonProductiveStates = ['NOT READY', 'LOGOUT', 'NOT_READY'];
-                    if (!in_array(strtoupper((string) $t->agent_state), $nonProductiveStates)) {
-                        $productiveSeconds += $t->duration;
+                    if (in_array($state, ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'])) {
+                        // Tiempo "Efectivo" para ocupación (excluye pausas/logouts)
+                        if (in_array($state, ['RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'])) {
+                            $productiveSeconds += $t->duration;
+                        }
+                        if ($state === 'READY') {
+                            $availableSeconds += $t->duration;
+                        }
                     }
                 }
             }
 
+            $effectiveTime = $productiveSeconds + $availableSeconds;
+
             return [
                 'total_time' => sprintf('%02dh %02dm', floor($totalSeconds / 3600), floor(($totalSeconds % 3600) / 60)),
                 'productive_time' => sprintf('%02dh %02dm', floor($productiveSeconds / 3600), floor(($productiveSeconds % 3600) / 60)),
-                'occupancy' => $totalSeconds > 0 ? round(($productiveSeconds / $totalSeconds) * 100) : 0,
+                'occupancy' => $effectiveTime > 0 ? round(($productiveSeconds / $effectiveTime) * 100) : 0,
             ];
         });
     }

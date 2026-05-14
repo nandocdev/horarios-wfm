@@ -124,7 +124,7 @@ final class MetricFormulas {
     public static function checkAdherence(?string $realState, ?string $expectedType): bool {
         $real = strtoupper($realState ?? 'OFFLINE');
         $isLogoutOrOffline = in_array($real, ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
-        $productiveStates = ['READY', 'TALKING', 'WORK', 'RESERVED'];
+        $productiveStates = ['READY', 'TALKING', 'WORK', 'RESERVED', 'HOLD', 'OUTBOUND'];
 
         // Si el usuario está desconectado, no evaluamos adherencia negativa aquí
         if ($isLogoutOrOffline) {
@@ -183,21 +183,21 @@ final class MetricFormulas {
 
     /**
      * Calcula la Ocupación (Occupancy).
-     * Presión operativa sobre el tiempo disponible real.
+     * Presión operativa sobre el tiempo disponible real (excluyendo auxiliares).
      */
     public static function occupancy(
         float $talkTime,
         float $holdTime,
-        float $acw,
-        float $loggedInTime,
-        float $idleTime
+        float $workTime,
+        float $totalLoggedTime,
+        float $auxTime
     ): float {
-        $denominator = $loggedInTime - $idleTime;
+        $denominator = $totalLoggedTime - $auxTime;
         if ($denominator <= 0) {
             return 0.0;
         }
 
-        return round((($talkTime + $holdTime + $acw) / $denominator) * 100, 1);
+        return round((($talkTime + $holdTime + $workTime) / $denominator) * 100, 1);
     }
 
     /**

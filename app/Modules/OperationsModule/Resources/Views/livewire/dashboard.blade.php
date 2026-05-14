@@ -1,20 +1,36 @@
-<div wire:poll.{{ $refreshInterval }}s class="space-y-6">
-    <div class="flex items-center justify-between">
+<div @if(!$this->isHistorical) wire:poll.{{ $refreshInterval }}s @endif class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <flux:heading size="xl" level="1">Dashboard Operativo</flux:heading>
-            <flux:subheading>Estado global de la operación en tiempo real.</flux:subheading>
+            <flux:subheading>
+                @if($this->isHistorical)
+                    Datos históricos del día {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}
+                @else
+                    Estado global de la operación en tiempo real.
+                @endif
+            </flux:subheading>
         </div>
 
         <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 text-sm text-zinc-500">
-                <span class="relative flex h-2 w-2">
-                    <span
-                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                </span>
-                Live
+            <div class="w-48">
+                <flux:input type="date" wire:model.live="selectedDate" size="sm" />
             </div>
-            <flux:button icon="arrow-path" size="sm" variant="ghost" wire:click="$refresh" />
+
+            @if(!$this->isHistorical)
+                <div class="flex items-center gap-2 text-sm text-zinc-500">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Live
+                </div>
+                <flux:button icon="arrow-path" size="sm" variant="ghost" wire:click="$refresh" />
+            @else
+                <flux:button size="sm" variant="ghost" wire:click="$set('selectedDate', '{{ now()->toDateString() }}')">
+                    Volver a Hoy
+                </flux:button>
+            @endif
         </div>
     </div>
 
@@ -107,7 +123,9 @@
                                             {{ sprintf('%02d:%02d', floor($queue['lwt'] / 60), $queue['lwt'] % 60) }}
                                         </td>
                                         <td class="px-4 py-3 text-center">
-                                            <flux:badge :color="$queue['sl'] < 80 ? 'red' : ($queue['sl'] < 90 ? 'amber' : 'green')" variant="outline" size="sm">
+                                            <flux:badge
+                                                :color="$queue['sl'] < 80 ? 'red' : ($queue['sl'] < 90 ? 'amber' : 'green')"
+                                                variant="outline" size="sm">
                                                 {{ round($queue['sl'], 0) }}%
                                             </flux:badge>
                                         </td>
@@ -129,14 +147,53 @@
             <flux:card>
                 <flux:heading size="lg" class="mb-6">Distribución de Estados</flux:heading>
 
-                {{-- Donut Chart Placeholder (ApexCharts se cargaría aquí) --}}
-                <div class="relative flex items-center justify-center py-6">
-                    <div class="w-40 h-40 rounded-full border-[12px] border-zinc-100 flex items-center justify-center">
-                        <div class="text-center">
-                            <flux:text size="xl" class="font-bold">{{ array_sum($this->stateDistribution) }}</flux:text>
-                            <flux:text size="sm" variant="subtle">Total</flux:text>
-                        </div>
-                    </div>
+                <div class="relative flex items-center justify-center py-2" x-data="{
+                        chart: null,
+                        init() {
+                            this.chart = new ApexCharts(this.$refs.chart, {
+                                chart: {
+                                    type: 'donut',
+                                    height: 260,
+                                    sparkline: { enabled: false },
+                                    animations: { enabled: true, easing: 'easeinout', speed: 800 }
+                                },
+                                series: @js(array_values($this->stateDistribution)),
+                                labels: @js(array_keys($this->stateDistribution)),
+                                colors: ['#22c55e', '#3b82f6', '#f59e0b', '#94a3b8'],
+                                dataLabels: { enabled: false },
+                                legend: { show: false },
+                                stroke: { width: 2, colors: ['transparent'] },
+                                plotOptions: {
+                                    pie: {
+                                        donut: {
+                                            size: '75%',
+                                            labels: {
+                                                show: true,
+                                                name: { show: true, offsetY: -10, fontSize: '12px', color: '#71717a' },
+                                                value: { show: true, offsetY: 5, fontSize: '20px', fontWeight: 'bold', color: '#27272a' },
+                                                total: {
+                                                    show: true,
+                                                    label: 'Agentes',
+                                                    color: '#71717a',
+                                                    formatter: function (w) {
+                                                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                tooltip: { enabled: true, theme: 'light' }
+                            });
+                            this.chart.render();
+                        },
+                        updateChart() {
+                            if (this.chart) {
+                                this.chart.updateSeries(@js(array_values($this->stateDistribution)));
+                            }
+                        }
+                    }" x-init="init()" x-effect="updateChart()" wire:ignore>
+                    <div x-ref="chart" class="w-full min-h-[260px]"></div>
                 </div>
 
                 <div class="mt-8 space-y-3">
@@ -151,6 +208,15 @@
                             <span class="font-mono font-bold">{{ $count }}</span>
                         </div>
                     @endforeach
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                    <div class="flex items-start gap-2">
+                        <flux:icon name="information-circle" variant="mini" class="text-zinc-400 mt-0.5" />
+                        <flux:text size="xs" class="text-zinc-500 leading-relaxed italic">
+                            Contabiliza agentes en cargos de Operador I, II y Coordinadores.
+                        </flux:text>
+                    </div>
                 </div>
             </flux:card>
         </div>

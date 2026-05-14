@@ -9,19 +9,53 @@ use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class Dashboard extends Component {
     public int $refreshInterval = 15;
+    public string $selectedDate;
+
+    public function mount(): void {
+        $this->selectedDate = now()->toDateString();
+    }
+
+    #[Computed]
+    public function isHistorical(): bool {
+        return $this->selectedDate !== now()->toDateString();
+    }
 
     #[Computed]
     public function heroKpis(): array {
-        return app(PerformanceService::class)->getGlobalHeroKpis() ?: $this->emptyHeroKpis();
+        return app(PerformanceService::class)->getGlobalHeroKpis(Carbon::parse($this->selectedDate)) ?: $this->emptyHeroKpis();
     }
 
     #[Computed]
     public function queueStats(): array {
+        $date = Carbon::parse($this->selectedDate);
+        
+        if (!$date->isToday()) {
+            return DB::table('call_records')
+                ->join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
+                ->whereDate('ivr_started_at', $this->selectedDate)
+                ->select(
+                    'call_queues.name',
+                    DB::raw('0 as waiting'),
+                    DB::raw('0 as lwt'),
+                    DB::raw('AVG(CASE WHEN contact_disposition = 2 THEN 100 ELSE 0 END) as sl'),
+                    DB::raw('0 as talking'),
+                    DB::raw('COUNT(*) as received'),
+                    DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
+                    DB::raw('SUM(CASE WHEN contact_disposition = 3 THEN 1 ELSE 0 END) as abandoned'),
+                    DB::raw("'neutral' as status")
+                )
+                ->groupBy('call_queues.name')
+                ->get()
+                ->map(fn($item) => (array) $item)
+                ->toArray();
+        }
+
         // 1. Obtener conteo de agentes hablando por cola desde el universo de operadores
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])->pluck('id')->toArray();
 
@@ -73,8 +107,26 @@ class Dashboard extends Component {
 
     #[Computed]
     public function stateDistribution(): array {
-        // Universo de operadores (ID 1, 2, 5, 11, 13)
+        $date = Carbon::parse($this->selectedDate);
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])->pluck('id')->toArray();
+
+        if (!$date->isToday()) {
+            $states = DB::table('agent_state_transitions')
+                ->whereIn('employee_id', $operatorIds)
+                ->whereDate('transition_time', $this->selectedDate)
+                ->select('agent_state', DB::raw('count(distinct employee_id) as count'))
+                ->groupBy('agent_state')
+                ->get()
+                ->pluck('count', 'agent_state')
+                ->toArray();
+
+            return [
+                'Ready' => $states['READY'] ?? 0,
+                'Talking' => $states['TALKING'] ?? 0,
+                'AUX' => ($states['NOT_READY'] ?? 0) + ($states['WORK'] ?? 0),
+                'Offline' => ($states['LOGOUT'] ?? 0) + ($states['OFFLINE'] ?? 0),
+            ];
+        }
 
         $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
             ->select('current_state', DB::raw('count(*) as count'))

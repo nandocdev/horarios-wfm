@@ -11,7 +11,14 @@ use Livewire\Attributes\On;
 
 class NotificationBell extends Component
 {
-    #[On('echo-private:App.Models.User.{authUser.id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
+    public ?int $userId = null;
+
+    public function mount(): void
+    {
+        $this->userId = Auth::id();
+    }
+
+    #[On('echo-private:App.Models.User.{userId},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
     public function refreshNotifications(): void
     {
         // Livewire refrescará las propiedades computadas automáticamente al dispararse el render

@@ -15,6 +15,12 @@ use Livewire\Component;
 class Toast extends Component
 {
     public array $toasts = [];
+    public ?int $userId = null;
+
+    public function mount(): void
+    {
+        $this->userId = auth()->id();
+    }
 
     /**
      * Añade una notificación a la pila.
@@ -23,7 +29,7 @@ class Toast extends Component
      * @param  string  $variant  El tipo de notificación (success, danger, warning, info).
      * @param  string|null  $heading  Título opcional.
      */
-    #[On('echo-private:App.Models.User.{authUser.id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
+    #[On('echo-private:App.Models.User.{userId},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
     public function handleBroadcastNotification($notification): void
     {
         $this->addToast(

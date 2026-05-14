@@ -28,6 +28,7 @@
                 <flux:table.column>Actividad</flux:table.column>
                 <flux:table.column>Horario</flux:table.column>
                 <flux:table.column>Duración</flux:table.column>
+                <flux:table.column>Notas</flux:table.column>
                 <flux:table.column align="end">Acciones</flux:table.column>
             </flux:table.columns>
 
@@ -61,6 +62,12 @@
                         <flux:table.cell>
                             <span class="text-sm text-zinc-500">
                                 {{ \Carbon\Carbon::parse($activity->getRangeStart())->diffInMinutes($activity->getRangeEnd()) }} min
+                            </span>
+                        </flux:table.cell>
+
+                        <flux:table.cell>
+                            <span class="text-sm text-zinc-500 italic">
+                                {{ Str::limit($activity->notes, 30) ?: '-' }}
                             </span>
                         </flux:table.cell>
 
@@ -103,6 +110,8 @@
                     <flux:input type="time" wire:model.live="startTime" label="Hora Inicio" />
                     <flux:input type="time" wire:model="endTime" label="Hora Fin" />
                 </div>
+
+                <flux:input wire:model="notes" label="Notas / Detalles" placeholder="Ej. Tema a tratar en la reunión..." />
 
                 <div class="space-y-2">
                     <flux:label>Seleccionar Operadores</flux:label>

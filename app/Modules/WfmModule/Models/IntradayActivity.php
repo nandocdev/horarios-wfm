@@ -14,7 +14,7 @@ class IntradayActivity extends Model
     protected $table = 'intraday_activities';
 
     protected $fillable = [
-        'employee_id', 'activity_type_id', 'time_range',
+        'employee_id', 'activity_type_id', 'time_range', 'notes',
     ];
 
     public function employee(): BelongsTo

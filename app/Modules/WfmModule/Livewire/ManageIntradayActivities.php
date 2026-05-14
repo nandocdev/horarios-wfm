@@ -32,6 +32,8 @@ class ManageIntradayActivities extends Component
 
     public $endTime;
 
+    public $notes;
+
     public function mount()
     {
         $this->date = now()->format('Y-m-d');
@@ -39,7 +41,7 @@ class ManageIntradayActivities extends Component
 
     public function openAssignmentModal()
     {
-        $this->reset(['activityDefinitionId', 'selectedEmployeeIds', 'startTime', 'endTime']);
+        $this->reset(['activityDefinitionId', 'selectedEmployeeIds', 'startTime', 'endTime', 'notes']);
         $this->startTime = now()->format('H:i');
         $this->showAssignmentModal = true;
     }
@@ -55,31 +57,36 @@ class ManageIntradayActivities extends Component
         }
     }
 
-    public function assignActivity()
+    public function assignActivity(\App\Modules\WfmModule\Actions\AssignIntradayActivityAction $action)
     {
         $this->validate([
             'activityDefinitionId' => 'required|exists:scheduled_activity_definitions,id',
             'selectedEmployeeIds' => 'required|array|min:1',
             'startTime' => 'required',
             'endTime' => 'required|after:startTime',
+            'notes' => 'nullable|string|max:255',
         ]);
 
-        $definition = ScheduledActivityDefinition::find($this->activityDefinitionId);
-        $startRange = Carbon::parse($this->date.' '.$this->startTime)->toIso8601String();
-        $endRange = Carbon::parse($this->date.' '.$this->endTime)->toIso8601String();
+        try {
+            $dto = \App\Modules\WfmModule\DTOs\IntradayActivityDTO::fromArray([
+                'activity_definition_id' => $this->activityDefinitionId,
+                'employee_id' => $this->selectedEmployeeIds, // El DTO espera array
+                'employee_ids' => $this->selectedEmployeeIds,
+                'date' => $this->date,
+                'start_time' => $this->startTime,
+                'end_time' => $this->endTime,
+                'notes' => $this->notes,
+            ]);
 
-        \DB::transaction(function () use ($definition, $startRange, $endRange) {
-            foreach ($this->selectedEmployeeIds as $employeeId) {
-                IntradayActivity::create([
-                    'employee_id' => $employeeId,
-                    'activity_type_id' => $definition->activity_type_id,
-                    'time_range' => "[$startRange, $endRange)",
-                ]);
-            }
-        });
+            $action->execute($dto);
 
-        $this->showAssignmentModal = false;
-        \Flux::toast('Actividad programada exitosamente para '.count($this->selectedEmployeeIds).' operadores.');
+            \Flux::toast('Actividad programada exitosamente.');
+            $this->showAssignmentModal = false;
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            \Flux::toast('Error al programar actividad: ' . $e->getMessage(), variant: 'danger');
+        }
     }
 
     public function deleteActivity($id)

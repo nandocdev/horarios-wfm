@@ -117,7 +117,7 @@ class CreateUser extends Component
         // El componente NO tiene lógica, pasa un DTO al Action
         $action->execute($this->form->toDTO());
 
-        flux()->toast('Usuario creado exitosamente.');
+        \Flux::toast('Usuario creado exitosamente.');
         
         $this->redirectRoute('users.index', navigate: true);
     }

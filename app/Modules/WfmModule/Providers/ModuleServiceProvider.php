@@ -84,6 +84,12 @@ class ModuleServiceProvider extends ServiceProvider
 
         // Registro de Observadores
         \App\Modules\WorkflowsModule\Models\LeaveRequest::observe(\App\Modules\WfmModule\Observers\LeaveRequestObserver::class);
+
+        // Registro de Eventos
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Shared\Events\ShiftSwapApproved::class,
+            [\App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved::class, 'handle']
+        );
     }
 
     /**

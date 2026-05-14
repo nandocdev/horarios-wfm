@@ -141,9 +141,16 @@ class MenuHelper {
                     [
                         'label' => __('Actividades Intradía'),
                         'route' => 'schedules.intraday-activities.manage',
-                        'pattern' => 'schedules/scheduled-activities/manage*',
+                        'pattern' => 'schedules/intraday-activities/manage*',
                         'permission' => 'wfm.intraday.manage',
                         'icon' => 'adjustments-vertical',
+                    ],
+                    [
+                        'label' => __('Definiciones de Actividad'),
+                        'route' => 'schedules.scheduled-activities',
+                        'pattern' => 'schedules/scheduled-activities*',
+                        'permission' => 'wfm.catalogs.shifts',
+                        'icon' => 'list-bullet',
                     ],
                     [
                         'label' => __('Excepciones Masivas'),
@@ -237,10 +244,38 @@ class MenuHelper {
                     ],
                     [
                         'label' => __('Catálogos WFM'),
-                        'route' => 'schedules.shifts',
-                        'pattern' => 'schedules/shifts*',
-                        'permission' => 'wfm.catalogs.shifts',
                         'icon' => 'swatch',
+                        'permission' => 'wfm.catalogs.shifts',
+                        'submenu' => [
+                            [
+                                'label' => __('Turnos'),
+                                'route' => 'schedules.shifts',
+                                'pattern' => 'schedules/shifts*',
+                                'permission' => 'wfm.catalogs.shifts',
+                                'icon' => 'clock',
+                            ],
+                            [
+                                'label' => __('Tipos de Actividad'),
+                                'route' => 'schedules.activity-types',
+                                'pattern' => 'schedules/activity-types*',
+                                'permission' => 'wfm.catalogs.shifts',
+                                'icon' => 'tag',
+                            ],
+                            [
+                                'label' => __('Motivos de Ausencia'),
+                                'route' => 'schedules.absence-reasons',
+                                'pattern' => 'schedules/absence-reasons*',
+                                'permission' => 'wfm.catalogs.shifts',
+                                'icon' => 'no-symbol',
+                            ],
+                            [
+                                'label' => __('Estados de Agente'),
+                                'route' => 'schedules.agent-states',
+                                'pattern' => 'schedules/agent-states*',
+                                'permission' => 'wfm.catalogs.shifts',
+                                'icon' => 'user-circle',
+                            ],
+                        ],
                     ],
                     [
                         'label' => __('Empleados'),

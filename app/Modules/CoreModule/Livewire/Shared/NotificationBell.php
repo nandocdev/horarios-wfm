@@ -7,8 +7,16 @@ namespace App\Modules\CoreModule\Livewire\Shared;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+use Livewire\Attributes\On;
+
 class NotificationBell extends Component
 {
+    #[On('echo-private:App.Models.User.{authUser.id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
+    public function refreshNotifications(): void
+    {
+        // Livewire refrescará las propiedades computadas automáticamente al dispararse el render
+    }
+
     public function getNotificationsProperty()
     {
         return Auth::user()

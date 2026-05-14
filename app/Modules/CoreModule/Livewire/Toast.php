@@ -23,6 +23,23 @@ class Toast extends Component
      * @param  string  $variant  El tipo de notificación (success, danger, warning, info).
      * @param  string|null  $heading  Título opcional.
      */
+    #[On('echo-private:App.Models.User.{authUser.id},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
+    public function handleBroadcastNotification($notification): void
+    {
+        $this->addToast(
+            $notification['message'] ?? 'Nueva notificación',
+            $notification['level'] ?? 'info',
+            $notification['title'] ?? 'Aviso del Sistema'
+        );
+    }
+
+    /**
+     * Añade una notificación a la pila.
+     *
+     * @param  string  $message  El cuerpo del mensaje.
+     * @param  string  $variant  El tipo de notificación (success, danger, warning, info).
+     * @param  string|null  $heading  Título opcional.
+     */
     #[On('toast')]
     public function addToast(string $message, string $variant = 'success', ?string $heading = null): void
     {

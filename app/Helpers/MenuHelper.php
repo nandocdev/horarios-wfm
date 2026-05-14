@@ -98,13 +98,6 @@ class MenuHelper {
                         'icon' => 'users',
                     ],
                     [
-                        'label' => __('Desempeño del Equipo'),
-                        'route' => 'operations.team-performance',
-                        'pattern' => 'operations/team-performance*',
-                        'permission' => 'schedules.view_team',
-                        'icon' => 'presentation-chart-line',
-                    ],
-                    [
                         'label' => __('Solicitudes del Equipo'),
                         'route' => 'schedules.manager-approvals',
                         'pattern' => 'schedules/manager-approvals*',
@@ -198,13 +191,6 @@ class MenuHelper {
                         'icon' => 'chart-bar-square',
                     ],
                     [
-                        'label' => __('Scorecard de Desempeño'),
-                        'route' => 'operations.performance',
-                        'pattern' => 'operations/performance*',
-                        'permission' => 'reports.scorecard',
-                        'icon' => 'identification',
-                    ],
-                    [
                         'label' => __('Inventario de Staffing'),
                         'route' => 'personnel.staffing-summary',
                         'pattern' => 'personnel/reports/staffing*',
@@ -281,7 +267,6 @@ class MenuHelper {
                         'route' => 'admin.system.maintenance',
                         'pattern' => 'admin/system/maintenance*',
                         'permission' => 'admin.system',
-                        'roles' => ['admin', 'wfm'],
                         'icon' => 'wrench-screwdriver',
                     ],
                 ],

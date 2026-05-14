@@ -37,7 +37,7 @@ class SystemMaintenance extends Component
             );
 
             // Notificar a todos los usuarios
-            $users = \App\Modules\IdentityModule\Models\User::all();
+            $users = \App\Modules\CoreModule\Models\User::all();
             \Illuminate\Support\Facades\Notification::send($users, new \App\Modules\CoreModule\Notifications\MaintenanceModeNotification($dto));
         }
 

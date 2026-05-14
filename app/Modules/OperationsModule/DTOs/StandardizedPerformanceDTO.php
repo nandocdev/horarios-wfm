@@ -27,8 +27,20 @@ final readonly class StandardizedPerformanceDTO
                 'actual_entry' => null,
                 'diff_minutes' => 0,
                 'status' => 'absent',
-                'lunch' => ['actual_start' => null, 'actual_duration' => 0, 'scheduled_duration' => 45],
-                'break' => ['actual_start' => null, 'actual_duration' => 0, 'scheduled_duration' => 15],
+                'lunch' => [
+                    'scheduled_start' => null,
+                    'actual_start' => null,
+                    'diff_minutes' => 0,
+                    'actual_duration' => 0,
+                    'scheduled_duration' => 45
+                ],
+                'break' => [
+                    'scheduled_start' => null,
+                    'actual_start' => null,
+                    'diff_minutes' => 0,
+                    'actual_duration' => 0,
+                    'scheduled_duration' => 15
+                ],
             ],
             activities: [],
             reasons: [],

@@ -114,11 +114,19 @@ final class GetStandardizedPerformanceAction
 
     private function calculateStateAdherence(Collection $transitions, $schedule, string $type): array
     {
-        $keywords = $type === 'lunch' ? ['almuerzo', 'lunch', 'comida'] : ['break', 'descanso', 'pausa'];
-        $scheduledDuration = $type === 'lunch' ? $schedule->lunch_minutes : $schedule->break_minutes;
+        // Refinamos las keywords para evitar colisiones (ej. 'pausa' atrapaba 'biopausa')
+        $keywords = $type === 'lunch' 
+            ? ['almuerzo', 'lunch', 'comida'] 
+            : ['break', 'descanso'];
 
+        $scheduledDuration = $type === 'lunch' ? $schedule->lunch_minutes : $schedule->break_minutes;
+        $scheduledStart = $type === 'lunch' ? $schedule->lunch_start_time : $schedule->break_start_time;
+
+        // Solo sumamos si el estado es Not Ready (Auxiliar) para consistencia
         $actualSeconds = $transitions->filter(function ($t) use ($keywords) {
-            $reason = strtolower((string)$t->reason_code);
+            if ($t->current_state !== 'Not Ready') return false;
+            
+            $reason = trim(strtolower((string)$t->reason_code));
             foreach ($keywords as $kw) {
                 if (str_contains($reason, $kw)) return true;
             }
@@ -126,16 +134,29 @@ final class GetStandardizedPerformanceAction
         })->sum(fn($t) => $t->metadata['duration'] ?? 0);
 
         $match = $transitions->filter(function ($t) use ($keywords) {
-            $reason = strtolower((string)$t->reason_code);
+            if ($t->current_state !== 'Not Ready') return false;
+            
+            $reason = trim(strtolower((string)$t->reason_code));
             foreach ($keywords as $kw) {
                 if (str_contains($reason, $kw)) return true;
             }
             return false;
         })->first();
 
+        $actualStart = $match ? Carbon::parse($match->last_changed_at) : null;
+        $diff = 0;
+
+        if ($scheduledStart && $actualStart) {
+            $scheduledStartTime = Carbon::parse($scheduledStart);
+            $scheduledDateTime = (clone $actualStart)->setTime($scheduledStartTime->hour, $scheduledStartTime->minute, $scheduledStartTime->second);
+            $diff = (int) $scheduledDateTime->diffInMinutes($actualStart, false);
+        }
+
         return [
-            'actual_start' => $match ? Carbon::parse($match->last_changed_at)->format('H:i:s') : null,
-            'actual_duration' => (int) round($actualSeconds / 60),
+            'scheduled_start' => $scheduledStart ? Carbon::parse($scheduledStart)->format('H:i:s') : null,
+            'actual_start' => $actualStart ? $actualStart->format('H:i:s') : null,
+            'diff_minutes' => $diff,
+            'actual_duration' => round($actualSeconds / 60, 1),
             'scheduled_duration' => $scheduledDuration,
         ];
     }

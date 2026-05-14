@@ -1,0 +1,25 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\FilesystemModule\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+
+class ModuleServiceProvider extends ServiceProvider
+{
+    public function boot(): void
+    {
+        // 1. Componentes Livewire
+        Livewire::component('filesystem.browser', \App\Modules\FilesystemModule\Livewire\FileBrowser::class);
+
+        // 2. Rutas
+        if (file_exists(__DIR__ . '/../Routes/web.php')) {
+            \Illuminate\Support\Facades\Route::middleware(['web', 'auth'])->group(__DIR__ . '/../Routes/web.php');
+        }
+
+        // 3. Vistas
+        $this->loadViewsFrom(__DIR__ . '/../Resources/Views', 'filesystem');
+    }
+}

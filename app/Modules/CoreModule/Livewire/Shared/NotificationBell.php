@@ -18,7 +18,17 @@ class NotificationBell extends Component
         $this->userId = Auth::id();
     }
 
-    #[On('echo-private:App.Models.User.{userId},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
+    public function getListeners(): array
+    {
+        if (! $this->userId) {
+            return [];
+        }
+
+        return [
+            "echo-private:App.Models.User.{$this->userId},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated" => 'refreshNotifications',
+        ];
+    }
+
     public function refreshNotifications(): void
     {
         // Livewire refrescará las propiedades computadas automáticamente al dispararse el render

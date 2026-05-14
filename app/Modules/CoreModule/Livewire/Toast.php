@@ -22,14 +22,23 @@ class Toast extends Component
         $this->userId = auth()->id();
     }
 
+    public function getListeners(): array
+    {
+        $listeners = [
+            'toast' => 'addToast',
+            'remove-toast-server' => 'removeToast',
+        ];
+
+        if ($this->userId) {
+            $listeners["echo-private:App.Models.User.{$this->userId},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated"] = 'handleBroadcastNotification';
+        }
+
+        return $listeners;
+    }
+
     /**
      * Añade una notificación a la pila.
-     *
-     * @param  string  $message  El cuerpo del mensaje.
-     * @param  string  $variant  El tipo de notificación (success, danger, warning, info).
-     * @param  string|null  $heading  Título opcional.
      */
-    #[On('echo-private:App.Models.User.{userId},.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated')]
     public function handleBroadcastNotification($notification): void
     {
         $this->addToast(
@@ -46,7 +55,6 @@ class Toast extends Component
      * @param  string  $variant  El tipo de notificación (success, danger, warning, info).
      * @param  string|null  $heading  Título opcional.
      */
-    #[On('toast')]
     public function addToast(string $message, string $variant = 'success', ?string $heading = null): void
     {
         $id = uniqid('toast_', true);
@@ -66,7 +74,6 @@ class Toast extends Component
     /**
      * Elimina físicamente el toast de la memoria del componente.
      */
-    #[On('remove-toast-server')]
     public function removeToast(string $id): void
     {
         unset($this->toasts[$id]);

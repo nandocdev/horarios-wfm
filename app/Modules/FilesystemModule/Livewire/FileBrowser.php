@@ -50,15 +50,17 @@ class FileBrowser extends Component
             'files' => $this->getFiles(),
             'breadcrumbs' => $this->getBreadcrumbs(),
             'stats' => $this->getStorageStats(),
+            'folderTree' => $this->getFolderTree(),
         ]);
     }
 
     public function getFolders(): Collection
     {
-        $query = Folder::query();
+        $query = Folder::query()->withCount(['children', 'files']);
 
         if ($this->viewMode === 'shared') {
             return Folder::whereIn('id', FileShare::where('user_id', auth()->id())->whereNotNull('folder_id')->pluck('folder_id'))
+                ->withCount(['children', 'files'])
                 ->when($this->search, fn($q) => $q->where('name', 'ilike', "%{$this->search}%"))
                 ->get();
         }
@@ -67,6 +69,15 @@ class FileBrowser extends Component
             ->where('parent_id', $this->currentFolderId)
             ->when($this->search, fn($q) => $q->where('name', 'ilike', "%{$this->search}%"))
             ->get();
+    }
+
+    public function getFolderTree(): Collection
+    {
+        $allFolders = Folder::where('user_id', auth()->id())
+            ->orderBy('name')
+            ->get();
+
+        return $allFolders->whereNull('parent_id');
     }
 
     public function getFiles(): Collection

@@ -111,15 +111,35 @@
     <flux:card class="!p-3 overflow-hidden border-slate-200">
         <flux:table>
             <flux:table.columns>
-                <flux:table.column>Operador</flux:table.column>
+                <flux:table.column 
+                    sortable 
+                    :direction="$sortField === 'operator' ? $sortDirection : null" 
+                    wire:click="sortBy('operator')"
+                >
+                    Operador
+                </flux:table.column>
+
                 @if($view === 'summary' || $view === 'attendance')
                     <flux:table.column>Entrada (Real)</flux:table.column>
                     <flux:table.column>Estado</flux:table.column>
                 @endif
+
                 @if($view === 'summary' || $view === 'compliance')
                     <flux:table.column>TP / TC</flux:table.column>
-                    <flux:table.column>Productividad</flux:table.column>
-                    <flux:table.column>Utilización WFM</flux:table.column>
+                    <flux:table.column 
+                        sortable 
+                        :direction="$sortField === 'productivity' ? $sortDirection : null" 
+                        wire:click="sortBy('productivity')"
+                    >
+                        Productividad
+                    </flux:table.column>
+                    <flux:table.column 
+                        sortable 
+                        :direction="$sortField === 'utilization' ? $sortDirection : null" 
+                        wire:click="sortBy('utilization')"
+                    >
+                        Utilización WFM
+                    </flux:table.column>
                 @endif
                 @if($view === 'summary' || $view === 'attendance')
                     <flux:table.column>Logout</flux:table.column>

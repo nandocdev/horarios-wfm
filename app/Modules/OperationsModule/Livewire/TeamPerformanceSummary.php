@@ -25,6 +25,12 @@ class TeamPerformanceSummary extends Component
     #[Url]
     public string $view = 'summary';
 
+    #[Url]
+    public string $sortField = 'operator';
+
+    #[Url]
+    public string $sortDirection = 'asc';
+
     public array $teamPerformance = [];
     public array $teamTotals = [
         'utilization' => 0,
@@ -69,6 +75,18 @@ class TeamPerformanceSummary extends Component
 
     public function updatedSelectedDate(): void
     {
+        $this->loadTeamPerformance(app(GetEmployeePerformanceAction::class));
+    }
+
+    public function sortBy(string $field): void
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+
         $this->loadTeamPerformance(app(GetEmployeePerformanceAction::class));
     }
 
@@ -151,6 +169,17 @@ class TeamPerformanceSummary extends Component
                 $calls += $queue['total_calls'];
             }
         }
+
+        // Aplicar ordenamiento
+        usort($data, function ($a, $b) {
+            $direction = $this->sortDirection === 'asc' ? 1 : -1;
+            
+            return match($this->sortField) {
+                'productivity' => ($a['performance']['metrics']['productivity_percentage'] <=> $b['performance']['metrics']['productivity_percentage']) * $direction,
+                'utilization' => ($a['performance']['metrics']['utilization_percentage'] <=> $b['performance']['metrics']['utilization_percentage']) * $direction,
+                default => strnatcasecmp($a['employee']['full_name'], $b['employee']['full_name']) * $direction,
+            };
+        });
 
         $this->teamPerformance = $data;
         

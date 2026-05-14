@@ -90,6 +90,15 @@ class MenuHelper {
                 'icon' => 'user-group',
                 'permission' => 'menu.team', // O permiso equivalente de supervisor
                 'submenu' => [
+
+                    [
+                        'label' => __('Desempeño'),
+                        'route' => 'operations.team-performance',
+                        'params' => ['view' => 'compliance'],
+                        'pattern' => 'operations/team-performance*',
+                        'permission' => 'reports.compliance',
+                        'icon' => 'chart-bar-square',
+                    ],
                     [
                         'label' => __('Vista del Equipo'),
                         'route' => 'schedules.my-team',
@@ -181,14 +190,6 @@ class MenuHelper {
                         'pattern' => 'operations/team-performance*',
                         'permission' => 'reports.attendance',
                         'icon' => 'clipboard-document-check',
-                    ],
-                    [
-                        'label' => __('Cumplimiento de Horario'),
-                        'route' => 'operations.team-performance',
-                        'params' => ['view' => 'compliance'],
-                        'pattern' => 'operations/team-performance*',
-                        'permission' => 'reports.compliance',
-                        'icon' => 'chart-bar-square',
                     ],
                     [
                         'label' => __('Inventario de Staffing'),
@@ -402,14 +403,14 @@ class MenuHelper {
         // [NUEVO] Lógica delegada para Coordinadores (Posición ID 2, etc.)
         // Si el ítem pertenece a la sección de Equipo o Planificación Intradía, permitimos si tiene derechos de coordinador.
         $coordinatorPermissions = [
-            'menu.team', 
-            'schedules.view_team', 
-            'wfm.leaves.manage', 
+            'menu.team',
+            'schedules.view_team',
+            'wfm.leaves.manage',
             'operations.team-performance',
             'wfm.realtime.view',
             'realtime.view'
         ];
-        
+
         if (isset($item['permission']) && in_array($item['permission'], $coordinatorPermissions)) {
             if ($user->employee?->hasCoordinatorRights()) {
                 return true;

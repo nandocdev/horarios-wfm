@@ -26,5 +26,6 @@ return [
         App\Modules\AuditModule\Providers\ModuleServiceProvider::class,
         App\Modules\WfmModule\Providers\ModuleServiceProvider::class,
         App\Modules\HelpdeskModule\Providers\ModuleServiceProvider::class,
+        App\Modules\DocumentationModule\Providers\ModuleServiceProvider::class,
     ],
 ];

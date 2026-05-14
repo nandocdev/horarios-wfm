@@ -229,6 +229,13 @@ class MenuHelper {
                 'permission' => 'menu.admin',
                 'submenu' => [
                     [
+                        'label' => __('Documentación'),
+                        'route' => 'documentation.admin.articles',
+                        'pattern' => 'admin/documentation*',
+                        'permission' => 'articles.manage',
+                        'icon' => 'book-open',
+                    ],
+                    [
                         'label' => __('Usuarios'),
                         'route' => 'users.index',
                         'pattern' => 'admin/users*',
@@ -390,6 +397,13 @@ class MenuHelper {
         self::$currentUser = $user ?: AuthFacade::user();
 
         return collect([
+            [
+                'label' => __('Documentación'),
+                'icon' => 'book-open',
+                'route' => 'documentation.index',
+                'pattern' => 'docs*',
+                'permission' => null,
+            ],
             [
                 'label' => __('Soporte'),
                 'icon' => 'lifebuoy',

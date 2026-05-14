@@ -70,4 +70,12 @@ class Category extends Model
     {
         return $this->morphedByMany(Shoutout::class, 'categorizable');
     }
+
+    /**
+     * Relación polimórfica con Artículos de Documentación.
+     */
+    public function articles(): MorphToMany
+    {
+        return $this->morphedByMany(\App\Modules\DocumentationModule\Models\Article::class, 'categorizable');
+    }
 }

@@ -163,15 +163,19 @@ class RolesAndPermissionsSeeder extends Seeder
 
             // Report Module
             'reports.view',
+            'reports.adherence',
+            'reports.coverage',
+            'reports.sla',
             'reports.scorecard',
             'reports.attendance',
             'reports.compliance',
             'reports.staffing',
             'reports.requests',
 
-            // Helpdesk Module
-            'helpdesk.view',
-            'helpdesk.manage',
+            // Documentation Module
+            'articles.viewAny',
+            'articles.view',
+            'articles.manage',
 
             // Navigation Menu Permissions
             'menu.admin',
@@ -244,6 +248,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'schedules.justification_upload',
             'notifications.view',
             'helpdesk.view',
+            'articles.viewAny',
         ]);
 
         $supervisorRole = Role::findByName('supervisor', 'web');
@@ -255,6 +260,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.view',
             'notifications.send',
             'helpdesk.view',
+            'articles.viewAny',
         ]);
 
         // Coordinator - Gestión de equipo directo
@@ -274,9 +280,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'requests.view',
             'requests.manage',
             'reports.scorecard',
+            'reports.adherence',
+            'reports.coverage',
+            'reports.sla',
             'analytics.view',
             'notifications.view',
             'notifications.send',
+            'articles.viewAny',
         ]);
 
         // Chief - Gestión de múltiples equipos
@@ -292,11 +302,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'operations.view',
             'requests.view',
             'reports.scorecard',
+            'reports.adherence',
+            'reports.coverage',
+            'reports.sla',
             'reports.attendance',
             'reports.compliance',
             'analytics.view',
             'analytics.export',
             'notifications.view',
+            'articles.viewAny',
         ]);
 
         // Director - Supervisión global
@@ -310,11 +324,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'schedules.view_all',
             'operations.view',
             'reports.scorecard',
+            'reports.adherence',
+            'reports.coverage',
+            'reports.sla',
             'reports.attendance',
             'reports.compliance',
             'analytics.view',
             'analytics.export',
             'news.viewAny',
+            'articles.viewAny',
         ]);
 
         // WFM - Administración Total

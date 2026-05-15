@@ -52,10 +52,11 @@ it('updates an individual assignment for an employee', function () {
 
     $action->execute($assignment->id, $newData);
 
+    $today = now()->toDateString();
     $this->assertDatabaseHas('weekly_schedule_assignments', [
         'id' => $assignment->id,
-        'start_time' => '09:00:00',
-        'lunch_start_time' => '13:00:00',
-        'lunch_end_time' => '14:00:00',
+        'start_time' => $today . ' 09:00:00',
+        'lunch_start_time' => $today . ' 13:00:00',
+        'lunch_end_time' => $today . ' 14:00:00',
     ]);
 });

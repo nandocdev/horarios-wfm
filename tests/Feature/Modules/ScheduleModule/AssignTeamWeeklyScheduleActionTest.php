@@ -58,12 +58,13 @@ it('assigns a schedule to an entire team for a week', function () {
     expect(WeeklyTeamAssignment::where('team_id', $team->id)->count())->toBe(5);
     
     // Verificar asignaciones individuales para el lunes (day 1)
+    $today = now()->toDateString();
     $this->assertDatabaseHas('weekly_schedule_assignments', [
         'weekly_schedule_id' => $weekly->id,
         'employee_id' => $employee1->id,
         'day_of_week' => 1,
         'schedule_id' => $schedule->id,
-        'lunch_start_time' => '12:00:00',
+        'lunch_start_time' => $today . ' 12:00:00',
     ]);
 
     $this->assertDatabaseHas('weekly_schedule_assignments', [

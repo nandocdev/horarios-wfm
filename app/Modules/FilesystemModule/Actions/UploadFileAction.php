@@ -22,12 +22,13 @@ class UploadFileAction
         return DB::transaction(function () use ($uploadedFile, $user, $folderId) {
             $size = $uploadedFile->getSize();
             
-            // Verificar cuota (Default 100MB if not set)
-            $quotaMb = 100; // Podría venir de una configuración global o del usuario
+            // Verificar cuota dinámica
+            $quotaBytes = app(\App\Modules\FilesystemModule\Actions\GetUserQuotaAction::class)->execute($user);
             $usedBytes = File::where('user_id', $user->id)->sum('size');
             
-            if (($usedBytes + $size) > ($quotaMb * 1024 * 1024)) {
-                throw new \Exception("Has excedido tu límite de almacenamiento ({$quotaMb}MB).");
+            if (($usedBytes + $size) > $quotaBytes) {
+                $quotaFormatted = round($quotaBytes / (1024 * 1024), 2);
+                throw new \Exception("Has excedido tu límite de almacenamiento ({$quotaFormatted}MB).");
             }
 
             $path = $uploadedFile->store("uploads/{$user->id}", 'local');

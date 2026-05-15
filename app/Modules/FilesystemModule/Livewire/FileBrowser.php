@@ -114,18 +114,18 @@ class FileBrowser extends Component
         return $breadcrumbs;
     }
 
-    public function getStorageStats(): array
+    protected function getStorageStats(): array
     {
-        $usedBytes = File::where('user_id', auth()->id())->sum('size');
-        $quotaMb = 100;
-        $quotaBytes = $quotaMb * 1024 * 1024;
-        $percentage = ($usedBytes / $quotaBytes) * 100;
-
+        $used = File::where('user_id', auth()->id())->sum('size');
+        $quota = app(\App\Modules\FilesystemModule\Actions\GetUserQuotaAction::class)->execute(auth()->user());
+        
         return [
-            'used_formatted' => $this->formatSize($usedBytes),
-            'quota_formatted' => $quotaMb . ' MB',
-            'percentage' => min(100, round($percentage, 1)),
-            'is_full' => $percentage >= 95,
+            'used' => $used,
+            'quota' => $quota,
+            'percentage' => $quota > 0 ? round(($used / $quota) * 100, 2) : 0,
+            'used_formatted' => $this->formatSize((float) $used),
+            'quota_formatted' => $this->formatSize((float) $quota),
+            'is_full' => $used >= $quota,
         ];
     }
 

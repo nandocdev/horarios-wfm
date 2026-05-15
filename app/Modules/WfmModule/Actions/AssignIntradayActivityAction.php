@@ -37,14 +37,16 @@ class AssignIntradayActivityAction
             $errors = [];
 
             foreach ($dto->employee_ids as $employeeId) {
-                // Validación de traslapes en Postgres
-                $hasOverlap = IntradayActivity::where('employee_id', $employeeId)
-                    ->whereRaw('time_range && tstzrange(?, ?)', [$startRange, $endRange])
-                    ->exists();
+                // Validación de traslapes (Solo Postgres soporta tstzrange nativo)
+                if (DB::getDriverName() === 'pgsql') {
+                    $hasOverlap = IntradayActivity::where('employee_id', $employeeId)
+                        ->whereRaw('time_range && tstzrange(?, ?)', [$startRange, $endRange])
+                        ->exists();
 
-                if ($hasOverlap) {
-                    $errors[] = "El empleado ID {$employeeId} ya tiene una actividad programada en este horario.";
-                    continue;
+                    if ($hasOverlap) {
+                        $errors[] = "El empleado ID {$employeeId} ya tiene una actividad programada en este horario.";
+                        continue;
+                    }
                 }
 
                 $activity = IntradayActivity::create([

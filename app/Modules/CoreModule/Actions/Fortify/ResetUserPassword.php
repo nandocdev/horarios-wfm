@@ -6,6 +6,7 @@ namespace App\Modules\CoreModule\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Modules\CoreModule\Models\User;
+use App\Modules\CoreModule\Notifications\PasswordChangedNotification;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
@@ -28,5 +29,7 @@ class ResetUserPassword implements ResetsUserPasswords
             'password' => $input['password'],
             'force_password_change' => false,
         ])->save();
+
+        $user->notify(new PasswordChangedNotification());
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CoreModule\Models;
 
 use App\Modules\CoreModule\Concerns\Auditable;
+use App\Modules\CoreModule\Notifications\ResetPasswordNotification;
 use App\Modules\PersonnelModule\Models\Employee;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -36,6 +37,17 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use Auditable, HasFactory, HasRoles, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
+
+    /**
+     * Envía la notificación de restablecimiento de contraseña.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 
     protected static function newFactory(): UserFactory
     {

@@ -7,14 +7,17 @@ use App\Modules\PersonnelModule\Models\Province;
 use App\Modules\PersonnelModule\Models\Township;
 
 it('muestra catalogo de ubicaciones con provincias, distritos y corregimientos', function () {
+    $admin = \App\Modules\CoreModule\Models\User::factory()->create();
+    $admin->assignRole('admin');
+    
     $province = Province::create(['name' => 'Panamá']);
     $district = District::create(['province_id' => $province->id, 'name' => 'Panamá Centro']);
     $township = Township::create(['district_id' => $district->id, 'name' => 'Calidonia']);
 
-    $response = $this->get('/locations');
+    $response = $this->actingAs($admin)->get('/location');
 
     $response->assertOk();
-    $response->assertViewIs('locations::index');
+    $response->assertViewIs('personnel::location_index');
     $response->assertViewHas('provinces');
 
     $loadedProvinces = $response->viewData('provinces');
@@ -24,19 +27,25 @@ it('muestra catalogo de ubicaciones con provincias, distritos y corregimientos',
 });
 
 it('devuelve provincias en JSON', function () {
+    $admin = \App\Modules\CoreModule\Models\User::factory()->create();
+    $admin->assignRole('admin');
+    
     Province::create(['name' => 'Chiriquí']);
 
-    $response = $this->getJson('/locations/provinces');
+    $response = $this->actingAs($admin)->getJson('/location/provinces');
 
     $response->assertOk();
     $response->assertJsonFragment(['name' => 'Chiriquí']);
 });
 
 it('devuelve distritos de una provincia en JSON', function () {
+    $admin = \App\Modules\CoreModule\Models\User::factory()->create();
+    $admin->assignRole('admin');
+    
     $province = Province::create(['name' => 'Coclé']);
     District::create(['province_id' => $province->id, 'name' => 'Antón']);
 
-    $response = $this->getJson('/locations/districts/'.$province->id);
+    $response = $this->actingAs($admin)->getJson('/location/districts/'.$province->id);
 
     $response->assertOk();
     $response->assertJsonCount(1);
@@ -44,11 +53,14 @@ it('devuelve distritos de una provincia en JSON', function () {
 });
 
 it('devuelve corregimientos de un distrito en JSON', function () {
+    $admin = \App\Modules\CoreModule\Models\User::factory()->create();
+    $admin->assignRole('admin');
+    
     $province = Province::create(['name' => 'Veraguas']);
     $district = District::create(['province_id' => $province->id, 'name' => 'Santiago']);
     Township::create(['district_id' => $district->id, 'name' => 'La Peña']);
 
-    $response = $this->getJson('/locations/townships/'.$district->id);
+    $response = $this->actingAs($admin)->getJson('/location/townships/'.$district->id);
 
     $response->assertOk();
     $response->assertJsonFragment(['name' => 'La Peña']);

@@ -19,7 +19,7 @@ class LocationController extends Controller
     {
         $provinces = Province::with(['districts.townships'])->get();
 
-        return view('locations::index', compact('provinces'));
+        return view('personnel::location_index', compact('provinces'));
     }
 
     /**

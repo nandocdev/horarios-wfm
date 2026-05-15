@@ -114,7 +114,7 @@
                         <flux:icon name="folder" class="w-8 h-8 text-blue-500 fill-blue-500/10" />
                     </div>
                     
-                    <flux:dropdown>
+                    <flux:dropdown @click.stop>
                         <flux:button variant="ghost" icon="ellipsis-vertical" size="sm" />
                         <flux:menu>
                             <flux:menu.item icon="share" wire:click.stop="share({{ $folder->id }}, 'folder')">Compartir</flux:menu.item>
@@ -146,7 +146,7 @@
                         <flux:icon name="{{ $icon }}" class="w-8 h-8 text-zinc-600 dark:text-zinc-400" />
                     </div>
                     
-                    <flux:dropdown>
+                    <flux:dropdown @click.stop>
                         <flux:button variant="ghost" icon="ellipsis-vertical" size="sm" />
                         <flux:menu>
                             <flux:menu.item icon="arrow-down-tray" wire:click="download({{ $file->id }})">Descargar</flux:menu.item>

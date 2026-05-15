@@ -13,7 +13,9 @@ return new class extends Migration {
      */
     public function up(): void {
         // 1. CONFIGURACIÓN BASE DE POSTGRES
-        DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
+        }
 
         // 2. TABLA DE TURNOS (SHIFT DEFINITIONS)
         Schema::create('schedules', function (Blueprint $table) {
@@ -97,22 +99,41 @@ return new class extends Migration {
             $table->timestampsTz();
         });
 
-        DB::statement('ALTER TABLE intraday_activities ADD COLUMN time_range TSTZRANGE NOT NULL');
-        DB::statement('CREATE INDEX idx_intraday_activities_range ON intraday_activities USING GIST (employee_id, time_range)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE intraday_activities ADD COLUMN time_range TSTZRANGE NOT NULL');
+            DB::statement('CREATE INDEX idx_intraday_activities_range ON intraday_activities USING GIST (employee_id, time_range)');
+        } else {
+            Schema::table('intraday_activities', function (Blueprint $table) {
+                $table->string('time_range')->nullable();
+            });
+        }
 
         // 6. MONITOREO (TABLA UNLOGGED PARA ESTADOS)
-        DB::statement('CREATE UNLOGGED TABLE agent_realtime_states (
-            id BIGSERIAL PRIMARY KEY,
-            employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-            external_id VARCHAR(50) UNIQUE,
-            current_state VARCHAR(50) NOT NULL,
-            reason_code VARCHAR(50) NULL,
-            last_changed_at TIMESTAMPTZ NOT NULL,
-            metadata JSONB NULL,
-            updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-        )');
-        DB::statement('CREATE INDEX idx_agent_realtime_employee ON agent_realtime_states (employee_id)');
-        DB::statement('CREATE INDEX idx_agent_realtime_state ON agent_realtime_states (current_state)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('CREATE UNLOGGED TABLE agent_realtime_states (
+                id BIGSERIAL PRIMARY KEY,
+                employee_id BIGINT NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
+                external_id VARCHAR(50) UNIQUE,
+                current_state VARCHAR(50) NOT NULL,
+                reason_code VARCHAR(50) NULL,
+                last_changed_at TIMESTAMPTZ NOT NULL,
+                metadata JSONB NULL,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )');
+            DB::statement('CREATE INDEX idx_agent_realtime_employee ON agent_realtime_states (employee_id)');
+            DB::statement('CREATE INDEX idx_agent_realtime_state ON agent_realtime_states (current_state)');
+        } else {
+            Schema::create('agent_realtime_states', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
+                $table->string('external_id', 50)->unique()->nullable();
+                $table->string('current_state', 50);
+                $table->string('reason_code', 50)->nullable();
+                $table->timestamp('last_changed_at');
+                $table->json('metadata')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

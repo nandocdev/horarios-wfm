@@ -58,7 +58,9 @@ return new class extends Migration
 
         // Restricción adicional: parent_id no puede ser igual a id (Check constraint)
         // Usamos DB::statement porque el Blueprint no soporta CHECK nativo de Postgres convenientemente.
-        DB::statement('ALTER TABLE employees ADD CONSTRAINT employees_parent_not_self CHECK (parent_id <> id)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE employees ADD CONSTRAINT employees_parent_not_self CHECK (parent_id <> id)');
+        }
 
         // Relación inversa para los supervisores de equipos
         Schema::table('teams', function (Blueprint $table) {

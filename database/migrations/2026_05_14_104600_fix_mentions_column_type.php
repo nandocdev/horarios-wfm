@@ -14,11 +14,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (config('database.default') === 'pgsql') {
+        if (DB::getDriverName() === 'pgsql') {
             DB::statement('ALTER TABLE mentions ALTER COLUMN mentionable_id TYPE BIGINT USING mentionable_id::bigint');
         } else {
             Schema::table('mentions', function (Blueprint $table) {
-                $table->unsignedBigInteger('mentionable_id')->change();
+                $table->bigInteger('mentionable_id')->change();
             });
         }
     }

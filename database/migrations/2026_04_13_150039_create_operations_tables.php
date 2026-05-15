@@ -32,7 +32,13 @@ return new class extends Migration
         });
 
         // Postgres tstzrange para incidencias
-        DB::statement('ALTER TABLE incidents ADD COLUMN time_range tstzrange');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE incidents ADD COLUMN time_range tstzrange');
+        } else {
+            Schema::table('incidents', function (Blueprint $table) {
+                $table->string('time_range')->nullable();
+            });
+        }
     }
 
     /**

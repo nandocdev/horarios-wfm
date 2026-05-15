@@ -15,17 +15,15 @@ return new class extends Migration
     public function up(): void
     {
         // En Postgres, cambiar de VARCHAR a BIGINT requiere un cast explícito si hay datos.
-        // Usamos DB::statement para asegurar la compatibilidad con Postgres.
-        
-        if (config('database.default') === 'pgsql') {
+        if (DB::getDriverName() === 'pgsql') {
             DB::statement('ALTER TABLE categorizables ALTER COLUMN categorizable_id TYPE BIGINT USING categorizable_id::bigint');
             DB::statement('ALTER TABLE taggables ALTER COLUMN taggable_id TYPE BIGINT USING taggable_id::bigint');
         } else {
             Schema::table('categorizables', function (Blueprint $table) {
-                $table->unsignedBigInteger('categorizable_id')->change();
+                $table->bigInteger('categorizable_id')->change();
             });
             Schema::table('taggables', function (Blueprint $table) {
-                $table->unsignedBigInteger('taggable_id')->change();
+                $table->bigInteger('taggable_id')->change();
             });
         }
     }

@@ -31,9 +31,11 @@ return new class extends Migration
         });
 
         // 3. Crear índice único parcial para asegurar que solo haya UNA asignación activa por empleado/día
-        DB::statement('CREATE UNIQUE INDEX ws_assignments_active_unique 
-            ON weekly_schedule_assignments (weekly_schedule_id, employee_id, day_of_week) 
-            WHERE (is_replaced = false)');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('CREATE UNIQUE INDEX ws_assignments_active_unique 
+                ON weekly_schedule_assignments (weekly_schedule_id, employee_id, day_of_week) 
+                WHERE (is_replaced = false)');
+        }
     }
 
     /**
@@ -41,7 +43,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('DROP INDEX IF EXISTS ws_assignments_active_unique');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('DROP INDEX IF EXISTS ws_assignments_active_unique');
+        }
 
         Schema::table('weekly_schedule_assignments', function (Blueprint $table) {
             $table->dropConstrainedForeignId('swap_request_id');

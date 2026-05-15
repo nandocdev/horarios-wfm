@@ -16,7 +16,9 @@ return new class extends Migration
     {
         // 1. Corregir incident_types.color para que acepte hex o más opciones
         // En PostgreSQL, el enum crea un check constraint que debemos eliminar si queremos cambiar a string
-        DB::statement('ALTER TABLE incident_types DROP CONSTRAINT IF EXISTS incident_types_color_check');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE incident_types DROP CONSTRAINT IF EXISTS incident_types_color_check');
+        }
 
         Schema::table('incident_types', function (Blueprint $table) {
             $table->string('color', 50)->nullable()->change()->default('#3b82f6'); // Blue 500

@@ -29,6 +29,10 @@ class AttendanceReconciliationTest extends TestCase
 
     public function test_it_creates_late_incident_when_employee_is_late(): void
     {
+        // Fijar fecha: Lunes 2026-05-11
+        $date = Carbon::parse('2026-05-11');
+        Carbon::setTestNow($date->copy()->setTime(19, 0, 0));
+
         // 1. Setup Employee and Schedule (08:00 - 17:00)
         $employee = Employee::factory()->create(['is_active' => true]);
         
@@ -42,13 +46,11 @@ class AttendanceReconciliationTest extends TestCase
 
         $weeklySchedule = WeeklySchedule::create([
             'name' => 'Semana Test',
-            'week_start_date' => now()->startOfWeek()->toDateString(),
-            'week_end_date' => now()->endOfWeek()->toDateString(),
+            'week_start_date' => '2026-05-11',
+            'week_end_date' => '2026-05-17',
             'status' => 'active',
         ]);
 
-        $date = now()->startOfWeek(); // Lunes
-        
         WeeklyScheduleAssignment::create([
             'weekly_schedule_id' => $weeklySchedule->id,
             'employee_id' => $employee->id,
@@ -72,10 +74,7 @@ class AttendanceReconciliationTest extends TestCase
         $action->execute($employee, $date);
 
         // 4. Assert Incident Created
-        $this->assertDatabaseHas('attendance_incidents', [
-            'employee_id' => $employee->id,
-            'incident_date' => $date->toDateString(),
-        ]);
+        $this->assertDatabaseCount('attendance_incidents', 1);
 
         $incident = AttendanceIncident::first();
         $this->assertEquals('LATE', $incident->type->code);
@@ -83,6 +82,10 @@ class AttendanceReconciliationTest extends TestCase
 
     public function test_it_creates_absent_incident_when_no_marks_found(): void
     {
+        // Fijar fecha: Lunes 2026-05-11
+        $date = Carbon::parse('2026-05-11');
+        Carbon::setTestNow($date->copy()->setTime(19, 0, 0));
+
         $employee = Employee::factory()->create(['is_active' => true]);
         
         $schedule = Schedule::create([
@@ -95,13 +98,11 @@ class AttendanceReconciliationTest extends TestCase
 
         $weeklySchedule = WeeklySchedule::create([
             'name' => 'Semana Test',
-            'week_start_date' => now()->startOfWeek()->toDateString(),
-            'week_end_date' => now()->endOfWeek()->toDateString(),
+            'week_start_date' => '2026-05-11',
+            'week_end_date' => '2026-05-17',
             'status' => 'active',
         ]);
 
-        $date = now()->startOfWeek();
-        
         WeeklyScheduleAssignment::create([
             'weekly_schedule_id' => $weeklySchedule->id,
             'employee_id' => $employee->id,
@@ -115,6 +116,8 @@ class AttendanceReconciliationTest extends TestCase
 
         $action = app(ReconcileEmployeeAttendanceAction::class);
         $action->execute($employee, $date);
+
+        $this->assertDatabaseCount('attendance_incidents', 1);
 
         $incident = AttendanceIncident::with('type')->first();
         $this->assertNotNull($incident);

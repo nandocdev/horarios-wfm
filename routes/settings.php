@@ -15,12 +15,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('settings/appearance', 'pages::settings.appearance')->name('appearance.edit');
 
     Route::livewire('settings/security', 'pages::settings.security')
-        ->middleware(
-            when(
-                Features::canManageTwoFactorAuthentication()
-                && Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword'),
-                [],
-            ),
-        )
+        ->middleware([
+            Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
+                ? 'password.confirm'
+                : null
+        ])
         ->name('security.edit');
 });

@@ -78,11 +78,9 @@ final class ReconcileEmployeeAttendanceAction
             return false;
         }
 
-        // Si es hoy, solo marcar ausencia si ya pasaron 2 horas desde el inicio programado
-        // Esto evita marcar como ausente a alguien que llega 15 mins tarde antes de que se procese su tardanza.
         $scheduledStart = Carbon::parse($attendance['scheduled_entry'])->setDate($date->year, $date->month, $date->day);
         
-        return now()->diffInMinutes($scheduledStart, false) > 120;
+        return $scheduledStart->diffInMinutes(now(), false) > 120;
     }
 
     /**

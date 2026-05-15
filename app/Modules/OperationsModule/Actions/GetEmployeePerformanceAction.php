@@ -79,14 +79,16 @@ final class GetEmployeePerformanceAction
 
     private function getSchedule(Employee $employee, Carbon $date): ?WeeklyScheduleAssignment
     {
-        return WeeklyScheduleAssignment::query()
+        $schedule = WeeklyScheduleAssignment::query()
             ->where('employee_id', $employee->id)
             ->whereHas('weeklySchedule', function($q) use ($date) {
-                $q->where('week_start_date', '<=', $date->toDateString())
-                  ->where('week_end_date', '>=', $date->toDateString());
+                $q->whereDate('week_start_date', '<=', $date->toDateString())
+                  ->whereDate('week_end_date', '>=', $date->toDateString());
             })
             ->where('day_of_week', $date->dayOfWeekIso)
             ->first();
+
+        return $schedule;
     }
 
     private function getTransitions(Employee $employee, Carbon $date): Collection

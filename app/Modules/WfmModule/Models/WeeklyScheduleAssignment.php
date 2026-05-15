@@ -24,12 +24,6 @@ class WeeklyScheduleAssignment extends Model
     ];
 
     protected $casts = [
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
-        'lunch_start_time' => 'datetime:H:i',
-        'lunch_end_time' => 'datetime:H:i',
-        'break_start_time' => 'datetime:H:i',
-        'break_end_time' => 'datetime:H:i',
         'is_replaced' => 'boolean',
         'replaced_at' => 'datetime',
     ];

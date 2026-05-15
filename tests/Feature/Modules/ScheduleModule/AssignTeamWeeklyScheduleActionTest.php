@@ -6,6 +6,7 @@ namespace Tests\Feature\Modules\ScheduleModule;
 
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Modules\PersonnelModule\Models\TeamMember;
 use App\Modules\WfmModule\Actions\AssignTeamWeeklyScheduleAction;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
@@ -36,6 +37,10 @@ it('assigns a schedule to an entire team for a week', function () {
     $team = Team::create(['name' => 'Team Alpha']);
     $employee1 = Employee::factory()->create(['team_id' => $team->id]);
     $employee2 = Employee::factory()->create(['team_id' => $team->id]);
+
+    // Importante: Crear entradas en team_members ya que la relación users() en Team las usa
+    TeamMember::create(['team_id' => $team->id, 'employee_id' => $employee1->id, 'is_active' => true]);
+    TeamMember::create(['team_id' => $team->id, 'employee_id' => $employee2->id, 'is_active' => true]);
 
     $action = app(AssignTeamWeeklyScheduleAction::class);
     

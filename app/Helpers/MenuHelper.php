@@ -319,6 +319,20 @@ class MenuHelper {
                         'permission' => 'admin.system',
                         'icon' => 'wrench-screwdriver',
                     ],
+                    [
+                        'label' => __('Archivos'),
+                        'icon' => 'folder-open',
+                        'permission' => 'admin.system',
+                        'submenu' => [
+                            [
+                                'label' => __('Gestión de Cuotas'),
+                                'route' => 'filesystem.quotas',
+                                'pattern' => 'filesystem/quotas*',
+                                'permission' => 'admin.system',
+                                'icon' => 'circle-stack',
+                            ],
+                        ],
+                    ],
                 ],
             ],
 

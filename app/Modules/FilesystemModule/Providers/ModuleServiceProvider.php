@@ -11,8 +11,9 @@ class ModuleServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        // 1. Componentes Livewire
+        // Registro de componentes Livewire
         Livewire::component('filesystem.browser', \App\Modules\FilesystemModule\Livewire\FileBrowser::class);
+        Livewire::component('filesystem.quota-manager', \App\Modules\FilesystemModule\Livewire\QuotaManager::class);
 
         // 2. Rutas
         if (file_exists(__DIR__ . '/../Routes/web.php')) {

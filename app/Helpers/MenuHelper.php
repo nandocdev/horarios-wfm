@@ -500,9 +500,8 @@ class MenuHelper {
             'menu.team',
             'schedules.view_team',
             'wfm.leaves.manage',
-            'operations.team-performance',
+            'reports.compliance',
             'wfm.realtime.view',
-            'realtime.view'
         ];
 
         if (isset($item['permission']) && in_array($item['permission'], $coordinatorPermissions)) {

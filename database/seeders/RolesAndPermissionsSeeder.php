@@ -164,6 +164,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reports.attendance',
             'reports.compliance',
             'reports.staffing',
+            'reports.requests',
             'reports.reports',
 
             // Helpdesk Module

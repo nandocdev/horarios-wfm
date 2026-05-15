@@ -9,14 +9,9 @@ use App\Modules\PersonnelModule\Models\Team;
 use Illuminate\Support\Facades\Hash;
 
 it('shows audit list to admin users', function () {
-    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-
-    $admin = User::factory()->create([
-        'password' => Hash::make('password'),
-        'force_password_change' => false,
-    ]);
-
-    $admin->assignRole($role);
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
 
     AuditLog::factory()->create([
         'entity_type' => Team::class,
@@ -29,18 +24,14 @@ it('shows audit list to admin users', function () {
     $this->actingAs($admin)
         ->get(route('audit.index'))
         ->assertOk()
-        ->assertSee('Audit Logs')
-        ->assertSee('created');
+        ->assertSee('Auditoría de Cambios')
+        ->assertSee('CREATED');
 });
 
 it('applies search filters to audit logs', function () {
-    $role = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
-
-    $admin = User::factory()->create([
-        'password' => Hash::make('password'),
-        'force_password_change' => false,
-    ]);
-    $admin->assignRole($role);
+    $this->seed(RolesAndPermissionsSeeder::class);
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
 
     AuditLog::factory()->createMany([
         [
@@ -55,6 +46,7 @@ it('applies search filters to audit logs', function () {
             'entity_id' => 2,
             'action' => 'deleted',
             'ip_address' => '127.0.0.2',
+
             'user_id' => $admin->id,
         ],
     ]);
@@ -62,5 +54,5 @@ it('applies search filters to audit logs', function () {
     $this->actingAs($admin)
         ->get(route('audit.index', ['action' => 'created']))
         ->assertOk()
-        ->assertSee('created');
+        ->assertSee('CREATED');
 });

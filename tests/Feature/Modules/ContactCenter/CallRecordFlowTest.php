@@ -8,6 +8,7 @@ use App\Modules\ConnectModule\Actions\CreateCallRecordAction;
 use App\Modules\ConnectModule\DTOs\CallCloseDTO;
 use App\Modules\ConnectModule\DTOs\CallCompleteDTO;
 use App\Modules\ConnectModule\DTOs\CallStartDTO;
+use App\Modules\ConnectModule\Livewire\CreateCallRecord;
 use App\Modules\ConnectModule\Livewire\EditCallRecord;
 use App\Modules\ConnectModule\Livewire\ListCallRecords;
 use App\Modules\ConnectModule\Models\CallQueue;
@@ -175,7 +176,7 @@ it('allows operator to add a new manual call record from history page', function
     ]);
 
     Livewire::actingAs($user)
-        ->test(ListCallRecords::class)
+        ->test(CreateCallRecord::class)
         ->set('form.phone_number', '6612-9999')
         ->set('form.citizen_identifier', '12345678')
         ->set('form.queue_id', $queue->id)

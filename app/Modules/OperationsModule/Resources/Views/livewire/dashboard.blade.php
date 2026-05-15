@@ -227,7 +227,8 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <flux:heading size="lg">Comparativo de Volumen: Actual vs. Anterior</flux:heading>
-                <flux:subheading>Distribución diaria de llamadas (Atendidas/Abandonadas) comparando semanas.</flux:subheading>
+                <flux:subheading>Distribución diaria de llamadas (Atendidas/Abandonadas) comparando semanas.
+                </flux:subheading>
             </div>
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-1.5">
@@ -257,46 +258,53 @@
                     this.chart = new ApexCharts(this.$refs.volumeChart, {
                         chart: {
                             type: 'bar',
-                            height: 320,
+                            height: 350,
                             stacked: true,
-                            toolbar: { show: true },
-                            zoom: { enabled: false },
+                            toolbar: { show: true }
                         },
                         series: [
                             // Grupo Semana Actual
-                            { name: 'Atendidas (Actual)', group: 'current', data: @js($this->volumeComparison['current_handled']) },
-                            { name: 'Abandonadas (Actual)', group: 'current', data: @js($this->volumeComparison['current_abandoned']) },
+                            { 
+                                name: 'Atendidas (Actual)', 
+                                group: 'actual', 
+                                data: @js($this->volumeComparison['current_handled']) 
+                            },
+                            { 
+                                name: 'Abandonadas (Actual)', 
+                                group: 'actual', 
+                                data: @js($this->volumeComparison['current_abandoned']) 
+                            },
                             // Grupo Semana Anterior
-                            { name: 'Atendidas (Anterior)', group: 'previous', data: @js($this->volumeComparison['previous_handled']) },
-                            { name: 'Abandonadas (Anterior)', group: 'previous', data: @js($this->volumeComparison['previous_abandoned']) }
+                            { 
+                                name: 'Atendidas (Anterior)', 
+                                group: 'anterior', 
+                                data: @js($this->volumeComparison['previous_handled']) 
+                            },
+                            { 
+                                name: 'Abandonadas (Anterior)', 
+                                group: 'anterior', 
+                                data: @js($this->volumeComparison['previous_abandoned']) 
+                            }
                         ],
                         xaxis: {
                             categories: @js($this->volumeComparison['labels']),
                             axisBorder: { show: false },
                             labels: { style: { colors: '#71717a', fontSize: '12px' } }
                         },
-                        yaxis: {
-                            labels: { style: { colors: '#71717a', fontSize: '12px' } }
-                        },
-                        grid: {
-                            borderColor: '#f1f1f1',
-                            strokeDashArray: 4,
-                            padding: { left: 10, right: 10, bottom: 0 }
-                        },
-                        // Colores: Actual (Sólidos), Anterior (Tenuer)
                         colors: ['#22c55e', '#ef4444', '#86efac', '#fca5a5'],
                         plotOptions: {
                             bar: {
+                                horizontal: false,
+                                columnWidth: '60%',
                                 borderRadius: 4,
-                                columnWidth: '80%',
                             }
                         },
                         dataLabels: { enabled: false },
-                        legend: { show: false },
+                        legend: { position: 'top' },
                         tooltip: { 
-                            theme: 'light',
-                            shared: true,
-                            intersect: false
+                            shared: true, 
+                            intersect: false,
+                            theme: 'light'
                         }
                     });
                     this.chart.render();

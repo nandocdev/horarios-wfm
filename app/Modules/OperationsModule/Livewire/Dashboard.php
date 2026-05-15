@@ -235,12 +235,12 @@ class Dashboard extends Component {
 
     private function emptyHeroKpis(): array {
         return [
-            'coverage' => ['label' => 'Cobertura', 'value' => '0%', 'status' => 'neutral', 'icon' => 'users'],
-            'adherence' => ['label' => 'Adherencia', 'value' => '0%', 'status' => 'neutral', 'icon' => 'clock'],
-            'occupancy' => ['label' => 'Ocupación', 'value' => '0%', 'status' => 'neutral', 'icon' => 'chart-bar'],
-            'service_level' => ['label' => 'Nivel de Servicio', 'value' => '0%', 'status' => 'neutral', 'icon' => 'phone'],
-            'absenteeism' => ['label' => 'Ausentismo', 'value' => '0%', 'status' => 'neutral', 'icon' => 'user-minus'],
-            'shrinkage' => ['label' => 'Shrinkage', 'value' => '0%', 'status' => 'neutral', 'icon' => 'scissors'],
+            'coverage' => ['label' => 'Cobertura', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'users'],
+            'adherence' => ['label' => 'Adherencia', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'clock'],
+            'occupancy' => ['label' => 'Ocupación', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'chart-bar'],
+            'service_level' => ['label' => 'Nivel de Servicio', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'phone'],
+            'absenteeism' => ['label' => 'Ausentismo', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'user-minus'],
+            'shrinkage' => ['label' => 'Shrinkage', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'scissors'],
         ];
     }
 

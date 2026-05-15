@@ -1,91 +1,90 @@
 <div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <flux:link href="{{ route('organization.teams.index') }}" variant="ghost">
-                        ← Volver
-                    </flux:link>
-                    <h1 class="text-2xl font-bold text-gray-900">{{ $team->name }}</h1>
+    <div class="space-y-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <flux:button icon="chevron-left" variant="ghost" href="{{ route('organization.teams.index') }}" :inset="true" />
+                <div>
+                    <flux:heading size="xl" level="1">{{ $team->name }}</flux:heading>
+                    <flux:subheading>Detalle y gestión de miembros del equipo operativo.</flux:subheading>
                 </div>
-                <div class="flex space-x-2">
+            </div>
 
-                    <flux:button.group>
-                        <flux:button href="{{ route('organization.teams.members', $team) }}" icon="users">
-                        </flux:button>
-                        <flux:button href="{{ route('organization.teams.transfer', $team) }}" icon="arrows-right-left">
-                        </flux:button>
-                        <flux:button href="{{ route('organization.teams.edit', $team) }}" icon="pencil-square">
-                        </flux:button>
-                        <flux:button wire:click="toggleStatus" icon="{{ $team->is_active ? 'eye-slash' : 'eye' }}">
-                        </flux:button>
-                    </flux:button.group>
-
-
-                </div>
+            <div class="flex gap-2">
+                <flux:button href="{{ route('organization.teams.transfer', $team) }}" icon="user-plus">Gestionar Miembros</flux:button>
+                <flux:button href="{{ route('organization.teams.edit', $team) }}" icon="pencil-square" variant="primary">Editar</flux:button>
+                <flux:button wire:click="toggleStatus" variant="ghost" icon="{{ $team->is_active ? 'eye-slash' : 'eye' }}" title="{{ $team->is_active ? 'Desactivar' : 'Activar' }}" />
             </div>
         </div>
 
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Información General</h3>
-                    <dl class="space-y-3">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Nombre</dt>
-                            <dd class="text-sm text-gray-900">{{ $team->name }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Descripción</dt>
-                            <dd class="text-sm text-gray-900">{{ $team->description ?: 'Sin descripción' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Estado</dt>
-                            <dd class="text-sm">
-                                @if($team->is_active)
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        Activo
-                                    </span>
-                                @else
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        Inactivo
-                                    </span>
-                                @endif
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Fecha de creación</dt>
-                            <dd class="text-sm text-gray-900">{{ $team->created_at->format('d/m/Y H:i') }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Última actualización</dt>
-                            <dd class="text-sm text-gray-900">{{ $team->updated_at->format('d/m/Y H:i') }}</dd>
-                        </div>
-                    </dl>
-                </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Información General -->
+            <div class="lg:col-span-1 space-y-6">
+                <flux:card>
+                    <flux:heading size="lg" class="mb-4">Información General</flux:heading>
+                    
+                    <div class="space-y-4">
+                        <flux:field label="Nombre">
+                            <div class="text-zinc-900 dark:text-white font-medium">{{ $team->name }}</div>
+                        </flux:field>
 
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Miembros ({{ $team->users->count() }})</h3>
+                        <flux:field label="Descripción">
+                            <div class="text-zinc-500 text-sm">{{ $team->description ?: 'Sin descripción' }}</div>
+                        </flux:field>
+
+                        <flux:field label="Estado">
+                            @if($team->is_active)
+                                <flux:badge color="green">Activo</flux:badge>
+                            @else
+                                <flux:badge color="red">Inactivo</flux:badge>
+                            @endif
+                        </flux:field>
+
+                        <div class="pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-zinc-400">Creado:</span>
+                                <span class="text-zinc-600 dark:text-zinc-300">{{ $team->created_at->format('d/m/Y H:i') }}</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-zinc-400">Actualizado:</span>
+                                <span class="text-zinc-600 dark:text-zinc-300">{{ $team->updated_at->format('d/m/Y H:i') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </flux:card>
+            </div>
+
+            <!-- Miembros del Equipo -->
+            <div class="lg:col-span-2">
+                <flux:card>
+                    <div class="flex items-center justify-between mb-6">
+                        <flux:heading size="lg">Miembros del Equipo ({{ $team->users->count() }})</flux:heading>
+                        <flux:button href="{{ route('organization.teams.transfer', $team) }}" variant="ghost" size="sm" icon="plus">Añadir</flux:button>
+                    </div>
+
                     @if($team->users->isNotEmpty())
-                        <div class="space-y-2">
+                        <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
                             @foreach($team->users as $user)
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                        <div class="font-medium text-gray-900">{{ $user->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $user->email }}</div>
+                                <div class="py-4 flex items-center justify-between first:pt-0 last:pb-0">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold uppercase">
+                                            {{ substr($user->name, 0, 2) }}
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ $user->name }}</div>
+                                            <div class="text-xs text-zinc-500">{{ $user->email }}</div>
+                                        </div>
                                     </div>
-                                    <flux:link href="#" {{-- TODO: route to user profile --}} variant="ghost" size="sm">
-                                        Ver
-                                    </flux:link>
+                                    <flux:button variant="ghost" size="sm" icon="chevron-right" />
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <p class="text-sm text-gray-500">No hay miembros en este equipo.</p>
+                        <div class="flex flex-col items-center py-12 text-zinc-400 gap-2">
+                            <flux:icon.users class="w-12 h-12" />
+                            <span>No hay miembros asignados a este equipo.</span>
+                        </div>
                     @endif
-                </div>
+                </flux:card>
             </div>
         </div>
     </div>

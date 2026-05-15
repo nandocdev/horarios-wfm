@@ -1,54 +1,49 @@
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center space-x-4">
-                <flux:link href="{{ route('organization.teams.show', $team) }}" variant="ghost">
-                    ← Volver
-                </flux:link>
-                <h1 class="text-2xl font-bold text-gray-900">Editar Equipo</h1>
-            </div>
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex items-center gap-4">
+        <flux:button icon="chevron-left" variant="ghost" href="{{ route('organization.teams.show', $team) }}" :inset="true" />
+        <div>
+            <flux:heading size="xl" level="1">Editar Equipo</flux:heading>
+            <flux:subheading>Modifica los detalles del equipo operativo: {{ $team->name }}.</flux:subheading>
         </div>
+    </div>
 
-        <form wire:submit="save" class="p-6 space-y-6">
+    <flux:card>
+        <form wire:submit="save" class="space-y-6">
             <div class="grid grid-cols-1 gap-6">
-                <flux:field>
-                    <flux:input wire:model="name" label="Nombre *" placeholder="Ingresa el nombre del equipo"
-                        required />
-                    <flux:error name="name" />
-                </flux:field>
+                <flux:input 
+                    wire:model="name" 
+                    label="Nombre *" 
+                    placeholder="Nombre del equipo"
+                    required 
+                />
 
-                <flux:field>
-                    <flux:textarea wire:model="description" label="Descripción"
-                        placeholder="Describe el propósito del equipo" rows="4" />
-                    <flux:error name="description" />
-                </flux:field>
+                <flux:textarea 
+                    wire:model="description" 
+                    label="Descripción"
+                    placeholder="Propósito del equipo" 
+                    rows="3" 
+                />
 
-                <flux:field>
-                    <flux:select wire:model="supervisor_id" label="Supervisor" placeholder="Selecciona un supervisor">
-                        <option value="">Sin supervisor</option>
-                        @foreach($this->availableSupervisors as $employee)
-                            <option value="{{ $employee->id }}">
-                                {{ $employee->first_name }} {{ $employee->last_name }} ({{ $employee->employee_number }})
-                            </option>
-                        @endforeach
-                    </flux:select>
-                    <flux:error name="supervisor_id" />
-                </flux:field>
+                <flux:select wire:model="supervisor_id" label="Supervisor" placeholder="Selecciona un responsable">
+                    <flux:select.option value="">Sin supervisor asignado</flux:select.option>
+                    @foreach($this->availableSupervisors as $employee)
+                        <flux:select.option value="{{ $employee->id }}">
+                            {{ $employee->full_name }} ({{ $employee->employee_number }})
+                        </flux:select.option>
+                    @endforeach
+                </flux:select>
 
-                <flux:field>
-                    <flux:checkbox wire:model="is_active" label="Equipo activo" />
-                    <flux:error name="is_active" />
-                </flux:field>
+                <flux:checkbox wire:model="is_active" label="Equipo activo y operativo" />
             </div>
 
-            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                <flux:link href="{{ route('organization.teams.show', $team) }}" variant="ghost">
+            <div class="flex justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-zinc-700">
+                <flux:button href="{{ route('organization.teams.show', $team) }}" variant="ghost">
                     Cancelar
-                </flux:link>
+                </flux:button>
                 <flux:button type="submit" variant="primary">
                     Actualizar Equipo
                 </flux:button>
             </div>
         </form>
-    </div>
+    </flux:card>
 </div>

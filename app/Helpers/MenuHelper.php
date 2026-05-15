@@ -299,11 +299,35 @@ class MenuHelper {
                         'icon' => 'user-group',
                     ],
                     [
-                        'label' => __('Estructura Organizacional'),
-                        'route' => 'organization.departments.index',
-                        'pattern' => 'organization/*',
-                        'permission' => 'departments.viewAny',
+                        'label' => __('Estructura'),
                         'icon' => 'building-office',
+                        'permission' => 'departments.viewAny',
+                        'submenu' => [
+                            [
+                                'label' => __('Departamentos'),
+                                'route' => 'organization.departments.index',
+                                'pattern' => 'organization/departments*',
+                                'icon' => 'building-office-2',
+                            ],
+                            [
+                                'label' => __('Direcciones'),
+                                'route' => 'organization.directorates.index',
+                                'pattern' => 'organization/directorates*',
+                                'icon' => 'map',
+                            ],
+                            [
+                                'label' => __('Posiciones'),
+                                'route' => 'organization.positions.index',
+                                'pattern' => 'organization/positions*',
+                                'icon' => 'briefcase',
+                            ],
+                            [
+                                'label' => __('Equipos'),
+                                'route' => 'organization.teams.index',
+                                'pattern' => 'organization/teams*',
+                                'icon' => 'user-group',
+                            ],
+                        ],
                     ],
                     [
                         'label' => __('Parámetros Operativos'),

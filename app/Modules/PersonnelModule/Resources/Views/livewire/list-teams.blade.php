@@ -41,7 +41,7 @@
             </div>
 
             <!-- Tabla -->
-            <flux:table :paginate="$teams">
+            <flux:table :paginate="$teams" class="overflow-visible">
                 <flux:table.columns>
                     <flux:table.column :sortable="$sortBy === 'name'" :direction="$sortDirection" wire:click="sort('name')">Nombre</flux:table.column>
                     <flux:table.column>Supervisor</flux:table.column>

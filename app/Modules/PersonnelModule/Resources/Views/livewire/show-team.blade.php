@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <flux:button icon="chevron-left" variant="ghost" href="{{ route('organization.teams.index') }}" :inset="true" />
+                <flux:button icon="chevron-left" variant="ghost" href="{{ route('organization.teams.index') }}" :inset="true" wire:navigate />
                 <div>
                     <flux:heading size="xl" level="1">{{ $team->name }}</flux:heading>
                     <flux:subheading>Detalle y gestión de miembros del equipo operativo.</flux:subheading>
@@ -10,8 +10,8 @@
             </div>
 
             <div class="flex gap-2">
-                <flux:button href="{{ route('organization.teams.transfer', $team) }}" icon="user-plus">Gestionar Miembros</flux:button>
-                <flux:button href="{{ route('organization.teams.edit', $team) }}" icon="pencil-square" variant="primary">Editar</flux:button>
+                <flux:button href="{{ route('organization.teams.transfer', $team) }}" icon="arrows-right-left" wire:navigate>Gestionar Miembros</flux:button>
+                <flux:button href="{{ route('organization.teams.edit', $team) }}" icon="pencil-square" variant="primary" wire:navigate>Editar</flux:button>
                 <flux:button wire:click="toggleStatus" variant="ghost" icon="{{ $team->is_active ? 'eye-slash' : 'eye' }}" title="{{ $team->is_active ? 'Desactivar' : 'Activar' }}" />
             </div>
         </div>
@@ -31,7 +31,7 @@
                             @if($team->supervisor)
                                 <div class="flex items-center gap-3 py-1">
                                     <flux:avatar initials="{{ $team->supervisor->initials }}" size="sm" />
-                                    <div>
+                                    <div class="flex flex-col">
                                         <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ $team->supervisor->full_name }}</div>
                                         <div class="text-xs text-zinc-500">{{ $team->supervisor->employee_number }}</div>
                                     </div>
@@ -47,9 +47,9 @@
 
                         <flux:field label="Estado">
                             @if($team->is_active)
-                                <flux:badge color="green">Activo</flux:badge>
+                                <flux:badge color="green" size="sm">Activo</flux:badge>
                             @else
-                                <flux:badge color="red">Inactivo</flux:badge>
+                                <flux:badge color="red" size="sm">Inactivo</flux:badge>
                             @endif
                         </flux:field>
 
@@ -76,7 +76,7 @@
                             <flux:modal.trigger name="add-member-modal">
                                 <flux:button wire:click="loadAvailableEmployees" variant="ghost" size="sm" icon="plus">Añadir</flux:button>
                             </flux:modal.trigger>
-                            <flux:button href="{{ route('organization.teams.transfer', $team) }}" variant="ghost" size="sm" icon="arrows-right-left" title="Transferencia masiva" />
+                            <flux:button href="{{ route('organization.teams.transfer', $team) }}" variant="ghost" size="sm" icon="arrows-right-left" wire:navigate title="Transferencia masiva" />
                         </div>
                     </div>
 
@@ -93,7 +93,7 @@
                                     </div>
                                     
                                     <div class="flex gap-2">
-                                        <flux:button href="{{ route('employees.show', $user) }}" variant="ghost" size="sm" icon="eye" :inset="true" />
+                                        <flux:button href="{{ route('employees.show', $user) }}" variant="ghost" size="sm" icon="eye" :inset="true" wire:navigate />
                                         
                                         <flux:modal.trigger name="remove-member-{{ $user->id }}">
                                             <flux:button variant="ghost" size="sm" icon="trash" color="red" :inset="true" />
@@ -120,9 +120,14 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="flex flex-col items-center py-12 text-zinc-400 gap-2">
-                            <flux:icon.users class="w-12 h-12" />
+                        <div class="flex flex-col items-center py-20 text-zinc-400 gap-3">
+                            <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-full">
+                                <flux:icon.users class="size-10 text-zinc-300" />
+                            </div>
                             <span>No hay miembros asignados a este equipo.</span>
+                            <flux:modal.trigger name="add-member-modal">
+                                <flux:button wire:click="loadAvailableEmployees" variant="subtle" size="sm">Añadir el primero</flux:button>
+                            </flux:modal.trigger>
                         </div>
                     @endif
                 </flux:card>

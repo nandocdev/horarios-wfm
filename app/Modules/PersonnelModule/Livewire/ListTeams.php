@@ -22,15 +22,34 @@ class ListTeams extends Component
 
     public string $search = '';
 
+    public string $sortBy = 'name';
+
+    public string $sortDirection = 'asc';
+
     public int $perPage = 10;
 
     public ?bool $activeFilter = null;
 
     protected $queryString = [
         'search' => ['except' => ''],
+        'sortBy' => ['except' => 'name'],
+        'sortDirection' => ['except' => 'asc'],
         'perPage' => ['except' => 10],
         'activeFilter' => ['except' => null],
     ];
+
+    /**
+     * Alterna la columna de ordenamiento.
+     */
+    public function sort(string $column): void
+    {
+        if ($this->sortBy === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $column;
+            $this->sortDirection = 'asc';
+        }
+    }
 
     /**
      * Resetea la paginación cuando cambian los filtros.
@@ -63,7 +82,7 @@ class ListTeams extends Component
             ->when($this->activeFilter !== null, function (Builder $query) {
                 $query->where('is_active', $this->activeFilter);
             })
-            ->orderBy('name');
+            ->orderBy($this->sortBy, $this->sortDirection);
     }
 
     /**

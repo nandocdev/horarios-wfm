@@ -164,10 +164,18 @@ class AgentTimeline extends Component
         // B. Actividades Intradiarias (Meetings, Formación, etc)
         // Usamos whereRaw para filtrar por la fecha dentro del TSTZRANGE
         \Illuminate\Support\Facades\Log::error("DEBUG: Querying Intraday for ID: " . $this->employeeId);
-        $intradays = IntradayActivity::with(['activityType'])
-            ->where('employee_id', $this->employeeId)
-            ->whereRaw('lower(time_range)::date = ?', [$now->toDateString()])
-            ->get();
+        if (DB::getDriverName() === 'pgsql') {
+            $intradays = IntradayActivity::with(['activityType'])
+                ->where('employee_id', $this->employeeId)
+                ->whereRaw('lower(time_range)::date = ?', [$now->toDateString()])
+                ->get();
+        } else {
+            // Compatibilidad SQLite para tests
+            $intradays = IntradayActivity::with(['activityType'])
+                ->where('employee_id', $this->employeeId)
+                ->where('time_range', 'like', '%' . $now->toDateString() . '%')
+                ->get();
+        }
 
         \Illuminate\Support\Facades\Log::error("DEBUG: Intraday found: " . $intradays->count());
 

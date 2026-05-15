@@ -49,10 +49,23 @@ final class GetExpectedAgentStateAction
         }
 
         // 2. Validar Actividades Intradía (Incluye Almuerzos/Descansos si están registrados)
-        $intraday = IntradayActivity::with(['activityType'])
-            ->where('employee_id', $employeeId)
-            ->whereRaw('time_range @> ?::timestamptz', [$now->toIso8601String()])
-            ->first();
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+            $intraday = IntradayActivity::with(['activityType'])
+                ->where('employee_id', $employeeId)
+                ->whereRaw('time_range @> ?::timestamptz', [$now->toIso8601String()])
+                ->first();
+        } else {
+            // Compatibilidad SQLite para tests
+            $intraday = IntradayActivity::with(['activityType'])
+                ->where('employee_id', $employeeId)
+                ->get()
+                ->filter(function($ia) use ($now) {
+                    $start = $ia->getRangeStart();
+                    $end = $ia->getRangeEnd();
+                    return $start && $end && $now->between($start, $end);
+                })
+                ->first();
+        }
 
         if ($intraday) {
             return [
@@ -130,11 +143,24 @@ final class GetExpectedAgentStateAction
         $now = $now ?? Carbon::now();
         
         $schedules = $this->scheduleService->getBatchSchedules($employeeIds, $now);
-        $intradays = IntradayActivity::with(['activityType'])
-            ->whereIn('employee_id', $employeeIds)
-            ->whereRaw('time_range @> ?::timestamptz', [$now->toIso8601String()])
-            ->get()
-            ->keyBy('employee_id');
+        if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+            $intradays = IntradayActivity::with(['activityType'])
+                ->whereIn('employee_id', $employeeIds)
+                ->whereRaw('time_range @> ?::timestamptz', [$now->toIso8601String()])
+                ->get()
+                ->keyBy('employee_id');
+        } else {
+            // Compatibilidad SQLite para tests
+            $intradays = IntradayActivity::with(['activityType'])
+                ->whereIn('employee_id', $employeeIds)
+                ->get()
+                ->filter(function($ia) use ($now) {
+                    $start = $ia->getRangeStart();
+                    $end = $ia->getRangeEnd();
+                    return $start && $end && $now->between($start, $end);
+                })
+                ->keyBy('employee_id');
+        }
 
         $results = [];
         foreach ($employeeIds as $id) {

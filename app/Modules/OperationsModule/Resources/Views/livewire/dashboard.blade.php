@@ -222,14 +222,14 @@
         </div>
     </div>
 
-    {{-- Row 3: Call Volume Stacked (Handled vs Abandoned) --}}
+    {{-- Row 3: Call Volume Grouped Stacked (Current vs Previous) --}}
     <flux:card>
         <div class="flex items-center justify-between mb-6">
             <div>
-                <flux:heading size="lg">Composición de Volumen Semanal</flux:heading>
-                <flux:subheading>Distribución de llamadas: Atendidas vs. Abandonadas</flux:subheading>
+                <flux:heading size="lg">Comparativo de Volumen: Actual vs. Anterior</flux:heading>
+                <flux:subheading>Distribución diaria de llamadas (Atendidas/Abandonadas) comparando semanas.</flux:subheading>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-4">
                 <div class="flex items-center gap-1.5">
                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
                     <span class="text-xs text-zinc-500">Atendidas</span>
@@ -237,6 +237,16 @@
                 <div class="flex items-center gap-1.5">
                     <div class="w-3 h-3 rounded-full bg-red-500"></div>
                     <span class="text-xs text-zinc-500">Abandonadas</span>
+                </div>
+                <flux:separator vertical />
+                <div class="flex items-center gap-2">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase">Grupos</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-medium">S1: Actual</span>
+                            <span class="text-xs font-medium text-zinc-400">S2: Anterior</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -247,20 +257,22 @@
                     this.chart = new ApexCharts(this.$refs.volumeChart, {
                         chart: {
                             type: 'bar',
-                            height: 300,
+                            height: 320,
                             stacked: true,
-                            toolbar: { show: false },
+                            toolbar: { show: true },
                             zoom: { enabled: false },
-                            animations: { enabled: true, easing: 'easeinout', speed: 800 }
                         },
                         series: [
-                            { name: 'Atendidas', data: @js($this->volumeComparison['handled']) },
-                            { name: 'Abandonadas', data: @js($this->volumeComparison['abandoned']) }
+                            // Grupo Semana Actual
+                            { name: 'Atendidas (Actual)', group: 'current', data: @js($this->volumeComparison['current_handled']) },
+                            { name: 'Abandonadas (Actual)', group: 'current', data: @js($this->volumeComparison['current_abandoned']) },
+                            // Grupo Semana Anterior
+                            { name: 'Atendidas (Anterior)', group: 'previous', data: @js($this->volumeComparison['previous_handled']) },
+                            { name: 'Abandonadas (Anterior)', group: 'previous', data: @js($this->volumeComparison['previous_abandoned']) }
                         ],
                         xaxis: {
                             categories: @js($this->volumeComparison['labels']),
                             axisBorder: { show: false },
-                            axisTicks: { show: false },
                             labels: { style: { colors: '#71717a', fontSize: '12px' } }
                         },
                         yaxis: {
@@ -271,21 +283,26 @@
                             strokeDashArray: 4,
                             padding: { left: 10, right: 10, bottom: 0 }
                         },
-                        colors: ['#22c55e', '#ef4444'],
+                        // Colores: Actual (Sólidos), Anterior (Tenuer)
+                        colors: ['#22c55e', '#ef4444', '#86efac', '#fca5a5'],
                         plotOptions: {
                             bar: {
                                 borderRadius: 4,
-                                columnWidth: '60%'
+                                columnWidth: '80%',
                             }
                         },
                         dataLabels: { enabled: false },
                         legend: { show: false },
-                        tooltip: { theme: 'light' }
+                        tooltip: { 
+                            theme: 'light',
+                            shared: true,
+                            intersect: false
+                        }
                     });
                     this.chart.render();
                 }
             }" x-init="init()" wire:ignore>
-            <div x-ref="volumeChart" class="w-full min-h-[300px]"></div>
+            <div x-ref="volumeChart" class="w-full min-h-[320px]"></div>
         </div>
     </flux:card>
 

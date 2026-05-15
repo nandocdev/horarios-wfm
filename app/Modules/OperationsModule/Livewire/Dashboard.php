@@ -158,8 +158,12 @@ class Dashboard extends Component {
         $now = now();
         $startOfCurrentWeek = $now->copy()->startOfWeek();
         $endOfCurrentWeek = $now->copy()->endOfWeek();
+        
+        $startOfPreviousWeek = $startOfCurrentWeek->copy()->subWeek();
+        $endOfPreviousWeek = $startOfPreviousWeek->copy()->endOfWeek();
 
-        $weekData = DB::table('call_records')
+        // Data Semana Actual
+        $currentWeekData = DB::table('call_records')
             ->whereNotNull('queue_id')
             ->whereBetween('ivr_started_at', [$startOfCurrentWeek, $endOfCurrentWeek])
             ->select(
@@ -171,22 +175,44 @@ class Dashboard extends Component {
             ->get()
             ->keyBy('date');
 
+        // Data Semana Anterior
+        $previousWeekData = DB::table('call_records')
+            ->whereNotNull('queue_id')
+            ->whereBetween('ivr_started_at', [$startOfPreviousWeek, $endOfPreviousWeek])
+            ->select(
+                DB::raw('DATE(ivr_started_at) as date'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned')
+            )
+            ->groupBy('date')
+            ->get()
+            ->keyBy('date');
+
         $labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
-        $handledSeries = [];
-        $abandonedSeries = [];
+        $currHandled = [];
+        $currAbandoned = [];
+        $prevHandled = [];
+        $prevAbandoned = [];
 
         for ($i = 0; $i < 7; $i++) {
-            $date = $startOfCurrentWeek->copy()->addDays($i)->toDateString();
-            $dayData = $weekData->get($date);
+            $currDate = $startOfCurrentWeek->copy()->addDays($i)->toDateString();
+            $prevDate = $startOfPreviousWeek->copy()->addDays($i)->toDateString();
+            
+            $currDay = $currentWeekData->get($currDate);
+            $prevDay = $previousWeekData->get($prevDate);
 
-            $handledSeries[] = $dayData ? (int) $dayData->handled : 0;
-            $abandonedSeries[] = $dayData ? (int) $dayData->abandoned : 0;
+            $currHandled[] = $currDay ? (int) $currDay->handled : 0;
+            $currAbandoned[] = $currDay ? (int) $currDay->abandoned : 0;
+            $prevHandled[] = $prevDay ? (int) $prevDay->handled : 0;
+            $prevAbandoned[] = $prevDay ? (int) $prevDay->abandoned : 0;
         }
 
         return [
             'labels' => $labels,
-            'handled' => $handledSeries,
-            'abandoned' => $abandonedSeries,
+            'current_handled' => $currHandled,
+            'current_abandoned' => $currAbandoned,
+            'previous_handled' => $prevHandled,
+            'previous_abandoned' => $prevAbandoned,
         ];
     }
 

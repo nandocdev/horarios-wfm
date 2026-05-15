@@ -93,8 +93,8 @@ class RequestLeave extends Component
 
                 return;
             }
-            $start = Carbon::parse($this->date.' '.$assignment->start_time);
-            $end = Carbon::parse($this->date.' '.$assignment->end_time);
+            $start = Carbon::parse($this->date.' '.$assignment->start_time->format('H:i:s'));
+            $end = Carbon::parse($this->date.' '.$assignment->end_time->format('H:i:s'));
         }
 
         $requestedMinutes = (int) $start->diffInMinutes($end);

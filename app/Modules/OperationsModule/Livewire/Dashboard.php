@@ -34,7 +34,7 @@ class Dashboard extends Component {
     #[Computed]
     public function queueStats(): array {
         $date = Carbon::parse($this->selectedDate);
-        
+
         if (!$date->isToday()) {
             return DB::table('call_records')
                 ->join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
@@ -158,7 +158,7 @@ class Dashboard extends Component {
         $now = now();
         $startOfCurrentWeek = $now->copy()->startOfWeek();
         $endOfCurrentWeek = $now->copy()->endOfWeek();
-        
+
         $startOfPreviousWeek = $startOfCurrentWeek->copy()->subWeek();
         $endOfPreviousWeek = $startOfPreviousWeek->copy()->endOfWeek();
 
@@ -188,7 +188,7 @@ class Dashboard extends Component {
             ->get()
             ->keyBy('date');
 
-        $labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+        $labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie'];
         $currHandled = [];
         $currAbandoned = [];
         $prevHandled = [];
@@ -197,7 +197,7 @@ class Dashboard extends Component {
         for ($i = 0; $i < 7; $i++) {
             $currDate = $startOfCurrentWeek->copy()->addDays($i)->toDateString();
             $prevDate = $startOfPreviousWeek->copy()->addDays($i)->toDateString();
-            
+
             $currDay = $currentWeekData->get($currDate);
             $prevDay = $previousWeekData->get($prevDate);
 
@@ -209,6 +209,8 @@ class Dashboard extends Component {
 
         return [
             'labels' => $labels,
+            'curr_week_label' => $startOfCurrentWeek->format('d/m'),
+            'prev_week_label' => $startOfPreviousWeek->format('d/m'),
             'current_handled' => $currHandled,
             'current_abandoned' => $currAbandoned,
             'previous_handled' => $prevHandled,

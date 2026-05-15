@@ -242,10 +242,10 @@
                 <flux:separator vertical />
                 <div class="flex items-center gap-2">
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-[10px] font-bold text-zinc-400 uppercase">Grupos</span>
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase">Semanas</span>
                         <div class="flex items-center gap-3">
-                            <span class="text-xs font-medium">S1: Actual</span>
-                            <span class="text-xs font-medium text-zinc-400">S2: Anterior</span>
+                            <span class="text-xs font-medium">S1: {{ $this->volumeComparison['curr_week_label'] }}</span>
+                            <span class="text-xs font-medium text-zinc-400">S2: {{ $this->volumeComparison['prev_week_label'] }}</span>
                         </div>
                     </div>
                 </div>
@@ -263,32 +263,32 @@
                             toolbar: { show: true }
                         },
                         series: [
-                            // Grupo Semana Actual
-                            { 
-                                name: 'Atendidas (Actual)', 
-                                group: 'actual', 
-                                data: @js($this->volumeComparison['current_handled']) 
-                            },
-                            { 
-                                name: 'Abandonadas (Actual)', 
-                                group: 'actual', 
-                                data: @js($this->volumeComparison['current_abandoned']) 
-                            },
                             // Grupo Semana Anterior
                             { 
-                                name: 'Atendidas (Anterior)', 
+                                name: 'Atendidas (' + @js($this->volumeComparison['prev_week_label']) + ')', 
                                 group: 'anterior', 
                                 data: @js($this->volumeComparison['previous_handled']) 
                             },
                             { 
-                                name: 'Abandonadas (Anterior)', 
+                                name: 'Abandonadas (' + @js($this->volumeComparison['prev_week_label']) + ')', 
                                 group: 'anterior', 
                                 data: @js($this->volumeComparison['previous_abandoned']) 
+                            },
+                            // Grupo Semana Actual
+                            { 
+                                name: 'Atendidas (' + @js($this->volumeComparison['curr_week_label']) + ')', 
+                                group: 'actual', 
+                                data: @js($this->volumeComparison['current_handled']) 
+                            },
+                            { 
+                                name: 'Abandonadas (' + @js($this->volumeComparison['curr_week_label']) + ')', 
+                                group: 'actual', 
+                                data: @js($this->volumeComparison['current_abandoned']) 
                             }
                         ],
                         xaxis: {
                             categories: @js($this->volumeComparison['labels']),
-                            axisBorder: { show: false },
+                            axisBorder: { show: true },
                             labels: { style: { colors: '#71717a', fontSize: '12px' } }
                         },
                         colors: ['#22c55e', '#ef4444', '#86efac', '#fca5a5'],

@@ -47,7 +47,7 @@ class Dashboard extends Component {
                     DB::raw('0 as talking'),
                     DB::raw('COUNT(*) as received'),
                     DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
-                    DB::raw('SUM(CASE WHEN contact_disposition = 3 THEN 1 ELSE 0 END) as abandoned'),
+                    DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned'),
                     DB::raw("'neutral' as status")
                 )
                 ->groupBy('call_queues.name')
@@ -165,7 +165,7 @@ class Dashboard extends Component {
             ->select(
                 DB::raw('DATE(ivr_started_at) as date'),
                 DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 3 THEN 1 ELSE 0 END) as abandoned')
+                DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned')
             )
             ->groupBy('date')
             ->get()

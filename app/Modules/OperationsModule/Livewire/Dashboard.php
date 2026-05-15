@@ -163,12 +163,14 @@ class Dashboard extends Component {
         $endOfPreviousWeek = $startOfPreviousWeek->copy()->endOfWeek();
 
         $currentWeekData = DB::table('call_records')
+            ->whereNotNull('queue_id')
             ->whereBetween('ivr_started_at', [$startOfCurrentWeek, $endOfCurrentWeek])
             ->select(DB::raw('DATE(ivr_started_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')
             ->pluck('count', 'date');
 
         $previousWeekData = DB::table('call_records')
+            ->whereNotNull('queue_id')
             ->whereBetween('ivr_started_at', [$startOfPreviousWeek, $endOfPreviousWeek])
             ->select(DB::raw('DATE(ivr_started_at) as date'), DB::raw('COUNT(*) as count'))
             ->groupBy('date')

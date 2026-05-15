@@ -92,6 +92,7 @@ final class PerformanceService
         if (!$isToday) {
             // Lógica Histórica simplificada
             $callStats = DB::table('call_records')
+                ->whereNotNull('queue_id')
                 ->whereDate('ivr_started_at', $formattedDate)
                 ->select(
                     DB::raw('COUNT(*) as total'),

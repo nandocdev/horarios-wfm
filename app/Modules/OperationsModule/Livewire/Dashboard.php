@@ -154,6 +154,46 @@ class Dashboard extends Component {
     }
 
     #[Computed]
+    public function volumeComparison(): array {
+        $now = now();
+        $startOfCurrentWeek = $now->copy()->startOfWeek();
+        $endOfCurrentWeek = $now->copy()->endOfWeek();
+        
+        $startOfPreviousWeek = $startOfCurrentWeek->copy()->subWeek();
+        $endOfPreviousWeek = $startOfPreviousWeek->copy()->endOfWeek();
+
+        $currentWeekData = DB::table('call_records')
+            ->whereBetween('ivr_started_at', [$startOfCurrentWeek, $endOfCurrentWeek])
+            ->select(DB::raw('DATE(ivr_started_at) as date'), DB::raw('COUNT(*) as count'))
+            ->groupBy('date')
+            ->pluck('count', 'date');
+
+        $previousWeekData = DB::table('call_records')
+            ->whereBetween('ivr_started_at', [$startOfPreviousWeek, $endOfPreviousWeek])
+            ->select(DB::raw('DATE(ivr_started_at) as date'), DB::raw('COUNT(*) as count'))
+            ->groupBy('date')
+            ->pluck('count', 'date');
+
+        $labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+        $currentSeries = [];
+        $previousSeries = [];
+
+        for ($i = 0; $i < 7; $i++) {
+            $currDate = $startOfCurrentWeek->copy()->addDays($i)->toDateString();
+            $prevDate = $startOfPreviousWeek->copy()->addDays($i)->toDateString();
+
+            $currentSeries[] = $currentWeekData->get($currDate, 0);
+            $previousSeries[] = $previousWeekData->get($prevDate, 0);
+        }
+
+        return [
+            'labels' => $labels,
+            'current' => $currentSeries,
+            'previous' => $previousSeries,
+        ];
+    }
+
+    #[Computed]
     public function recentIncidents(): array {
         return AttendanceIncident::with(['employee', 'type'])
             ->orderByDesc('created_at')

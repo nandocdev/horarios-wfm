@@ -194,7 +194,7 @@ class Dashboard extends Component {
         $prevHandled = [];
         $prevAbandoned = [];
 
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $currDate = $startOfCurrentWeek->copy()->addDays($i)->toDateString();
             $prevDate = $startOfPreviousWeek->copy()->addDays($i)->toDateString();
 
@@ -209,8 +209,8 @@ class Dashboard extends Component {
 
         return [
             'labels' => $labels,
-            'curr_week_label' => $startOfCurrentWeek->format('d/m'),
-            'prev_week_label' => $startOfPreviousWeek->format('d/m'),
+            'curr_week_label' => $startOfCurrentWeek->format('d/M'),
+            'prev_week_label' => $startOfPreviousWeek->format('d/M'),
             'current_handled' => $currHandled,
             'current_abandoned' => $currAbandoned,
             'previous_handled' => $prevHandled,

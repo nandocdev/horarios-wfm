@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Actions\AssignIntradayActivityAction;
 use App\Modules\WfmModule\DTOs\AssignIntradayActivityDTO;
 use App\Modules\WfmModule\Models\IntradayActivity;

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Models\Employee;
-use App\Modules\OrganizationModule\Models\Team;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\FetchAttendanceAction;
 use App\Modules\WfmModule\DTOs\AttendanceFiltersDTO;
 use App\Modules\WfmModule\Models\Attendance;

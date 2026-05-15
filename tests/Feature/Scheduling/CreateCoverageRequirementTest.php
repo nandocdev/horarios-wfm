@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
-use App\Modules\OrganizationModule\Models\Team;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\CreateCoverageRequirementAction;
 use App\Modules\WfmModule\DTOs\CoverageRequirementDTO;
 use App\Modules\WfmModule\Livewire\CreateCoverageRequirement;

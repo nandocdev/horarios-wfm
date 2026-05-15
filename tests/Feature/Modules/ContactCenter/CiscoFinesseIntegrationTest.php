@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Modules\CoreModule\Models\Permission;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 

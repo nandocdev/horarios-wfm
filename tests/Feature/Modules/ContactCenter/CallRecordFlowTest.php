@@ -17,7 +17,7 @@ use App\Modules\ConnectModule\Models\Channel;
 use App\Modules\CoreModule\Models\Permission;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Livewire\Livewire;

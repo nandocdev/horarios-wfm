@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Modules\OrganizationModule\Models\Team;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\SimulateWeeklyCoverageAction;
 use App\Modules\WfmModule\Models\CoverageRequirement;
 use Illuminate\Foundation\Testing\RefreshDatabase;

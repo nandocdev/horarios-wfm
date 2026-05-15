@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\SchedulingModule\Livewire\AssignGrid;
 use App\Modules\SchedulingModule\Models\Schedule;
 use App\Modules\SchedulingModule\Models\WeeklySchedule;

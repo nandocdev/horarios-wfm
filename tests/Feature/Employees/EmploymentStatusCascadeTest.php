@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Models\Employee;
-use App\Modules\EmployeesModule\Models\EmploymentStatus;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\EmploymentStatus;
 
 it('deactivates employees when employment status is deactivated', function () {
     $status = EmploymentStatus::create([

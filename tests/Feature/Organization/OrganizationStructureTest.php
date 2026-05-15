@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Modules\OrganizationModule\Actions\CreateDepartmentAction;
-use App\Modules\OrganizationModule\Actions\CreateDirectorateAction;
-use App\Modules\OrganizationModule\Actions\CreateTeamAction;
-use App\Modules\OrganizationModule\DTOs\DepartmentDTO;
-use App\Modules\OrganizationModule\DTOs\DirectorateDTO;
-use App\Modules\OrganizationModule\DTOs\TeamDTO;
-use App\Modules\OrganizationModule\Models\Directorate;
-use App\Modules\OrganizationModule\Models\Team;
+use App\Modules\PersonnelModule\Actions\CreateDepartmentAction;
+use App\Modules\PersonnelModule\Actions\CreateDirectorateAction;
+use App\Modules\PersonnelModule\Actions\CreateTeamAction;
+use App\Modules\PersonnelModule\DTOs\DepartmentDTO;
+use App\Modules\PersonnelModule\DTOs\DirectorateDTO;
+use App\Modules\PersonnelModule\DTOs\TeamDTO;
+use App\Modules\PersonnelModule\Models\Directorate;
+use App\Modules\PersonnelModule\Models\Team;
 use Illuminate\Database\QueryException;
 
 beforeEach(function () {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Models\Employee;
-use App\Modules\OrganizationModule\Models\Department;
-use App\Modules\OrganizationModule\Models\Directorate;
-use App\Modules\OrganizationModule\Models\Position;
-use App\Modules\OrganizationModule\Models\Team;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Department;
+use App\Modules\PersonnelModule\Models\Directorate;
+use App\Modules\PersonnelModule\Models\Position;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\SchedulingModule\Actions\ValidatePreparationAction;
 use App\Modules\SchedulingModule\DTOs\PreparationValidationDTO;
 use App\Modules\SchedulingModule\Models\BreakTemplate;

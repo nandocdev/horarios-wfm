@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\SchedulingModule\Models\Schedule;
 use App\Modules\SchedulingModule\Models\WeeklySchedule;
 use App\Modules\SchedulingModule\Models\WeeklyScheduleAssignment;

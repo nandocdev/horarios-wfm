@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\SchedulingModule\Actions\AssignEmployeeScheduleAction;
 use App\Modules\SchedulingModule\DTOs\ScheduleAssignmentDTO;
 use App\Modules\SchedulingModule\Models\Schedule;

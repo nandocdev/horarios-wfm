@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;

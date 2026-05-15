@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Modules\LocationModule\Models\District;
-use App\Modules\LocationModule\Models\Province;
-use App\Modules\LocationModule\Models\Township;
+use App\Modules\PersonnelModule\Models\District;
+use App\Modules\PersonnelModule\Models\Province;
+use App\Modules\PersonnelModule\Models\Township;
 
 it('muestra catalogo de ubicaciones con provincias, distritos y corregimientos', function () {
     $province = Province::create(['name' => 'Panamá']);

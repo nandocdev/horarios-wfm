@@ -44,7 +44,7 @@ class AssignEmployeeToTeamAction
             // Sincronizar el registro del empleado (denormalización y jerarquía)
             Employee::where('id', $dto->employee_id)->update([
                 'team_id' => $dto->team_id,
-                'parent_id' => $supervisorId,
+                'parent_id' => ($supervisorId && (int) $dto->employee_id !== (int) $supervisorId) ? $supervisorId : null,
                 'updated_at' => now(),
             ]);
 

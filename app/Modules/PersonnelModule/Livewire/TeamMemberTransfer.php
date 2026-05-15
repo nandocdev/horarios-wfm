@@ -18,8 +18,7 @@ use Livewire\Component;
  * Componente Livewire para transferir miembros entre equipos usando interfaz de shuttle box.
  * Implementa la propuesta de vista en docs/features/teams.md utilizando FluxUI.
  */
-class TeamMemberTransfer extends Component
-{
+class TeamMemberTransfer extends Component {
     public Team $team;
 
     public string $leftFilter = 'all';
@@ -40,8 +39,7 @@ class TeamMemberTransfer extends Component
     /** @var array<int, string> */
     public array $availableTeamsNames = [];
 
-    public function mount(Team $team): void
-    {
+    public function mount(Team $team): void {
         $this->authorize('update', $team);
         $this->team = $team;
 
@@ -52,52 +50,48 @@ class TeamMemberTransfer extends Component
             ->pluck('name', 'id')
             ->toArray();
 
-        // Establecer filtro derecho por defecto al equipo actual
-        $this->rightFilter = $this->team->name;
+        // Establecer filtro derecho por defecto al equipo actual (usando ID)
+        $this->rightFilter = (string) $this->team->id;
     }
 
     /**
      * Carga empleados con información de equipos actuales.
      */
-    public function loadEmployees(): void
-    {
+    public function loadEmployees(): void {
         $employees = Employee::query()
-            ->with(['teamMembers' => fn ($query) => $query->where('is_active', true)->with('team')])
+            ->with('team')
             ->where('is_active', true)
             ->orderBy('first_name')
             ->get();
 
-        $this->employees = $employees->map(fn (Employee $employee) => [
+        $this->employees = $employees->map(fn(Employee $employee) => [
             'id' => $employee->id,
             'name' => "{$employee->first_name} {$employee->last_name}",
             'email' => $employee->email,
-            'team' => $employee->teamMembers->first()?->team->name,
-            'team_id' => $employee->teamMembers->first()?->team_id,
-            'avatar_url' => $employee->avatar_url, // Asumiendo que existe
+            'team' => $employee->team?->name,
+            'team_id' => $employee->team_id,
+            'avatar_url' => $employee->avatar_url,
         ])->toArray();
     }
 
     #[Computed]
-    public function leftEmployees(): array
-    {
+    public function leftEmployees(): array {
         return $this->filterEmployees($this->leftFilter, $this->leftSearch);
     }
 
     #[Computed]
-    public function rightEmployees(): array
-    {
+    public function rightEmployees(): array {
         return $this->filterEmployees($this->rightFilter, $this->rightSearch);
     }
 
     /**
      * Filtra empleados según el criterio seleccionado y búsqueda.
      */
-    private function filterEmployees(string $filter, string $search): array
-    {
+    private function filterEmployees(string $filter, string $search): array {
         $filtered = match ($filter) {
             'all' => $this->employees,
-            'none' => array_filter($this->employees, fn ($emp) => ! $emp['team']),
-            default => array_filter($this->employees, fn ($emp) => $emp['team'] === $filter),
+            'none' => array_filter($this->employees, fn($emp) => !$emp['team_id']),
+            default => array_filter($this->employees, fn($emp) => (string) $emp['team_id'] === $filter),
         };
 
         if ($search !== '') {
@@ -111,21 +105,18 @@ class TeamMemberTransfer extends Component
         return $filtered;
     }
 
-    public function updatedLeftFilter(): void
-    {
+    public function updatedLeftFilter(): void {
         $this->leftSelected = [];
     }
 
-    public function updatedRightFilter(): void
-    {
+    public function updatedRightFilter(): void {
         $this->rightSelected = [];
     }
 
     /**
      * Mueve empleados seleccionados del panel izquierdo al derecho.
      */
-    public function moveSelectedToRight(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void
-    {
+    public function moveSelectedToRight(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void {
         if (empty($this->leftSelected) || $this->rightFilter === 'all') {
             return;
         }
@@ -142,8 +133,7 @@ class TeamMemberTransfer extends Component
     /**
      * Mueve todos los empleados visibles del panel izquierdo al derecho.
      */
-    public function moveAllToRight(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void
-    {
+    public function moveAllToRight(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void {
         if ($this->rightFilter === 'all') {
             return;
         }
@@ -161,8 +151,7 @@ class TeamMemberTransfer extends Component
     /**
      * Mueve empleados seleccionados del panel derecho al izquierdo.
      */
-    public function moveSelectedToLeft(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void
-    {
+    public function moveSelectedToLeft(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void {
         if (empty($this->rightSelected) || $this->leftFilter === 'all') {
             return;
         }
@@ -179,8 +168,7 @@ class TeamMemberTransfer extends Component
     /**
      * Mueve todos los empleados visibles del panel derecho al izquierdo.
      */
-    public function moveAllToLeft(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void
-    {
+    public function moveAllToLeft(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void {
         if ($this->leftFilter === 'all') {
             return;
         }
@@ -195,17 +183,15 @@ class TeamMemberTransfer extends Component
         $this->postTransferCleanUp('rightSelected', 'Todos los empleados del destino han sido transferidos.');
     }
 
-    private function resolveTargetTeamId(string $filter): ?int
-    {
+    private function resolveTargetTeamId(string $filter): ?int {
         if ($filter === 'all' || $filter === 'none') {
             return null;
         }
 
-        return (int) array_search($filter, $this->availableTeamsNames) ?: null;
+        return (int) $filter;
     }
 
-    private function processAssignment(int $employeeId, ?int $teamId, AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void
-    {
+    private function processAssignment(int $employeeId, ?int $teamId, AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void {
         if ($teamId) {
             $assignAction->execute(new AssignEmployeeToTeamDTO(
                 employee_id: $employeeId,
@@ -227,34 +213,30 @@ class TeamMemberTransfer extends Component
         }
     }
 
-    private function postTransferCleanUp(string $selectionProperty, string $message): void
-    {
+    private function postTransferCleanUp(string $selectionProperty, string $message): void {
         $this->$selectionProperty = [];
         $this->loadEmployees();
-        toast($message);
+        \Flux::toast($message);
     }
 
-    public function toggleSelection(string $panel, int $employeeId): void
-    {
+    public function toggleSelection(string $panel, int $employeeId): void {
         $property = $panel === 'left' ? 'leftSelected' : 'rightSelected';
 
         if (in_array($employeeId, $this->$property)) {
-            $this->$property = array_filter($this->$property, fn ($id) => $id !== $employeeId);
+            $this->$property = array_filter($this->$property, fn($id) => $id !== $employeeId);
         } else {
             $this->$property[] = $employeeId;
         }
     }
 
-    public function getInitials(string $name): string
-    {
+    public function getInitials(string $name): string {
         return collect(explode(' ', $name))
-            ->map(fn ($n) => mb_substr($n, 0, 1))
+            ->map(fn($n) => mb_substr($n, 0, 1))
             ->take(2)
             ->implode('');
     }
 
-    public function render()
-    {
+    public function render() {
         return view('personnel::livewire.team-member-transfer');
     }
 }

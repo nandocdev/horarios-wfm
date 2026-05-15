@@ -96,6 +96,7 @@ class ListTeams extends Component
     public function render()
     {
         $teams = $this->getTeamsQuery()
+            ->with(['supervisor'])
             ->withCount('users')
             ->paginate($this->perPage);
 

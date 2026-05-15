@@ -24,12 +24,23 @@ class UpdateTeamAction
     public function execute(Team $team, TeamDTO $dto): Team
     {
         return DB::transaction(function () use ($team, $dto) {
+            $oldSupervisorId = $team->supervisor_id;
+            
             $team->update([
                 'name' => $dto->name,
                 'description' => $dto->description,
                 'supervisor_id' => $dto->supervisor_id,
                 'is_active' => $dto->is_active,
             ]);
+
+            // Si el supervisor cambió, actualizamos la jerarquía de todos los miembros activos excepto el supervisor mismo
+            if ($oldSupervisorId !== $dto->supervisor_id) {
+                \App\Modules\PersonnelModule\Models\Employee::whereHas('currentTeamMember', function ($q) use ($team) {
+                    $q->where('team_id', $team->id);
+                })
+                ->where('id', '!=', $dto->supervisor_id)
+                ->update(['parent_id' => $dto->supervisor_id]);
+            }
 
             event(new TeamUpdated($team));
 

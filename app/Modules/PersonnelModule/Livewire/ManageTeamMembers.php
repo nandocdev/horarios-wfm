@@ -116,8 +116,8 @@ class ManageTeamMembers extends Component
         $dto = new AssignEmployeeToTeamDTO(
             employee_id: $this->employee_id,
             team_id: $this->team->id,
-            start_date: $this->start_date,
-            end_date: $this->end_date,
+            joined_at: $this->start_date,
+            left_at: $this->end_date,
         );
 
         $action = new AssignEmployeeToTeamAction;
@@ -146,7 +146,7 @@ class ManageTeamMembers extends Component
         $dto = new RemoveEmployeeFromTeamDTO(
             employee_id: $this->selectedEmployeeId,
             team_id: $this->team->id,
-            end_date: $this->remove_end_date,
+            left_at: $this->remove_end_date,
         );
 
         $action = new RemoveEmployeeFromTeamAction;

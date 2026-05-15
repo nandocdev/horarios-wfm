@@ -39,8 +39,8 @@ class AssignEmployeesToTeamAction
                     'is_active' => true,
                 ]);
 
-                // Sincronizar supervisor (parent_id) si el equipo tiene uno asignado
-                if ($supervisorId) {
+                // Sincronizar supervisor (parent_id) si el equipo tiene uno asignado y no es el mismo empleado
+                if ($supervisorId && (int) $employeeId !== (int) $supervisorId) {
                     Employee::where('id', $employeeId)
                         ->update(['parent_id' => $supervisorId]);
                 }

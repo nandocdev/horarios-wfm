@@ -27,6 +27,20 @@
                             <div class="text-zinc-900 dark:text-white font-medium">{{ $team->name }}</div>
                         </flux:field>
 
+                        <flux:field label="Supervisor">
+                            @if($team->supervisor)
+                                <div class="flex items-center gap-3 py-1">
+                                    <flux:avatar initials="{{ $team->supervisor->initials }}" size="sm" />
+                                    <div>
+                                        <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ $team->supervisor->full_name }}</div>
+                                        <div class="text-xs text-zinc-500">{{ $team->supervisor->employee_number }}</div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="text-zinc-400 text-sm italic py-1">Sin supervisor asignado</div>
+                            @endif
+                        </flux:field>
+
                         <flux:field label="Descripción">
                             <div class="text-zinc-500 text-sm">{{ $team->description ?: 'Sin descripción' }}</div>
                         </flux:field>
@@ -58,7 +72,12 @@
                 <flux:card>
                     <div class="flex items-center justify-between mb-6">
                         <flux:heading size="lg">Miembros del Equipo ({{ $team->users->count() }})</flux:heading>
-                        <flux:button href="{{ route('organization.teams.transfer', $team) }}" variant="ghost" size="sm" icon="plus">Añadir</flux:button>
+                        <div class="flex gap-2">
+                            <flux:modal.trigger name="add-member-modal">
+                                <flux:button wire:click="loadAvailableEmployees" variant="ghost" size="sm" icon="plus">Añadir</flux:button>
+                            </flux:modal.trigger>
+                            <flux:button href="{{ route('organization.teams.transfer', $team) }}" variant="ghost" size="sm" icon="arrows-right-left" title="Transferencia masiva" />
+                        </div>
                     </div>
 
                     @if($team->users->isNotEmpty())
@@ -66,15 +85,37 @@
                             @foreach($team->users as $user)
                                 <div class="py-4 flex items-center justify-between first:pt-0 last:pb-0">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 font-bold uppercase">
-                                            {{ substr($user->name, 0, 2) }}
-                                        </div>
+                                        <flux:avatar initials="{{ $user->initials }}" size="sm" />
                                         <div>
-                                            <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ $user->name }}</div>
+                                            <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ $user->full_name }}</div>
                                             <div class="text-xs text-zinc-500">{{ $user->email }}</div>
                                         </div>
                                     </div>
-                                    <flux:button variant="ghost" size="sm" icon="chevron-right" />
+                                    
+                                    <div class="flex gap-2">
+                                        <flux:button href="{{ route('employees.show', $user) }}" variant="ghost" size="sm" icon="eye" :inset="true" />
+                                        
+                                        <flux:modal.trigger name="remove-member-{{ $user->id }}">
+                                            <flux:button variant="ghost" size="sm" icon="trash" color="red" :inset="true" />
+                                        </flux:modal.trigger>
+
+                                        <flux:modal name="remove-member-{{ $user->id }}" class="min-w-[22rem]">
+                                            <div class="space-y-6">
+                                                <div>
+                                                    <flux:heading size="lg">¿Remover miembro?</flux:heading>
+                                                    <flux:subheading>Estás a punto de desvincular a <strong>{{ $user->full_name }}</strong> de este equipo. Esta acción quedará registrada en el historial.</flux:subheading>
+                                                </div>
+
+                                                <div class="flex gap-2">
+                                                    <flux:spacer />
+                                                    <flux:modal.close>
+                                                        <flux:button variant="ghost">Cancelar</flux:button>
+                                                    </flux:modal.close>
+                                                    <flux:button wire:click="removeMember({{ $user->id }})" variant="primary" color="red">Remover</flux:button>
+                                                </div>
+                                            </div>
+                                        </flux:modal>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
@@ -88,4 +129,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Añadir Miembro -->
+    <flux:modal name="add-member-modal" class="md:min-w-[30rem]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Añadir Miembro al Equipo</flux:heading>
+                <flux:subheading>Selecciona un empleado activo que no pertenezca a otro equipo.</flux:subheading>
+            </div>
+
+            <flux:select wire:model="selectedEmployeeId" label="Empleado" placeholder="Buscar empleado...">
+                @foreach($availableEmployees as $id => $label)
+                    <flux:select.option value="{{ $id }}">{{ $label }}</flux:select.option>
+                @endforeach
+            </flux:select>
+
+            <div class="flex gap-2">
+                <flux:spacer />
+                <flux:modal.close>
+                    <flux:button variant="ghost">Cancelar</flux:button>
+                </flux:modal.close>
+                <flux:button wire:click="addMember" variant="primary">Añadir al Equipo</flux:button>
+            </div>
+        </div>
+    </flux:modal>
 </div>

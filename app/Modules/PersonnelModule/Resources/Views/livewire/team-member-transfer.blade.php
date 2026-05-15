@@ -22,7 +22,7 @@
                     <option value="all">Todos los empleados</option>
                     <option value="none">Sin equipo asignado</option>
                     @foreach($this->availableTeamsNames as $teamId => $teamName)
-                        <option value="{{ $teamName }}">{{ $teamName }}</option>
+                        <option value="{{ $teamId }}">{{ $teamName }}</option>
                     @endforeach
                 </flux:select>
 
@@ -47,7 +47,7 @@
                         ])
                     >
                         <flux:checkbox 
-                            wire:model="leftSelected" 
+                            wire:model.live="leftSelected" 
                             value="{{ $employee['id'] }}" 
                             wire:click.stop 
                         />
@@ -83,7 +83,7 @@
                 size="sm" 
                 icon="chevron-right" 
                 class="flex-1 lg:flex-none"
-                :disabled="empty($this->leftSelected) || $this->rightFilter === 'all'"
+                :disabled="count($this->leftSelected) === 0 || $this->rightFilter === 'all' || $this->leftFilter === $this->rightFilter"
             />
             <flux:button 
                 wire:click="moveAllToRight" 
@@ -91,7 +91,7 @@
                 size="sm" 
                 icon="chevron-double-right" 
                 class="flex-1 lg:flex-none"
-                :disabled="empty($this->leftEmployees) || $this->rightFilter === 'all'"
+                :disabled="count($this->leftEmployees) === 0 || $this->rightFilter === 'all' || $this->leftFilter === $this->rightFilter"
             />
             <flux:button 
                 wire:click="moveSelectedToLeft" 
@@ -99,7 +99,7 @@
                 size="sm" 
                 icon="chevron-left" 
                 class="flex-1 lg:flex-none"
-                :disabled="empty($this->rightSelected) || $this->leftFilter === 'all'"
+                :disabled="count($this->rightSelected) === 0 || $this->leftFilter === 'all' || $this->leftFilter === $this->rightFilter"
             />
             <flux:button 
                 wire:click="moveAllToLeft" 
@@ -107,7 +107,7 @@
                 size="sm" 
                 icon="chevron-double-left" 
                 class="flex-1 lg:flex-none"
-                :disabled="empty($this->rightEmployees) || $this->leftFilter === 'all'"
+                :disabled="count($this->rightEmployees) === 0 || $this->leftFilter === 'all' || $this->leftFilter === $this->rightFilter"
             />
         </div>
 
@@ -122,7 +122,7 @@
                     <option value="all">Todos los empleados</option>
                     <option value="none">Sin equipo asignado</option>
                     @foreach($this->availableTeamsNames as $teamId => $teamName)
-                        <option value="{{ $teamName }}">{{ $teamName }}</option>
+                        <option value="{{ $teamId }}">{{ $teamName }}</option>
                     @endforeach
                 </flux:select>
 
@@ -147,7 +147,7 @@
                         ])
                     >
                         <flux:checkbox 
-                            wire:model="rightSelected" 
+                            wire:model.live="rightSelected" 
                             value="{{ $employee['id'] }}" 
                             wire:click.stop 
                         />

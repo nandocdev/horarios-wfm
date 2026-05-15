@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Models\Employee;
-use App\Modules\OrganizationModule\Actions\AssignEmployeeToTeamAction;
-use App\Modules\OrganizationModule\Actions\RemoveEmployeeFromTeamAction;
-use App\Modules\OrganizationModule\DTOs\AssignEmployeeToTeamDTO;
-use App\Modules\OrganizationModule\DTOs\RemoveEmployeeFromTeamDTO;
-use App\Modules\OrganizationModule\Models\Team;
-use App\Modules\OrganizationModule\Models\TeamMember;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Actions\AssignEmployeeToTeamAction;
+use App\Modules\PersonnelModule\Actions\RemoveEmployeeFromTeamAction;
+use App\Modules\PersonnelModule\DTOs\AssignEmployeeToTeamDTO;
+use App\Modules\PersonnelModule\DTOs\RemoveEmployeeFromTeamDTO;
+use App\Modules\PersonnelModule\Models\Team;
+use App\Modules\PersonnelModule\Models\TeamMember;
 
 test('can assign employee to team', function () {
     $employee = Employee::factory()->create();

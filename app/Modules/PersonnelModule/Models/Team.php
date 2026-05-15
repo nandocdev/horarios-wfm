@@ -20,6 +20,11 @@ class Team extends Model
 {
     use Auditable, HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\Modules\PersonnelModule\Models\TeamFactory::new();
+    }
+
     protected $fillable = [
         'name',
         'description',

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Modules\EmployeesModule\Actions\AssignEmployeesToTeamAction;
-use App\Modules\EmployeesModule\DTOs\AssignEmployeesToTeamDTO;
-use App\Modules\EmployeesModule\Models\Employee;
-use App\Modules\OrganizationModule\Models\Team;
-use App\Modules\OrganizationModule\Models\TeamMember;
+use App\Modules\PersonnelModule\Actions\AssignEmployeesToTeamAction;
+use App\Modules\PersonnelModule\DTOs\AssignEmployeesToTeamDTO;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Team;
+use App\Modules\PersonnelModule\Models\TeamMember;
 
 it('assigns employees to a team correctly', function () {
     // Arrange

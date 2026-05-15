@@ -8,6 +8,7 @@ use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CommunicationsModule\Models\Notification;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Envía un newsletter automático diario con noticias publicadas.
@@ -63,6 +64,7 @@ class SendAutomaticNewsletterAction
 
         foreach ($targetUserIds as $userId) {
             $rows[] = [
+                'id' => (string) Str::uuid(),
                 'user_id' => $userId,
                 'type' => 'newsletter_auto',
                 'notifiable_type' => News::class,

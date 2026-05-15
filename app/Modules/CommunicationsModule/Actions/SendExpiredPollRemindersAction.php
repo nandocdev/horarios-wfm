@@ -8,6 +8,7 @@ use App\Modules\CommunicationsModule\Models\Notification;
 use App\Modules\CommunicationsModule\Models\Poll;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Envía recordatorios automáticos cuando una encuesta expira.
@@ -54,6 +55,7 @@ class SendExpiredPollRemindersAction
                 }
 
                 $notifications[] = [
+                    'id' => (string) Str::uuid(),
                     'user_id' => $userId,
                     'type' => 'poll_expired',
                     'notifiable_type' => Poll::class,

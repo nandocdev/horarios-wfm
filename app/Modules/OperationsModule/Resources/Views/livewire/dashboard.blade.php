@@ -222,21 +222,21 @@
         </div>
     </div>
 
-    {{-- Row 3: Historical Volume Comparison --}}
+    {{-- Row 3: Call Volume Stacked (Handled vs Abandoned) --}}
     <flux:card>
         <div class="flex items-center justify-between mb-6">
             <div>
-                <flux:heading size="lg">Comparativo Histórico de Volumen</flux:heading>
-                <flux:subheading>Volumen de llamadas: Semana Actual vs. Semana Anterior</flux:subheading>
+                <flux:heading size="lg">Composición de Volumen Semanal</flux:heading>
+                <flux:subheading>Distribución de llamadas: Atendidas vs. Abandonadas</flux:subheading>
             </div>
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-1.5">
-                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <span class="text-xs text-zinc-500">Semana Actual</span>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="text-xs text-zinc-500">Atendidas</span>
                 </div>
                 <div class="flex items-center gap-1.5">
-                    <div class="w-3 h-3 rounded-full bg-zinc-400"></div>
-                    <span class="text-xs text-zinc-500">Semana Anterior</span>
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span class="text-xs text-zinc-500">Abandonadas</span>
                 </div>
             </div>
         </div>
@@ -246,15 +246,16 @@
                 init() {
                     this.chart = new ApexCharts(this.$refs.volumeChart, {
                         chart: {
-                            type: 'area',
+                            type: 'bar',
                             height: 300,
+                            stacked: true,
                             toolbar: { show: false },
                             zoom: { enabled: false },
                             animations: { enabled: true, easing: 'easeinout', speed: 800 }
                         },
                         series: [
-                            { name: 'Semana Actual', data: @js($this->volumeComparison['current']) },
-                            { name: 'Semana Anterior', data: @js($this->volumeComparison['previous']) }
+                            { name: 'Atendidas', data: @js($this->volumeComparison['handled']) },
+                            { name: 'Abandonadas', data: @js($this->volumeComparison['abandoned']) }
                         ],
                         xaxis: {
                             categories: @js($this->volumeComparison['labels']),
@@ -270,19 +271,16 @@
                             strokeDashArray: 4,
                             padding: { left: 10, right: 10, bottom: 0 }
                         },
-                        stroke: { curve: 'smooth', width: 3 },
-                        colors: ['#3b82f6', '#94a3b8'],
-                        fill: {
-                            type: 'gradient',
-                            gradient: {
-                                shadeIntensity: 1,
-                                opacityFrom: 0.45,
-                                opacityTo: 0.05,
-                                stops: [20, 100]
+                        colors: ['#22c55e', '#ef4444'],
+                        plotOptions: {
+                            bar: {
+                                borderRadius: 4,
+                                columnWidth: '60%'
                             }
                         },
                         dataLabels: { enabled: false },
-                        tooltip: { x: { show: true }, theme: 'light' }
+                        legend: { show: false },
+                        tooltip: { theme: 'light' }
                     });
                     this.chart.render();
                 }

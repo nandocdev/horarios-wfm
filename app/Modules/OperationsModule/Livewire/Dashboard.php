@@ -158,40 +158,35 @@ class Dashboard extends Component {
         $now = now();
         $startOfCurrentWeek = $now->copy()->startOfWeek();
         $endOfCurrentWeek = $now->copy()->endOfWeek();
-        
-        $startOfPreviousWeek = $startOfCurrentWeek->copy()->subWeek();
-        $endOfPreviousWeek = $startOfPreviousWeek->copy()->endOfWeek();
 
-        $currentWeekData = DB::table('call_records')
+        $weekData = DB::table('call_records')
             ->whereNotNull('queue_id')
             ->whereBetween('ivr_started_at', [$startOfCurrentWeek, $endOfCurrentWeek])
-            ->select(DB::raw('DATE(ivr_started_at) as date'), DB::raw('COUNT(*) as count'))
+            ->select(
+                DB::raw('DATE(ivr_started_at) as date'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 3 THEN 1 ELSE 0 END) as abandoned')
+            )
             ->groupBy('date')
-            ->pluck('count', 'date');
-
-        $previousWeekData = DB::table('call_records')
-            ->whereNotNull('queue_id')
-            ->whereBetween('ivr_started_at', [$startOfPreviousWeek, $endOfPreviousWeek])
-            ->select(DB::raw('DATE(ivr_started_at) as date'), DB::raw('COUNT(*) as count'))
-            ->groupBy('date')
-            ->pluck('count', 'date');
+            ->get()
+            ->keyBy('date');
 
         $labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
-        $currentSeries = [];
-        $previousSeries = [];
+        $handledSeries = [];
+        $abandonedSeries = [];
 
         for ($i = 0; $i < 7; $i++) {
-            $currDate = $startOfCurrentWeek->copy()->addDays($i)->toDateString();
-            $prevDate = $startOfPreviousWeek->copy()->addDays($i)->toDateString();
+            $date = $startOfCurrentWeek->copy()->addDays($i)->toDateString();
+            $dayData = $weekData->get($date);
 
-            $currentSeries[] = $currentWeekData->get($currDate, 0);
-            $previousSeries[] = $previousWeekData->get($prevDate, 0);
+            $handledSeries[] = $dayData ? (int) $dayData->handled : 0;
+            $abandonedSeries[] = $dayData ? (int) $dayData->abandoned : 0;
         }
 
         return [
             'labels' => $labels,
-            'current' => $currentSeries,
-            'previous' => $previousSeries,
+            'handled' => $handledSeries,
+            'abandoned' => $abandonedSeries,
         ];
     }
 

@@ -26,6 +26,12 @@ class WeeklyScheduleAssignment extends Model
     protected $casts = [
         'is_replaced' => 'boolean',
         'replaced_at' => 'datetime',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'lunch_start_time' => 'datetime',
+        'lunch_end_time' => 'datetime',
+        'break_start_time' => 'datetime',
+        'break_end_time' => 'datetime',
     ];
 
     public function swapRequest(): BelongsTo

@@ -23,5 +23,7 @@ class Schedule extends Model
         'break_minutes' => 'integer',
         'lunch_minutes' => 'integer',
         'allowed_days' => 'array',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
     ];
 }

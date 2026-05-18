@@ -108,18 +108,18 @@ class TeamMemberTransfer extends Component {
     /**
      * Determina si una transferencia entre dos filtros es válida.
      *
+     * Semántica de 'all' como destino: equivale a 'none' (remover del equipo actual).
+     * Solo se permite para movimientos seleccionados, nunca para bulk.
+     *
      * @param bool $bulk  True para movimientos masivos (moveAll), false para seleccionados.
      */
     private function isValidTransfer(string $from, string $to, bool $bulk = false): bool {
-        if ($to === 'all') {
-            return false;
-        }
-
         if ($from === $to) {
             return false;
         }
 
-        if ($bulk && $from === 'all') {
+        // Movimientos masivos nunca permiten 'all' como origen ni destino
+        if ($bulk && ($from === 'all' || $to === 'all')) {
             return false;
         }
 
@@ -197,7 +197,7 @@ class TeamMemberTransfer extends Component {
      * Mueve empleados seleccionados del panel derecho al izquierdo.
      */
     public function moveSelectedToLeft(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void {
-        if (empty($this->rightSelected) || $this->leftFilter === 'all') {
+        if (empty($this->rightSelected)) {
             return;
         }
 

@@ -13,10 +13,23 @@ use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\PersonnelModule\Models\TeamMember;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Throwable;
 
 class ProcessEmployeeImportChunkAction
 {
+    /** @var array<int, int> */
+    private array $positionCache = [];
+
+    /** @var array<int, int> */
+    private array $teamCache = [];
+
+    /** @var array<int, int> */
+    private array $statusCache = [];
+
+    /** @var array<int, int> */
+    private array $departmentCache = [];
+
     /**
      * @param  array<int, array<string, string|null>>  $rows
      */
@@ -25,6 +38,9 @@ class ProcessEmployeeImportChunkAction
         $imported = 0;
         $rejected = 0;
         $errors = [];
+
+        // Pre-cargar caches para evitar N+1
+        $this->primeCaches($rows);
 
         DB::transaction(function () use ($rows, $startRow, &$imported, &$rejected, &$errors): void {
             foreach ($rows as $index => $row) {
@@ -41,15 +57,15 @@ class ProcessEmployeeImportChunkAction
                     $teamId = (int) $normalized['team_id'];
                     $statusId = (int) $normalized['employment_status_id'];
 
-                    if (! Position::query()->whereKey($positionId)->exists()) {
+                    if (! isset($this->positionCache[$positionId])) {
                         throw new \RuntimeException('position_id inexistente');
                     }
 
-                    if (! Team::query()->whereKey($teamId)->exists()) {
+                    if (! isset($this->teamCache[$teamId])) {
                         throw new \RuntimeException('team_id inexistente');
                     }
 
-                    if (! EmploymentStatus::query()->whereKey($statusId)->exists()) {
+                    if (! isset($this->statusCache[$statusId])) {
                         throw new \RuntimeException('employment_status_id inexistente');
                     }
 
@@ -131,6 +147,22 @@ class ProcessEmployeeImportChunkAction
     }
 
     /**
+     * @param  array<int, array<string, string|null>>  $rows
+     */
+    private function primeCaches(array $rows): void
+    {
+        $positionIds = array_filter(array_unique(array_column($rows, 'position_id')));
+        $teamIds = array_filter(array_unique(array_column($rows, 'team_id')));
+        $statusIds = array_filter(array_unique(array_column($rows, 'employment_status_id')));
+        $departmentIds = array_filter(array_unique(array_column($rows, 'department_id')));
+
+        $this->positionCache = Position::whereIn('id', $positionIds)->pluck('department_id', 'id')->toArray();
+        $this->teamCache = Team::whereIn('id', $teamIds)->pluck('id', 'id')->toArray();
+        $this->statusCache = EmploymentStatus::whereIn('id', $statusIds)->pluck('id', 'id')->toArray();
+        $this->departmentCache = Department::whereIn('id', $departmentIds)->pluck('id', 'id')->toArray();
+    }
+
+    /**
      * @param  array<string, string|null>  $row
      * @return array<string, string|null>
      */
@@ -139,7 +171,9 @@ class ProcessEmployeeImportChunkAction
         $normalized = [];
 
         foreach ($row as $key => $value) {
-            $normalized[strtolower(trim((string) $key))] = is_string($value) ? trim($value) : $value;
+            // Normalización robusta de encabezados (snake_case)
+            $cleanKey = Str::snake(trim((string) $key));
+            $normalized[$cleanKey] = is_string($value) ? trim($value) : $value;
         }
 
         return $normalized;
@@ -165,14 +199,14 @@ class ProcessEmployeeImportChunkAction
         $departmentId = $this->toNullableInt(Arr::get($row, 'department_id'));
 
         if ($departmentId) {
-            if (! Department::query()->whereKey($departmentId)->exists()) {
+            if (! isset($this->departmentCache[$departmentId])) {
                 throw new \RuntimeException('department_id inexistente');
             }
 
             return $departmentId;
         }
 
-        return Position::query()->whereKey($positionId)->value('department_id');
+        return $this->positionCache[$positionId] ?? null;
     }
 
     private function toNullableInt(mixed $value): ?int

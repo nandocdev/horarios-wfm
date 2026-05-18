@@ -76,7 +76,7 @@
     </flux:table>
 
     <!-- Modal de Importación de Horarios -->
-    <flux:modal wire:model="showImportModal" class="min-w-[800px] md:min-w-[1000px]">
+    <flux:modal wire:model="showImportModal" class="{{ empty($importedData) ? 'min-w-[500px]' : 'min-w-[95vw] lg:min-w-[90vw]' }}">
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">{{ __('Importar Horario por CSV') }}</flux:heading>

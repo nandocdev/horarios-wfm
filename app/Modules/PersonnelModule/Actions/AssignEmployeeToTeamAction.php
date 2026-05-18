@@ -27,10 +27,10 @@ class AssignEmployeeToTeamAction
     public function execute(AssignEmployeeToTeamDTO $dto): TeamMember
     {
         return DB::transaction(function () use ($dto) {
-            // Desactivar cualquier asignación activa previa del empleado que NO sea al equipo destino
+            // Desactivar CUALQUIER asignación activa previa del empleado (incluyendo el mismo equipo)
+            // para garantizar que solo exista una membresía activa a la vez.
             TeamMember::where('employee_id', $dto->employee_id)
                 ->where('is_active', true)
-                ->where('team_id', '!=', $dto->team_id)
                 ->update([
                     'is_active' => false,
                     'left_at' => $dto->joined_at,

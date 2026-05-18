@@ -50,6 +50,8 @@ class TeamWeeklyPlanning extends Component
         'break_start_time' => null,
     ];
 
+
+
     public function mount(WeeklySchedule $week, Team $team): void
     {
         $this->week = $week;
@@ -76,7 +78,7 @@ class TeamWeeklyPlanning extends Component
     /**
      * Formatea un tiempo (Carbon o string) a H:i.
      */
-    private function formatTime($value): ?string
+    public function formatTime($value): ?string
     {
         if (! $value) {
             return null;
@@ -213,3 +215,4 @@ class TeamWeeklyPlanning extends Component
         ]);
     }
 }
+

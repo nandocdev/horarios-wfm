@@ -105,6 +105,51 @@ class TeamMemberTransfer extends Component {
         return $filtered;
     }
 
+    /**
+     * Determina si una transferencia entre dos filtros es válida.
+     *
+     * Semántica de 'all' como destino: equivale a 'none' (remover del equipo actual).
+     * Solo se permite para movimientos seleccionados, nunca para bulk.
+     *
+     * @param bool $bulk  True para movimientos masivos (moveAll), false para seleccionados.
+     */
+    private function isValidTransfer(string $from, string $to, bool $bulk = false): bool {
+        if ($from === $to) {
+            return false;
+        }
+
+        // Movimientos masivos nunca permiten 'all' como origen ni destino
+        if ($bulk && ($from === 'all' || $to === 'all')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    #[Computed]
+    public function canMoveSelectedRight(): bool {
+        return count($this->leftSelected) > 0
+            && $this->isValidTransfer($this->leftFilter, $this->rightFilter);
+    }
+
+    #[Computed]
+    public function canMoveAllRight(): bool {
+        return count($this->leftEmployees) > 0
+            && $this->isValidTransfer($this->leftFilter, $this->rightFilter, bulk: true);
+    }
+
+    #[Computed]
+    public function canMoveSelectedLeft(): bool {
+        return count($this->rightSelected) > 0
+            && $this->isValidTransfer($this->rightFilter, $this->leftFilter);
+    }
+
+    #[Computed]
+    public function canMoveAllLeft(): bool {
+        return count($this->rightEmployees) > 0
+            && $this->isValidTransfer($this->rightFilter, $this->leftFilter, bulk: true);
+    }
+
     public function updatedLeftFilter(): void {
         $this->leftSelected = [];
     }
@@ -152,7 +197,7 @@ class TeamMemberTransfer extends Component {
      * Mueve empleados seleccionados del panel derecho al izquierdo.
      */
     public function moveSelectedToLeft(AssignEmployeeToTeamAction $assignAction, RemoveEmployeeFromTeamAction $removeAction): void {
-        if (empty($this->rightSelected) || $this->leftFilter === 'all') {
+        if (empty($this->rightSelected)) {
             return;
         }
 

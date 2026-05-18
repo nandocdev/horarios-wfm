@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('settings/security', 'pages::settings.security')
         ->middleware([
             Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
-                ? 'password.confirm'
+                ? \App\Http\Middleware\RequirePasswordUnlessForced::class
                 : null
         ])
         ->name('security.edit');

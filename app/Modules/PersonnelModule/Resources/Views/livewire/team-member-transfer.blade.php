@@ -2,7 +2,8 @@
     <!-- Encabezado -->
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
-            <flux:button href="{{ route('organization.teams.show', $team) }}" variant="ghost" icon="chevron-left" wire:navigate />
+            <flux:button href="{{ route('organization.teams.show', $team) }}" variant="ghost" icon="chevron-left"
+                wire:navigate />
             <div>
                 <flux:heading size="xl">Transferir Miembros - {{ $team->name }}</flux:heading>
                 <flux:subheading>Gestiona la asignación de empleados entre equipos de forma visual.</flux:subheading>
@@ -26,38 +27,23 @@
                     @endforeach
                 </flux:select>
 
-                <flux:input 
-                    wire:model.live.debounce.300ms="leftSearch" 
-                    placeholder="Buscar por nombre o email..." 
-                    icon="magnifying-glass" 
-                    size="sm"
-                    variant="filled"
-                />
+                <flux:input wire:model.live.debounce.300ms="leftSearch" placeholder="Buscar por nombre o email..."
+                    icon="magnifying-glass" size="sm" variant="filled" />
             </div>
 
             <div class="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
                 @foreach($this->leftEmployees as $employee)
-                    <div 
-                        wire:key="left-{{ $employee['id'] }}"
-                        wire:click="toggleSelection('left', {{ $employee['id'] }})"
+                    <div wire:key="left-{{ $employee['id'] }}" wire:click="toggleSelection('left', {{ $employee['id'] }})"
                         @class([
                             'flex items-center gap-3 p-3 cursor-pointer transition-colors',
                             'bg-blue-50/50 dark:bg-blue-900/20' => in_array($employee['id'], $this->leftSelected),
                             'hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => !in_array($employee['id'], $this->leftSelected),
-                        ])
-                    >
-                        <flux:checkbox 
-                            wire:model.live="leftSelected" 
-                            value="{{ $employee['id'] }}" 
-                            wire:click.stop 
-                        />
-                        
-                        <flux:avatar 
-                            src="{{ $employee['avatar_url'] ?? '' }}" 
-                            initials="{{ $this->getInitials($employee['name']) }}" 
-                            size="sm"
-                        />
-                        
+                        ])>
+                        <flux:checkbox wire:model.live="leftSelected" value="{{ $employee['id'] }}" wire:click.stop />
+
+                        <flux:avatar src="{{ $employee['avatar_url'] ?? '' }}"
+                            initials="{{ $this->getInitials($employee['name']) }}" size="sm" />
+
                         <div class="flex-1 min-w-0">
                             <flux:text class="font-medium truncate">{{ $employee['name'] }}</flux:text>
                             <flux:text size="xs" class="truncate">
@@ -77,38 +63,14 @@
 
         <!-- Controles Centrales -->
         <div class="lg:col-span-1 flex lg:flex-col justify-center gap-2 p-2">
-            <flux:button 
-                wire:click="moveSelectedToRight" 
-                variant="ghost" 
-                size="sm" 
-                icon="chevron-right" 
-                class="flex-1 lg:flex-none"
-                :disabled="count($this->leftSelected) === 0 || $this->rightFilter === 'all' || $this->leftFilter === $this->rightFilter"
-            />
-            <flux:button 
-                wire:click="moveAllToRight" 
-                variant="ghost" 
-                size="sm" 
-                icon="chevron-double-right" 
-                class="flex-1 lg:flex-none"
-                :disabled="count($this->leftEmployees) === 0 || $this->rightFilter === 'all' || $this->leftFilter === $this->rightFilter"
-            />
-            <flux:button 
-                wire:click="moveSelectedToLeft" 
-                variant="ghost" 
-                size="sm" 
-                icon="chevron-left" 
-                class="flex-1 lg:flex-none"
-                :disabled="count($this->rightSelected) === 0 || $this->leftFilter === 'all' || $this->leftFilter === $this->rightFilter"
-            />
-            <flux:button 
-                wire:click="moveAllToLeft" 
-                variant="ghost" 
-                size="sm" 
-                icon="chevron-double-left" 
-                class="flex-1 lg:flex-none"
-                :disabled="count($this->rightEmployees) === 0 || $this->leftFilter === 'all' || $this->leftFilter === $this->rightFilter"
-            />
+            <flux:button wire:click="moveSelectedToRight" variant="ghost" size="sm" icon="chevron-right"
+                class="flex-1 lg:flex-none" :disabled="!$this->canMoveSelectedRight" />
+            <flux:button wire:click="moveAllToRight" variant="ghost" size="sm" icon="chevron-double-right"
+                class="flex-1 lg:flex-none" :disabled="!$this->canMoveAllRight" />
+            <flux:button wire:click="moveSelectedToLeft" variant="ghost" size="sm" icon="chevron-left"
+                class="flex-1 lg:flex-none" :disabled="!$this->canMoveSelectedLeft" />
+            <flux:button wire:click="moveAllToLeft" variant="ghost" size="sm" icon="chevron-double-left"
+                class="flex-1 lg:flex-none" :disabled="!$this->canMoveAllLeft" />
         </div>
 
         <!-- Panel Derecho (Destino) -->
@@ -116,7 +78,8 @@
             <div class="p-4 border-b border-zinc-200 dark:border-zinc-700 space-y-3">
                 <div class="flex items-center justify-between">
                     <flux:heading size="sm">Destino</flux:heading>
-                    <flux:badge color="zinc" size="sm" inset="top bottom">{{ count($this->rightEmployees) }}</flux:badge>
+                    <flux:badge color="zinc" size="sm" inset="top bottom">{{ count($this->rightEmployees) }}
+                    </flux:badge>
                 </div>
                 <flux:select wire:model.live="rightFilter">
                     <option value="all">Todos los empleados</option>
@@ -126,38 +89,23 @@
                     @endforeach
                 </flux:select>
 
-                <flux:input 
-                    wire:model.live.debounce.300ms="rightSearch" 
-                    placeholder="Buscar por nombre o email..." 
-                    icon="magnifying-glass" 
-                    size="sm"
-                    variant="filled"
-                />
+                <flux:input wire:model.live.debounce.300ms="rightSearch" placeholder="Buscar por nombre o email..."
+                    icon="magnifying-glass" size="sm" variant="filled" />
             </div>
 
             <div class="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
                 @foreach($this->rightEmployees as $employee)
-                    <div 
-                        wire:key="right-{{ $employee['id'] }}"
-                        wire:click="toggleSelection('right', {{ $employee['id'] }})"
+                    <div wire:key="right-{{ $employee['id'] }}" wire:click="toggleSelection('right', {{ $employee['id'] }})"
                         @class([
                             'flex items-center gap-3 p-3 cursor-pointer transition-colors',
                             'bg-blue-50/50 dark:bg-blue-900/20' => in_array($employee['id'], $this->rightSelected),
                             'hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => !in_array($employee['id'], $this->rightSelected),
-                        ])
-                    >
-                        <flux:checkbox 
-                            wire:model.live="rightSelected" 
-                            value="{{ $employee['id'] }}" 
-                            wire:click.stop 
-                        />
-                        
-                        <flux:avatar 
-                            src="{{ $employee['avatar_url'] ?? '' }}" 
-                            initials="{{ $this->getInitials($employee['name']) }}" 
-                            size="sm"
-                        />
-                        
+                        ])>
+                        <flux:checkbox wire:model.live="rightSelected" value="{{ $employee['id'] }}" wire:click.stop />
+
+                        <flux:avatar src="{{ $employee['avatar_url'] ?? '' }}"
+                            initials="{{ $this->getInitials($employee['name']) }}" size="sm" />
+
                         <div class="flex-1 min-w-0">
                             <flux:text class="font-medium truncate">{{ $employee['name'] }}</flux:text>
                             <flux:text size="xs" class="truncate">

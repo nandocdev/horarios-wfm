@@ -105,6 +105,51 @@ class TeamMemberTransfer extends Component {
         return $filtered;
     }
 
+    /**
+     * Determina si una transferencia entre dos filtros es válida.
+     *
+     * @param bool $bulk  True para movimientos masivos (moveAll), false para seleccionados.
+     */
+    private function isValidTransfer(string $from, string $to, bool $bulk = false): bool {
+        if ($to === 'all') {
+            return false;
+        }
+
+        if ($from === $to) {
+            return false;
+        }
+
+        if ($bulk && $from === 'all') {
+            return false;
+        }
+
+        return true;
+    }
+
+    #[Computed]
+    public function canMoveSelectedRight(): bool {
+        return count($this->leftSelected) > 0
+            && $this->isValidTransfer($this->leftFilter, $this->rightFilter);
+    }
+
+    #[Computed]
+    public function canMoveAllRight(): bool {
+        return count($this->leftEmployees) > 0
+            && $this->isValidTransfer($this->leftFilter, $this->rightFilter, bulk: true);
+    }
+
+    #[Computed]
+    public function canMoveSelectedLeft(): bool {
+        return count($this->rightSelected) > 0
+            && $this->isValidTransfer($this->rightFilter, $this->leftFilter);
+    }
+
+    #[Computed]
+    public function canMoveAllLeft(): bool {
+        return count($this->rightEmployees) > 0
+            && $this->isValidTransfer($this->rightFilter, $this->leftFilter, bulk: true);
+    }
+
     public function updatedLeftFilter(): void {
         $this->leftSelected = [];
     }

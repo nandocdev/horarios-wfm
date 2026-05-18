@@ -38,6 +38,7 @@
                     <flux:table.cell>
                         <flux:select wire:model.live="teamSchedules.{{ $team->id }}"
                             placeholder="{{ __('Seleccionar turno...') }}">
+                            <flux:select.option selected readonly value="">{{ __('Sin asignar') }}</flux:select.option>
                             @foreach($schedules as $sched)
                                 <flux:select.option value="{{ $sched->id }}">
                                     {{ $sched->name }}
@@ -76,7 +77,8 @@
     </flux:table>
 
     <!-- Modal de Importación de Horarios -->
-    <flux:modal wire:model="showImportModal" class="{{ empty($importedData) ? 'min-w-[500px]' : 'min-w-[95vw] lg:min-w-[90vw]' }}">
+    <flux:modal wire:model="showImportModal"
+        class="{{ empty($importedData) ? 'min-w-[500px]' : 'min-w-[95vw] lg:min-w-[90vw]' }}">
         <div class="space-y-6">
             <div>
                 <flux:heading size="lg">{{ __('Importar Horario por CSV') }}</flux:heading>
@@ -114,9 +116,17 @@
 
                             <flux:table.rows>
                                 @foreach($importedData as $index => $row)
-                                    <flux:table.row :key="$row['id']">
+                                    <flux:table.row :key="$row['id']" :class="!$row['user_exists'] ? 'bg-red-50' : ''">
                                         <flux:table.cell>
-                                            <flux:input wire:model="importedData.{{ $index }}.usuario" class="w-24" size="sm" />
+                                            <div class="flex flex-col gap-1">
+                                                <flux:input wire:model="importedData.{{ $index }}.usuario" class="w-24"
+                                                    size="sm" />
+                                                @if(!$row['user_exists'])
+                                                    <flux:badge size="sm" variant="danger" icon="exclamation-triangle">
+                                                        {{ __('No encontrado') }}
+                                                    </flux:badge>
+                                                @endif
+                                            </div>
                                         </flux:table.cell>
                                         <flux:table.cell>
                                             <flux:input wire:model="importedData.{{ $index }}.jornada" class="w-32" size="sm" />
@@ -128,19 +138,24 @@
                                             <flux:input type="time" wire:model="importedData.{{ $index }}.salida" size="sm" />
                                         </flux:table.cell>
                                         <flux:table.cell>
-                                            <flux:input type="time" wire:model="importedData.{{ $index }}.ini_almuerzo" size="sm" />
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.ini_almuerzo"
+                                                size="sm" />
                                         </flux:table.cell>
                                         <flux:table.cell>
-                                            <flux:input type="time" wire:model="importedData.{{ $index }}.fin_almuerzo" size="sm" />
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.fin_almuerzo"
+                                                size="sm" />
                                         </flux:table.cell>
                                         <flux:table.cell>
-                                            <flux:input type="time" wire:model="importedData.{{ $index }}.ini_descanso" size="sm" />
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.ini_descanso"
+                                                size="sm" />
                                         </flux:table.cell>
                                         <flux:table.cell>
-                                            <flux:input type="time" wire:model="importedData.{{ $index }}.fin_descanso" size="sm" />
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.fin_descanso"
+                                                size="sm" />
                                         </flux:table.cell>
                                         <flux:table.cell>
-                                            <flux:button wire:click="removeImportedRow({{ $index }})" variant="danger" size="sm" icon="trash" />
+                                            <flux:button wire:click="removeImportedRow({{ $index }})" variant="danger" size="sm"
+                                                icon="trash" />
                                         </flux:table.cell>
                                     </flux:table.row>
                                 @endforeach
@@ -150,9 +165,11 @@
                 @endif
 
                 <div class="flex justify-end gap-3 mt-4">
-                    <flux:button variant="ghost" wire:click="$set('showImportModal', false)">{{ __('Cancelar') }}</flux:button>
+                    <flux:button variant="ghost" wire:click="$set('showImportModal', false)">{{ __('Cancelar') }}
+                    </flux:button>
                     @if(!empty($importedData))
-                        <flux:button wire:click="applyImport" variant="primary" icon="check">{{ __('Aplicar Horario') }}</flux:button>
+                        <flux:button wire:click="applyImport" variant="primary" icon="check">{{ __('Aplicar Horario') }}
+                        </flux:button>
                     @endif
                 </div>
             </div>

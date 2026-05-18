@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Actions;
 
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Modules\WfmModule\Models\WeeklyTeamAssignment;
 use Illuminate\Support\Facades\DB;
 
 class ImportTeamWeeklyScheduleAction
@@ -27,6 +28,7 @@ class ImportTeamWeeklyScheduleAction
             $fallbackSchedule = $allSchedules->first();
 
             $matchedCount = 0;
+            $affectedTeams = [];
 
             foreach ($importedData as $row) {
                 // Buscamos el empleado de forma insensible a mayúsculas
@@ -41,6 +43,13 @@ class ImportTeamWeeklyScheduleAction
                 }
 
                 $matchedCount++;
+                
+                if ($employee->team_id) {
+                    $affectedTeams[$employee->team_id] = [
+                        'schedule_id' => null,
+                        'row' => $row
+                    ];
+                }
 
                 // Asignar o actualizar para cada día seleccionado
                 foreach ($days as $dayNum) {
@@ -76,7 +85,31 @@ class ImportTeamWeeklyScheduleAction
 
                     $assignment->schedule_id = $scheduleId;
                     
+                    if ($employee->team_id && !$affectedTeams[$employee->team_id]['schedule_id']) {
+                        $affectedTeams[$employee->team_id]['schedule_id'] = $scheduleId;
+                    }
+
                     $assignment->save();
+                }
+            }
+
+            // Actualizar asignaciones de equipo para que se vean en la vista de planning.teams
+            foreach ($affectedTeams as $tId => $data) {
+                foreach ($days as $dayNum) {
+                    $teamAssignment = WeeklyTeamAssignment::firstOrNew([
+                        'weekly_schedule_id' => $weekId,
+                        'team_id' => $tId,
+                        'day_of_week' => (int) $dayNum,
+                    ]);
+
+                    $teamAssignment->schedule_id = $data['schedule_id'];
+                    $teamAssignment->start_time = $data['row']['entrada'] ?: null;
+                    $teamAssignment->end_time = $data['row']['salida'] ?: null;
+                    $teamAssignment->lunch_start_time = $data['row']['ini_almuerzo'] ?: null;
+                    $teamAssignment->lunch_end_time = $data['row']['fin_almuerzo'] ?: null;
+                    $teamAssignment->break_start_time = $data['row']['ini_descanso'] ?: null;
+                    $teamAssignment->break_end_time = $data['row']['fin_descanso'] ?: null;
+                    $teamAssignment->save();
                 }
             }
 

@@ -21,6 +21,12 @@ class ImportTeamWeeklyScheduleAction
                                  ->orWhereIn('email', $usernames)
                                  ->get()->keyBy('username'); // O ajustar según como se ligue
 
+            // Pre-cargar todos los turnos base
+            $allSchedules = \App\Modules\WfmModule\Models\Schedule::where('is_active', true)->get();
+            $schedulesByTime = $allSchedules->keyBy(fn($s) => \Illuminate\Support\Carbon::parse($s->start_time)->format('H:i'));
+            $schedulesByName = $allSchedules->keyBy(fn($s) => strtolower($s->name));
+            $fallbackSchedule = $allSchedules->first();
+
             foreach ($importedData as $row) {
                 // Buscamos el empleado. Como 'usuario' podría venir como username o parecido
                 $employee = $employees->first(function($emp) use ($row) {
@@ -42,14 +48,29 @@ class ImportTeamWeeklyScheduleAction
                     ]);
 
                     // Determinar si es libre o tiene horario.
-                    // "Vacaciones", "Licencia", etc. en 'jornada' -> Si es libre o diferente, tal vez 'start_time' = null
-                    // Pero asumiendo que solo se cambian los tiempos si existen:
                     $assignment->start_time = $row['entrada'] ?: null;
                     $assignment->end_time = $row['salida'] ?: null;
                     $assignment->lunch_start_time = $row['ini_almuerzo'] ?: null;
                     $assignment->break_start_time = $row['ini_descanso'] ?: null;
-                    // También se debe limpiar si el CSV trae en blanco, pero asumiendo que el schedule_id no se toca si es custom
-                    $assignment->schedule_id = null; // Custom schedule ya que no viene schedule_id, o buscar uno equivalente. Si custom, debe ser null
+
+                    // Encontrar el schedule_id correspondiente
+                    $scheduleId = null;
+                    if ($row['entrada']) {
+                        try {
+                            $entradaFormateada = \Illuminate\Support\Carbon::parse($row['entrada'])->format('H:i');
+                            $scheduleId = $schedulesByTime->get($entradaFormateada)?->id;
+                        } catch (\Exception $e) {}
+                    }
+                    
+                    if (!$scheduleId && $row['jornada']) {
+                        $scheduleId = $schedulesByName->get(strtolower($row['jornada']))?->id;
+                    }
+                    
+                    if (!$scheduleId) {
+                        $scheduleId = $fallbackSchedule?->id;
+                    }
+
+                    $assignment->schedule_id = $scheduleId;
                     
                     $assignment->save();
                 }

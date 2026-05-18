@@ -68,9 +68,9 @@
                                         <span
                                             class="text-[10px] font-bold uppercase text-zinc-400">{{ $assignment->schedule?->name ?? 'OFF' }}</span>
                                         <span class="text-xs font-semibold">
-                                            {{ $assignment->start_time ? substr($assignment->start_time, 0, 5) : ($assignment->schedule ? substr($assignment->schedule->start_time, 0, 5) : '--') }}
+                                            {{ $this->formatTime($assignment->start_time) ?? ($assignment->schedule ? $this->formatTime($assignment->schedule->start_time) : '--') }}
                                             -
-                                            {{ $assignment->end_time ? substr($assignment->end_time, 0, 5) : ($assignment->schedule ? substr($assignment->schedule->end_time, 0, 5) : '--') }}
+                                            {{ $this->formatTime($assignment->end_time) ?? ($assignment->schedule ? $this->formatTime($assignment->schedule->end_time) : '--') }}
                                         </span>
                                         <div class="mt-1 flex gap-1">
                                             @if($assignment->lunch_start_time)

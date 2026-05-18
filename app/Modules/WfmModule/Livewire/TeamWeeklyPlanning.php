@@ -78,7 +78,7 @@ class TeamWeeklyPlanning extends Component
     /**
      * Formatea un tiempo (Carbon o string) a H:i.
      */
-    private function formatTime($value): ?string
+    public function formatTime($value): ?string
     {
         if (! $value) {
             return null;

@@ -9,6 +9,9 @@
                 {{ $week->week_end_date->format('d M, Y') }}
             </flux:subheading>
         </div>
+        <flux:button wire:click="$set('showImportModal', true)" variant="ghost" icon="document-arrow-up">
+            {{ __('Importar Horario') }}
+        </flux:button>
         <flux:button wire:click="$set('showBulkAssignModal', true)" variant="primary" icon="users">
             {{ __('Asignación Masiva') }}
         </flux:button>
@@ -185,6 +188,90 @@
                     </flux:button>
                 </div>
             </form>
+        </div>
+    </flux:modal>
+
+    <!-- Modal de Importación de Horarios -->
+    <flux:modal wire:model="showImportModal" class="min-w-[800px] md:min-w-[1000px]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">{{ __('Importar Horario por CSV') }}</flux:heading>
+                <flux:subheading>
+                    {{ __('Carga un archivo CSV con los horarios y selecciona los días a aplicar.') }}
+                </flux:subheading>
+            </div>
+
+            <div class="space-y-4">
+                <flux:input type="file" wire:model.live="csvFile" accept=".csv" label="{{ __('Archivo CSV') }}" />
+
+                @if(!empty($importedData))
+                    <div class="mt-4">
+                        <flux:heading size="sm">{{ __('Días a aplicar (Periodo de implementación)') }}</flux:heading>
+                        <div class="flex gap-4 mt-2 flex-wrap">
+                            @foreach($days as $dayNum => $dayName)
+                                <flux:checkbox wire:model="importSelectedDays" value="{{ $dayNum }}" label="{{ $dayName }}" />
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="mt-6 max-h-96 overflow-y-auto">
+                        <flux:table>
+                            <flux:table.columns>
+                                <flux:table.column>{{ __('Usuario') }}</flux:table.column>
+                                <flux:table.column>{{ __('Jornada') }}</flux:table.column>
+                                <flux:table.column>{{ __('Entrada') }}</flux:table.column>
+                                <flux:table.column>{{ __('Salida') }}</flux:table.column>
+                                <flux:table.column>{{ __('Ini Almuerzo') }}</flux:table.column>
+                                <flux:table.column>{{ __('Fin Almuerzo') }}</flux:table.column>
+                                <flux:table.column>{{ __('Ini Descanso') }}</flux:table.column>
+                                <flux:table.column>{{ __('Fin Descanso') }}</flux:table.column>
+                                <flux:table.column>{{ __('Acciones') }}</flux:table.column>
+                            </flux:table.columns>
+
+                            <flux:table.rows>
+                                @foreach($importedData as $index => $row)
+                                    <flux:table.row :key="$row['id']">
+                                        <flux:table.cell>
+                                            <flux:input wire:model="importedData.{{ $index }}.usuario" class="w-24" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:input wire:model="importedData.{{ $index }}.jornada" class="w-32" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.entrada" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.salida" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.ini_almuerzo" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.fin_almuerzo" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.ini_descanso" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:input type="time" wire:model="importedData.{{ $index }}.fin_descanso" size="sm" />
+                                        </flux:table.cell>
+                                        <flux:table.cell>
+                                            <flux:button wire:click="removeImportedRow({{ $index }})" variant="danger" size="sm" icon="trash" />
+                                        </flux:table.cell>
+                                    </flux:table.row>
+                                @endforeach
+                            </flux:table.rows>
+                        </flux:table>
+                    </div>
+                @endif
+
+                <div class="flex justify-end gap-3 mt-4">
+                    <flux:button variant="ghost" wire:click="$set('showImportModal', false)">{{ __('Cancelar') }}</flux:button>
+                    @if(!empty($importedData))
+                        <flux:button wire:click="applyImport" variant="primary" icon="check">{{ __('Aplicar Horario') }}</flux:button>
+                    @endif
+                </div>
+            </div>
         </div>
     </flux:modal>
 </div>

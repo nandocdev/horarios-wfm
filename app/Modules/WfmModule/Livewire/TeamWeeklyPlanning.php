@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\AssignTeamWeeklyScheduleAction;
+use App\Modules\WfmModule\Actions\ImportTeamWeeklyScheduleAction;
 use App\Modules\WfmModule\Actions\UpdateEmployeeDayAssignmentAction;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\ScheduleException;
@@ -14,11 +15,12 @@ use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Models\WeeklyTeamAssignment;
 use Carbon\CarbonInterface;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class TeamWeeklyPlanning extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public WeeklySchedule $week;
 
@@ -49,6 +51,12 @@ class TeamWeeklyPlanning extends Component
         'lunch_start_time' => null,
         'break_start_time' => null,
     ];
+
+    // Importación de CSV
+    public bool $showImportModal = false;
+    public $csvFile;
+    public array $importedData = [];
+    public array $importSelectedDays = [];
 
     public function mount(WeeklySchedule $week, Team $team): void
     {
@@ -170,6 +178,122 @@ class TeamWeeklyPlanning extends Component
         \Flux::toast('Asignación masiva completada.');
     }
 
+    public function updatedCsvFile()
+    {
+        $this->processCsv();
+    }
+
+    public function processCsv()
+    {
+        $this->validate([
+            'csvFile' => 'required|file|max:2048',
+        ]);
+
+        $path = $this->csvFile->getRealPath();
+        
+        $data = [];
+        if (($handle = fopen($path, "r")) !== FALSE) {
+            while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                $data[] = $row;
+            }
+            fclose($handle);
+        }
+        
+        if (count($data) < 2) {
+            \Flux::toast('El archivo está vacío o no es válido.', variant: 'danger');
+            return;
+        }
+
+        $header = array_shift($data);
+        $headerMap = [];
+        foreach ($header as $index => $col) {
+            $headerMap[trim(strtolower($col))] = $index;
+        }
+
+        $required = ['usuario', 'jornada', 'entrada', 'almuerzo', 'descanso'];
+        foreach ($required as $req) {
+            if (!isset($headerMap[$req])) {
+                \Flux::toast("Falta la columna requerida en CSV: {$req}", variant: 'danger');
+                return;
+            }
+        }
+
+        $this->importedData = [];
+        foreach ($data as $row) {
+            if (empty(array_filter($row))) {
+                continue;
+            }
+
+            $entrada = $row[$headerMap['entrada']] ?? null;
+            $almuerzo = $row[$headerMap['almuerzo']] ?? null;
+            $descanso = $row[$headerMap['descanso']] ?? null;
+            
+            $entradaCarbon = null;
+            if ($entrada && $entrada !== 'NULL' && trim($entrada) !== '') {
+                try {
+                    $entradaCarbon = \Carbon\Carbon::parse(trim($entrada));
+                } catch (\Exception $e) {
+                    $entradaCarbon = null;
+                }
+            }
+            
+            // Asumiendo turno de 8 horas + 45m almuerzo + 15m descanso = 9 horas total? 
+            // O 8 horas total de jornada. La instrucción indica "turno corresponde a 8 horas".
+            $salida = $entradaCarbon ? $entradaCarbon->copy()->addHours(8)->format('H:i') : null;
+            
+            $ini_almuerzo = null;
+            if ($almuerzo && $almuerzo !== 'NULL' && trim($almuerzo) !== '') {
+                try {
+                    $ini_almuerzo = \Carbon\Carbon::parse(trim($almuerzo))->format('H:i');
+                } catch (\Exception $e) {}
+            }
+            $fin_almuerzo = $ini_almuerzo ? \Carbon\Carbon::parse($ini_almuerzo)->addMinutes(45)->format('H:i') : null;
+
+            $ini_descanso = null;
+            if ($descanso && $descanso !== 'NULL' && trim($descanso) !== '') {
+                try {
+                    $ini_descanso = \Carbon\Carbon::parse(trim($descanso))->format('H:i');
+                } catch (\Exception $e) {}
+            }
+            $fin_descanso = $ini_descanso ? \Carbon\Carbon::parse($ini_descanso)->addMinutes(15)->format('H:i') : null;
+
+            $this->importedData[] = [
+                'id' => uniqid(),
+                'usuario' => trim($row[$headerMap['usuario']] ?? ''),
+                'jornada' => trim($row[$headerMap['jornada']] ?? ''),
+                'entrada' => $entradaCarbon ? $entradaCarbon->format('H:i') : null,
+                'salida' => $salida,
+                'ini_almuerzo' => $ini_almuerzo,
+                'fin_almuerzo' => $fin_almuerzo,
+                'ini_descanso' => $ini_descanso,
+                'fin_descanso' => $fin_descanso,
+            ];
+        }
+    }
+
+    public function removeImportedRow($index)
+    {
+        unset($this->importedData[$index]);
+        $this->importedData = array_values($this->importedData);
+    }
+
+    public function applyImport(ImportTeamWeeklyScheduleAction $action)
+    {
+        $this->validate([
+            'importSelectedDays' => 'required|array|min:1',
+            'importedData' => 'required|array|min:1',
+        ]);
+
+        $action->execute($this->week->id, $this->team->id, $this->importSelectedDays, $this->importedData);
+
+        $this->showImportModal = false;
+        $this->importedData = [];
+        $this->csvFile = null;
+        $this->importSelectedDays = [];
+
+        \Flux::toast('Horario importado y aplicado a los días seleccionados.');
+    }
+
     public function render()
     {
         // Obtener empleados del equipo con su posición cargada
@@ -213,3 +337,4 @@ class TeamWeeklyPlanning extends Component
         ]);
     }
 }
+

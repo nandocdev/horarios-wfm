@@ -99,7 +99,6 @@
             </div>
         </div>
     </div>
-    </div>
 
     {{-- Filtros y Tabla --}}
     <flux:card>

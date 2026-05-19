@@ -1,24 +1,42 @@
 <div wire:poll.10s class="space-y-6">
     {{-- Header con Estadísticas --}}
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-            <flux:heading size="xl" level="1">Monitoreo en Tiempo Real</flux:heading>
-            <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mt-1">
-                @if($stats['worker_active'])
-                    <div class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </div>
-                    <flux:subheading>Sincronización Activa • Actualizado {{ $stats['worker_last_update'] }}
-                    </flux:subheading>
-                @else
-                    <div class="relative flex h-2 w-2">
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                    </div>
-                    <flux:subheading class="text-red-500 dark:text-red-400 font-medium">Sincronización Retrasada / Worker
-                        Caído • Último dato {{ $stats['worker_last_update'] }}</flux:subheading>
-                @endif
+        <div class="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <div>
+                <flux:heading size="xl" level="1">Monitoreo en Tiempo Real</flux:heading>
+                <div class="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 mt-1">
+                    @if($stats['worker_active'])
+                        <div class="relative flex h-2 w-2">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </div>
+                        <flux:subheading>Sincronización Activa • Actualizado {{ $stats['worker_last_update'] }}
+                        </flux:subheading>
+                    @else
+                        <div class="relative flex h-2 w-2">
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </div>
+                        <flux:subheading class="text-red-500 dark:text-red-400 font-medium">Sincronización Retrasada / Worker
+                            Caído • Último dato {{ $stats['worker_last_update'] }}</flux:subheading>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Reloj del Servidor --}}
+            <div x-data="{ 
+                serverTime: new Date('{{ now()->toIso8601String() }}'),
+                init() {
+                    setInterval(() => {
+                        this.serverTime = new Date(this.serverTime.getTime() + 1000);
+                    }, 1000);
+                }
+            }" class="flex flex-col items-end">
+                <div class="flex items-center gap-2 text-zinc-800 dark:text-zinc-100">
+                    <flux:icon name="clock" class="size-5" variant="micro" />
+                    <span class="text-2xl font-black font-mono tracking-tight" x-text="serverTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })"></span>
+                </div>
+                <flux:text size="xs" class="uppercase font-bold text-zinc-400 tracking-widest">Hora del Servidor</flux:text>
             </div>
         </div>
 
@@ -87,9 +105,11 @@
         <div class="space-y-6">
             {{-- Barra de herramientas superior --}}
             <div class="flex flex-col md:flex-row gap-3">
-                <div class="flex-grow">
+                <div class="flex-grow flex items-center gap-4">
                     <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre o usuario..."
-                        icon="magnifying-glass" size="sm" />
+                        icon="magnifying-glass" size="sm" class="flex-grow" />
+                    
+                    <flux:checkbox wire:model.live="onlyActive" label="Solo Activos" />
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-3">

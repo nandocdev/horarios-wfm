@@ -29,6 +29,7 @@ class RealtimeMonitoring extends Component
     public ?string $statusFilter = null;
     public ?string $reasonFilter = null;
     public ?string $expectedStateFilter = null;
+    public bool $onlyActive = true;
     public string $search = '';
     public string $sortField = 'first_name';
     public string $sortDirection = 'asc';
@@ -73,10 +74,15 @@ class RealtimeMonitoring extends Component
 
     public function clearFilters()
     {
-        $this->reset(['teamId', 'positionFilter', 'queueFilter', 'statusFilter', 'reasonFilter', 'expectedStateFilter', 'search']);
+        $this->reset(['teamId', 'positionFilter', 'queueFilter', 'statusFilter', 'reasonFilter', 'expectedStateFilter', 'search', 'onlyActive']);
     }
 
     public function updatedTeamId()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedOnlyActive()
     {
         $this->resetPage();
     }
@@ -170,6 +176,10 @@ class RealtimeMonitoring extends Component
         $query = Employee::query()
             ->whereIn('position_id', [1, 2, 5])
             ->with(['team', 'position']);
+
+        if ($this->onlyActive) {
+            $query->where('is_active', true);
+        }
 
         // Restricción de visibilidad por rol
         if (!$isPowerUser) {

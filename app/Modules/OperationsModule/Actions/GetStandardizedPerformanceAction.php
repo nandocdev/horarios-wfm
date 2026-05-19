@@ -30,6 +30,17 @@ final class GetStandardizedPerformanceAction
     {
         $schedule = $this->scheduleService->getScheduleForEmployee($employee->id, $date);
         $transitions = $this->telemetryService->getStateTransitions($employee->id, $date->copy()->startOfDay(), $date->copy()->endOfDay());
+
+        // Si es el día de hoy, ajustamos la duración de la última transición (si está en curso)
+        if ($date->isToday() && $transitions->isNotEmpty()) {
+            $last = $transitions->last();
+            if ((int) ($last->metadata['duration'] ?? 0) === 0) {
+                $startTime = Carbon::parse($last->last_changed_at);
+                $elapsed = max(0, now()->diffInSeconds($startTime));
+                $last->metadata['duration'] = $elapsed;
+            }
+        }
+
         $intradayActivities = $this->getIntradayActivities($employee->id, $date);
         $callRecords = $this->getCallRecords($employee->id, $date);
         

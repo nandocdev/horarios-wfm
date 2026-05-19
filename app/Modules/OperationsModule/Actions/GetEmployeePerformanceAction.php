@@ -93,7 +93,7 @@ final class GetEmployeePerformanceAction
 
     private function getTransitions(Employee $employee, Carbon $date): Collection
     {
-        return AgentStateTransition::query()
+        $transitions = AgentStateTransition::query()
             ->where('employee_id', $employee->id)
             ->whereDate('transition_time', $date->toDateString())
             ->orderBy('transition_time')
@@ -103,6 +103,19 @@ final class GetEmployeePerformanceAction
                 $t->reason_code = $t->reason_code ? trim((string)$t->reason_code) : null;
                 return $t;
             });
+
+        // Si es el día de hoy, ajustamos la duración de la última transición (si está en curso)
+        if ($date->isToday() && $transitions->isNotEmpty()) {
+            $last = $transitions->last();
+            if ((int) $last->duration === 0) {
+                $startTime = Carbon::parse($last->transition_time);
+                // Solo calculamos si la transición es del presente (evitar negativos si el reloj del server difiere)
+                $elapsed = max(0, now()->diffInSeconds($startTime));
+                $last->duration = $elapsed;
+            }
+        }
+
+        return $transitions;
     }
 
     private function getException(Employee $employee, Carbon $date): ?ScheduleException

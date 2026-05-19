@@ -53,6 +53,18 @@
                     <flux:text size="lg" class="font-black text-amber-700 dark:text-amber-500 leading-none mt-1">{{ $stats['not_ready'] }}</flux:text>
                 </div>
 
+                {{-- Stat: Ausentes --}}
+                <div class="flex flex-col items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-800/20 min-w-[80px]">
+                    <flux:text size="xs" class="uppercase font-bold text-rose-600 dark:text-rose-400 tracking-widest">Ausentes</flux:text>
+                    <flux:text size="lg" class="font-black text-rose-700 dark:text-rose-500 leading-none mt-1">{{ $stats['absent_count'] }}</flux:text>
+                </div>
+
+                {{-- Stat: Desconectados --}}
+                <div class="flex flex-col items-center px-4 py-2 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800/20 min-w-[80px]">
+                    <flux:text size="xs" class="uppercase font-bold text-purple-600 dark:text-purple-400 tracking-widest">Desconec</flux:text>
+                    <flux:text size="lg" class="font-black text-purple-700 dark:text-purple-500 leading-none mt-1">{{ $stats['disconnected_count'] }}</flux:text>
+                </div>
+
                 <div class="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
 
                 {{-- Stat: Adherencia --}}

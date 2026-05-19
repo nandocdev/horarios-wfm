@@ -1,81 +1,16 @@
 <div wire:poll.10s class="space-y-6">
     {{-- Header con Estadísticas --}}
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-800">
+    <div
+        class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-800">
         <div class="space-y-1">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
                     <flux:icon name="presentation-chart-line" class="size-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                <flux:heading size="xl" level="1" class="font-black tracking-tight">Monitoreo en Tiempo Real</flux:heading>
-            </div>
-
-            <div class="flex items-center gap-2 pl-11">
-                @if($stats['worker_active'])
-                    <div class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </div>
-                    <flux:text size="xs" class="text-zinc-500 dark:text-zinc-400 font-medium">Sincronización Activa • <span class="text-zinc-800 dark:text-zinc-200">{{ $stats['worker_last_update'] }}</span></flux:text>
-                @else
-                    <div class="relative flex h-2 w-2">
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                    </div>
-                    <flux:text size="xs" class="text-red-500 dark:text-red-400 font-bold">Sincronización Retrasada • Último dato {{ $stats['worker_last_update'] }}</flux:text>
-                @endif
-            </div>
-        </div>
-
-        <div class="flex flex-col xl:flex-row items-center gap-6">
-            <div class="flex flex-wrap items-center gap-2">
-                {{-- Stat: Total --}}
-                <div class="flex flex-col items-center px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 min-w-[80px]">
-                    <flux:text size="xs" class="uppercase font-bold text-zinc-400 tracking-widest">Total</flux:text>
-                    <flux:text size="lg" class="font-black text-zinc-900 dark:text-zinc-100 leading-none mt-1">{{ $stats['total'] }}</flux:text>
-                </div>
-
-                <div class="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
-
-                {{-- Stat: Listos --}}
-                <div class="flex flex-col items-center px-4 py-2 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800/20 min-w-[80px]">
-                    <flux:text size="xs" class="uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-widest">Listos</flux:text>
-                    <flux:text size="lg" class="font-black text-emerald-700 dark:text-emerald-500 leading-none mt-1">{{ $stats['ready'] }}</flux:text>
-                </div>
-
-                {{-- Stat: En Llamada --}}
-                <div class="flex flex-col items-center px-4 py-2 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/20 min-w-[80px]">
-                    <flux:text size="xs" class="uppercase font-bold text-blue-600 dark:text-blue-400 tracking-widest">Hablando</flux:text>
-                    <flux:text size="lg" class="font-black text-blue-700 dark:text-blue-500 leading-none mt-1">{{ $stats['talking'] }}</flux:text>
-                </div>
-
-                {{-- Stat: No Listos --}}
-                <div class="flex flex-col items-center px-4 py-2 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/20 min-w-[80px]">
-                    <flux:text size="xs" class="uppercase font-bold text-amber-600 dark:text-amber-400 tracking-widest">Aux</flux:text>
-                    <flux:text size="lg" class="font-black text-amber-700 dark:text-amber-500 leading-none mt-1">{{ $stats['not_ready'] }}</flux:text>
-                </div>
-
-                {{-- Stat: Ausentes --}}
-                <div class="flex flex-col items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-800/20 min-w-[80px]">
-                    <flux:text size="xs" class="uppercase font-bold text-rose-600 dark:text-rose-400 tracking-widest">Ausentes</flux:text>
-                    <flux:text size="lg" class="font-black text-rose-700 dark:text-rose-500 leading-none mt-1">{{ $stats['absent_count'] }}</flux:text>
-                </div>
-
-                {{-- Stat: Desconectados --}}
-                <div class="flex flex-col items-center px-4 py-2 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800/20 min-w-[80px]">
-                    <flux:text size="xs" class="uppercase font-bold text-purple-600 dark:text-purple-400 tracking-widest">Desconec</flux:text>
-                    <flux:text size="lg" class="font-black text-purple-700 dark:text-purple-500 leading-none mt-1">{{ $stats['disconnected_count'] }}</flux:text>
-                </div>
-
-                <div class="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
-
-                {{-- Stat: Adherencia --}}
-                <div class="flex flex-col items-center px-4 py-2 {{ $stats['adherence_percent'] < 85 ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/20' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800/20' }} rounded-2xl border min-w-[100px]">
-                    <flux:text size="xs" class="uppercase font-bold {{ $stats['adherence_percent'] < 85 ? 'text-red-600 dark:text-red-400' : 'text-indigo-600 dark:text-indigo-400' }} tracking-widest">Adherencia</flux:text>
-                    <flux:text size="lg" class="font-black {{ $stats['adherence_percent'] < 85 ? 'text-red-700 dark:text-red-500' : 'text-indigo-700 dark:text-indigo-500' }} leading-none mt-1">{{ $stats['adherence_percent'] }}%</flux:text>
-                </div>
-            </div>
-
-            {{-- Reloj del Servidor --}}
-            <div x-data="{ 
+                <flux:heading size="xl" level="1" class="font-black tracking-tight">Monitoreo en Tiempo Real
+                </flux:heading>
+                {{-- Reloj del Servidor --}}
+                <div x-data="{ 
                 serverTime: new Date('{{ now()->toIso8601String() }}'),
                 init() {
                     setInterval(() => {
@@ -83,16 +18,121 @@
                     }, 1000);
                 }
             }" class="flex items-center gap-4 pl-6 border-l border-zinc-200 dark:border-zinc-800">
-                <div class="flex flex-col items-end">
-                    <div class="flex items-center gap-2 text-zinc-900 dark:text-white">
-                        <span class="text-3xl font-black font-mono tracking-tighter tabular-nums" x-text="serverTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })"></span>
+                    <div class="flex flex-col items-end">
+                        <div class="flex items-center gap-2 text-zinc-900 dark:text-white">
+                            <span class="text-3xl font-black font-mono tracking-tighter tabular-nums"
+                                x-text="serverTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })"></span>
+                        </div>
+                        <flux:text size="xs"
+                            class="uppercase font-bold text-zinc-400 tracking-widest whitespace-nowrap leading-none">
+                            Hora del Servidor</flux:text>
                     </div>
-                    <flux:text size="xs" class="uppercase font-bold text-zinc-400 tracking-widest whitespace-nowrap leading-none">Hora del Servidor</flux:text>
-                </div>
-                <div class="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-2xl">
-                    <flux:icon name="clock" class="size-6 text-zinc-500" variant="micro" />
+                    <div class="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-2xl">
+                        <flux:icon name="clock" class="size-6 text-zinc-500" variant="micro" />
+                    </div>
                 </div>
             </div>
+
+            <div class="flex items-center gap-2 pl-11">
+                @if($stats['worker_active'])
+                    <div class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </div>
+                    <flux:text size="xs" class="text-zinc-500 dark:text-zinc-400 font-medium">Sincronización Activa • <span
+                            class="text-zinc-800 dark:text-zinc-200">{{ $stats['worker_last_update'] }}</span></flux:text>
+                @else
+                    <div class="relative flex h-2 w-2">
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </div>
+                    <flux:text size="xs" class="text-red-500 dark:text-red-400 font-bold">Sincronización Retrasada • Último
+                        dato {{ $stats['worker_last_update'] }}</flux:text>
+                @endif
+            </div>
+        </div>
+
+        <div class="flex flex-col xl:flex-row items-center gap-6">
+            <div class="flex flex-wrap items-center gap-2">
+                {{-- Stat: Total --}}
+                <div
+                    class="flex flex-col items-center px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 min-w-[80px]">
+                    <flux:text size="xs" class="uppercase font-bold text-zinc-400 tracking-widest">Total</flux:text>
+                    <flux:text size="lg" class="font-black text-zinc-900 dark:text-zinc-100 leading-none mt-1">
+                        {{ $stats['total'] }}
+                    </flux:text>
+                </div>
+
+                <div class="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
+
+                {{-- Stat: Listos --}}
+                <div
+                    class="flex flex-col items-center px-4 py-2 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800/20 min-w-[80px]">
+                    <flux:text size="xs"
+                        class="uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-widest">Listos
+                    </flux:text>
+                    <flux:text size="lg" class="font-black text-emerald-700 dark:text-emerald-500 leading-none mt-1">
+                        {{ $stats['ready'] }}
+                    </flux:text>
+                </div>
+
+                {{-- Stat: En Llamada --}}
+                <div
+                    class="flex flex-col items-center px-4 py-2 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/20 min-w-[80px]">
+                    <flux:text size="xs" class="uppercase font-bold text-blue-600 dark:text-blue-400 tracking-widest">
+                        Hablando</flux:text>
+                    <flux:text size="lg" class="font-black text-blue-700 dark:text-blue-500 leading-none mt-1">
+                        {{ $stats['talking'] }}
+                    </flux:text>
+                </div>
+
+                {{-- Stat: No Listos --}}
+                <div
+                    class="flex flex-col items-center px-4 py-2 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/20 min-w-[80px]">
+                    <flux:text size="xs" class="uppercase font-bold text-amber-600 dark:text-amber-400 tracking-widest">
+                        Aux</flux:text>
+                    <flux:text size="lg" class="font-black text-amber-700 dark:text-amber-500 leading-none mt-1">
+                        {{ $stats['not_ready'] }}
+                    </flux:text>
+                </div>
+
+                {{-- Stat: Ausentes --}}
+                <div
+                    class="flex flex-col items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-800/20 min-w-[80px]">
+                    <flux:text size="xs" class="uppercase font-bold text-rose-600 dark:text-rose-400 tracking-widest">
+                        Ausentes</flux:text>
+                    <flux:text size="lg" class="font-black text-rose-700 dark:text-rose-500 leading-none mt-1">
+                        {{ $stats['absent_count'] }}
+                    </flux:text>
+                </div>
+
+                {{-- Stat: Desconectados --}}
+                <div
+                    class="flex flex-col items-center px-4 py-2 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800/20 min-w-[80px]">
+                    <flux:text size="xs"
+                        class="uppercase font-bold text-purple-600 dark:text-purple-400 tracking-widest">Desconec
+                    </flux:text>
+                    <flux:text size="lg" class="font-black text-purple-700 dark:text-purple-500 leading-none mt-1">
+                        {{ $stats['disconnected_count'] }}
+                    </flux:text>
+                </div>
+
+                <div class="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
+
+                {{-- Stat: Adherencia --}}
+                <div
+                    class="flex flex-col items-center px-4 py-2 {{ $stats['adherence_percent'] < 85 ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/20' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800/20' }} rounded-2xl border min-w-[100px]">
+                    <flux:text size="xs"
+                        class="uppercase font-bold {{ $stats['adherence_percent'] < 85 ? 'text-red-600 dark:text-red-400' : 'text-indigo-600 dark:text-indigo-400' }} tracking-widest">
+                        Adherencia</flux:text>
+                    <flux:text size="lg"
+                        class="font-black {{ $stats['adherence_percent'] < 85 ? 'text-red-700 dark:text-red-500' : 'text-indigo-700 dark:text-indigo-500' }} leading-none mt-1">
+                        {{ $stats['adherence_percent'] }}%
+                    </flux:text>
+                </div>
+            </div>
+
+
         </div>
     </div>
 
@@ -277,14 +317,14 @@
                                                 class="cursor-help">
                                                 <flux:icon
                                                     :icon="match($alert['type']) {
-                                                                                                                                        'LATE_LOGIN' => 'clock',
-                                                                                                                                        'NO_SHOW' => 'x-circle',
-                                                                                                                                        'DISCONNECTED' => 'no-symbol',
-                                                                                                                                        'PERSONAL_TIME' => 'user-minus',
-                                                                                                                                        'AHT' => 'phone-arrow-up-right',
-                                                                                                                                        'ADHERENCE' => 'exclamation-triangle',
-                                                                                                                                        default => 'information-circle'
-                                                                                                                                    }"
+                                                                                                                                                        'LATE_LOGIN' => 'clock',
+                                                                                                                                                        'NO_SHOW' => 'x-circle',
+                                                                                                                                                        'DISCONNECTED' => 'no-symbol',
+                                                                                                                                                        'PERSONAL_TIME' => 'user-minus',
+                                                                                                                                                        'AHT' => 'phone-arrow-up-right',
+                                                                                                                                                        'ADHERENCE' => 'exclamation-triangle',
+                                                                                                                                                        default => 'information-circle'
+                                                                                                                                                    }"
                                                     variant="micro" class="mr-1" />
                                                 {{ $alert['label'] }}
                                             </flux:badge>

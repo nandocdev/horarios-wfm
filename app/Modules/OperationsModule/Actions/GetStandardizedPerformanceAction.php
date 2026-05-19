@@ -37,7 +37,22 @@ final class GetStandardizedPerformanceAction
             if ((int) ($last->metadata['duration'] ?? 0) === 0) {
                 $startTime = Carbon::parse($last->last_changed_at);
                 $elapsed = max(0, now()->diffInSeconds($startTime));
-                $last->metadata['duration'] = $elapsed;
+                
+                // Reemplazamos el DTO por uno nuevo con la duración actualizada (ya que es readonly)
+                $updatedMetadata = $last->metadata;
+                $updatedMetadata['duration'] = $elapsed;
+                
+                $updatedLast = new \App\Shared\DTOs\Telemetry\TelemetryStateDTO(
+                    $last->employee_id,
+                    $last->current_state,
+                    $last->reason_code,
+                    $last->last_changed_at,
+                    $updatedMetadata
+                );
+
+                // Actualizar en la colección
+                $transitions->pop();
+                $transitions->push($updatedLast);
             }
         }
 

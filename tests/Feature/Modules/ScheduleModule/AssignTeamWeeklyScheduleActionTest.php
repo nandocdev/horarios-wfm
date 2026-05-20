@@ -10,10 +10,8 @@ use App\Modules\PersonnelModule\Models\TeamMember;
 use App\Modules\WfmModule\Actions\AssignTeamWeeklyScheduleAction;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
-use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Models\WeeklyTeamAssignment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
@@ -43,7 +41,7 @@ it('assigns a schedule to an entire team for a week', function () {
     TeamMember::create(['team_id' => $team->id, 'employee_id' => $employee2->id, 'is_active' => true]);
 
     $action = app(AssignTeamWeeklyScheduleAction::class);
-    
+
     // 2. Execute
     $action->execute(
         weeklyScheduleId: $weekly->id,
@@ -56,7 +54,7 @@ it('assigns a schedule to an entire team for a week', function () {
     // 3. Assertions
     // Verificar asignaciones de equipo (5 días permitidos)
     expect(WeeklyTeamAssignment::where('team_id', $team->id)->count())->toBe(5);
-    
+
     // Verificar asignaciones individuales para el lunes (day 1)
     $today = now()->toDateString();
     $this->assertDatabaseHas('weekly_schedule_assignments', [
@@ -64,7 +62,7 @@ it('assigns a schedule to an entire team for a week', function () {
         'employee_id' => $employee1->id,
         'day_of_week' => 1,
         'schedule_id' => $schedule->id,
-        'lunch_start_time' => $today . ' 12:00:00',
+        'lunch_start_time' => $today.' 12:00:00',
     ]);
 
     $this->assertDatabaseHas('weekly_schedule_assignments', [

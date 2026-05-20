@@ -8,14 +8,14 @@ use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use Carbon\Carbon;
-use Livewire\Component;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 
 class PerformanceScorecard extends Component
 {
     #[Url]
     public string $date = '';
-    
+
     #[Url]
     public ?int $employeeId = null;
 
@@ -26,7 +26,7 @@ class PerformanceScorecard extends Component
     public string $periodType = 'daily';
 
     public string $search = '';
-    
+
     public array $performanceData = [];
 
     public function mount()
@@ -35,7 +35,7 @@ class PerformanceScorecard extends Component
         $this->authorize('viewPerformance', Employee::class);
 
         $employee = auth()->user()->employee;
-        if (!$this->employeeId && $employee) {
+        if (! $this->employeeId && $employee) {
             $this->employeeId = $employee->id;
         }
 
@@ -80,18 +80,20 @@ class PerformanceScorecard extends Component
 
         if ($this->employeeId) {
             $employee = Employee::find($this->employeeId);
-            
+
             // Validar acceso al empleado solicitado
-            if (!$employee || (!$isPowerUser && !$user->can('viewPerformance', $employee))) {
+            if (! $employee || (! $isPowerUser && ! $user->can('viewPerformance', $employee))) {
                 $this->employeeId = $me?->id;
                 $employee = $me;
             }
 
-            if (!$employee) return;
+            if (! $employee) {
+                return;
+            }
 
-            $dates = match($this->periodType) {
-                'weekly' => collect(range(0, 6))->map(fn($i) => $carbonDate->copy()->startOfWeek()->addDays($i)),
-                'monthly' => collect(range(0, $carbonDate->daysInMonth - 1))->map(fn($i) => $carbonDate->copy()->startOfMonth()->addDays($i)),
+            $dates = match ($this->periodType) {
+                'weekly' => collect(range(0, 6))->map(fn ($i) => $carbonDate->copy()->startOfWeek()->addDays($i)),
+                'monthly' => collect(range(0, $carbonDate->daysInMonth - 1))->map(fn ($i) => $carbonDate->copy()->startOfMonth()->addDays($i)),
                 default => [$carbonDate]
             };
 
@@ -108,7 +110,7 @@ class PerformanceScorecard extends Component
                 ->whereIn('position_id', [1, 2, 5])
                 ->with(['team', 'position']);
 
-            if (!$isPowerUser) {
+            if (! $isPowerUser) {
                 $managedTeamIds = $me?->getManagedTeamIds() ?? [];
                 $query->whereIn('team_id', $managedTeamIds);
             }
@@ -118,9 +120,9 @@ class PerformanceScorecard extends Component
             }
 
             if ($this->search) {
-                $query->where(function($q) {
-                    $q->where('first_name', 'ilike', '%' . $this->search . '%')
-                      ->orWhere('last_name', 'ilike', '%' . $this->search . '%');
+                $query->where(function ($q) {
+                    $q->where('first_name', 'ilike', '%'.$this->search.'%')
+                        ->orWhere('last_name', 'ilike', '%'.$this->search.'%');
                 });
             }
 
@@ -145,6 +147,7 @@ class PerformanceScorecard extends Component
         $h = floor($seconds / 3600);
         $m = floor(($seconds % 3600) / 60);
         $s = $seconds % 60;
+
         return sprintf('%02d:%02d:%02d', $h, $m, $s);
     }
 
@@ -156,15 +159,15 @@ class PerformanceScorecard extends Component
 
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 
-        $teams = $isPowerUser 
-            ? Team::all() 
+        $teams = $isPowerUser
+            ? Team::all()
             : Team::whereIn('id', $managedTeamIds)->get();
 
         $employeesQuery = Employee::query()
             ->whereIn('position_id', [1, 2, 5])
             ->orderBy('first_name');
 
-        if (!$isPowerUser) {
+        if (! $isPowerUser) {
             $employeesQuery->whereIn('team_id', $managedTeamIds);
         }
 

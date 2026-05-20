@@ -10,9 +10,7 @@ use App\Modules\WfmModule\Livewire\RequestLeave;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-use Tests\TestCase;
 
 test('operator can create a full day leave request', function () {
     // 1. Setup
@@ -23,7 +21,7 @@ test('operator can create a full day leave request', function () {
     // Setup schedule for full day request (Needed by RequestLeave::submit)
     $date = now()->addDays(5);
     $monday = $date->copy()->startOfWeek();
-    
+
     $weeklySchedule = WeeklySchedule::create([
         'week_start_date' => $monday->toDateString(),
         'week_end_date' => $monday->copy()->addDays(6)->toDateString(),

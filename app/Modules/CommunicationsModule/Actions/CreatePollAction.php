@@ -21,7 +21,7 @@ class CreatePollAction
         return DB::transaction(function () use ($dto) {
             return Poll::create([
                 'question' => $dto->question,
-                'options' => collect($dto->options)->map(fn($opt) => array_merge($opt, ['votes' => 0]))->toArray(),
+                'options' => collect($dto->options)->map(fn ($opt) => array_merge($opt, ['votes' => 0]))->toArray(),
                 'is_active' => $dto->is_active,
                 'expires_at' => $dto->expires_at,
                 'scheduled_at' => $dto->scheduled_at,

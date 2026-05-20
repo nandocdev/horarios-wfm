@@ -17,7 +17,7 @@ class AdherenceStatusDTO extends Data
 
     public static function fromStates(?array $expected, $realtime): self
     {
-        if (!$expected || !$realtime) {
+        if (! $expected || ! $realtime) {
             return new self(
                 isAdherent: true,
                 label: 'Sin Datos',
@@ -26,7 +26,7 @@ class AdherenceStatusDTO extends Data
             );
         }
 
-        // Lógica de Adherencia simplificada: 
+        // Lógica de Adherencia simplificada:
         // - Si se espera SHIFT y el agente está productivo -> OK
         // - Si se espera INTRADAY y el agente está en el estado correcto (o no productivo si es pausa) -> OK
         $isProductive = $realtime->is_productive ?? false;
@@ -34,8 +34,8 @@ class AdherenceStatusDTO extends Data
 
         $isAdherent = match ($expectedType) {
             'SHIFT_START', 'SHIFT_END' => $isProductive,
-            'LUNCH', 'BREAK' => !$isProductive,
-            'INTRADAY' => !$isProductive, // Generalmente actividades fuera de línea
+            'LUNCH', 'BREAK' => ! $isProductive,
+            'INTRADAY' => ! $isProductive, // Generalmente actividades fuera de línea
             default => true
         };
 
@@ -43,8 +43,8 @@ class AdherenceStatusDTO extends Data
             isAdherent: $isAdherent,
             label: $isAdherent ? 'En Adherencia' : 'Fuera de Adherencia',
             color: $isAdherent ? 'green' : 'red',
-            description: $isAdherent 
-                ? 'Tu estado actual coincide con lo planificado.' 
+            description: $isAdherent
+                ? 'Tu estado actual coincide con lo planificado.'
                 : "Se esperaba '{$expected['label']}' pero tu estado es '{$realtime->display_name}'."
         );
     }

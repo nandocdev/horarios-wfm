@@ -6,6 +6,4 @@ namespace App\Modules\CoreModule\Notifications;
 
 use App\Shared\Notifications\BaseNotification;
 
-class MaintenanceModeNotification extends BaseNotification
-{
-}
+class MaintenanceModeNotification extends BaseNotification {}

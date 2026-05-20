@@ -12,19 +12,20 @@ use Livewire\Component;
 class AgentRealtimeCard extends Component
 {
     public $employeeId;
+
     public $ciscoUsername;
-    
+
     public function render()
     {
         $now = now();
-        
+
         // 1. Sincronización (Desactivada: Dependemos del background worker cisco:sync)
         // La sincronización síncrona con CUIC causaba errores 500 y lentitud.
         // El trabajador en segundo plano ya mantiene actualizada la tabla agent_realtime_states.
 
         // 2. Obtener Estados
         $expected = app(GetExpectedAgentStateAction::class)->execute((int) $this->employeeId, $now);
-        
+
         $realtime = DB::table('agent_realtime_states as ars')
             ->leftJoin('agent_states as as', 'ars.current_state', '=', 'as.external_code')
             ->where('ars.employee_id', $this->employeeId)
@@ -43,7 +44,7 @@ class AgentRealtimeCard extends Component
         return view('operations::livewire.agent-realtime-card', [
             'realtime' => $realtime,
             'expected' => $expected,
-            'adherence' => $adherence
+            'adherence' => $adherence,
         ]);
     }
 }

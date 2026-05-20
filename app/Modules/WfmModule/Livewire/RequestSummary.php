@@ -12,7 +12,9 @@ use Livewire\Component;
 class RequestSummary extends Component
 {
     public array $leaveStats = [];
+
     public array $swapStats = [];
+
     public array $byType = [];
 
     public function mount()

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Models;
 
 use App\Modules\CoreModule\Models\User;
+use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use Database\Factories\Modules\PersonnelModule\Models\EmployeeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +20,7 @@ class Employee extends Model
 
     protected static function newFactory()
     {
-        return \Database\Factories\Modules\PersonnelModule\Models\EmployeeFactory::new();
+        return EmployeeFactory::new();
     }
 
     protected $fillable = [
@@ -144,7 +146,7 @@ class Employee extends Model
             ->pluck('id')
             ->toArray();
 
-        // Si tiene derechos de coordinador pero no es supervisor oficial, 
+        // Si tiene derechos de coordinador pero no es supervisor oficial,
         // incluimos su propio equipo para que pueda gestionarlo.
         if ($this->hasCoordinatorRights() && $this->team_id) {
             $teamIds[] = $this->team_id;
@@ -174,7 +176,7 @@ class Employee extends Model
 
     public function assignments(): HasMany
     {
-        return $this->hasMany(\App\Modules\WfmModule\Models\WeeklyScheduleAssignment::class);
+        return $this->hasMany(WeeklyScheduleAssignment::class);
     }
 
     // Detalles del Empleado

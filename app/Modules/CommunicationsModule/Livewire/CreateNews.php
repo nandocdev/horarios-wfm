@@ -9,6 +9,7 @@ use App\Modules\CommunicationsModule\Livewire\Forms\NewsForm;
 use App\Modules\CommunicationsModule\Models\Category;
 use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CommunicationsModule\Models\Tag;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -28,7 +29,7 @@ class CreateNews extends Component
     {
         $this->authorize('create', News::class);
         $this->form->published_at = now()->format('Y-m-d\TH:i');
-        $this->form->slug = (string) \Illuminate\Support\Str::uuid();
+        $this->form->slug = (string) Str::uuid();
     }
 
     /**

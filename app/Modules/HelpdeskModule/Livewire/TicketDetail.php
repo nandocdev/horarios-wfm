@@ -38,7 +38,7 @@ class TicketDetail extends Component
             abort(403, 'No tienes permiso para ver este ticket.');
         }
 
-        // La auto-asignación automática ha sido desactivada por requerimiento. 
+        // La auto-asignación automática ha sido desactivada por requerimiento.
         // El agente debe tomar el ticket manualmente desde la bandeja o al responder.
     }
 

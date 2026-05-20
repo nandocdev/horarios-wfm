@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\ScheduleModule;
 
 use App\Modules\WfmModule\Models\WeeklySchedule;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
@@ -28,7 +28,7 @@ it('validates unique week start date constraint', function () {
         'status' => 'draft',
     ]);
 
-    $this->expectException(\Illuminate\Database\QueryException::class);
+    $this->expectException(QueryException::class);
 
     WeeklySchedule::create([
         'week_start_date' => '2026-04-13',

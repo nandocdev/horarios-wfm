@@ -10,7 +10,6 @@ use App\Modules\WfmModule\Livewire\MyDay;
 use App\Modules\WfmModule\Models\ActivityType;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use Livewire\Livewire;
-use Tests\TestCase;
 
 test('my day component shows todays assignments', function () {
     $user = User::factory()->create();
@@ -20,9 +19,9 @@ test('my day component shows todays assignments', function () {
 
     $start = now()->startOfDay()->addHours(9);
     $end = now()->startOfDay()->addHours(10);
-    
+
     // Formato compatible con SQLite y el parser manual en IntradayActivity model
-    $range = sprintf("[%s, %s)", $start->toIso8601String(), $end->toIso8601String());
+    $range = sprintf('[%s, %s)', $start->toIso8601String(), $end->toIso8601String());
 
     IntradayActivity::create([
         'employee_id' => $employee->id,

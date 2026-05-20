@@ -23,6 +23,7 @@ class Notification extends Model
      * El sistema nativo de Laravel usa UUIDs.
      */
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [

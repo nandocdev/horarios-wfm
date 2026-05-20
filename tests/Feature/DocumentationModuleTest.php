@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature;
 
 use App\Modules\CoreModule\Models\User;
 use App\Modules\DocumentationModule\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class DocumentationModuleTest extends TestCase
@@ -14,7 +17,7 @@ class DocumentationModuleTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Crear permisos necesarios
         $permissions = [
             'articles.viewAny',
@@ -24,9 +27,9 @@ class DocumentationModuleTest extends TestCase
         ];
 
         foreach ($permissions as $permission) {
-            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
-        
+
         // Crear un usuario para las pruebas
         $this->user = User::factory()->create();
     }

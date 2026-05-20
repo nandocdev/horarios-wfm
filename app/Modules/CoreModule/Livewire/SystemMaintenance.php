@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\Modules\CoreModule\Livewire;
 
 use App\Modules\CoreModule\Models\AppSetting;
+use App\Modules\CoreModule\Models\User;
+use App\Modules\CoreModule\Notifications\MaintenanceModeNotification;
+use App\Shared\DTOs\NotificationDTO;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Component;
 
 class SystemMaintenance extends Component
 {
     public bool $enabled = false;
+
     public string $message = '';
 
     public function mount(): void
@@ -27,9 +32,9 @@ class SystemMaintenance extends Component
         ]);
 
         $status = $this->enabled ? 'activado' : 'desactivado';
-        
+
         if ($this->enabled) {
-            $dto = new \App\Shared\DTOs\NotificationDTO(
+            $dto = new NotificationDTO(
                 title: 'Mantenimiento del Sistema',
                 message: $this->message ?: 'El sistema entrará en mantenimiento en breve.',
                 icon: 'wrench-screwdriver',
@@ -37,8 +42,8 @@ class SystemMaintenance extends Component
             );
 
             // Notificar a todos los usuarios
-            $users = \App\Modules\CoreModule\Models\User::all();
-            \Illuminate\Support\Facades\Notification::send($users, new \App\Modules\CoreModule\Notifications\MaintenanceModeNotification($dto));
+            $users = User::all();
+            Notification::send($users, new MaintenanceModeNotification($dto));
         }
 
         \Flux::toast(

@@ -8,9 +8,14 @@ use App\Modules\CommunicationsModule\Http\Controllers\ContentModerationControlle
 use App\Modules\CommunicationsModule\Http\Controllers\ReactionController;
 use App\Modules\CommunicationsModule\Http\Controllers\TagController;
 use App\Modules\CommunicationsModule\Livewire\CreateNews;
+use App\Modules\CommunicationsModule\Livewire\CreatePoll;
+use App\Modules\CommunicationsModule\Livewire\CreateShoutout;
 use App\Modules\CommunicationsModule\Livewire\EditNews;
+use App\Modules\CommunicationsModule\Livewire\EditShoutout;
 use App\Modules\CommunicationsModule\Livewire\Home;
 use App\Modules\CommunicationsModule\Livewire\ListNews;
+use App\Modules\CommunicationsModule\Livewire\ListPolls;
+use App\Modules\CommunicationsModule\Livewire\ListShoutouts;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('admin/communications')->name('communications.')->group(function () {
@@ -49,13 +54,13 @@ Route::middleware(['auth'])->prefix('admin/communications')->name('communication
     ]);
 
     // Encuestas
-    Route::get('polls', \App\Modules\CommunicationsModule\Livewire\ListPolls::class)->name('polls.index');
-    Route::get('polls/create', \App\Modules\CommunicationsModule\Livewire\CreatePoll::class)->name('polls.create');
-    
+    Route::get('polls', ListPolls::class)->name('polls.index');
+    Route::get('polls/create', CreatePoll::class)->name('polls.create');
+
     // Reconocimientos
-    Route::get('/shoutouts', \App\Modules\CommunicationsModule\Livewire\ListShoutouts::class)->name('shoutouts.index');
-    Route::get('/shoutouts/create', \App\Modules\CommunicationsModule\Livewire\CreateShoutout::class)->name('shoutouts.create');
-    Route::get('/shoutouts/{shoutout}/edit', \App\Modules\CommunicationsModule\Livewire\EditShoutout::class)->name('shoutouts.edit');
+    Route::get('/shoutouts', ListShoutouts::class)->name('shoutouts.index');
+    Route::get('/shoutouts/create', CreateShoutout::class)->name('shoutouts.create');
+    Route::get('/shoutouts/{shoutout}/edit', EditShoutout::class)->name('shoutouts.edit');
 });
 
 // Rutas públicas para interacciones sociales

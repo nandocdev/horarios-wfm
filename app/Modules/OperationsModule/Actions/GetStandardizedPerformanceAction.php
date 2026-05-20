@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Actions;
 
+use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\OperationsModule\DTOs\StandardizedPerformanceDTO;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\IntradayActivity;
-use App\Modules\ConnectModule\Models\AgentCallPerformance;
-use App\Shared\Support\Metrics\MetricFormulas;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
+use App\Shared\DTOs\Telemetry\TelemetryStateDTO;
+use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -37,12 +38,12 @@ final class GetStandardizedPerformanceAction
             if ((int) ($last->metadata['duration'] ?? 0) === 0) {
                 $startTime = Carbon::parse($last->last_changed_at);
                 $elapsed = max(0, now()->diffInSeconds($startTime));
-                
+
                 // Reemplazamos el DTO por uno nuevo con la duración actualizada (ya que es readonly)
                 $updatedMetadata = $last->metadata;
                 $updatedMetadata['duration'] = $elapsed;
-                
-                $updatedLast = new \App\Shared\DTOs\Telemetry\TelemetryStateDTO(
+
+                $updatedLast = new TelemetryStateDTO(
                     $last->employee_id,
                     $last->current_state,
                     $last->reason_code,
@@ -58,7 +59,7 @@ final class GetStandardizedPerformanceAction
 
         $intradayActivities = $this->getIntradayActivities($employee->id, $date);
         $callRecords = $this->getCallRecords($employee->id, $date);
-        
+
         if ($transitions->isEmpty() && $callRecords->isEmpty() && $schedule->is_off) {
             return StandardizedPerformanceDTO::empty($date->toDateString());
         }
@@ -67,7 +68,9 @@ final class GetStandardizedPerformanceAction
         if ($schedule->start_time && $schedule->end_time) {
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
-            if ($end->lessThan($start)) $end->addDay();
+            if ($end->lessThan($start)) {
+                $end->addDay();
+            }
             $scheduledMinutes = (int) $start->diffInMinutes($end);
         }
 
@@ -76,7 +79,7 @@ final class GetStandardizedPerformanceAction
         $activities = $this->calculateTimeByActivity($transitions, $scheduledMinutes, $date, $attendance['actual_entry'], $schedule);
         $metrics = $this->calculateProductivity($transitions, $intradayActivities, $scheduledMinutes, $date, $schedule);
         $metrics['total_logout_minutes'] = $activities['Logout'] ?? 0;
-        
+
         $queues = $this->getCallVolumeSummary($callRecords);
 
         return new StandardizedPerformanceDTO(
@@ -108,7 +111,7 @@ final class GetStandardizedPerformanceAction
 
     private function calculateAttendance($schedule, Collection $transitions): array
     {
-        $firstValidTransition = $transitions->first(fn($t) => $t->current_state !== 'Logout' && ($t->metadata['duration'] ?? 0) > 10);
+        $firstValidTransition = $transitions->first(fn ($t) => $t->current_state !== 'Logout' && ($t->metadata['duration'] ?? 0) > 10);
         $actualEntry = $firstValidTransition ? $firstValidTransition->last_changed_at : null;
 
         $scheduledEntry = $schedule->start_time;
@@ -117,14 +120,14 @@ final class GetStandardizedPerformanceAction
 
         if ($scheduledEntry && $actualEntry) {
             $status = MetricFormulas::checkLate($scheduledEntry, $actualEntry) ? 'tardanza' : 'a_tiempo';
-            
+
             $actualEntryTime = Carbon::parse($actualEntry);
             $scheduledEntryTime = Carbon::parse($scheduledEntry);
             $scheduledDateTime = (clone $actualEntryTime)->setTime($scheduledEntryTime->hour, $scheduledEntryTime->minute, $scheduledEntryTime->second);
-            
+
             $diff = (int) $scheduledDateTime->diffInMinutes($actualEntryTime, false);
-        } elseif ($scheduledEntry && !$actualEntry) {
-            $status = !empty($schedule->exceptions) ? 'excepción' : 'ausente';
+        } elseif ($scheduledEntry && ! $actualEntry) {
+            $status = ! empty($schedule->exceptions) ? 'excepción' : 'ausente';
         }
 
         return [
@@ -141,8 +144,8 @@ final class GetStandardizedPerformanceAction
     private function calculateStateAdherence(Collection $transitions, $schedule, string $type): array
     {
         // Refinamos las keywords para evitar colisiones (ej. 'pausa' atrapaba 'biopausa')
-        $keywords = $type === 'lunch' 
-            ? ['almuerzo', 'lunch', 'comida'] 
+        $keywords = $type === 'lunch'
+            ? ['almuerzo', 'lunch', 'comida']
             : ['break', 'descanso'];
 
         $scheduledDuration = $type === 'lunch' ? $schedule->lunch_minutes : $schedule->break_minutes;
@@ -150,22 +153,32 @@ final class GetStandardizedPerformanceAction
 
         // Solo sumamos si el estado es Not Ready (Auxiliar) para consistencia
         $actualSeconds = $transitions->filter(function ($t) use ($keywords) {
-            if ($t->current_state !== 'Not Ready') return false;
-            
-            $reason = trim(strtolower((string)$t->reason_code));
-            foreach ($keywords as $kw) {
-                if (str_contains($reason, $kw)) return true;
+            if ($t->current_state !== 'Not Ready') {
+                return false;
             }
+
+            $reason = trim(strtolower((string) $t->reason_code));
+            foreach ($keywords as $kw) {
+                if (str_contains($reason, $kw)) {
+                    return true;
+                }
+            }
+
             return false;
-        })->sum(fn($t) => $t->metadata['duration'] ?? 0);
+        })->sum(fn ($t) => $t->metadata['duration'] ?? 0);
 
         $match = $transitions->filter(function ($t) use ($keywords) {
-            if ($t->current_state !== 'Not Ready') return false;
-            
-            $reason = trim(strtolower((string)$t->reason_code));
-            foreach ($keywords as $kw) {
-                if (str_contains($reason, $kw)) return true;
+            if ($t->current_state !== 'Not Ready') {
+                return false;
             }
+
+            $reason = trim(strtolower((string) $t->reason_code));
+            foreach ($keywords as $kw) {
+                if (str_contains($reason, $kw)) {
+                    return true;
+                }
+            }
+
             return false;
         })->first();
 
@@ -189,11 +202,11 @@ final class GetStandardizedPerformanceAction
 
     private function calculateTimeByReason(Collection $transitions): array
     {
-        return $transitions->filter(fn($t) => $t->current_state === 'Not Ready')
-            ->groupBy(fn($t) => $t->reason_code ?: '')
-            ->map(fn($group) => [
-                'minutes' => round($group->sum(fn($t) => $t->metadata['duration'] ?? 0) / 60, 1),
-                'count'   => $group->count(),
+        return $transitions->filter(fn ($t) => $t->current_state === 'Not Ready')
+            ->groupBy(fn ($t) => $t->reason_code ?: '')
+            ->map(fn ($group) => [
+                'minutes' => round($group->sum(fn ($t) => $t->metadata['duration'] ?? 0) / 60, 1),
+                'count' => $group->count(),
             ])
             ->toArray();
     }
@@ -201,11 +214,11 @@ final class GetStandardizedPerformanceAction
     private function calculateTimeByActivity(Collection $transitions, int $scheduledMinutes, CarbonInterface $date, ?string $actualEntry, $schedule): array
     {
         $activities = $transitions->groupBy('current_state')
-            ->map(fn($group) => round($group->sum(fn($t) => $t->metadata['duration'] ?? 0) / 60, 1))
+            ->map(fn ($group) => round($group->sum(fn ($t) => $t->metadata['duration'] ?? 0) / 60, 1))
             ->toArray();
 
-        $totalConnectedMinutes = round($transitions->sum(fn($t) => $t->metadata['duration'] ?? 0) / 60, 1);
-        
+        $totalConnectedMinutes = round($transitions->sum(fn ($t) => $t->metadata['duration'] ?? 0) / 60, 1);
+
         if ($date->isToday() && $actualEntry) {
             $now = now();
             $entry = Carbon::parse($actualEntry);
@@ -215,25 +228,28 @@ final class GetStandardizedPerformanceAction
             if ($schedule->start_time && $schedule->end_time) {
                 $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
                 $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
-                if ($end->lessThan($start)) $end->addDay();
+                if ($end->lessThan($start)) {
+                    $end->addDay();
+                }
                 $shiftDuration = $start->diffInMinutes($end);
                 $activities['Logout'] = $totalConnectedMinutes < $shiftDuration ? round($shiftDuration - $totalConnectedMinutes, 1) : 0;
             } else {
                 $activities['Logout'] = 0;
             }
         }
+
         return $activities;
     }
 
     private function calculateProductivity(Collection $transitions, Collection $intradayActivities, int $scheduledMinutes, CarbonInterface $date, $schedule): array
     {
-        $systemProductiveSeconds = $transitions->filter(fn($t) => $t->metadata['is_productive'] ?? false)->sum(fn($t) => $t->metadata['duration'] ?? 0);
-        $intradayProductiveMinutes = $intradayActivities->filter(fn($a) => $a->activityType?->is_productive)
-            ->sum(fn($a) => $a->getRangeStart() && $a->getRangeEnd() ? $a->getRangeStart()->diffInMinutes($a->getRangeEnd()) : 0);
+        $systemProductiveSeconds = $transitions->filter(fn ($t) => $t->metadata['is_productive'] ?? false)->sum(fn ($t) => $t->metadata['duration'] ?? 0);
+        $intradayProductiveMinutes = $intradayActivities->filter(fn ($a) => $a->activityType?->is_productive)
+            ->sum(fn ($a) => $a->getRangeStart() && $a->getRangeEnd() ? $a->getRangeStart()->diffInMinutes($a->getRangeEnd()) : 0);
 
         $productiveMinutes = round(($systemProductiveSeconds / 60) + $intradayProductiveMinutes, 1);
-        
-        $totalConnectedSeconds = $transitions->sum(fn($t) => $t->metadata['duration'] ?? 0);
+
+        $totalConnectedSeconds = $transitions->sum(fn ($t) => $t->metadata['duration'] ?? 0);
         $connectedMinutes = round($totalConnectedSeconds / 60, 1);
 
         $start = null;
@@ -241,7 +257,9 @@ final class GetStandardizedPerformanceAction
         if ($schedule->start_time && $schedule->end_time) {
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
-            if ($end->lessThan($start)) $end->addDay();
+            if ($end->lessThan($start)) {
+                $end->addDay();
+            }
         }
 
         $denominator = MetricFormulas::utilizationDenominator(
@@ -251,7 +269,7 @@ final class GetStandardizedPerformanceAction
             $end
         );
 
-        $adherencePercentage = $scheduledMinutes > 0 
+        $adherencePercentage = $scheduledMinutes > 0
             ? round(min(100, ($productiveMinutes / $scheduledMinutes) * 100), 1)
             : 0;
 
@@ -268,13 +286,13 @@ final class GetStandardizedPerformanceAction
     private function getCallVolumeSummary(Collection $calls): array
     {
         return $calls->groupBy('csq_name')
-            ->map(fn($group) => [
+            ->map(fn ($group) => [
                 'total_calls' => $group->count(),
                 'avg_handle_time' => MetricFormulas::aht(
                     (float) $group->sum('talk_time'),
                     (float) $group->sum('work_time'),
                     $group->count()
-                )
+                ),
             ])
             ->toArray();
     }

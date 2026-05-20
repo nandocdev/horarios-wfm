@@ -41,10 +41,14 @@ use RuntimeException;
 final class CuicReportService
 {
     private string $baseUrl;
+
     private string $username;
+
     private string $password;
-    private bool   $verifySsl;
-    private int    $timeout;
+
+    private bool $verifySsl;
+
+    private int $timeout;
 
     /** Intervalo de polling en segundos (CUIC usa 3s internamente) */
     private int $pollInterval = 3;
@@ -61,12 +65,12 @@ final class CuicReportService
 
         $domain = (string) ($cfg['domain'] ?? 'CCX');
 
-        $this->baseUrl   = rtrim((string) $cfg['base_url'], '/');
-        $this->username  = $domain . '\\' . (string) $cfg['username']; // CCX\username
-        $this->password  = (string) $cfg['password'];
+        $this->baseUrl = rtrim((string) $cfg['base_url'], '/');
+        $this->username = $domain.'\\'.(string) $cfg['username']; // CCX\username
+        $this->password = (string) $cfg['password'];
         $this->verifySsl = (bool) $cfg['verify_ssl'];
-        $this->timeout   = (int) $cfg['timeout'];
-        $this->reports   = (array) $cfg['reports'];
+        $this->timeout = (int) $cfg['timeout'];
+        $this->reports = (array) $cfg['reports'];
     }
 
     // -------------------------------------------------------------------------
@@ -78,7 +82,7 @@ final class CuicReportService
      *
      * Usa el filtro por defecto configurado en CUIC para el reporte.
      *
-     * @param  string $reportKey Clave semántica en config (ej. 'agent_state_transitions')
+     * @param  string  $reportKey  Clave semántica en config (ej. 'agent_state_transitions')
      * @return Collection<int, array<string, mixed>>
      *
      * @throws RuntimeException
@@ -90,7 +94,7 @@ final class CuicReportService
         Log::info("[CUIC] Iniciando '{$reportKey}' sin filtros (ID: {$report['id']})");
 
         $initBody = [
-            'reportId'    => $report['id'],
+            'reportId' => $report['id'],
             'hardRefresh' => true,
         ];
 
@@ -110,10 +114,7 @@ final class CuicReportService
      *       ['Amalia Renteria', 'Fernando Castillo Valdez']
      *   );
      *
-     * @param  string               $reportKey
-     * @param  CarbonInterface      $startDateTime
-     * @param  CarbonInterface      $endDateTime
-     * @param  array<int, string>   $agentNames    Nombres completos tal como aparecen en CUIC
+     * @param  array<int, string>  $agentNames  Nombres completos tal como aparecen en CUIC
      * @return Collection<int, array<string, mixed>>
      *
      * @throws RuntimeException
@@ -122,7 +123,7 @@ final class CuicReportService
         string $reportKey,
         CarbonInterface $startDateTime,
         CarbonInterface $endDateTime,
-        array  $agentNames = []
+        array $agentNames = []
     ): Collection {
         $report = $this->resolveReport($reportKey);
         $params = $report['params'];
@@ -131,55 +132,55 @@ final class CuicReportService
 
         // Fechas pasadas → relativeDate=false para evitar que CUIC reescriba al día actual.
         // Fechas de hoy → relativeDate=true + value=THISDAY (CUIC resuelve la fecha del servidor).
-        $isToday      = $startDateTime->isToday();
+        $isToday = $startDateTime->isToday();
         $relativeDate = $isToday;
-        $startValue   = $isToday ? 'THISDAY' : $startDateTime->format('m/d/Y H:i:s');
-        $endValue     = $isToday ? 'THISDAY' : $endDateTime->format('m/d/Y H:i:s');
+        $startValue = $isToday ? 'THISDAY' : $startDateTime->format('m/d/Y H:i:s');
+        $endValue = $isToday ? 'THISDAY' : $endDateTime->format('m/d/Y H:i:s');
 
         $filterParams = [
             [
-                'paramId'      => $params['start_datetime'],
-                'paramType'    => 'DATETIME',
+                'paramId' => $params['start_datetime'],
+                'paramType' => 'DATETIME',
                 'relativeDate' => $relativeDate,
-                'date'         => $startDateTime->format('m/d/Y H:i:s'),
-                'value'        => $startValue,
+                'date' => $startDateTime->format('m/d/Y H:i:s'),
+                'value' => $startValue,
             ],
             [
-                'paramId'      => $params['end_datetime'],
-                'paramType'    => 'DATETIME',
+                'paramId' => $params['end_datetime'],
+                'paramType' => 'DATETIME',
                 'relativeDate' => $relativeDate,
-                'date'         => $endDateTime->format('m/d/Y H:i:s'),
-                'value'        => $endValue,
+                'date' => $endDateTime->format('m/d/Y H:i:s'),
+                'value' => $endValue,
             ],
         ];
 
-        if (!empty($agentNames) && isset($params['agent_names'])) {
+        if (! empty($agentNames) && isset($params['agent_names'])) {
             $filterParams[] = [
-                'paramId'   => $params['agent_names'],
+                'paramId' => $params['agent_names'],
                 'paramType' => 'VALUELIST',
-                'value'     => $agentNames,
+                'value' => $agentNames,
             ];
         }
 
         $filterParams[] = [
-            'paramId'   => $params['current_user'],
+            'paramId' => $params['current_user'],
             'paramType' => 'STRING',
-            'value'     => $this->username, // CCX\username
+            'value' => $this->username, // CCX\username
         ];
 
         $initBody = [
-            'reportId'    => $report['id'],
+            'reportId' => $report['id'],
             'hardRefresh' => true,
-            'filter'      => [
-                'repType'      => 'STPROC',
+            'filter' => [
+                'repType' => 'STPROC',
                 'filterParams' => $filterParams,
             ],
         ];
 
         Log::info("[CUIC] Iniciando '{$reportKey}' con filtros", [
-            'start'   => $startDateTime->toDateTimeString(),
-            'end'     => $endDateTime->toDateTimeString(),
-            'agents'  => count($agentNames),
+            'start' => $startDateTime->toDateTimeString(),
+            'end' => $endDateTime->toDateTimeString(),
+            'agents' => count($agentNames),
             'isToday' => $isToday,
         ]);
 
@@ -189,8 +190,7 @@ final class CuicReportService
     /**
      * Ejecuta un reporte de tiempo real (Snapshot inicial).
      *
-     * @param string $reportKey
-     * @param array<int, string> $csqNames
+     * @param  array<int, string>  $csqNames
      * @return Collection<int, array<string, mixed>>
      */
     public function executeRealtimeSnapshot(string $reportKey, array $csqNames = []): Collection
@@ -199,14 +199,14 @@ final class CuicReportService
         $params = $report['params'];
 
         $filters = [];
-        if (!empty($csqNames) && isset($params['csq_names'])) {
+        if (! empty($csqNames) && isset($params['csq_names'])) {
             $filters[] = [
                 'isKeyField' => true,
-                'name'       => 'VoiceIAQStats.esdName', // Nombre técnico en CUIC para CSQ
-                'fieldId'    => $params['csq_names'],
-                'fieldType'  => 'VALUELIST',
-                'operator'   => 'SetValues',
-                'value'      => array_map(fn($name) => ['key' => $name, 'desc' => $name], $csqNames),
+                'name' => 'VoiceIAQStats.esdName', // Nombre técnico en CUIC para CSQ
+                'fieldId' => $params['csq_names'],
+                'fieldType' => 'VALUELIST',
+                'operator' => 'SetValues',
+                'value' => array_map(fn ($name) => ['key' => $name, 'desc' => $name], $csqNames),
             ];
         }
 
@@ -216,8 +216,7 @@ final class CuicReportService
     /**
      * Ejecuta un reporte de estado de agentes en tiempo real (REALTIMESTREAM).
      *
-     * @param string $reportKey
-     * @param array<int, string> $agentUsernames
+     * @param  array<int, string>  $agentUsernames
      * @return Collection<int, array<string, mixed>>
      */
     public function executeAgentRealtimeSnapshot(string $reportKey, array $agentUsernames = []): Collection
@@ -226,14 +225,14 @@ final class CuicReportService
         $params = $report['params'];
 
         $filters = [];
-        if (!empty($agentUsernames) && isset($params['agent_login_id'])) {
+        if (! empty($agentUsernames) && isset($params['agent_login_id'])) {
             $filters[] = [
                 'isKeyField' => true,
-                'name'       => 'AgentStateDetailRealtime.loginID', // Nombre técnico para Login ID
-                'fieldId'    => $params['agent_login_id'],
-                'fieldType'  => 'VALUELIST',
-                'operator'   => 'SetValues',
-                'value'      => $agentUsernames,
+                'name' => 'AgentStateDetailRealtime.loginID', // Nombre técnico para Login ID
+                'fieldId' => $params['agent_login_id'],
+                'fieldType' => 'VALUELIST',
+                'operator' => 'SetValues',
+                'value' => $agentUsernames,
             ];
         }
 
@@ -255,13 +254,13 @@ final class CuicReportService
         // Si se envía un objeto (repType envolviendo filters), el servidor falla con 500.
         $body = [
             'reportId' => $report['id'],
-            'filters'  => json_encode($filters),
+            'filters' => json_encode($filters),
         ];
 
         Log::info("[CUIC] Obteniendo snapshot {$repType} para '{$reportKey}'");
 
         $response = $this->post($url, $body, $query);
-        
+
         $rawData = $response->json('data');
         $rows = [];
 
@@ -304,8 +303,8 @@ final class CuicReportService
     /**
      * Ejecuta el flujo completo: POST /newRest/ → polling GET hasta READY.
      *
-     * @param  array{id: string, locale: string, params: array<string, string>} $report
-     * @param  array<string, mixed> $initBody
+     * @param  array{id: string, locale: string, params: array<string, string>}  $report
+     * @param  array<string, mixed>  $initBody
      * @return Collection<int, array<string, mixed>>
      *
      * @throws RuntimeException
@@ -313,7 +312,7 @@ final class CuicReportService
     private function runWithPolling(array $report, array $initBody, string $reportKey): Collection
     {
         // PASO 1: Iniciar la ejecución del reporte
-        $initUrl  = $this->buildNewRestUrl($report);
+        $initUrl = $this->buildNewRestUrl($report);
         $initResp = $this->post($initUrl, $initBody, [
             'reportExecutionType' => 'historical',
             'reportExecutionMode' => 'DEFAULT',
@@ -324,7 +323,7 @@ final class CuicReportService
         if (empty($dataSetId)) {
             throw new RuntimeException(
                 "[CUIC] POST /newRest/ no retornó dataSetId para '{$reportKey}'. "
-                . 'Body: ' . substr($initResp->body(), 0, 200)
+                .'Body: '.substr($initResp->body(), 0, 200)
             );
         }
 
@@ -347,13 +346,13 @@ final class CuicReportService
             Log::debug("[CUIC] '{$reportKey}' poll #{$attempt} → status={$status}");
 
             match ($status) {
-                'READY'         => null,  // continúa abajo
-                'RUNNING'       => null,  // continúa el bucle
+                'READY' => null,  // continúa abajo
+                'RUNNING' => null,  // continúa el bucle
                 'FAILED',
                 'QUERY_TIMEOUT' => throw new RuntimeException(
-                    "[CUIC] Reporte '{$reportKey}' falló. errorType: " . ($result['errorType'] ?? 'UNKNOWN')
+                    "[CUIC] Reporte '{$reportKey}' falló. errorType: ".($result['errorType'] ?? 'UNKNOWN')
                 ),
-                default         => throw new RuntimeException(
+                default => throw new RuntimeException(
                     "[CUIC] Reporte '{$reportKey}' estado inesperado: {$status}"
                 ),
             };
@@ -365,7 +364,7 @@ final class CuicReportService
 
         throw new RuntimeException(
             "[CUIC] Timeout: el reporte '{$reportKey}' no completó en "
-            . ($this->maxPollAttempts * $this->pollInterval) . 's.'
+            .($this->maxPollAttempts * $this->pollInterval).'s.'
         );
     }
 
@@ -378,23 +377,24 @@ final class CuicReportService
      *
      * CUIC devuelve `jsonData` como STRING JSON embebido → doble decode.
      *
-     * @param  array<string, mixed> $result
+     * @param  array<string, mixed>  $result
      * @return Collection<int, array<string, mixed>>
+     *
      * @throws RuntimeException
      */
     private function parseResult(array $result, string $reportKey): Collection
     {
         $rawData = $result['jsonData'] ?? '[]';
-        $rows    = json_decode((string) $rawData, true);
+        $rows = json_decode((string) $rawData, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException('[CUIC] Error al decodificar jsonData: ' . json_last_error_msg());
+            throw new RuntimeException('[CUIC] Error al decodificar jsonData: '.json_last_error_msg());
         }
 
         Log::info("[CUIC] '{$reportKey}' completado.", [
-            'rows'      => count((array) $rows),
+            'rows' => count((array) $rows),
             'startTime' => $result['startTime'] ?? null,
-            'endTime'   => $result['endTime'] ?? null,
+            'endTime' => $result['endTime'] ?? null,
         ]);
 
         return collect((array) $rows);
@@ -406,14 +406,15 @@ final class CuicReportService
 
     /**
      * @return array{id: string, locale: string, params: array<string, string>}
+     *
      * @throws RuntimeException
      */
     private function resolveReport(string $key): array
     {
-        if (!isset($this->reports[$key])) {
+        if (! isset($this->reports[$key])) {
             throw new RuntimeException(
                 "CUIC: El reporte '{$key}' no está registrado en contact-center.cuic.reports. "
-                . 'Claves disponibles: ' . implode(', ', array_keys($this->reports))
+                .'Claves disponibles: '.implode(', ', array_keys($this->reports))
             );
         }
 
@@ -445,7 +446,8 @@ final class CuicReportService
     /**
      * GET con Basic Auth.
      *
-     * @param  array<string, string> $query
+     * @param  array<string, string>  $query
+     *
      * @throws RuntimeException
      */
     private function get(string $url, array $query = []): Response
@@ -458,11 +460,11 @@ final class CuicReportService
 
         if ($response->failed()) {
             Log::error('[CUIC] GET Error', [
-                'url'    => $url,
+                'url' => $url,
                 'status' => $response->status(),
-                'body'   => substr($response->body(), 0, 300),
+                'body' => substr($response->body(), 0, 300),
             ]);
-            throw new RuntimeException("CUIC GET HTTP {$response->status()}: " . substr($response->body(), 0, 200));
+            throw new RuntimeException("CUIC GET HTTP {$response->status()}: ".substr($response->body(), 0, 200));
         }
 
         return $response;
@@ -472,7 +474,8 @@ final class CuicReportService
      * POST con Basic Auth.
      *
      * @param  array<string, mixed>  $body
-     * @param  array<string, string> $query
+     * @param  array<string, string>  $query
+     *
      * @throws RuntimeException
      */
     private function post(string $url, array $body = [], array $query = []): Response
@@ -482,15 +485,15 @@ final class CuicReportService
             ->withOptions(['verify' => $this->verifySsl])
             ->accept('application/json')
             ->withHeaders(['Content-Type' => 'application/json'])
-            ->post($url . ($query ? '?' . http_build_query($query) : ''), $body);
+            ->post($url.($query ? '?'.http_build_query($query) : ''), $body);
 
         if ($response->failed()) {
             Log::error('[CUIC] POST Error', [
-                'url'    => $url,
+                'url' => $url,
                 'status' => $response->status(),
-                'body'   => substr($response->body(), 0, 300),
+                'body' => substr($response->body(), 0, 300),
             ]);
-            throw new RuntimeException("CUIC POST HTTP {$response->status()}: " . substr($response->body(), 0, 200));
+            throw new RuntimeException("CUIC POST HTTP {$response->status()}: ".substr($response->body(), 0, 200));
         }
 
         return $response;
@@ -503,18 +506,19 @@ final class CuicReportService
     /**
      * Valida que los paramIds requeridos estén en la config del reporte.
      *
-     * @param  array<string, string> $params
-     * @param  array<int, string>    $required
+     * @param  array<string, string>  $params
+     * @param  array<int, string>  $required
+     *
      * @throws RuntimeException
      */
     private function assertParamIds(array $params, array $required): void
     {
         $missing = array_filter($required, fn (string $k) => empty($params[$k]));
 
-        if (!empty($missing)) {
+        if (! empty($missing)) {
             throw new RuntimeException(
-                '[CUIC] Faltan paramIds en config: ' . implode(', ', $missing)
-                . '. Agrégalos en contact-center.cuic.reports.{key}.params'
+                '[CUIC] Faltan paramIds en config: '.implode(', ', $missing)
+                .'. Agrégalos en contact-center.cuic.reports.{key}.params'
             );
         }
     }

@@ -195,7 +195,7 @@
                                         <div class="flex items-center justify-between">
                                             <span class="text-sm font-bold">{{ $activity->activityType->name }}</span>
                                             <span class="text-xs text-zinc-500">
-                                                {{ \Illuminate\Support\Carbon::parse($activity->start_time)->format('H:i') }} - {{ \Illuminate\Support\Carbon::parse($activity->end_time)->format('H:i') }}
+                                                {{ $activity->getRangeStart()?->format('H:i') ?? '—' }} - {{ $activity->getRangeEnd()?->format('H:i') ?? '—' }}
                                             </span>
                                         </div>
                                         <p class="text-xs text-zinc-400">{{ $activity->activityType->is_productive ? 'Productiva' : 'No Productiva' }}</p>

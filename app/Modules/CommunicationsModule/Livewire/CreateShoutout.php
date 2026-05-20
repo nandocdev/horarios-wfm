@@ -16,6 +16,7 @@ use Livewire\WithFileUploads;
 class CreateShoutout extends Component
 {
     use WithFileUploads;
+
     public ShoutoutForm $form;
 
     /**

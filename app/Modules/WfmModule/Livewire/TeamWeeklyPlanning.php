@@ -50,8 +50,6 @@ class TeamWeeklyPlanning extends Component
         'break_start_time' => null,
     ];
 
-
-
     public function mount(WeeklySchedule $week, Team $team): void
     {
         $this->week = $week;
@@ -215,4 +213,3 @@ class TeamWeeklyPlanning extends Component
         ]);
     }
 }
-

@@ -8,17 +8,14 @@ use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WorkflowsModule\Models\ShiftSwapApproval;
 use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use App\Shared\Events\ShiftSwapApproved;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class ProcessShiftSwapAction
 {
     /**
      * Ejecuta el intercambio de turno de forma inmutable y validada.
      *
-     * @param int $requestId
-     * @param int $approverEmployeeId
-     * @return bool
      * @throws \Exception
      */
     public function execute(int $requestId, int $approverEmployeeId): bool
@@ -30,15 +27,15 @@ class ProcessShiftSwapAction
                 ->firstOrFail();
 
             if ($request->status !== 'accepted') {
-                throw new \Exception("La solicitud no está en estado aceptado para ser procesada.");
+                throw new \Exception('La solicitud no está en estado aceptado para ser procesada.');
             }
 
             // 2. Cargar y bloquear las asignaciones actuales
-            $assignmentA = $this->getAssignmentForLock((int)$request->requester_id, $request->requested_date->toDateString());
-            $assignmentB = $this->getAssignmentForLock((int)$request->recipient_id, $request->requested_date->toDateString());
+            $assignmentA = $this->getAssignmentForLock((int) $request->requester_id, $request->requested_date->toDateString());
+            $assignmentB = $this->getAssignmentForLock((int) $request->recipient_id, $request->requested_date->toDateString());
 
-            if (!$assignmentA || !$assignmentB) {
-                throw new \Exception("Una o ambas asignaciones originales ya no existen o fueron modificadas.");
+            if (! $assignmentA || ! $assignmentB) {
+                throw new \Exception('Una o ambas asignaciones originales ya no existen o fueron modificadas.');
             }
 
             // 3. Validación de integridad contra Snapshots
@@ -73,11 +70,11 @@ class ProcessShiftSwapAction
     {
         return WeeklyScheduleAssignment::where('employee_id', $employeeId)
             ->where('is_replaced', false)
-            ->whereHas('weeklySchedule', function($q) use ($date) {
+            ->whereHas('weeklySchedule', function ($q) use ($date) {
                 $q->where('week_start_date', '<=', $date)
-                  ->where('week_end_date', '>=', $date);
+                    ->where('week_end_date', '>=', $date);
             })
-            ->where('day_of_week', \Carbon\Carbon::parse($date)->dayOfWeekIso)
+            ->where('day_of_week', Carbon::parse($date)->dayOfWeekIso)
             ->lockForUpdate()
             ->first();
     }
@@ -87,7 +84,7 @@ class ProcessShiftSwapAction
      */
     private function validateAgainstSnapshot(WeeklyScheduleAssignment $current, ?array $snapshot): void
     {
-        if (!$snapshot) {
+        if (! $snapshot) {
             return; // Si no hay snapshot, saltamos validación dura (backward compatibility)
         }
 

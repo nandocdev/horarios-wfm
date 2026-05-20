@@ -8,14 +8,13 @@ use App\Modules\WfmModule\Notifications\ShiftSwapApprovedNotification;
 use App\Shared\DTOs\NotificationDTO;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Notification;
 
 class NotifyShiftSwapApproved implements ShouldQueue
 {
     public function handle(ShiftSwapApproved $event): void
     {
         $request = $event->shiftSwap;
-        
+
         // Notificar al solicitante
         if ($request->requester?->user) {
             $dto = new NotificationDTO(
@@ -25,7 +24,7 @@ class NotifyShiftSwapApproved implements ShouldQueue
                 icon: 'check-circle',
                 level: 'success'
             );
-            
+
             $request->requester->user->notify(new ShiftSwapApprovedNotification($dto));
         }
 
@@ -38,7 +37,7 @@ class NotifyShiftSwapApproved implements ShouldQueue
                 icon: 'arrows-right-left',
                 level: 'info'
             );
-            
+
             $request->recipient->user->notify(new ShiftSwapApprovedNotification($dto));
         }
     }

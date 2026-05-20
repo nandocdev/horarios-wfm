@@ -16,10 +16,9 @@ class SyncAgentRealtimeStateAction
 
     /**
      * Sincroniza el estado en tiempo real de un agente específico desde CUIC.
-     * 
-     * @param string $agentLoginId El username de Cisco (ej. 'jballis')
-     * @param int $employeeId ID local del empleado
-     * @return array|null
+     *
+     * @param  string  $agentLoginId  El username de Cisco (ej. 'jballis')
+     * @param  int  $employeeId  ID local del empleado
      */
     public function execute(string $agentLoginId, int $employeeId): ?array
     {
@@ -28,6 +27,7 @@ class SyncAgentRealtimeStateAction
 
             if ($rows->isEmpty()) {
                 Log::warning("[CUIC] No se encontró información en tiempo real para el agente: {$agentLoginId}");
+
                 return null;
             }
 
@@ -36,7 +36,7 @@ class SyncAgentRealtimeStateAction
             // Mapeo de campos (ajustar según el JSON real del reporte de CUIC)
             // Normalmente: [ "Agent Name", "Login ID", "State", "State Duration", "Reason Code", ... ]
             // Pero el JSON de initialData suele venir con nombres de columnas amigables o índices.
-            
+
             $state = $data['State'] ?? $data['agent_state'] ?? 'UNKNOWN';
             $duration = (int) ($data['State Duration'] ?? $data['duration'] ?? 0);
             $reasonCode = $data['Reason Code'] ?? $data['reason_code'] ?? null;
@@ -58,7 +58,8 @@ class SyncAgentRealtimeStateAction
             return $updateData;
 
         } catch (\Exception $e) {
-            Log::error("[CUIC] Error sincronizando estado de agente {$agentLoginId}: " . $e->getMessage());
+            Log::error("[CUIC] Error sincronizando estado de agente {$agentLoginId}: ".$e->getMessage());
+
             return null;
         }
     }

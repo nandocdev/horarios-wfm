@@ -14,7 +14,7 @@ class ArticleDetail extends Component
     public function mount(string $slug)
     {
         $this->article = Article::published()->where('slug', $slug)->firstOrFail();
-        
+
         // Incrementar contador de vistas de forma simple
         $this->article->increment('view_count');
     }

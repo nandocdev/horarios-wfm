@@ -7,9 +7,9 @@ namespace App\Modules\OperationsModule\Livewire;
 use App\Modules\OperationsModule\Actions\GetEmployeePerformanceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use App\Shared\Support\Metrics\MetricFormulas;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -32,6 +32,7 @@ class TeamPerformanceSummary extends Component
     public string $sortDirection = 'asc';
 
     public array $teamPerformance = [];
+
     public array $teamTotals = [
         'utilization' => 0,
         'productivity' => 0,
@@ -46,18 +47,20 @@ class TeamPerformanceSummary extends Component
     public function mount(): void
     {
         $this->selectedDate = now()->toDateString();
-        
+
         $user = auth()->user();
         $employee = $user->employee;
 
-        if (!$employee) return;
+        if (! $employee) {
+            return;
+        }
 
-        $managedIds = $user->hasRole(['admin', 'wfm', 'director']) 
-            ? null 
+        $managedIds = $user->hasRole(['admin', 'wfm', 'director'])
+            ? null
             : $employee->getManagedTeamIds();
 
         // Validar acceso al teamId si viene por URL
-        if ($this->teamId && $managedIds !== null && !in_array($this->teamId, $managedIds)) {
+        if ($this->teamId && $managedIds !== null && ! in_array($this->teamId, $managedIds)) {
             $this->teamId = null;
         }
 
@@ -96,7 +99,9 @@ class TeamPerformanceSummary extends Component
         $user = auth()->user();
         $employee = $user->employee;
 
-        if (!$employee) return collect();
+        if (! $employee) {
+            return collect();
+        }
 
         if ($user->hasRole(['admin', 'wfm', 'director'])) {
             return Team::active()->orderBy('name')->get();
@@ -104,7 +109,7 @@ class TeamPerformanceSummary extends Component
 
         // Obtener equipos gestionados directa o indirectamente
         $managedIds = $employee->getManagedTeamIds();
-        
+
         return Team::whereIn('id', $managedIds)
             ->active()
             ->orderBy('name')
@@ -113,9 +118,10 @@ class TeamPerformanceSummary extends Component
 
     public function loadTeamPerformance(GetEmployeePerformanceAction $action): void
     {
-        if (!$this->teamId) {
+        if (! $this->teamId) {
             $this->teamPerformance = [];
             $this->resetTotals();
+
             return;
         }
 
@@ -126,7 +132,7 @@ class TeamPerformanceSummary extends Component
 
         $date = Carbon::parse($this->selectedDate);
         $data = [];
-        
+
         $totalUtil = 0;
         $totalProd = 0;
         $tp = 0;
@@ -140,7 +146,7 @@ class TeamPerformanceSummary extends Component
         foreach ($employees as $employee) {
             $performance = $action->execute($employee, $date);
             $perfArray = $performance->toArray();
-            
+
             $data[] = [
                 'employee' => [
                     'id' => $employee->id,
@@ -152,7 +158,7 @@ class TeamPerformanceSummary extends Component
 
             $metrics = $perfArray['metrics'];
             $attendance = $perfArray['attendance'];
-            
+
             if ($attendance['status'] === 'ausente') {
                 $absentCount++;
             } elseif ($attendance['status'] === 'excepción') {
@@ -164,7 +170,7 @@ class TeamPerformanceSummary extends Component
                 $tc += $metrics['total_connected_minutes'];
                 $presentCount++;
             }
-            
+
             foreach ($perfArray['queues'] as $queue) {
                 $calls += $queue['total_calls'];
             }
@@ -173,8 +179,8 @@ class TeamPerformanceSummary extends Component
         // Aplicar ordenamiento
         usort($data, function ($a, $b) {
             $direction = $this->sortDirection === 'asc' ? 1 : -1;
-            
-            return match($this->sortField) {
+
+            return match ($this->sortField) {
                 'productivity' => ($a['performance']['metrics']['productivity_percentage'] <=> $b['performance']['metrics']['productivity_percentage']) * $direction,
                 'utilization' => ($a['performance']['metrics']['utilization_percentage'] <=> $b['performance']['metrics']['utilization_percentage']) * $direction,
                 default => strnatcasecmp($a['employee']['full_name'], $b['employee']['full_name']) * $direction,
@@ -182,7 +188,7 @@ class TeamPerformanceSummary extends Component
         });
 
         $this->teamPerformance = $data;
-        
+
         $this->teamTotals = [
             'utilization' => $presentCount > 0 ? round($totalUtil / $presentCount, 1) : 0,
             'productivity' => $presentCount > 0 ? round($totalProd / $presentCount, 1) : 0,
@@ -190,8 +196,8 @@ class TeamPerformanceSummary extends Component
             'total_connected' => $tc,
             'total_calls' => $calls,
             // Ausentismo: (Ausencias Injustificadas) / (Total - Excepciones Programadas)
-            'absenteeism' => ($totalEmployees - $exceptionCount) > 0 
-                ? round(($absentCount / ($totalEmployees - $exceptionCount)) * 100, 1) 
+            'absenteeism' => ($totalEmployees - $exceptionCount) > 0
+                ? round(($absentCount / ($totalEmployees - $exceptionCount)) * 100, 1)
                 : 0,
             'absent_count' => $absentCount,
             'exception_count' => $exceptionCount,

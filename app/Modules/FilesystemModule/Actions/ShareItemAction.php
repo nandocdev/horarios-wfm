@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\FilesystemModule\Actions;
 
 use App\Modules\FilesystemModule\Models\File;
-use App\Modules\FilesystemModule\Models\Folder;
 use App\Modules\FilesystemModule\Models\FileShare;
+use App\Modules\FilesystemModule\Models\Folder;
 use Illuminate\Support\Facades\DB;
 
 class ShareItemAction
@@ -30,7 +30,7 @@ class ShareItemAction
                 [
                     'file_id' => $data['file_id'] ?? null,
                     'folder_id' => $data['folder_id'] ?? null,
-                    'user_id' => $targetUserId
+                    'user_id' => $targetUserId,
                 ],
                 $data
             );

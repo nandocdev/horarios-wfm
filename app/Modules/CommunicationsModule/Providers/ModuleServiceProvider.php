@@ -12,6 +12,7 @@ use App\Modules\CommunicationsModule\Listeners\SendLeaveRequestCreatedNotificati
 use App\Modules\CommunicationsModule\Listeners\SendLeaveRequestDecisionNotification;
 use App\Modules\CommunicationsModule\Listeners\SendMentionNotificationListener;
 use App\Modules\CommunicationsModule\Listeners\SendReactionNotificationListener;
+use App\Modules\CommunicationsModule\Listeners\SendScheduleAssignmentUpdatedNotification;
 use App\Modules\CommunicationsModule\Listeners\SendShiftSwapApprovedNotification;
 use App\Modules\CommunicationsModule\Listeners\SendShiftSwapReceivedNotification;
 use App\Modules\CommunicationsModule\Listeners\SendWeeklySchedulePublishedNotification;
@@ -47,7 +48,6 @@ use App\Modules\CommunicationsModule\Policies\PollPolicy;
 use App\Modules\CommunicationsModule\Policies\ReactionPolicy;
 use App\Modules\CommunicationsModule\Policies\ShoutoutPolicy;
 use App\Modules\CommunicationsModule\Policies\TagPolicy;
-use App\Modules\CommunicationsModule\Listeners\SendScheduleAssignmentUpdatedNotification;
 use App\Shared\Events\LeaveRequestCreated;
 use App\Shared\Events\LeaveRequestDecision;
 use App\Shared\Events\ScheduleAssignmentUpdated;

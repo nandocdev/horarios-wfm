@@ -243,6 +243,7 @@ class EmployeePolicy
             'can_export' => $this->export($user),
         ];
     }
+
     /**
      * Determina si el usuario puede ver el desempeño de un empleado específico.
      */
@@ -262,8 +263,8 @@ class EmployeePolicy
 
         if (($user->hasRole(['chief', 'coordinator', 'supervisor']) || $user->employee?->hasCoordinatorRights()) && $user->employee) {
             $managedTeamIds = $user->employee->getManagedTeamIds();
-            
-            return $user->employee->isSupervisorOf($employee->id) 
+
+            return $user->employee->isSupervisorOf($employee->id)
                 || in_array($employee->team_id, $managedTeamIds);
         }
 

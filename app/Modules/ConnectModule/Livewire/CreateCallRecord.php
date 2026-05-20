@@ -29,26 +29,26 @@ class CreateCallRecord extends Component
     public ?CallRecord $selectedRecord = null;
 
     public ?array $citizenData = null;
-    
+
     public bool $isValidating = false;
 
     public function mount(): void
     {
         Gate::authorize('create', CallRecord::class);
-        
+
         $this->form = new CreateCallRecordForm($this, 'form');
-        
+
         // Cargar parámetros de URL si existen
         if ($this->telefono) {
             $this->form->phone_number = $this->telefono;
         }
-        
+
         if ($this->cola) {
             // Intentar buscar la cola por nombre o ID
             $queue = CallQueue::where('name', $this->cola)
                 ->orWhere('id', is_numeric($this->cola) ? $this->cola : 0)
                 ->first();
-                
+
             if ($queue) {
                 $this->form->queue_id = $queue->id;
                 $this->form->channel_id = $queue->channel_id;
@@ -98,6 +98,7 @@ class CreateCallRecord extends Component
 
         if (! $validQueue) {
             $this->addError('form.queue_id', 'La cola seleccionada no es válida para el canal seleccionado.');
+
             return;
         }
 
@@ -107,6 +108,7 @@ class CreateCallRecord extends Component
 
         if (! $validSubtype) {
             $this->addError('form.case_subtype_id', 'El subtipo de caso seleccionado no pertenece a la cola seleccionada.');
+
             return;
         }
 
@@ -122,7 +124,7 @@ class CreateCallRecord extends Component
         $action->execute($dto);
 
         \Flux::toast('Nuevo registro de llamada creado correctamente.', variant: 'success');
-        
+
         $this->form = new CreateCallRecordForm($this, 'form');
         // Mantener el canal si es posible
         $firstChannel = Channel::active()->orderBy('name')->first();
@@ -143,11 +145,12 @@ class CreateCallRecord extends Component
     {
         if (empty($value) || strlen($value) < 5) {
             $this->citizenData = null;
+
             return;
         }
 
         $this->isValidating = true;
-        
+
         try {
             $service = app(CitizenValidationService::class);
             $this->citizenData = $service->validate($value);
@@ -165,7 +168,7 @@ class CreateCallRecord extends Component
         }
 
         return CallRecord::with(['queue.channel', 'caseSubtype'])
-            ->where('phone_number', 'like', '%' . $this->form->phone_number . '%')
+            ->where('phone_number', 'like', '%'.$this->form->phone_number.'%')
             ->orderBy('ivr_started_at', 'desc')
             ->limit(10)
             ->get();
@@ -177,7 +180,7 @@ class CreateCallRecord extends Component
             ->orderBy('name')
             ->get();
 
-        $queues = ! empty($this->form->channel_id) 
+        $queues = ! empty($this->form->channel_id)
             ? CallQueue::where('channel_id', $this->form->channel_id)->active()->orderBy('name')->get()
             : CallQueue::active()->orderBy('name')->get();
 

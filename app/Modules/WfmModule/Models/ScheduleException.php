@@ -8,6 +8,7 @@ use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ScheduleException extends Model
 {
@@ -31,7 +32,7 @@ class ScheduleException extends Model
         'metadata' => 'array',
     ];
 
-    public function origin(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    public function origin(): MorphTo
     {
         return $this->morphTo();
     }

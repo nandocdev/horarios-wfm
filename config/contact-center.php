@@ -42,13 +42,13 @@ return [
     | https://host:8444/cuic/rest/{locale}/reports/execute/{REPORT_ID}
     */
     'cuic' => [
-        'base_url'   => env('CUIC_BASE_URL', 'https://pmie04cm06.css.gob.pa:8444'),
-        'domain'     => env('CUIC_DOMAIN', 'CCX'),
-        'username'   => env('CUIC_USERNAME'),
-        'password'   => env('CUIC_PASSWORD'),
+        'base_url' => env('CUIC_BASE_URL', 'https://pmie04cm06.css.gob.pa:8444'),
+        'domain' => env('CUIC_DOMAIN', 'CCX'),
+        'username' => env('CUIC_USERNAME'),
+        'password' => env('CUIC_PASSWORD'),
         'verify_ssl' => (bool) env('CUIC_VERIFY_SSL', false),
-        'timeout'    => (int) env('CUIC_TIMEOUT', 30),
-        'locale'     => env('CUIC_LOCALE', 'es_PA'),
+        'timeout' => (int) env('CUIC_TIMEOUT', 30),
+        'locale' => env('CUIC_LOCALE', 'es_PA'),
 
         /*
         | Mapa de reportes: clave semántica → configuración completa del reporte.
@@ -67,7 +67,7 @@ return [
 
             // Transiciones de estado de agentes (sin filtros requeridos)
             'agent_state_transitions' => [
-                'id'     => env('CUIC_REPORT_AGENT_STATE_TRANSITIONS', 'DAB089391000019D000043E40A0B1855'),
+                'id' => env('CUIC_REPORT_AGENT_STATE_TRANSITIONS', 'DAB089391000019D000043E40A0B1855'),
                 'locale' => 'es_PA',
                 'params' => [],
             ],
@@ -84,41 +84,41 @@ return [
             //   - CUSTOM  (propiedad del usuario): 53C2272810000192000001050A0B1455 (NotReadyReport)
             //   - STOCK   (catálogo global):       8827A5EA100001336498D5B73F57F543
             'agent_detail' => [
-                'id'     => env('CUIC_REPORT_AGENT_DETAIL', '8827A5EA100001336498D5B73F57F543'),
+                'id' => env('CUIC_REPORT_AGENT_DETAIL', '8827A5EA100001336498D5B73F57F543'),
                 'locale' => 'es_ES',
                 'params' => [
                     'start_datetime' => '8826E279100001332E83071D3F57F543',
-                    'end_datetime'   => '8826E2791000013322B912763F57F543',
-                    'agent_names'    => '8826E279100001334F8426E93F57F543',
-                    'current_user'   => '5FAA41181000015A0000021F0A4E5B53',
+                    'end_datetime' => '8826E2791000013322B912763F57F543',
+                    'agent_names' => '8826E279100001334F8426E93F57F543',
+                    'current_user' => '5FAA41181000015A0000021F0A4E5B53',
                 ],
             ],
 
             // Agent Detail Report (AHT / Performance)
             'agent_performance_detail' => [
-                'id'     => env('CUIC_REPORT_AGENT_PERFORMANCE', 'E33ED4BF100001990000219C0A0B1855'),
+                'id' => env('CUIC_REPORT_AGENT_PERFORMANCE', 'E33ED4BF100001990000219C0A0B1855'),
                 'locale' => 'es_ES',
                 'params' => [
                     'start_datetime' => 'D9054E6E1000013246EBEA2F3F57F543',
-                    'end_datetime'   => 'D9054E6F100001326C2D2AA63F57F543',
-                    'current_user'   => '5B280A721000015A0000001D0A4E5B53',
+                    'end_datetime' => 'D9054E6F100001326C2D2AA63F57F543',
+                    'current_user' => '5B280A721000015A0000001D0A4E5B53',
                 ],
             ],
 
             // Detail Call CSQ Agent Report
             'agent_csq_detail' => [
-                'id'     => env('CUIC_REPORT_AGENT_CSQ_DETAIL', 'E32941841000019D0000216E0A0B1855'),
+                'id' => env('CUIC_REPORT_AGENT_CSQ_DETAIL', 'E32941841000019D0000216E0A0B1855'),
                 'locale' => 'es_ES',
                 'params' => [
                     'start_datetime' => 'D0C5F75C10000133687E542C3F57F543',
-                    'end_datetime'   => 'D0C5F75B100001337DED6CAC3F57F543',
-                    'current_user'   => '6138C7E01000015A000003C40A4E5B53',
+                    'end_datetime' => 'D0C5F75B100001337DED6CAC3F57F543',
+                    'current_user' => '6138C7E01000015A000003C40A4E5B53',
                 ],
             ],
 
             // Voice CSQ Summary Report (Realtime Snapshot)
             'voice_csq_summary' => [
-                'id'     => env('CUIC_REPORT_VOICE_CSQ_SUMMARY', 'F42547F51000019D00020F7D0A0B1855'),
+                'id' => env('CUIC_REPORT_VOICE_CSQ_SUMMARY', 'F42547F51000019D00020F7D0A0B1855'),
                 'locale' => 'es_ES',
                 'params' => [
                     'csq_names' => '720298FB10000140000000A10A4E5E6F',
@@ -127,18 +127,18 @@ return [
 
             // Detail Chat Agent Report
             'agent_chat_detail' => [
-                'id'     => env('CUIC_REPORT_AGENT_CHAT_DETAIL', 'E35B32C710000199000021C80A0B1855'),
+                'id' => env('CUIC_REPORT_AGENT_CHAT_DETAIL', 'E35B32C710000199000021C80A0B1855'),
                 'locale' => 'es_ES',
                 'params' => [
                     'start_datetime' => '76284BFE100001357AD6962A3F57F543',
-                    'end_datetime'   => '76284BFE100001354E56E44E3F57F543',
-                    'current_user'   => '5E2BA9CA1000015A000000400A4E5B53',
+                    'end_datetime' => '76284BFE100001354E56E44E3F57F543',
+                    'current_user' => '5E2BA9CA1000015A000000400A4E5B53',
                 ],
             ],
 
             // Agent Realtime Detail (filtered by Agent Login ID)
             'agent_realtime_detail' => [
-                'id'     => env('CUIC_REPORT_AGENT_REALTIME_DETAIL', '5D411E7010000140000000210A4E5E6B'),
+                'id' => env('CUIC_REPORT_AGENT_REALTIME_DETAIL', '5D411E7010000140000000210A4E5E6B'),
                 'locale' => 'es_ES',
                 'params' => [
                     'agent_login_id' => '5D40A42D10000140000000190A4E5E6B',

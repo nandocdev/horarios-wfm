@@ -42,7 +42,6 @@ class User extends Authenticatable
      * Envía la notificación de restablecimiento de contraseña.
      *
      * @param  string  $token
-     * @return void
      */
     public function sendPasswordResetNotification($token): void
     {

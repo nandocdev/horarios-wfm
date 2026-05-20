@@ -32,8 +32,8 @@ final class FetchAgentStateTransitionsAction
      * Ejecuta el reporte CUIC y retorna las transiciones normalizadas del día.
      * No requiere filtro previo — CUIC retorna todos los agentes del día.
      *
-     * @param  Carbon      $date      Fecha a consultar
-     * @param  string|null $loginId   Si se provee, filtra por login_id del agente
+     * @param  Carbon  $date  Fecha a consultar
+     * @param  string|null  $loginId  Si se provee, filtra por login_id del agente
      * @return Collection<int, array<string, mixed>>
      */
     public function execute(Carbon $date, ?string $loginId = null): Collection
@@ -51,7 +51,7 @@ final class FetchAgentStateTransitionsAction
      * Verifica si la transición pertenece a la fecha solicitada.
      * `transition_time` viene en epoch MILISEGUNDOS.
      *
-     * @param array<string, mixed> $row
+     * @param  array<string, mixed>  $row
      */
     private function isOnDate(array $row, Carbon $date): bool
     {
@@ -80,7 +80,7 @@ final class FetchAgentStateTransitionsAction
      *   "duration": 7710                    ← segundos
      * }
      *
-     * @param  array<string, mixed> $row
+     * @param  array<string, mixed>  $row
      * @return array<string, mixed>
      */
     private function normalize(array $row): array
@@ -88,17 +88,17 @@ final class FetchAgentStateTransitionsAction
         $transitionMs = (int) ($row['transition_time'] ?? 0);
 
         return [
-            'agent_name'      => trim((string) ($row['agent_name'] ?? '')),
-            'agent_login_id'  => trim((string) ($row['agent_login_id'] ?? '')),
+            'agent_name' => trim((string) ($row['agent_name'] ?? '')),
+            'agent_login_id' => trim((string) ($row['agent_login_id'] ?? '')),
             'agent_extension' => trim((string) ($row['agent_extension'] ?? '')),
             'transition_time' => $transitionMs > 0
                 ? Carbon::createFromTimestampMs($transitionMs, 'UTC')->tz(config('app.timezone'))
                 : null,
-            'agent_state'     => trim((string) ($row['agent_state'] ?? '')),
-            'reason_code'     => isset($row['reason_code']) && $row['reason_code'] !== ''
+            'agent_state' => trim((string) ($row['agent_state'] ?? '')),
+            'reason_code' => isset($row['reason_code']) && $row['reason_code'] !== ''
                 ? trim((string) $row['reason_code'])
                 : null,
-            'duration'        => (int) ($row['duration'] ?? 0), // segundos
+            'duration' => (int) ($row['duration'] ?? 0), // segundos
         ];
     }
 }

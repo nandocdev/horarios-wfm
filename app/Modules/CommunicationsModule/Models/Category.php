@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CommunicationsModule\Models;
 
 use App\Modules\CoreModule\Concerns\Auditable;
+use App\Modules\DocumentationModule\Models\Article;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
@@ -76,6 +77,6 @@ class Category extends Model
      */
     public function articles(): MorphToMany
     {
-        return $this->morphedByMany(\App\Modules\DocumentationModule\Models\Article::class, 'categorizable');
+        return $this->morphedByMany(Article::class, 'categorizable');
     }
 }

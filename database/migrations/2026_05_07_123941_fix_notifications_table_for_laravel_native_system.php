@@ -10,7 +10,7 @@ return new class extends Migration
 {
     /**
      * Recrea la tabla de notificaciones para ser 100% compatible con el sistema nativo de Laravel.
-     * 
+     *
      * EL ERROR: El driver 'database' de Laravel intenta insertar UUIDs en una columna BIGINT,
      * y además omite columnas obligatorias personalizadas (user_id, title, message).
      */
@@ -26,14 +26,14 @@ return new class extends Migration
             $table->morphs('notifiable');
             $table->json('data');
             $table->timestamp('read_at')->nullable();
-            
+
             // Columnas personalizadas del proyecto (ahora opcionales para evitar crashes)
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('title')->nullable();
             $table->text('message')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamp('expires_at')->nullable();
-            
+
             $table->timestamps();
 
             // Índices adicionales

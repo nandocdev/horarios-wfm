@@ -15,9 +15,6 @@ class CreateRoleAction
 {
     /**
      * Ejecuta la creación del rol dentro de una transacción.
-     *
-     * @param RoleDTO $dto
-     * @return Role
      */
     public function execute(RoleDTO $dto): Role
     {

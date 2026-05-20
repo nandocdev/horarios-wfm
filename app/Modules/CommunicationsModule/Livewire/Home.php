@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\CommunicationsModule\Livewire;
 
+use App\Modules\CommunicationsModule\Actions\CreateShoutoutAction;
+use App\Modules\CommunicationsModule\DTOs\ShoutoutDTO;
 use App\Modules\CommunicationsModule\Models\Comment;
 use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CommunicationsModule\Models\Notification;
 use App\Modules\CommunicationsModule\Models\Poll;
 use App\Modules\CommunicationsModule\Models\Reaction;
 use App\Modules\CommunicationsModule\Models\Shoutout;
+use App\Modules\PersonnelModule\Models\Employee;
 use Livewire\Component;
 
 /**
@@ -208,7 +211,7 @@ class Home extends Component
     /**
      * Procesa la creación de un nuevo reconocimiento.
      */
-    public function submitShoutout(\App\Modules\CommunicationsModule\Actions\CreateShoutoutAction $action): void
+    public function submitShoutout(CreateShoutoutAction $action): void
     {
         if (! $this->ensureAuthenticated('dar un reconocimiento')) {
             return;
@@ -222,7 +225,7 @@ class Home extends Component
             'shoutoutForm.message' => 'mensaje de reconocimiento',
         ]);
 
-        $dto = \App\Modules\CommunicationsModule\DTOs\ShoutoutDTO::fromArray([
+        $dto = ShoutoutDTO::fromArray([
             'employee_id' => $this->shoutoutForm['employee_id'],
             'message' => $this->shoutoutForm['message'],
             'workflow_action' => $this->shoutoutForm['workflow_action'],
@@ -336,13 +339,13 @@ class Home extends Component
             : null;
 
         $viewingNews = $this->viewingNewsId
-            ? News::with(['author', 'media', 'categories', 'comments.user' => function($q) {
+            ? News::with(['author', 'media', 'categories', 'comments.user' => function ($q) {
                 $q->where('is_active', true)->latest();
             }])->find($this->viewingNewsId)
             : null;
 
         $employees = $isAuthenticated
-            ? \App\Modules\PersonnelModule\Models\Employee::active()
+            ? Employee::active()
                 ->where('id', '!=', auth()->user()->employee?->id) // No auto-shoutout
                 ->orderBy('first_name')
                 ->get(['id', 'first_name', 'last_name'])

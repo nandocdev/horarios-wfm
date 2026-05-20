@@ -23,6 +23,7 @@ use App\Modules\PersonnelModule\Livewire\ShowDepartment;
 use App\Modules\PersonnelModule\Livewire\ShowDirectorate;
 use App\Modules\PersonnelModule\Livewire\ShowPosition;
 use App\Modules\PersonnelModule\Livewire\ShowTeam;
+use App\Modules\PersonnelModule\Livewire\StaffingSummary;
 use App\Modules\PersonnelModule\Livewire\TeamMemberTransfer;
 use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Support\Facades\Route;
@@ -48,7 +49,7 @@ Route::group(['prefix' => 'employees', 'as' => 'employees.'], function () {
     Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->name('edit');
     Route::put('/{employee}', [EmployeeController::class, 'update'])->name('update');
     Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');
-    
+
     // Team Management (within employees prefix historically)
     Route::get('/teams/manage', ManageTeamAssignments::class)->name('teams.manage');
 });
@@ -92,11 +93,11 @@ Route::group(['prefix' => 'location', 'as' => 'location.'], function () {
 
 // --- Personnel (New Consolidated Prefix) ---
 Route::group(['prefix' => 'personnel', 'as' => 'personnel.'], function () {
-    Route::get('/', function() {
+    Route::get('/', function () {
         return redirect()->route('employees.index');
     })->name('index');
 
-    Route::get('/reports/staffing', \App\Modules\PersonnelModule\Livewire\StaffingSummary::class)
+    Route::get('/reports/staffing', StaffingSummary::class)
         ->name('staffing-summary')
         ->can('reports.staffing');
 });

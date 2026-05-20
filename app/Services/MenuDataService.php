@@ -12,8 +12,7 @@ class MenuDataService
 {
     /**
      * Centraliza las consultas necesarias para los badges del menú.
-     * 
-     * @param User|null $user
+     *
      * @return array<string, int>
      */
     public function getCounts(?User $user): array
@@ -25,7 +24,7 @@ class MenuDataService
         // Si es manager o admin, cuenta las que están pendientes para que él apruebe
         // Si no es un servicio muy complejo, haremos count global de 'pending' a las que tiene acceso.
         // Pero para no saturar, podemos contar las solicitudes donde el usuario es el supervisor.
-        
+
         // De acuerdo a las reglas de negocio, podemos intentar contar las que él debería revisar.
         // Para simplificar, obtenemos los ids si es supervisor.
         $managedIds = [];
@@ -36,7 +35,7 @@ class MenuDataService
         $pendingLeaves = 0;
         $pendingSwaps = 0;
 
-        if (!empty($managedIds)) {
+        if (! empty($managedIds)) {
             $pendingLeaves = LeaveRequest::whereIn('employee_id', $managedIds)
                 ->where('status', 'pending')
                 ->count();
@@ -46,11 +45,11 @@ class MenuDataService
                 ->count();
         }
 
-        // Si es superadmin o tiene permiso total, quizás queramos mostrar todas, 
+        // Si es superadmin o tiene permiso total, quizás queramos mostrar todas,
         // pero por performance, lo dejaremos en las que gestiona, o 0.
         if ($user->can('wfm.leaves.manage') && empty($managedIds)) {
-             $pendingLeaves = LeaveRequest::where('status', 'pending')->count();
-             $pendingSwaps = ShiftSwapRequest::where('status', 'pending')->count();
+            $pendingLeaves = LeaveRequest::where('status', 'pending')->count();
+            $pendingSwaps = ShiftSwapRequest::where('status', 'pending')->count();
         }
 
         return [

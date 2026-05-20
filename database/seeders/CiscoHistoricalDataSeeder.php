@@ -30,6 +30,7 @@ class CiscoHistoricalDataSeeder extends Seeder
 
             if (! File::exists($path)) {
                 $this->command->warn("Archivo no encontrado: {$file}");
+
                 continue;
             }
 
@@ -40,12 +41,12 @@ class CiscoHistoricalDataSeeder extends Seeder
 
             try {
                 $this->executeSqlFile($path);
-                
+
                 $duration = round(microtime(true) - $startTime, 2);
                 $this->command->info("Éxito. Tiempo: {$duration}s");
             } catch (\Exception $e) {
-                $this->command->error("Error procesando {$file}: " . $e->getMessage());
-                Log::error("CiscoHistoricalDataSeeder Error: " . $e->getMessage());
+                $this->command->error("Error procesando {$file}: ".$e->getMessage());
+                Log::error('CiscoHistoricalDataSeeder Error: '.$e->getMessage());
             }
         }
 
@@ -58,7 +59,7 @@ class CiscoHistoricalDataSeeder extends Seeder
      */
     private function executeSqlFile(string $path): void
     {
-        $dbConfig = config('database.connections.' . config('database.default'));
+        $dbConfig = config('database.connections.'.config('database.default'));
 
         if ($dbConfig['driver'] === 'pgsql') {
             $password = $dbConfig['password'];
@@ -72,7 +73,7 @@ class CiscoHistoricalDataSeeder extends Seeder
             );
 
             // Redirigir salida a /dev/null para no saturar la consola pero capturar errores
-            $process = Process::fromShellCommandline($command . ' > /dev/null 2>&1');
+            $process = Process::fromShellCommandline($command.' > /dev/null 2>&1');
             $process->setTimeout(null); // Sin límite de tiempo para archivos grandes
             $process->run();
 

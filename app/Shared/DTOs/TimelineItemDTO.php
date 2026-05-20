@@ -36,7 +36,7 @@ class TimelineItemDTO extends Data
         $isFuture = $now->lt($start);
 
         // Map status-based colors to operational ones (Past = Zinc/Gray, Current = Blue/Primary, Future = Neutral)
-        $operationalColor = match(true) {
+        $operationalColor = match (true) {
             $isPast => 'zinc',
             $isCurrent => 'primary',
             default => 'zinc', // Future is also neutral
@@ -44,7 +44,7 @@ class TimelineItemDTO extends Data
 
         // If it's real data, maybe we want to keep its semantic color but with lower opacity if past
         // But the user suggested: past -> grey, current -> strong blue, future -> neutral
-        
+
         return new self(
             id: bin2hex(random_bytes(8)),
             type: $data['type'],

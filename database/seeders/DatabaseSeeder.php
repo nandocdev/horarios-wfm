@@ -9,8 +9,10 @@ use App\Modules\CoreModule\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder {
-    public function run(): void {
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
         $this->call([
             PanamaGeographySeeder::class,
             OrganizationModuleSeeder::class,

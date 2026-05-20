@@ -7,13 +7,13 @@ namespace App\Modules\PersonnelModule\Livewire;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Actions\UpdateEmployeeAction;
 use App\Modules\PersonnelModule\DTOs\UpdateEmployeeDTO;
+use App\Modules\PersonnelModule\Models\Department;
+use App\Modules\PersonnelModule\Models\District;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
-use App\Modules\PersonnelModule\Models\District;
+use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Province;
 use App\Modules\PersonnelModule\Models\Township;
-use App\Modules\PersonnelModule\Models\Department;
-use App\Modules\PersonnelModule\Models\Position;
 use Livewire\Component;
 
 class EditEmployee extends Component

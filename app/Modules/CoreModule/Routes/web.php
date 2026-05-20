@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Livewire\Roles\ListRoles;
+use App\Modules\CoreModule\Livewire\SystemMaintenance;
 use App\Modules\CoreModule\Livewire\Users\CreateUser;
 use App\Modules\CoreModule\Livewire\Users\EditUser;
 use App\Modules\CoreModule\Livewire\Users\ListUsers;
@@ -25,7 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('admin/roles', ListRoles::class)->name('roles.index')->can('roles.view');
 
     // Configuración del Sistema
-    Route::get('admin/system/maintenance', \App\Modules\CoreModule\Livewire\SystemMaintenance::class)
+    Route::get('admin/system/maintenance', SystemMaintenance::class)
         ->name('admin.system.maintenance')
         ->can('admin.system');
 });

@@ -33,14 +33,14 @@ class OperationalSettings extends Component
                 if ($arr['key'] === 'personal_time_threshold' && (int) $arr['value'] >= 60) {
                     $isSeconds = false;
                 }
-                
+
                 if (str_contains($arr['key'], '_minutes')) {
                     $isSeconds = false;
                 }
 
                 $arr['unit'] = $isSeconds ? 'segundos' : 'minutos';
                 $arr['display_value'] = $isSeconds ? (int) $arr['value'] : round((int) $arr['value'] / 60, 1);
-                
+
                 return $arr;
             })
             ->toArray();
@@ -67,10 +67,10 @@ class OperationalSettings extends Component
         DB::transaction(function () {
             foreach ($this->settings as $setting) {
                 // Convertir de vuelta a segundos según la unidad mostrada
-                $valueInSeconds = $setting['unit'] === 'minutos' 
-                    ? (int) ($setting['display_value'] * 60) 
+                $valueInSeconds = $setting['unit'] === 'minutos'
+                    ? (int) ($setting['display_value'] * 60)
                     : (int) $setting['display_value'];
-                
+
                 DB::table('operational_settings')
                     ->where('id', $setting['id'])
                     ->update(['value' => (string) $valueInSeconds]);

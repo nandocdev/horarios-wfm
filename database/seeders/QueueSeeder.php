@@ -8,11 +8,13 @@ use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\Channel;
 use Illuminate\Database\Seeder;
 
-class QueueSeeder extends Seeder {
+class QueueSeeder extends Seeder
+{
     /**
      * Run the database seeds.
      */
-    public function run(): void {
+    public function run(): void
+    {
 
         // $queues = [name, description, is_active, aht_goal_in_seconds]
         $queues = [

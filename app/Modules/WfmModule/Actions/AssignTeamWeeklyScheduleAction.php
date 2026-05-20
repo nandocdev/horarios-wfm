@@ -8,6 +8,7 @@ use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Models\WeeklyTeamAssignment;
+use App\Shared\Events\ScheduleAssignmentUpdated;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +23,7 @@ class AssignTeamWeeklyScheduleAction
             $schedule = Schedule::findOrFail($scheduleId);
             $team = Team::findOrFail($teamId);
             $employeeIds = $team->users()->pluck('employees.id');
-            
+
             // Colección para evitar duplicados en notificaciones masivas
             $affectedAssignments = [];
 
@@ -76,7 +77,7 @@ class AssignTeamWeeklyScheduleAction
                         );
 
                         // Agregamos a la lista de afectados para notificar al final (solo una vez por empleado)
-                        if (!isset($affectedAssignments[$employeeId])) {
+                        if (! isset($affectedAssignments[$employeeId])) {
                             $affectedAssignments[$employeeId] = $assignment;
                         }
                     }
@@ -97,7 +98,7 @@ class AssignTeamWeeklyScheduleAction
 
             // Notificar a los empleados afectados solo una vez por toda la acción masiva
             foreach ($affectedAssignments as $assignment) {
-                \App\Shared\Events\ScheduleAssignmentUpdated::dispatch($assignment, auth()->id() ?? 0);
+                ScheduleAssignmentUpdated::dispatch($assignment, auth()->id() ?? 0);
             }
         });
     }

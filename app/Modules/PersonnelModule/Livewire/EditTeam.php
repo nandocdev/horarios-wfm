@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Livewire;
 
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Actions\UpdateTeamAction;
 use App\Modules\PersonnelModule\DTOs\TeamDTO;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use Livewire\Component;
 

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsurePasswordChange;
+use App\Http\Middleware\InjectMenuData;
+use App\Modules\CoreModule\Http\Middleware\CheckMaintenanceMode;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,9 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->appendToGroup('web', \App\Modules\CoreModule\Http\Middleware\CheckMaintenanceMode::class);
+        $middleware->appendToGroup('web', CheckMaintenanceMode::class);
         $middleware->appendToGroup('web', EnsurePasswordChange::class);
-        $middleware->appendToGroup('web', \App\Http\Middleware\InjectMenuData::class);
+        $middleware->appendToGroup('web', InjectMenuData::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -67,9 +67,9 @@ class ModuleServiceProvider extends ServiceProvider
         $this->registerInfrastructure();
         $this->registerPolicies();
         $this->registerObservers();
-        
+
         $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'personnel');
-        
+
         // Mantener namespaces de vistas antiguos para compatibilidad temporal si es necesario
         // Pero preferimos actualizar todo.
         $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'employees');
@@ -94,22 +94,22 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('personnel.edit-employee', EditEmployee::class);
         Livewire::component('personnel.manage-team-assignments', ManageTeamAssignments::class);
         Livewire::component('personnel.import-employees', ImportEmployees::class);
-        
+
         Livewire::component('personnel.list-directorates', ListDirectorates::class);
         Livewire::component('personnel.create-directorate', CreateDirectorate::class);
         Livewire::component('personnel.show-directorate', ShowDirectorate::class);
         Livewire::component('personnel.edit-directorate', EditDirectorate::class);
-        
+
         Livewire::component('personnel.list-departments', ListDepartments::class);
         Livewire::component('personnel.create-department', CreateDepartment::class);
         Livewire::component('personnel.show-department', ShowDepartment::class);
         Livewire::component('personnel.edit-department', EditDepartment::class);
-        
+
         Livewire::component('personnel.list-positions', ListPositions::class);
         Livewire::component('personnel.create-position', CreatePosition::class);
         Livewire::component('personnel.show-position', ShowPosition::class);
         Livewire::component('personnel.edit-position', EditPosition::class);
-        
+
         Livewire::component('personnel.list-teams', ListTeams::class);
         Livewire::component('personnel.create-team', CreateTeam::class);
         Livewire::component('personnel.show-team', ShowTeam::class);

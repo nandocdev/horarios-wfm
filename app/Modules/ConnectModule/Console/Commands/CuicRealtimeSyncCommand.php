@@ -17,7 +17,7 @@ class CuicRealtimeSyncCommand extends Command
     {
         if ($this->option('loop')) {
             $this->info('Iniciando sincronización continua de métricas CSQ (Ctrl+C para detener)...');
-            
+
             while (true) {
                 $this->performSync($action);
                 sleep((int) $this->option('interval'));
@@ -35,10 +35,10 @@ class CuicRealtimeSyncCommand extends Command
         try {
             $count = $action->execute();
             if ($count > 0) {
-                $this->success("[" . now()->format('H:i:s') . "] Sincronizadas {$count} colas exitosamente.");
+                $this->success('['.now()->format('H:i:s')."] Sincronizadas {$count} colas exitosamente.");
             }
         } catch (\Exception $e) {
-            $this->error("[" . now()->format('H:i:s') . "] Error: " . $e->getMessage());
+            $this->error('['.now()->format('H:i:s').'] Error: '.$e->getMessage());
         }
     }
 

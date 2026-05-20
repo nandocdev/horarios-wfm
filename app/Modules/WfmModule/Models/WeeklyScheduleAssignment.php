@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Models;
 
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,6 +17,7 @@ class WeeklyScheduleAssignment extends Model
             $builder->where('is_replaced', false);
         });
     }
+
     protected $fillable = [
         'weekly_schedule_id', 'employee_id', 'schedule_id',
         'day_of_week', 'start_time', 'end_time',
@@ -36,7 +39,7 @@ class WeeklyScheduleAssignment extends Model
 
     public function swapRequest(): BelongsTo
     {
-        return $this->belongsTo(\App\Modules\WorkflowsModule\Models\ShiftSwapRequest::class, 'swap_request_id');
+        return $this->belongsTo(ShiftSwapRequest::class, 'swap_request_id');
     }
 
     public function weeklySchedule(): BelongsTo
@@ -51,7 +54,7 @@ class WeeklyScheduleAssignment extends Model
 
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(\App\Modules\PersonnelModule\Models\Employee::class);
+        return $this->belongsTo(Employee::class);
     }
 
     /**

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Actions\SyncEmployeeDataWithCiscoAction;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
@@ -13,7 +13,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class CiscoSyncCommand extends Command implements Isolatable {
+class CiscoSyncCommand extends Command implements Isolatable
+{
     /**
      * El nombre y la firma del comando.
      *
@@ -31,7 +32,8 @@ class CiscoSyncCommand extends Command implements Isolatable {
     /**
      * Ejecuta el comando.
      */
-    public function handle(CiscoFinesseClient $client, SyncEmployeeDataWithCiscoAction $syncDataAction) {
+    public function handle(CiscoFinesseClient $client, SyncEmployeeDataWithCiscoAction $syncDataAction)
+    {
         $loop = $this->option('loop');
         $interval = (int) $this->option('interval');
 
@@ -43,7 +45,7 @@ class CiscoSyncCommand extends Command implements Isolatable {
             $dataStats = $syncDataAction->execute();
             $this->info("Perfiles procesados: {$dataStats['total_cisco_users']}, Actualizados: {$dataStats['updated_employees']}, Desajustes de equipo: {$dataStats['team_mismatches']}");
         } catch (\Exception $e) {
-            $this->warn('No se pudieron sincronizar los datos maestros: ' . $e->getMessage());
+            $this->warn('No se pudieron sincronizar los datos maestros: '.$e->getMessage());
         }
 
         do {
@@ -54,13 +56,14 @@ class CiscoSyncCommand extends Command implements Isolatable {
             if ($hour < 5 || $hour > 19) {
                 $this->warn('Fuera de horario de trabajo, saltando sincronización...');
                 sleep(60);
+
                 continue;
             }
             try {
                 $this->syncStates($client);
             } catch (\Exception $e) {
-                $this->error('Error en el ciclo de sincronización: ' . $e->getMessage());
-                Log::error('CiscoSyncCommand Failure: ' . $e->getMessage());
+                $this->error('Error en el ciclo de sincronización: '.$e->getMessage());
+                Log::error('CiscoSyncCommand Failure: '.$e->getMessage());
             }
 
             if ($loop) {
@@ -81,13 +84,14 @@ class CiscoSyncCommand extends Command implements Isolatable {
     /**
      * Lógica principal de sincronización.
      */
-    protected function syncStates(CiscoFinesseClient $client): void {
+    protected function syncStates(CiscoFinesseClient $client): void
+    {
         // Obtener empleados activos (que podrían ser agentes)
         $employees = Employee::where('is_active', true)
             ->whereNotNull('username')
             ->get();
 
-        $this->info('Procesando ' . $employees->count() . ' posibles agentes...');
+        $this->info('Procesando '.$employees->count().' posibles agentes...');
 
         $successCount = 0;
         $errorCount = 0;
@@ -130,7 +134,7 @@ class CiscoSyncCommand extends Command implements Isolatable {
                         }
                     } catch (\Exception $e) {
                         // Error silencioso para dialogs, no incrementa errorCount general pero se loguea en debug si es necesario
-                        Log::debug("No se pudo obtener Dialogs para agente {$uccxId}: " . $e->getMessage());
+                        Log::debug("No se pudo obtener Dialogs para agente {$uccxId}: ".$e->getMessage());
                     }
                 }
 
@@ -152,7 +156,8 @@ class CiscoSyncCommand extends Command implements Isolatable {
     /**
      * Actualiza la tabla agent_realtime_states (UNLOGGED para performance).
      */
-    protected function updateAgentRealtimeState(int $employeeId, string $externalId, array $data, array $dialogInfo = []): void {
+    protected function updateAgentRealtimeState(int $employeeId, string $externalId, array $data, array $dialogInfo = []): void
+    {
         $state = $data['state'] ?? 'UNKNOWN';
         $reasonCode = $data['reasonCode'] ?? null;
         $stateChangeTime = $data['stateChangeTime'] ?? null;
@@ -163,27 +168,27 @@ class CiscoSyncCommand extends Command implements Isolatable {
         }
 
         $lastChangedAt = now()->utc();
-        
+
         // 1. Obtener el estado previo del agente
         $existingState = DB::table('agent_realtime_states')->where('employee_id', $employeeId)->first();
-        
+
         if ($stateChangeTime) {
             try {
-                // Forzamos UTC al parsear si no hay offset, ya que Cisco UCCX suele enviar tiempos en UTC 
+                // Forzamos UTC al parsear si no hay offset, ya que Cisco UCCX suele enviar tiempos en UTC
                 // pero a veces el XML no incluye el indicador 'Z'.
                 $lastChangedAt = Carbon::parse($stateChangeTime, 'UTC')->utc();
             } catch (\Exception $e) {
-                Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: " . $e->getMessage());
+                Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: ".$e->getMessage());
             }
         } else {
             // Si Cisco no provee stateChangeTime (común en TALKING),
             // conservamos la fecha que ya estaba en la base de datos para no reiniciar el cronómetro a 0.
             if ($existingState && $existingState->current_state === $state) {
                 $lastChangedAt = Carbon::parse($existingState->last_changed_at)->utc();
-            } else if ($existingState && $state === 'TALKING' && isset($dialogInfo['start_time'])) {
+            } elseif ($existingState && $state === 'TALKING' && isset($dialogInfo['start_time'])) {
                 // Si tienes la hora de inicio de la llamada desde el dialog, podrías usarla,
                 // de lo contrario usamos la hora actual (primer segundo de la llamada).
-                 $lastChangedAt = now()->utc();
+                $lastChangedAt = now()->utc();
             }
         }
 

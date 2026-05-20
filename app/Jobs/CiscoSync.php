@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Actions\SyncEmployeeDataWithCiscoAction;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -41,8 +41,8 @@ class CiscoSync implements ShouldQueue
 
     /**
      * Create a new job instance.
-     * 
-     * @param bool $syncMasterData Sincroniza nombres de perfiles y equipos (costoso, se recomienda hacer false en los subciclos)
+     *
+     * @param  bool  $syncMasterData  Sincroniza nombres de perfiles y equipos (costoso, se recomienda hacer false en los subciclos)
      */
     public function __construct(bool $syncMasterData = false)
     {
@@ -59,7 +59,8 @@ class CiscoSync implements ShouldQueue
         // Se ejecutará solo entre las 5 de la mañana y las 7 de la noche (19 hrs)
         if ($hour < 5 || $hour > 19) {
             Log::info('CiscoSync: Fuera de horario de trabajo. El Job se detendrá. (Debe ser reactivado por el Scheduler a las 5 AM)');
-            return; 
+
+            return;
             // Salimos sin volver a despachar el Job.
         }
 
@@ -69,7 +70,7 @@ class CiscoSync implements ShouldQueue
                 $dataStats = $syncDataAction->execute();
                 Log::info("CiscoSync Master Data: Procesados: {$dataStats['total_cisco_users']}, Actualizados: {$dataStats['updated_employees']}, Desajustes: {$dataStats['team_mismatches']}");
             } catch (\Exception $e) {
-                Log::warning('CiscoSync: No se pudieron sincronizar los datos maestros: ' . $e->getMessage());
+                Log::warning('CiscoSync: No se pudieron sincronizar los datos maestros: '.$e->getMessage());
             }
         }
 
@@ -77,11 +78,11 @@ class CiscoSync implements ShouldQueue
         try {
             $this->syncStates($client);
         } catch (\Exception $e) {
-            Log::error('CiscoSync Failure: ' . $e->getMessage());
+            Log::error('CiscoSync Failure: '.$e->getMessage());
         }
 
         // 3. Self-Dispatch (Ciclo de vida asíncrono en reemplazo del while-loop)
-        // Volvemos a colocar este Job en la cola con 5 segundos de retraso. 
+        // Volvemos a colocar este Job en la cola con 5 segundos de retraso.
         // Pasamos 'false' para no sobrecargar el API sincronizando los datos maestros cada 5 segundos.
         self::dispatch(false)->delay(now()->addSeconds(5));
     }
@@ -130,7 +131,7 @@ class CiscoSync implements ShouldQueue
                             }
                         }
                     } catch (\Exception $e) {
-                        Log::debug("No se pudo obtener Dialogs para agente {$uccxId}: " . $e->getMessage());
+                        Log::debug("No se pudo obtener Dialogs para agente {$uccxId}: ".$e->getMessage());
                     }
                 }
 
@@ -166,7 +167,7 @@ class CiscoSync implements ShouldQueue
             try {
                 $lastChangedAt = Carbon::parse($stateChangeTime)->utc();
             } catch (\Exception $e) {
-                Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: " . $e->getMessage());
+                Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: ".$e->getMessage());
             }
         }
 

@@ -32,30 +32,30 @@ class ListCallRecords extends Component
     public function mount(): void
     {
         Gate::authorize('viewAny', CallRecord::class);
-        
+
         $this->dateFrom = Carbon::today()->toDateString();
         $this->dateTo = Carbon::today()->toDateString();
-        
+
         $employee = auth()->user()?->employee;
         if ($employee) {
             $this->employeeFilter = (string) $employee->id;
         }
     }
 
-
-    public function getFilteredRecordsProperty() {
+    public function getFilteredRecordsProperty()
+    {
         return CallRecord::with(['employee', 'caseSubtype.queue', 'queue'])
-            ->when($this->employeeFilter, fn($query) => $query->where('employee_id', $this->employeeFilter))
+            ->when($this->employeeFilter, fn ($query) => $query->where('employee_id', $this->employeeFilter))
             ->when(! $this->employeeFilter && ! auth()->user()?->hasRole('admin'), function ($query) {
                 $query->where('employee_id', auth()->user()?->employee?->id ?? 0);
             })
-            ->when($this->search, fn($query) => $query->where(function ($query) {
+            ->when($this->search, fn ($query) => $query->where(function ($query) {
                 $query->where('phone_number', 'ilike', "%{$this->search}%")
                     ->orWhere('citizen_identifier', 'ilike', "%{$this->search}%");
             }))
-            ->when($this->statusFilter, fn($query) => $query->where('status', $this->statusFilter))
-            ->when($this->dateFrom, fn($query) => $query->whereDate('ivr_started_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn($query) => $query->whereDate('ivr_started_at', '<=', $this->dateTo))
+            ->when($this->statusFilter, fn ($query) => $query->where('status', $this->statusFilter))
+            ->when($this->dateFrom, fn ($query) => $query->whereDate('ivr_started_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($query) => $query->whereDate('ivr_started_at', '<=', $this->dateTo))
             ->orderByDesc('ivr_started_at')
             ->paginate($this->perPage);
     }

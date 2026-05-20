@@ -16,12 +16,15 @@ final class ScheduleService implements ScheduleServiceInterface
     public function getScheduleForEmployee(int $employeeId, CarbonInterface $date): ScheduleDayDTO
     {
         $batch = $this->getBatchSchedules([$employeeId], $date);
+
         return $batch[$employeeId] ?? new ScheduleDayDTO($employeeId, $date->toDateString(), null, null, is_off: true);
     }
 
     public function getBatchSchedules(array $employeeIds, CarbonInterface $date): array
     {
-        if (empty($employeeIds)) return [];
+        if (empty($employeeIds)) {
+            return [];
+        }
 
         $dayOfWeek = $date->dayOfWeekIso;
         $weekStart = $date->copy()->startOfWeek();
@@ -62,7 +65,7 @@ final class ScheduleService implements ScheduleServiceInterface
                 lunch_minutes: (int) ($assignment?->schedule?->lunch_minutes ?? 45),
                 break_minutes: (int) ($assignment?->schedule?->break_minutes ?? 15),
                 is_off: $assignment === null,
-                exceptions: $empExceptions->map(fn($e) => [
+                exceptions: $empExceptions->map(fn ($e) => [
                     'type' => $e->reason?->name ?? 'Exception',
                     'color' => $e->reason?->color_hex ?? '#ef4444',
                     'start_at' => $e->start_at?->toIso8601String(),

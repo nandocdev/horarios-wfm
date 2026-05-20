@@ -12,13 +12,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ShiftSwapRequest extends Model
 {
     protected $fillable = [
-        'requester_id', 
-        'recipient_id', 
-        'requested_date', 
-        'status', 
+        'requester_id',
+        'recipient_id',
+        'requested_date',
+        'status',
         'reason',
         'requester_assignment_snapshot',
-        'recipient_assignment_snapshot'
+        'recipient_assignment_snapshot',
     ];
 
     protected $casts = [

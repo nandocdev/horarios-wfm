@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\CoreModule\Livewire;
 
-use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
@@ -15,6 +14,7 @@ use Livewire\Component;
 class Toast extends Component
 {
     public array $toasts = [];
+
     public ?int $userId = null;
 
     public function mount(): void

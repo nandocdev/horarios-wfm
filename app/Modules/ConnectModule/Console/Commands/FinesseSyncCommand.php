@@ -29,10 +29,10 @@ final class FinesseSyncCommand extends Command
     public function handle(SyncFinesseUsersAction $action): int
     {
         $this->info('=== Iniciando Sincronización de Identidad Finesse ===');
-        
+
         try {
             $stats = $action->execute();
-            
+
             $this->table(['Categoría', 'Cantidad'], [
                 ['Actualizados', $stats['updated']],
                 ['No encontrados en DB local', $stats['not_found']],
@@ -40,9 +40,11 @@ final class FinesseSyncCommand extends Command
             ]);
 
             $this->info('Sincronización finalizada exitosamente.');
+
             return self::SUCCESS;
         } catch (\Throwable $e) {
-            $this->error('Error durante la sincronización: ' . $e->getMessage());
+            $this->error('Error durante la sincronización: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

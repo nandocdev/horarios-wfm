@@ -12,8 +12,8 @@ use Illuminate\Support\Str;
 class File extends Model
 {
     protected $fillable = [
-        'uuid', 'user_id', 'folder_id', 'name', 'original_name', 
-        'path', 'disk', 'size', 'mime_type', 'extension', 'is_public'
+        'uuid', 'user_id', 'folder_id', 'name', 'original_name',
+        'path', 'disk', 'size', 'mime_type', 'extension', 'is_public',
     ];
 
     protected static function boot()
@@ -40,6 +40,6 @@ class File extends Model
         $pow = min($pow, count($units) - 1);
         $bytes /= (1 << (10 * $pow));
 
-        return round($bytes, 2) . ' ' . $units[$pow];
+        return round($bytes, 2).' '.$units[$pow];
     }
 }

@@ -32,14 +32,14 @@ final readonly class StandardizedPerformanceDTO
                     'actual_start' => null,
                     'diff_minutes' => 0,
                     'actual_duration' => 0,
-                    'scheduled_duration' => 45
+                    'scheduled_duration' => 45,
                 ],
                 'break' => [
                     'scheduled_start' => null,
                     'actual_start' => null,
                     'diff_minutes' => 0,
                     'actual_duration' => 0,
-                    'scheduled_duration' => 15
+                    'scheduled_duration' => 15,
                 ],
             ],
             activities: [],

@@ -73,21 +73,21 @@ final class EloquentEmployeeLookupRepository implements EmployeeLookupRepository
         $employees = Employee::where('is_active', true)
             ->get(['id', 'username', 'cisco_username', 'first_name', 'last_name']);
 
-        $this->ciscoCache      = [];
-        $this->loginCache      = [];
-        $this->nameCache       = [];
+        $this->ciscoCache = [];
+        $this->loginCache = [];
+        $this->nameCache = [];
         $this->dbFallbackCache = [];
 
         foreach ($employees as $emp) {
-            $id        = (int) $emp->id;
+            $id = (int) $emp->id;
             $firstName = (string) ($emp->first_name ?? '');
-            $lastName  = (string) ($emp->last_name ?? '');
+            $lastName = (string) ($emp->last_name ?? '');
 
             // — Login caches —
-            if (!empty($emp->cisco_username)) {
+            if (! empty($emp->cisco_username)) {
                 $this->ciscoCache[strtolower($emp->cisco_username)] = $id;
             }
-            if (!empty($emp->username)) {
+            if (! empty($emp->username)) {
                 $this->loginCache[strtolower($emp->username)] = $id;
             }
 
@@ -149,21 +149,27 @@ final class EloquentEmployeeLookupRepository implements EmployeeLookupRepository
 
         // 1. Intentar por Login ID exacto (cisco_username o username)
         $id = $this->findByLoginId($loginId);
-        if ($id) return $id;
+        if ($id) {
+            return $id;
+        }
 
         // 2. Intentar por Full Name en caché de memoria
         $id = $this->findByFullName($fullName);
-        if ($id) return $id;
+        if ($id) {
+            return $id;
+        }
 
         // 3. Si el loginId parece un nombre (contiene espacios), intentarlo en el caché de nombres
         if ($loginId && str_contains($loginId, ' ')) {
             $id = $this->findByFullName($loginId);
-            if ($id) return $id;
+            if ($id) {
+                return $id;
+            }
         }
 
         // 4. Fallback a Base de Datos (Postgres CONCAT + ILIKE)
         // Intentamos primero con el fullName y luego con el loginId si parece nombre
-        return $this->findByRawNameDb($fullName) 
+        return $this->findByRawNameDb($fullName)
             ?? ($loginId && str_contains($loginId, ' ') ? $this->findByRawNameDb($loginId) : null);
     }
 
@@ -177,8 +183,7 @@ final class EloquentEmployeeLookupRepository implements EmployeeLookupRepository
      * Usa ILIKE (case-insensitive) y normaliza espacios múltiples via REGEXP_REPLACE.
      * El resultado (hit o miss) se guarda en $dbFallbackCache para evitar repetición.
      *
-     * @param  string|null $rawName  Nombre exacto como viene de CUIC
-     * @return int|null
+     * @param  string|null  $rawName  Nombre exacto como viene de CUIC
      */
     private function findByRawNameDb(?string $rawName): ?int
     {
@@ -251,7 +256,7 @@ final class EloquentEmployeeLookupRepository implements EmployeeLookupRepository
 
     private function ensureWarmedUp(): void
     {
-        if (!$this->warmedUp) {
+        if (! $this->warmedUp) {
             $this->warmup();
         }
     }

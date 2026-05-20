@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Sincroniza nombres de agentes desde Cisco Finesse a la tabla local de empleados.
- * 
+ *
  * Utiliza loginId/loginName de Cisco como llave para buscar el 'username' local.
  * Actualiza first_name y last_name con los valores oficiales de Cisco.
  */
@@ -27,37 +27,40 @@ final class SyncFinesseUsersAction
 
         foreach ($finesseUsers as $userData) {
             $loginId = $userData['loginId'] ?? $userData['loginName'] ?? null;
-            
-            if (!$loginId) {
+
+            if (! $loginId) {
                 $stats['skipped']++;
+
                 continue;
             }
 
-            $employee = Employee::where('username', strtolower((string)$loginId))->first();
+            $employee = Employee::where('username', strtolower((string) $loginId))->first();
 
-            if (!$employee) {
+            if (! $employee) {
                 $stats['not_found']++;
+
                 continue;
             }
 
             $firstName = (string) ($userData['firstName'] ?? '');
-            $lastName  = (string) ($userData['lastName']  ?? '');
+            $lastName = (string) ($userData['lastName'] ?? '');
 
             if (empty($firstName) && empty($lastName)) {
                 $stats['skipped']++;
+
                 continue;
             }
 
             $employee->update([
                 'first_name' => $firstName,
-                'last_name'  => $lastName,
+                'last_name' => $lastName,
             ]);
 
             $stats['updated']++;
         }
 
         Log::info('[Finesse-Sync] Finalizado', $stats);
-        
+
         return $stats;
     }
 }

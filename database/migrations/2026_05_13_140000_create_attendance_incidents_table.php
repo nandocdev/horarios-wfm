@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -46,7 +46,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('attendance_incidents');
-        
+
         Schema::table('incident_types', function (Blueprint $table) {
             // Revertir a enum es difícil en una migración down sin conocer los datos previos,
             // pero para desarrollo podemos dejarlo como string o intentar revertirlo si es necesario.

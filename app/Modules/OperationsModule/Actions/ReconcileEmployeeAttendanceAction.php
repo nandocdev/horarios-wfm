@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Acción para reconciliar la asistencia de un empleado y generar incidentes operativos.
- * 
+ *
  * [RIESGOS]
  * - Duplicidad de incidentes: Se mitiga buscando por employee_id, date y type.
  * - Falsos positivos: Depende de la calidad de datos en ConnectModule (Cisco).
@@ -44,7 +44,9 @@ final class ReconcileEmployeeAttendanceAction
                 $attendance['actual_entry'],
                 "Tardanza detectada automáticamente: {$attendance['diff_minutes']} minutos."
             );
-            if ($incident) $results[] = 'LATE';
+            if ($incident) {
+                $results[] = 'LATE';
+            }
         }
 
         // 2. Reconciliar Ausencia (Solo si el turno ya debió haber terminado o si es un día pasado)
@@ -56,9 +58,11 @@ final class ReconcileEmployeeAttendanceAction
                     $date,
                     $attendance['scheduled_entry'],
                     null,
-                    "Ausencia detectada: No se registraron marcas en Cisco para la jornada programada."
+                    'Ausencia detectada: No se registraron marcas en Cisco para la jornada programada.'
                 );
-                if ($incident) $results[] = 'ABSENT';
+                if ($incident) {
+                    $results[] = 'ABSENT';
+                }
             }
         }
 
@@ -70,7 +74,7 @@ final class ReconcileEmployeeAttendanceAction
      */
     private function shouldMarkAsAbsent(array $attendance, CarbonInterface $date): bool
     {
-        if (!$date->isToday()) {
+        if (! $date->isToday()) {
             return true;
         }
 
@@ -79,7 +83,7 @@ final class ReconcileEmployeeAttendanceAction
         }
 
         $scheduledStart = Carbon::parse($attendance['scheduled_entry'])->setDate($date->year, $date->month, $date->day);
-        
+
         return $scheduledStart->diffInMinutes(now(), false) > 120;
     }
 
@@ -95,8 +99,9 @@ final class ReconcileEmployeeAttendanceAction
         string $comment
     ): ?AttendanceIncident {
         $type = IncidentType::where('code', $typeCode)->first();
-        if (!$type) {
+        if (! $type) {
             Log::warning("ReconcileAttendance: No se encontró el tipo de incidente {$typeCode}");
+
             return null;
         }
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Livewire;
 
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
@@ -13,16 +15,18 @@ use Livewire\Component;
  * Componente interactivo para el Dashboard de Operación en Tiempo Real.
  * Muestra el estado actual de los agentes comparado con su horario planificado.
  */
-class RealtimeOperationDashboard extends Component {
+class RealtimeOperationDashboard extends Component
+{
     /**
      * Define el intervalo de actualización automática (polling).
      */
     public int $refreshInterval = 10; // Segundos
 
     #[Computed]
-    public function realtimeMetrics(): array {
+    public function realtimeMetrics(): array
+    {
         // 0. Obtener los IDs de los empleados que son "Operador I"
-        $operadorIds = \App\Modules\PersonnelModule\Models\Employee::whereHas('position', function ($q) {
+        $operadorIds = Employee::whereHas('position', function ($q) {
             $q->where('id', 1);
         })->pluck('id')->toArray();
 
@@ -36,7 +40,7 @@ class RealtimeOperationDashboard extends Component {
                 'ready' => 0,
                 'not_ready' => 0,
                 'not_ready_breakdown' => [],
-                'raw_states' => collect()
+                'raw_states' => collect(),
             ];
         }
 
@@ -63,7 +67,7 @@ class RealtimeOperationDashboard extends Component {
         $connectedEmployeeIds = $realtimeStates->pluck('employee_id')->toArray();
 
         // 3. Obtener excepciones activas para los agentes agendados
-        $activeExceptions = \App\Modules\WfmModule\Models\ScheduleException::whereIn('employee_id', $scheduledEmployeeIds)
+        $activeExceptions = ScheduleException::whereIn('employee_id', $scheduledEmployeeIds)
             ->where(function ($q) use ($now) {
                 $q->where(function ($q2) use ($now) {
                     $q2->where('start_at', '<=', $now)
@@ -99,7 +103,7 @@ class RealtimeOperationDashboard extends Component {
         // Breakdown de Not Ready
         $notReadyBreakdown = $realtimeStates->where('current_state', 'NOT_READY')
             ->groupBy('reason_code')
-            ->map(fn($group) => $group->count())
+            ->map(fn ($group) => $group->count())
             ->toArray();
 
         // Calcular agentes hablando por cola desde el Real Time de Operadores
@@ -109,11 +113,11 @@ class RealtimeOperationDashboard extends Component {
             $callInfo = $meta['call_info'] ?? null;
             $queueName = 'Directa / Outbound';
 
-            if ($callInfo && isset($callInfo['queue_name']) && !empty($callInfo['queue_name'])) {
+            if ($callInfo && isset($callInfo['queue_name']) && ! empty($callInfo['queue_name'])) {
                 $q = $callInfo['queue_name'];
                 $queueName = is_array($q) ? ($q[0] ?? 'Directa / Outbound') : $q;
             }
-                
+
             $agentsTalkingByQueue[$queueName] = ($agentsTalkingByQueue[$queueName] ?? 0) + 1;
         }
 
@@ -125,12 +129,13 @@ class RealtimeOperationDashboard extends Component {
                 $csq->agents_talking = $agentsTalkingByQueue[$csq->csq_name] ?? 0;
                 // Eliminar del mapa para identificar las que no están en la tabla
                 unset($agentsTalkingByQueue[$csq->csq_name]);
+
                 return $csq;
             });
 
         // Agregar colas que no están en la tabla de stats (ej: Directa / Outbound)
         foreach ($agentsTalkingByQueue as $name => $count) {
-            $csqSummary->push((object)[
+            $csqSummary->push((object) [
                 'csq_name' => $name,
                 'calls_waiting' => 0,
                 'longest_call_in_queue' => 0,
@@ -144,8 +149,8 @@ class RealtimeOperationDashboard extends Component {
 
         // Filtrar colas sin actividad (sin llamadas ofrecidas en el día y sin actividad actual)
         $csqSummary = $csqSummary->filter(function ($csq) {
-            return $csq->total_calls_since_midnight > 0 
-                || $csq->agents_talking > 0 
+            return $csq->total_calls_since_midnight > 0
+                || $csq->agents_talking > 0
                 || $csq->calls_waiting > 0;
         })->values();
 
@@ -159,11 +164,12 @@ class RealtimeOperationDashboard extends Component {
             'ready' => $ready,
             'not_ready' => $notReady,
             'not_ready_breakdown' => $notReadyBreakdown,
-            'csq_summary' => $csqSummary
+            'csq_summary' => $csqSummary,
         ];
     }
 
-    public function render() {
+    public function render()
+    {
         // Layout principal
         return view('connect::livewire.realtime-operation-dashboard')
             ->layout('layouts.app', ['title' => 'Dashboard de Operación']);

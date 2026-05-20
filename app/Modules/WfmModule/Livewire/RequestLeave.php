@@ -133,8 +133,8 @@ class RequestLeave extends Component
         $employee = Auth::user()->employee;
         $date = Carbon::parse($dateString);
 
-        $week = WeeklySchedule::where('week_start_date', '<=', $date->toDateString())
-            ->where('week_end_date', '>=', $date->toDateString())
+        $week = WeeklySchedule::whereDate('week_start_date', '<=', $date->toDateString())
+            ->whereDate('week_end_date', '>=', $date->toDateString())
             ->first();
 
         if (! $week) {

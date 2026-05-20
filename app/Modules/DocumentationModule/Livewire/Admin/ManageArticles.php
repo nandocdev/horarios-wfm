@@ -15,14 +15,20 @@ class ManageArticles extends Component
     use WithPagination;
 
     public $search = '';
+
     public $showModal = false;
+
     public $editingArticle = null;
 
     // Form fields
     public $title = '';
+
     public $content = '';
+
     public $is_published = false;
+
     public $selectedCategories = [];
+
     public $sort_order = 0;
 
     protected $rules = [
@@ -37,7 +43,7 @@ class ManageArticles extends Component
     {
         $articles = Article::with(['author', 'categories'])
             ->when($this->search, function ($query) {
-                $query->where('title', 'like', '%' . $this->search . '%');
+                $query->where('title', 'like', '%'.$this->search.'%');
             })
             ->latest()
             ->paginate(10);
@@ -90,7 +96,7 @@ class ManageArticles extends Component
 
         $this->showModal = false;
         $this->resetForm();
-        
+
         $this->dispatch('toast', [
             'type' => 'success',
             'message' => 'Artículo guardado correctamente.',
@@ -100,7 +106,7 @@ class ManageArticles extends Component
     public function deleteArticle(Article $article)
     {
         $article->delete();
-        
+
         $this->dispatch('toast', [
             'type' => 'success',
             'message' => 'Artículo eliminado.',

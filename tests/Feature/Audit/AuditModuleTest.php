@@ -3,10 +3,8 @@
 declare(strict_types=1);
 
 use App\Modules\AuditModule\Models\AuditLog;
-use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Team;
-use Illuminate\Support\Facades\Hash;
 
 it('shows audit list to admin users', function () {
     $this->seed(RolesAndPermissionsSeeder::class);

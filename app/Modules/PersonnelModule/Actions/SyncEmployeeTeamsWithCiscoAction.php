@@ -74,8 +74,8 @@ class SyncEmployeeTeamsWithCiscoAction
                         // Actualizar relación principal en empleado
                         $employee->update([
                             'team_id' => $team->id,
-                            'parent_id' => ($team->supervisor_id && (int) $employee->id !== (int) $team->supervisor_id) 
-                                ? $team->supervisor_id 
+                            'parent_id' => ($team->supervisor_id && (int) $employee->id !== (int) $team->supervisor_id)
+                                ? $team->supervisor_id
                                 : $employee->parent_id,
                         ]);
 

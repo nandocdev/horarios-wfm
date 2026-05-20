@@ -58,8 +58,8 @@ class RequestShiftSwap extends Component
         $date = Carbon::parse($this->requestedDate);
         $dayOfWeek = $date->dayOfWeekIso;
 
-        $week = WeeklySchedule::where('week_start_date', '<=', $date->toDateString())
-            ->where('week_end_date', '>=', $date->toDateString())
+        $week = WeeklySchedule::whereDate('week_start_date', '<=', $date->toDateString())
+            ->whereDate('week_end_date', '>=', $date->toDateString())
             ->first();
 
         if (! $week) {
@@ -166,8 +166,8 @@ class RequestShiftSwap extends Component
                     $query->where('is_replaced', false)
                         ->where('day_of_week', $dayOfWeek)
                         ->whereHas('weeklySchedule', function ($q) use ($date) {
-                            $q->where('week_start_date', '<=', $date->toDateString())
-                              ->where('week_end_date', '>=', $date->toDateString());
+                            $q->whereDate('week_start_date', '<=', $date->toDateString())
+                                ->whereDate('week_end_date', '>=', $date->toDateString());
                         });
                 })
                 // 2. Ese turno debe ser distinto al del solicitante
@@ -176,8 +176,8 @@ class RequestShiftSwap extends Component
                         ->where('day_of_week', $dayOfWeek)
                         ->where('schedule_id', $this->requesterAssignment->schedule_id)
                         ->whereHas('weeklySchedule', function ($q) use ($date) {
-                            $q->where('week_start_date', '<=', $date->toDateString())
-                              ->where('week_end_date', '>=', $date->toDateString());
+                            $q->whereDate('week_start_date', '<=', $date->toDateString())
+                                ->whereDate('week_end_date', '>=', $date->toDateString());
                         });
                 })
                 ->get();

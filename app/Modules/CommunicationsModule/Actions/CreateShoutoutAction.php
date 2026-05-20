@@ -29,11 +29,11 @@ class CreateShoutoutAction
             ]);
 
             // Sincronizar categorías y tags si existen métodos de relación en el modelo
-            if (!empty($dto->category_ids)) {
+            if (! empty($dto->category_ids)) {
                 $shoutout->categories()->sync($dto->category_ids);
             }
 
-            if (!empty($dto->tag_ids)) {
+            if (! empty($dto->tag_ids)) {
                 $shoutout->tags()->sync($dto->tag_ids);
             }
 

@@ -12,26 +12,28 @@ use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-final class ImportUccxInboundAction {
+final class ImportUccxInboundAction
+{
     /** @var array<string, int> */
     private array $queueCache = [];
 
     /** @var array<string, int> */
     private array $employeeCache = [];
 
-    public function execute(string $filePath): int {
-        if (!file_exists($filePath)) {
+    public function execute(string $filePath): int
+    {
+        if (! file_exists($filePath)) {
             throw new \InvalidArgumentException("El archivo no existe: {$filePath}");
         }
 
         $handle = fopen($filePath, 'r');
-        if (!$handle) {
+        if (! $handle) {
             throw new \RuntimeException("No se pudo abrir el archivo: {$filePath}");
         }
 
         // Leer cabecera
         $header = fgetcsv($handle);
-        if (!$header) {
+        if (! $header) {
             fclose($handle);
 
             return 0;
@@ -61,7 +63,7 @@ final class ImportUccxInboundAction {
                     $this->persistRecord($dto);
                     $importedCount++;
                 } catch (\Exception $e) {
-                    Log::warning("Error procesando fila {$rowCount} en {$filePath}: " . $e->getMessage());
+                    Log::warning("Error procesando fila {$rowCount} en {$filePath}: ".$e->getMessage());
 
                     continue;
                 }
@@ -75,7 +77,7 @@ final class ImportUccxInboundAction {
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Error masivo importando UCCX {$filePath}: " . $e->getMessage());
+            Log::error("Error masivo importando UCCX {$filePath}: ".$e->getMessage());
             throw $e;
         } finally {
             fclose($handle);
@@ -84,7 +86,8 @@ final class ImportUccxInboundAction {
         return $importedCount;
     }
 
-    private function primeCaches(): void {
+    private function primeCaches(): void
+    {
         $this->queueCache = CallQueue::pluck('id', 'name')->toArray();
 
         try {
@@ -101,17 +104,18 @@ final class ImportUccxInboundAction {
             $employees = Employee::whereNotNull('username')->get(['id', 'username', 'first_name', 'last_name']);
 
             // Mapas locales para cruce rápido
-            $usernameToId = $employees->mapWithKeys(fn($e) => [strtolower($e->username) => $e->id])->toArray();
+            $usernameToId = $employees->mapWithKeys(fn ($e) => [strtolower($e->username) => $e->id])->toArray();
             $nameToId = $employees->mapWithKeys(function ($e) {
-                $fullName = strtolower(trim($e->first_name . ' ' . $e->last_name));
+                $fullName = strtolower(trim($e->first_name.' '.$e->last_name));
+
                 return [$fullName => $e->id];
-            })->filter(fn($id, $name) => !empty($name))->toArray();
+            })->filter(fn ($id, $name) => ! empty($name))->toArray();
 
             foreach ($ciscoUsers as $u) {
                 $loginId = strtolower((string) ($u['loginId'] ?? $u['loginName'] ?? ''));
                 $firstName = is_array($u['firstName'] ?? '') ? '' : ($u['firstName'] ?? '');
                 $lastName = is_array($u['lastName'] ?? '') ? '' : ($u['lastName'] ?? '');
-                $ciscoName = strtolower(trim($firstName . ' ' . $lastName));
+                $ciscoName = strtolower(trim($firstName.' '.$lastName));
 
                 $empId = $usernameToId[$loginId] ?? $nameToId[$ciscoName] ?? null;
 
@@ -123,12 +127,12 @@ final class ImportUccxInboundAction {
                 }
             }
         } catch (\Exception $e) {
-            Log::error('ImportUccxInboundAction: Error al obtener usuarios de Cisco para mapeo: ' . $e->getMessage());
+            Log::error('ImportUccxInboundAction: Error al obtener usuarios de Cisco para mapeo: '.$e->getMessage());
             // Fallback: usar nombres y usernames locales
             $employees = Employee::whereNotNull('username')->get(['id', 'username', 'first_name', 'last_name']);
             foreach ($employees as $employee) {
                 $this->employeeCache[strtolower($employee->username)] = $employee->id;
-                $fullName = strtolower(trim($employee->first_name . ' ' . $employee->last_name));
+                $fullName = strtolower(trim($employee->first_name.' '.$employee->last_name));
                 if ($fullName) {
                     $this->employeeCache[$fullName] = $employee->id;
                 }
@@ -136,7 +140,8 @@ final class ImportUccxInboundAction {
         }
     }
 
-    private function persistRecord(UccxCallDataDTO $dto): void {
+    private function persistRecord(UccxCallDataDTO $dto): void
+    {
         $record = CallRecord::where('cisco_call_id', $dto->ciscoCallId)
             ->where('sequence_number', $dto->sequenceNumber)
             ->first();
@@ -188,7 +193,8 @@ final class ImportUccxInboundAction {
         }
     }
 
-    private function mapStatus(int $disposition): string {
+    private function mapStatus(int $disposition): string
+    {
         /**
          * Cisco Disposition:
          * 1: abandoned

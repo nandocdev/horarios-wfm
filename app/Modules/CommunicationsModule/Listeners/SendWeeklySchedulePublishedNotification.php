@@ -6,6 +6,7 @@ namespace App\Modules\CommunicationsModule\Listeners;
 
 use App\Modules\CommunicationsModule\Notifications\WeeklySchedulePublishedNotification;
 use App\Modules\CoreModule\Models\User;
+use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Shared\Events\WeeklySchedulePublished;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ class SendWeeklySchedulePublishedNotification implements ShouldQueue
 {
     /**
      * Maneja el envío de notificaciones cuando se publica un horario semanal.
-     * 
+     *
      * Reglas de negocio:
      * - Se notifica a todos los Agentes (rol: operator).
      * - Se notifica a Coordinadores y Supervisores.
@@ -24,8 +25,9 @@ class SendWeeklySchedulePublishedNotification implements ShouldQueue
     {
         $weekly = $event->weeklySchedule;
 
-        if (!$weekly instanceof \App\Modules\WfmModule\Models\WeeklySchedule) {
+        if (! $weekly instanceof WeeklySchedule) {
             Log::error('El evento WeeklySchedulePublished no contiene una instancia válida de WeeklySchedule.');
+
             return;
         }
 
@@ -33,7 +35,7 @@ class SendWeeklySchedulePublishedNotification implements ShouldQueue
             'type' => 'weekly_schedule.published',
             'weekly_schedule_id' => $weekly->id ?? null,
             'published_by' => $event->publishedByUserId,
-            'week_period' => $weekly->week_start_date->format('d/m/Y') . ' al ' . $weekly->week_end_date->format('d/m/Y'),
+            'week_period' => $weekly->week_start_date->format('d/m/Y').' al '.$weekly->week_end_date->format('d/m/Y'),
             'action_url' => url("/schedules/my-schedule?week={$weekly->id}"),
         ];
 
@@ -46,14 +48,15 @@ class SendWeeklySchedulePublishedNotification implements ShouldQueue
                 'chief',       // Jefes
                 'director',    // Directores
                 'admin',       // Administradores
-                'wfm'          // WFM Managers
+                'wfm',          // WFM Managers
             ])
-            ->active()
-            ->distinct()
-            ->get();
+                ->active()
+                ->distinct()
+                ->get();
 
             if ($recipients->isEmpty()) {
                 Log::warning('No se encontraron destinatarios para la notificación de horario publicado.');
+
                 return;
             }
 
@@ -61,13 +64,13 @@ class SendWeeklySchedulePublishedNotification implements ShouldQueue
                 try {
                     $user->notify(new WeeklySchedulePublishedNotification($payload));
                 } catch (\Throwable $e) {
-                    Log::warning("Error al notificar al usuario {$user->id}: " . $e->getMessage());
+                    Log::warning("Error al notificar al usuario {$user->id}: ".$e->getMessage());
                     // Continuamos con el siguiente usuario
                 }
             }
 
         } catch (\Throwable $e) {
-            Log::error('Error al enviar notificaciones de horario publicado: ' . $e->getMessage());
+            Log::error('Error al enviar notificaciones de horario publicado: '.$e->getMessage());
             throw $e;
         }
     }

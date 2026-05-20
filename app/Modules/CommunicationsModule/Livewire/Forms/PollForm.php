@@ -17,7 +17,6 @@ class PollForm extends Form
 
     public string $question = '';
 
-    /** @var array */
     public array $options = [
         ['text' => '', 'color' => 'blue'],
         ['text' => '', 'color' => 'green'],

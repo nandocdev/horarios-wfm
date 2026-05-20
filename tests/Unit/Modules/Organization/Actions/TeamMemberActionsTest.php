@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Actions\AssignEmployeeToTeamAction;
 use App\Modules\PersonnelModule\Actions\RemoveEmployeeFromTeamAction;
 use App\Modules\PersonnelModule\DTOs\AssignEmployeeToTeamDTO;
 use App\Modules\PersonnelModule\DTOs\RemoveEmployeeFromTeamDTO;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\PersonnelModule\Models\TeamMember;
 

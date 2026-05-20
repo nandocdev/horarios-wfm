@@ -30,6 +30,6 @@ class ResetUserPassword implements ResetsUserPasswords
             'force_password_change' => false,
         ])->save();
 
-        $user->notify(new PasswordChangedNotification());
+        $user->notify(new PasswordChangedNotification);
     }
 }

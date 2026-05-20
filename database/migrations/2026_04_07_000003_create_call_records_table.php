@@ -15,15 +15,15 @@ return new class extends Migration
 
             $table->string('cisco_call_id');
             $table->unsignedInteger('sequence_number')->default(0);
-            
+
             $table->foreignId('queue_id')->nullable()->constrained('call_queues')->nullOnDelete();
-            
+
             $table->string('phone_number');
             $table->string('destination_number')->nullable();
-            
+
             $table->timestamp('ivr_started_at');
             $table->timestamp('ivr_ended_at')->nullable();
-            
+
             $table->unsignedInteger('talk_time')->default(0);
             $table->unsignedInteger('ring_time')->default(0);
             $table->unsignedInteger('work_time')->default(0);
@@ -34,7 +34,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('employees')
                 ->nullOnDelete();
-                
+
             $table->string('raw_agent_name')->nullable();
 
             $table->string('citizen_identifier', 12)->nullable();

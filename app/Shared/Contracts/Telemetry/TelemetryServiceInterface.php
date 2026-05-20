@@ -11,6 +11,8 @@ use Illuminate\Support\Collection;
 interface TelemetryServiceInterface
 {
     public function getCurrentState(int $employeeId): ?TelemetryStateDTO;
+
     public function getBatchCurrentStates(array $employeeIds): array;
+
     public function getStateTransitions(int $employeeId, CarbonInterface $start, CarbonInterface $end): Collection;
 }

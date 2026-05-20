@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class FileShare extends Model
 {
     protected $fillable = [
-        'file_id', 'folder_id', 'user_id', 'shared_by_id', 'access_level', 'expires_at'
+        'file_id', 'folder_id', 'user_id', 'shared_by_id', 'access_level', 'expires_at',
     ];
 
     protected $casts = [

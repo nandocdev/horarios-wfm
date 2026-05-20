@@ -10,7 +10,6 @@ use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
 uses(RefreshDatabase::class);
 
@@ -40,7 +39,7 @@ it('updates an individual assignment for an employee', function () {
     ]);
 
     $action = app(UpdateEmployeeDayAssignmentAction::class);
-    
+
     $newData = [
         'schedule_id' => $schedule->id,
         'start_time' => '09:00:00',
@@ -55,8 +54,8 @@ it('updates an individual assignment for an employee', function () {
     $today = now()->toDateString();
     $this->assertDatabaseHas('weekly_schedule_assignments', [
         'id' => $assignment->id,
-        'start_time' => $today . ' 09:00:00',
-        'lunch_start_time' => $today . ' 13:00:00',
-        'lunch_end_time' => $today . ' 14:00:00',
+        'start_time' => $today.' 09:00:00',
+        'lunch_start_time' => $today.' 13:00:00',
+        'lunch_end_time' => $today.' 14:00:00',
     ]);
 });

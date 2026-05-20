@@ -4,18 +4,28 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Providers;
 
+use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
+use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
+use App\Modules\OperationsModule\Livewire\AgentRealtimeCard;
+use App\Modules\OperationsModule\Livewire\AgentTimeline;
+use App\Modules\OperationsModule\Livewire\Dashboard;
+use App\Modules\OperationsModule\Livewire\PerformanceScorecard;
+use App\Modules\OperationsModule\Livewire\RealtimeMonitoring;
+use App\Modules\OperationsModule\Livewire\TeamPerformanceSummary;
+use App\Modules\OperationsModule\Services\PerformanceService;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class ModuleServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
         $this->app->singleton(
-            \App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction::class
+            GetStandardizedPerformanceAction::class
         );
 
         $this->app->singleton(
-            \App\Modules\OperationsModule\Services\PerformanceService::class
+            PerformanceService::class
         );
     }
 
@@ -23,7 +33,7 @@ class ModuleServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand::class,
+                ReconcileAttendanceCommand::class,
             ]);
         }
 
@@ -36,11 +46,11 @@ class ModuleServiceProvider extends ServiceProvider
             $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'operations');
         }
 
-        \Livewire\Livewire::component('operations.realtime-monitoring', \App\Modules\OperationsModule\Livewire\RealtimeMonitoring::class);
-        \Livewire\Livewire::component('operations.performance-scorecard', \App\Modules\OperationsModule\Livewire\PerformanceScorecard::class);
-        \Livewire\Livewire::component('operations.team-performance-summary', \App\Modules\OperationsModule\Livewire\TeamPerformanceSummary::class);
-        \Livewire\Livewire::component('operations.agent-realtime-card', \App\Modules\OperationsModule\Livewire\AgentRealtimeCard::class);
-        \Livewire\Livewire::component('operations.agent-timeline', \App\Modules\OperationsModule\Livewire\AgentTimeline::class);
-        \Livewire\Livewire::component('operations.dashboard', \App\Modules\OperationsModule\Livewire\Dashboard::class);
+        Livewire::component('operations.realtime-monitoring', RealtimeMonitoring::class);
+        Livewire::component('operations.performance-scorecard', PerformanceScorecard::class);
+        Livewire::component('operations.team-performance-summary', TeamPerformanceSummary::class);
+        Livewire::component('operations.agent-realtime-card', AgentRealtimeCard::class);
+        Livewire::component('operations.agent-timeline', AgentTimeline::class);
+        Livewire::component('operations.dashboard', Dashboard::class);
     }
 }

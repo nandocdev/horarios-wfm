@@ -9,6 +9,7 @@ use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use App\Shared\DTOs\Telemetry\TelemetryStateDTO;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 final class TelemetryService implements TelemetryServiceInterface
@@ -16,22 +17,26 @@ final class TelemetryService implements TelemetryServiceInterface
     public function getCurrentState(int $employeeId): ?TelemetryStateDTO
     {
         $state = AgentRealtimeState::where('employee_id', $employeeId)->first();
-        if (!$state) return null;
+        if (! $state) {
+            return null;
+        }
 
         return new TelemetryStateDTO(
             $employeeId,
             $state->current_state ?? 'OFFLINE',
             $state->reason_code,
-            $state->last_changed_at instanceof \Illuminate\Support\Carbon 
-                ? $state->last_changed_at->utc()->toIso8601String() 
-                : \Illuminate\Support\Carbon::parse((string) $state->last_changed_at)->utc()->toIso8601String(),
+            $state->last_changed_at instanceof Carbon
+                ? $state->last_changed_at->utc()->toIso8601String()
+                : Carbon::parse((string) $state->last_changed_at)->utc()->toIso8601String(),
             (array) $state->metadata
         );
     }
 
     public function getBatchCurrentStates(array $employeeIds): array
     {
-        if (empty($employeeIds)) return [];
+        if (empty($employeeIds)) {
+            return [];
+        }
         $states = AgentRealtimeState::whereIn('employee_id', $employeeIds)->get()->keyBy('employee_id');
 
         $results = [];
@@ -42,13 +47,14 @@ final class TelemetryService implements TelemetryServiceInterface
                     $id,
                     $state->current_state ?? 'OFFLINE',
                     $state->reason_code,
-                    $state->last_changed_at instanceof \Illuminate\Support\Carbon 
-                        ? $state->last_changed_at->utc()->toIso8601String() 
-                        : \Illuminate\Support\Carbon::parse((string) $state->last_changed_at)->utc()->toIso8601String(),
+                    $state->last_changed_at instanceof Carbon
+                        ? $state->last_changed_at->utc()->toIso8601String()
+                        : Carbon::parse((string) $state->last_changed_at)->utc()->toIso8601String(),
                     (array) $state->metadata
                 );
             }
         }
+
         return $results;
     }
 
@@ -59,16 +65,17 @@ final class TelemetryService implements TelemetryServiceInterface
             ->where('transition_time', '<=', $end)
             ->orderBy('transition_time')
             ->get()
-            ->map(function($t) use ($employeeId) {
-                $cleanState = trim((string)$t->agent_state);
+            ->map(function ($t) use ($employeeId) {
+                $cleanState = trim((string) $t->agent_state);
+
                 return new TelemetryStateDTO(
                     $employeeId,
                     $cleanState,
                     $t->reason_code,
-                    $t->transition_time instanceof \Illuminate\Support\Carbon ? $t->transition_time->toIso8601String() : (string) $t->transition_time,
+                    $t->transition_time instanceof Carbon ? $t->transition_time->toIso8601String() : (string) $t->transition_time,
                     [
                         'duration' => $t->duration,
-                        'is_productive' => in_array(strtoupper($cleanState), ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'])
+                        'is_productive' => in_array(strtoupper($cleanState), ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND']),
                     ]
                 );
             });

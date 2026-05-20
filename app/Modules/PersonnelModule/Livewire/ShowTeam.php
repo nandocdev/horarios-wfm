@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Livewire;
 
+use App\Modules\PersonnelModule\Actions\AssignEmployeeToTeamAction;
+use App\Modules\PersonnelModule\Actions\RemoveEmployeeFromTeamAction;
 use App\Modules\PersonnelModule\Actions\ToggleTeamStatusAction;
+use App\Modules\PersonnelModule\DTOs\AssignEmployeeToTeamDTO;
+use App\Modules\PersonnelModule\DTOs\RemoveEmployeeFromTeamDTO;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use Livewire\Component;
 
@@ -33,15 +38,15 @@ class ShowTeam extends Component
     {
         $this->authorize('update', $this->team);
 
-        $action = new \App\Modules\PersonnelModule\Actions\RemoveEmployeeFromTeamAction;
-        $action->execute(new \App\Modules\PersonnelModule\DTOs\RemoveEmployeeFromTeamDTO(
+        $action = new RemoveEmployeeFromTeamAction;
+        $action->execute(new RemoveEmployeeFromTeamDTO(
             employee_id: $employeeId,
             team_id: $this->team->id,
             left_at: now()->format('Y-m-d')
         ));
 
         $this->loadTeam();
-        
+
         \Flux::toast(
             heading: 'Miembro removido',
             text: 'El empleado ha sido desvinculado del equipo correctamente.',
@@ -59,11 +64,11 @@ class ShowTeam extends Component
      */
     public function loadAvailableEmployees(): void
     {
-        $this->availableEmployees = \App\Modules\PersonnelModule\Models\Employee::active()
+        $this->availableEmployees = Employee::active()
             ->whereDoesntHave('currentTeamMember')
             ->orderBy('first_name')
             ->get()
-            ->mapWithKeys(fn($emp) => [$emp->id => "{$emp->full_name} ({$emp->employee_number})"])
+            ->mapWithKeys(fn ($emp) => [$emp->id => "{$emp->full_name} ({$emp->employee_number})"])
             ->toArray();
     }
 
@@ -74,12 +79,12 @@ class ShowTeam extends Component
     {
         $this->authorize('update', $this->team);
 
-        if (!$this->selectedEmployeeId) {
+        if (! $this->selectedEmployeeId) {
             return;
         }
 
-        $action = new \App\Modules\PersonnelModule\Actions\AssignEmployeeToTeamAction;
-        $action->execute(new \App\Modules\PersonnelModule\DTOs\AssignEmployeeToTeamDTO(
+        $action = new AssignEmployeeToTeamAction;
+        $action->execute(new AssignEmployeeToTeamDTO(
             employee_id: $this->selectedEmployeeId,
             team_id: $this->team->id,
             joined_at: now()->format('Y-m-d')
@@ -87,7 +92,7 @@ class ShowTeam extends Component
 
         $this->selectedEmployeeId = null;
         $this->loadTeam();
-        
+
         $this->dispatch('modal-close', name: 'add-member-modal');
 
         \Flux::toast(
@@ -96,6 +101,7 @@ class ShowTeam extends Component
             variant: 'success'
         );
     }
+
     public function toggleStatus(): void
     {
         $this->authorize('update', $this->team);

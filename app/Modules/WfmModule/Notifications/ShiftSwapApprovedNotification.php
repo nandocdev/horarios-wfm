@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Notifications;
 
-use App\Shared\DTOs\NotificationDTO;
 use App\Shared\Notifications\BaseNotification;
 
 class ShiftSwapApprovedNotification extends BaseNotification

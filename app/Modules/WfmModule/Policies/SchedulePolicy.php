@@ -53,6 +53,7 @@ class SchedulePolicy
     {
         return $user->can('schedules.manage');
     }
+
     /**
      * Determina si el usuario puede ver el monitoreo en tiempo real.
      */

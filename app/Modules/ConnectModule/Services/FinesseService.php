@@ -12,21 +12,26 @@ use RuntimeException;
  * Servicio para interactuar con la API REST de Cisco Finesse.
  * Puerto estándar: 8445 (HTTPS)
  */
-final class FinesseService {
+final class FinesseService
+{
     private string $baseUrl;
+
     private string $username;
+
     private string $password;
+
     private bool $verifySsl;
 
-    public function __construct() {
+    public function __construct()
+    {
         $cfg = config('contact-center.cisco');
 
         // Finesse API suele estar en el puerto 8445
         // Si la base_url no tiene puerto, intentamos usar el estándar
         $url = (string) $cfg['base_url'];
-        if (!str_contains($url, ':8445')) {
+        if (! str_contains($url, ':8445')) {
             $url = str_replace(':8444', '', $url); // Limpiar si copiaron la de CUIC
-            $url = rtrim($url, '/') . ':8445';
+            $url = rtrim($url, '/').':8445';
         }
 
         $this->baseUrl = $url;
@@ -37,20 +42,21 @@ final class FinesseService {
 
     /**
      * Obtiene la lista completa de usuarios (agentes/supervisores) desde Finesse.
-     * 
+     *
      * @return array<int, array<string, mixed>>
      */
-    public function getUsers(): array {
-        $url = rtrim($this->baseUrl, '/') . '/Users';
+    public function getUsers(): array
+    {
+        $url = rtrim($this->baseUrl, '/').'/Users';
 
-        Log::info("[Finesse] Consultando usuarios", ['url' => $url]);
+        Log::info('[Finesse] Consultando usuarios', ['url' => $url]);
 
         $response = Http::withBasicAuth($this->username, $this->password)
             ->withHeaders(['Accept' => 'application/xml']) // Finesse es nativamente XML
-            ->withoutVerifying(!$this->verifySsl)
+            ->withoutVerifying(! $this->verifySsl)
             ->get($url);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             Log::error('[Finesse] Error en la petición', [
                 'url' => $url,
                 'status' => $response->status(),
@@ -62,7 +68,7 @@ final class FinesseService {
         try {
             $xml = simplexml_load_string($response->body());
             if ($xml === false) {
-                throw new RuntimeException("No se pudo parsear el XML de Finesse");
+                throw new RuntimeException('No se pudo parsear el XML de Finesse');
             }
 
             $json = json_encode($xml);
@@ -74,7 +80,7 @@ final class FinesseService {
         } catch (\Throwable $e) {
             Log::error('[Finesse] Error al procesar respuesta XML', [
                 'error' => $e->getMessage(),
-                'body' => $response->body()
+                'body' => $response->body(),
             ]);
             throw $e;
         }

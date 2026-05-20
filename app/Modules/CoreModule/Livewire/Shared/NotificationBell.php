@@ -7,8 +7,6 @@ namespace App\Modules\CoreModule\Livewire\Shared;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-use Livewire\Attributes\On;
-
 class NotificationBell extends Component
 {
     public ?int $userId = null;

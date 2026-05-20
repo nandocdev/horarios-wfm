@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Modules\WfmModule\Models\IntradayActivity;
-use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
-use App\Modules\WfmModule\Models\WeeklySchedule;
-use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
 class MyDay extends Component
 {
     public $employee;
+
     public $stats = [];
 
     public function mount()
@@ -50,7 +47,7 @@ class MyDay extends Component
                 if ($t->duration) {
                     $totalSeconds += $t->duration;
                     $state = strtoupper(trim((string) $t->agent_state));
-                    
+
                     if (in_array($state, ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'])) {
                         // Tiempo "Efectivo" para ocupación (excluye pausas/logouts)
                         if (in_array($state, ['RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'])) {
@@ -75,8 +72,8 @@ class MyDay extends Component
 
     public function render()
     {
-        \Illuminate\Support\Facades\Log::emergency("CRITICAL: Rendering MyDay for Employee ID: " . ($this->employee->id ?? 'NONE'));
+        Log::emergency('CRITICAL: Rendering MyDay for Employee ID: '.($this->employee->id ?? 'NONE'));
+
         return view('wfm::livewire.my-day')->layout('layouts.app');
     }
 }
-

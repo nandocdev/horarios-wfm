@@ -26,7 +26,7 @@ class CheckMaintenanceMode
             }
 
             return response()->view('core::maintenance', [
-                'message' => $maintenance['message'] ?? 'El sistema se encuentra en mantenimiento.'
+                'message' => $maintenance['message'] ?? 'El sistema se encuentra en mantenimiento.',
             ], 503);
         }
 

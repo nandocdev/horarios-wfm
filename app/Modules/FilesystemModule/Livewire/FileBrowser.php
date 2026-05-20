@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\FilesystemModule\Livewire;
 
+use App\Modules\CoreModule\Models\User;
 use App\Modules\FilesystemModule\Actions\DeleteFileSystemItemAction;
-use App\Modules\FilesystemModule\Actions\UploadFileAction;
+use App\Modules\FilesystemModule\Actions\GetUserQuotaAction;
 use App\Modules\FilesystemModule\Actions\ShareItemAction;
+use App\Modules\FilesystemModule\Actions\UploadFileAction;
 use App\Modules\FilesystemModule\Models\File;
-use App\Modules\FilesystemModule\Models\Folder;
 use App\Modules\FilesystemModule\Models\FileShare;
+use App\Modules\FilesystemModule\Models\Folder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
@@ -20,21 +22,28 @@ class FileBrowser extends Component
     use WithFileUploads;
 
     public ?int $currentFolderId = null;
+
     public string $search = '';
+
     public string $viewMode = 'my_files'; // my_files, shared
-    
+
     // Upload state
     public $uploads = [];
+
     public bool $isUploading = false;
 
     // Folder creation state
     public string $newFolderName = '';
+
     public bool $showFolderModal = false;
 
     // Sharing state
     public $itemToShare = null;
+
     public $shareTargetUserId = null;
+
     public string $shareAccessLevel = 'view';
+
     public string $userSearch = '';
 
     protected $queryString = [
@@ -61,13 +70,13 @@ class FileBrowser extends Component
         if ($this->viewMode === 'shared') {
             return Folder::whereIn('id', FileShare::where('user_id', auth()->id())->whereNotNull('folder_id')->pluck('folder_id'))
                 ->withCount(['children', 'files'])
-                ->when($this->search, fn($q) => $q->where('name', 'ilike', "%{$this->search}%"))
+                ->when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
                 ->get();
         }
 
         return $query->where('user_id', auth()->id())
             ->where('parent_id', $this->currentFolderId)
-            ->when($this->search, fn($q) => $q->where('name', 'ilike', "%{$this->search}%"))
+            ->when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
             ->get();
     }
 
@@ -86,19 +95,21 @@ class FileBrowser extends Component
 
         if ($this->viewMode === 'shared') {
             return File::whereIn('id', FileShare::where('user_id', auth()->id())->whereNotNull('file_id')->pluck('file_id'))
-                ->when($this->search, fn($q) => $q->where('name', 'ilike', "%{$this->search}%"))
+                ->when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
                 ->get();
         }
 
         return $query->where('user_id', auth()->id())
             ->where('folder_id', $this->currentFolderId)
-            ->when($this->search, fn($q) => $q->where('name', 'ilike', "%{$this->search}%"))
+            ->when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
             ->get();
     }
 
     public function getBreadcrumbs(): array
     {
-        if (!$this->currentFolderId) return [];
+        if (! $this->currentFolderId) {
+            return [];
+        }
 
         $breadcrumbs = [];
         $folder = Folder::find($this->currentFolderId);
@@ -106,7 +117,7 @@ class FileBrowser extends Component
         while ($folder) {
             array_unshift($breadcrumbs, [
                 'name' => $folder->name,
-                'id' => $folder->id
+                'id' => $folder->id,
             ]);
             $folder = $folder->parent;
         }
@@ -117,8 +128,8 @@ class FileBrowser extends Component
     protected function getStorageStats(): array
     {
         $used = File::where('user_id', auth()->id())->sum('size');
-        $quota = app(\App\Modules\FilesystemModule\Actions\GetUserQuotaAction::class)->execute(auth()->user());
-        
+        $quota = app(GetUserQuotaAction::class)->execute(auth()->user());
+
         return [
             'used' => $used,
             'quota' => $quota,
@@ -169,9 +180,9 @@ class FileBrowser extends Component
     public function download(int $fileId)
     {
         $file = File::findOrFail($fileId);
-        
+
         // Autorizar (propietario o compartido)
-        if ($file->user_id !== auth()->id() && !FileShare::where('file_id', $file->id)->where('user_id', auth()->id())->exists()) {
+        if ($file->user_id !== auth()->id() && ! FileShare::where('file_id', $file->id)->where('user_id', auth()->id())->exists()) {
             abort(403);
         }
 
@@ -181,9 +192,10 @@ class FileBrowser extends Component
     public function delete(int $id, string $type): void
     {
         $item = $type === 'file' ? File::findOrFail($id) : Folder::findOrFail($id);
-        
+
         if ($item->user_id !== auth()->id()) {
             \Flux::toast(text: 'No tienes permiso para eliminar este elemento.', variant: 'danger');
+
             return;
         }
 
@@ -196,9 +208,9 @@ class FileBrowser extends Component
         $this->itemToShare = [
             'id' => $id,
             'type' => $type,
-            'name' => ($type === 'file' ? File::find($id) : Folder::find($id))->name
+            'name' => ($type === 'file' ? File::find($id) : Folder::find($id))->name,
         ];
-        
+
         \Flux::modal('share-modal')->show();
     }
 
@@ -206,8 +218,8 @@ class FileBrowser extends Component
     {
         $this->validate(['shareTargetUserId' => 'required']);
 
-        $item = $this->itemToShare['type'] === 'file' 
-            ? File::findOrFail($this->itemToShare['id']) 
+        $item = $this->itemToShare['type'] === 'file'
+            ? File::findOrFail($this->itemToShare['id'])
             : Folder::findOrFail($this->itemToShare['id']);
 
         app(ShareItemAction::class)->execute($item, (int) $this->shareTargetUserId, $this->shareAccessLevel);
@@ -220,9 +232,11 @@ class FileBrowser extends Component
 
     public function getUsersProperty(): Collection
     {
-        if (strlen($this->userSearch) < 2) return collect();
+        if (strlen($this->userSearch) < 2) {
+            return collect();
+        }
 
-        return \App\Modules\CoreModule\Models\User::where('name', 'ilike', "%{$this->userSearch}%")
+        return User::where('name', 'ilike', "%{$this->userSearch}%")
             ->where('id', '!=', auth()->id())
             ->limit(5)
             ->get();
@@ -235,6 +249,7 @@ class FileBrowser extends Component
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
         $bytes /= (1 << (10 * $pow));
-        return round($bytes, 2) . ' ' . $units[$pow];
+
+        return round($bytes, 2).' '.$units[$pow];
     }
 }

@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
+use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
@@ -12,7 +14,9 @@ class PerformanceTestDataSeeder extends Seeder
     public function run(): void
     {
         $employee = Employee::where('username', 'avelez')->first();
-        if (!$employee) return;
+        if (! $employee) {
+            return;
+        }
 
         $date = Carbon::parse('2026-04-29');
 
@@ -25,25 +29,25 @@ class PerformanceTestDataSeeder extends Seeder
             // Login
             ['state' => 'Logged-in', 'time' => '05:58:00', 'duration' => 0, 'reason' => null],
             ['state' => 'Not Ready', 'time' => '05:58:01', 'duration' => 120, 'reason' => 'Agent Logon'],
-            
+
             // Ready
             ['state' => 'Ready', 'time' => '06:00:01', 'duration' => 3600, 'reason' => null],
-            
+
             // Talking
             ['state' => 'Talking', 'time' => '07:00:01', 'duration' => 300, 'reason' => null],
-            
+
             // Break
             ['state' => 'Not Ready', 'time' => '07:30:00', 'duration' => 900, 'reason' => 'Descanso'],
-            
+
             // Back to Ready
             ['state' => 'Ready', 'time' => '07:45:00', 'duration' => 3600, 'reason' => null],
-            
+
             // Lunch
             ['state' => 'Not Ready', 'time' => '11:05:00', 'duration' => 2700, 'reason' => 'Almuerzo'],
-            
+
             // Back to Ready
             ['state' => 'Ready', 'time' => '11:50:00', 'duration' => 7200, 'reason' => null],
-            
+
             // Logout
             ['state' => 'Logout', 'time' => '15:00:00', 'duration' => 0, 'reason' => null],
         ];

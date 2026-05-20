@@ -20,10 +20,10 @@ class ScheduleAssignmentUpdatedNotification extends Notification
     public function toMail($notifiable): MailMessage
     {
         $date = $this->payload['date_human'] ?? 'la fecha indicada';
-        
+
         return (new MailMessage)
-            ->subject('Modificación en tu Horario - ' . $date)
-            ->greeting('Hola, ' . $notifiable->name)
+            ->subject('Modificación en tu Horario - '.$date)
+            ->greeting('Hola, '.$notifiable->name)
             ->line("Se ha realizado una modificación en tu horario programado para la semana del **{$this->payload['week_period']}**.")
             ->line("### Detalles del turno para el {$date}:")
             ->line("* **Entrada:** {$this->payload['start_time']}")

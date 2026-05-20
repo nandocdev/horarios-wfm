@@ -10,7 +10,6 @@ use App\Modules\ConnectModule\DTOs\CallCompleteDTO;
 use App\Modules\ConnectModule\DTOs\CallStartDTO;
 use App\Modules\ConnectModule\Livewire\CreateCallRecord;
 use App\Modules\ConnectModule\Livewire\EditCallRecord;
-use App\Modules\ConnectModule\Livewire\ListCallRecords;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Models\CaseSubtype;

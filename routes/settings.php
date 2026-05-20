@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\RequirePasswordUnlessForced;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -17,8 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('settings/security', 'pages::settings.security')
         ->middleware([
             Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
-                ? \App\Http\Middleware\RequirePasswordUnlessForced::class
-                : null
+                ? RequirePasswordUnlessForced::class
+                : null,
         ])
         ->name('security.edit');
 });

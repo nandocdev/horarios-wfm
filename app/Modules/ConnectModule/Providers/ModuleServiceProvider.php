@@ -19,6 +19,8 @@ use App\Modules\ConnectModule\Policies\CallQueuePolicy;
 use App\Modules\ConnectModule\Policies\CallRecordPolicy;
 use App\Modules\ConnectModule\Policies\CaseSubtypePolicy;
 use App\Modules\ConnectModule\Policies\ChannelPolicy;
+use App\Modules\ConnectModule\Services\TelemetryService;
+use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,8 +29,8 @@ class ModuleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(
-            \App\Shared\Contracts\Telemetry\TelemetryServiceInterface::class,
-            \App\Modules\ConnectModule\Services\TelemetryService::class
+            TelemetryServiceInterface::class,
+            TelemetryService::class
         );
     }
 

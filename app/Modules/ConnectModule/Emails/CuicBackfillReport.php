@@ -13,8 +13,7 @@ class CuicBackfillReport extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * @param string $date
-     * @param array{total_records: int, by_type: array<string, int>, errors: string[]} $stats
+     * @param  array{total_records: int, by_type: array<string, int>, errors: string[]}  $stats
      */
     public function __construct(
         public string $date,

@@ -16,8 +16,11 @@ class QuotaManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $type = 'role'; // 'user' or 'role'
+
     public ?int $targetId = null;
+
     public int $limitMb = 100;
 
     public function mount()
@@ -44,9 +47,9 @@ class QuotaManager extends Component
         } else {
             // Para roles, podrías iterar usuarios o simplemente limpiar si es poco frecuente
             // Por simplicidad, limpiaremos el caché del usuario actual si cambia un rol suyo
-            Cache::forget("user_quota_" . auth()->id());
+            Cache::forget('user_quota_'.auth()->id());
         }
-        
+
         $this->reset(['targetId', 'limitMb']);
         \Flux::toast('Cuota actualizada correctamente.');
     }

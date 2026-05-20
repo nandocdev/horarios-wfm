@@ -9,12 +9,11 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Livewire\SwapRequestHistory;
 use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use Livewire\Livewire;
-use Tests\TestCase;
 
 test('recipient can accept a shift swap request', function () {
     $user = User::factory()->create();
     $user->assignRole('operator');
-    
+
     $recipient = Employee::factory()->create(['user_id' => $user->id]);
     $requester = Employee::factory()->create();
 
@@ -36,7 +35,7 @@ test('recipient can accept a shift swap request', function () {
 test('recipient can reject a shift swap request', function () {
     $user = User::factory()->create();
     $user->assignRole('operator');
-    
+
     $recipient = Employee::factory()->create(['user_id' => $user->id]);
     $requester = Employee::factory()->create();
 

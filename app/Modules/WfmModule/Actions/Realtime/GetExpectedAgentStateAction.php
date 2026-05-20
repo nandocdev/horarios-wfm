@@ -8,6 +8,7 @@ use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Acción para determinar el estado esperado de un agente en tiempo real.
@@ -27,7 +28,7 @@ final class GetExpectedAgentStateAction
         // 1. Validar Excepciones (Total o Parcial)
         foreach ($schedule->exceptions as $exception) {
             $isMatch = false;
-            
+
             if ($exception['is_full_day']) {
                 $isMatch = true;
             } elseif (isset($exception['start_at'], $exception['end_at'])) {
@@ -49,7 +50,7 @@ final class GetExpectedAgentStateAction
         }
 
         // 2. Validar Actividades Intradía (Incluye Almuerzos/Descansos si están registrados)
-        if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+        if (DB::getDriverName() === 'pgsql') {
             $intraday = IntradayActivity::with(['activityType'])
                 ->where('employee_id', $employeeId)
                 ->whereRaw('time_range @> ?::timestamptz', [$now->toIso8601String()])
@@ -59,9 +60,10 @@ final class GetExpectedAgentStateAction
             $intraday = IntradayActivity::with(['activityType'])
                 ->where('employee_id', $employeeId)
                 ->get()
-                ->filter(function($ia) use ($now) {
+                ->filter(function ($ia) use ($now) {
                     $start = $ia->getRangeStart();
                     $end = $ia->getRangeEnd();
+
                     return $start && $end && $now->between($start, $end);
                 })
                 ->first();
@@ -77,13 +79,15 @@ final class GetExpectedAgentStateAction
         }
 
         // 3. Validar Almuerzos/Descansos Implícitos en el Horario
-        if (!$schedule->is_off) {
+        if (! $schedule->is_off) {
             // Almuerzo
             if ($schedule->lunch_start_time && $schedule->lunch_end_time) {
                 $lStart = Carbon::parse($schedule->lunch_start_time)->setDate($now->year, $now->month, $now->day);
                 $lEnd = Carbon::parse($schedule->lunch_end_time)->setDate($now->year, $now->month, $now->day);
-                if ($lEnd->lessThan($lStart)) $lEnd->addDay();
-                
+                if ($lEnd->lessThan($lStart)) {
+                    $lEnd->addDay();
+                }
+
                 if ($now->between($lStart, $lEnd)) {
                     return [
                         'type' => 'INTRADAY',
@@ -98,8 +102,10 @@ final class GetExpectedAgentStateAction
             if ($schedule->break_start_time && $schedule->break_end_time) {
                 $bStart = Carbon::parse($schedule->break_start_time)->setDate($now->year, $now->month, $now->day);
                 $bEnd = Carbon::parse($schedule->break_end_time)->setDate($now->year, $now->month, $now->day);
-                if ($bEnd->lessThan($bStart)) $bEnd->addDay();
-                
+                if ($bEnd->lessThan($bStart)) {
+                    $bEnd->addDay();
+                }
+
                 if ($now->between($bStart, $bEnd)) {
                     return [
                         'type' => 'INTRADAY',
@@ -112,10 +118,12 @@ final class GetExpectedAgentStateAction
         }
 
         // 4. Validar Jornada Base (Disponible)
-        if (!$schedule->is_off && $schedule->start_time && $schedule->end_time) {
+        if (! $schedule->is_off && $schedule->start_time && $schedule->end_time) {
             $start = Carbon::parse($schedule->start_time)->setDate($now->year, $now->month, $now->day);
             $end = Carbon::parse($schedule->end_time)->setDate($now->year, $now->month, $now->day);
-            if ($end->lessThan($start)) $end->addDay();
+            if ($end->lessThan($start)) {
+                $end->addDay();
+            }
 
             if ($now->between($start, $end)) {
                 return [
@@ -139,11 +147,13 @@ final class GetExpectedAgentStateAction
 
     public function executeBatch(array $employeeIds, ?CarbonInterface $now = null): array
     {
-        if (empty($employeeIds)) return [];
+        if (empty($employeeIds)) {
+            return [];
+        }
         $now = $now ?? Carbon::now();
-        
+
         $schedules = $this->scheduleService->getBatchSchedules($employeeIds, $now);
-        if (\Illuminate\Support\Facades\DB::getDriverName() === 'pgsql') {
+        if (DB::getDriverName() === 'pgsql') {
             $intradays = IntradayActivity::with(['activityType'])
                 ->whereIn('employee_id', $employeeIds)
                 ->whereRaw('time_range @> ?::timestamptz', [$now->toIso8601String()])
@@ -154,9 +164,10 @@ final class GetExpectedAgentStateAction
             $intradays = IntradayActivity::with(['activityType'])
                 ->whereIn('employee_id', $employeeIds)
                 ->get()
-                ->filter(function($ia) use ($now) {
+                ->filter(function ($ia) use ($now) {
                     $start = $ia->getRangeStart();
                     $end = $ia->getRangeEnd();
+
                     return $start && $end && $now->between($start, $end);
                 })
                 ->keyBy('employee_id');
@@ -169,7 +180,7 @@ final class GetExpectedAgentStateAction
 
             // 1. Excepciones
             $exceptionMatch = null;
-            if ($schedule && !empty($schedule->exceptions)) {
+            if ($schedule && ! empty($schedule->exceptions)) {
                 foreach ($schedule->exceptions as $exc) {
                     if ($exc['is_full_day']) {
                         $exceptionMatch = $exc;
@@ -192,6 +203,7 @@ final class GetExpectedAgentStateAction
                     'is_productive' => false,
                     'color' => $exceptionMatch['color'] ?? '#ef4444',
                 ];
+
                 continue;
             }
 
@@ -203,16 +215,19 @@ final class GetExpectedAgentStateAction
                     'is_productive' => $intraday->activityType?->is_productive ?? false,
                     'color' => $intraday->activityType?->color_hex ?? '#f59e0b',
                 ];
+
                 continue;
             }
 
             // 3. Implied Lunch/Break
-            if ($schedule && !$schedule->is_off) {
+            if ($schedule && ! $schedule->is_off) {
                 // Almuerzo
                 if ($schedule->lunch_start_time && $schedule->lunch_end_time) {
                     $lStart = Carbon::parse($schedule->lunch_start_time)->setDate($now->year, $now->month, $now->day);
                     $lEnd = Carbon::parse($schedule->lunch_end_time)->setDate($now->year, $now->month, $now->day);
-                    if ($lEnd->lessThan($lStart)) $lEnd->addDay();
+                    if ($lEnd->lessThan($lStart)) {
+                        $lEnd->addDay();
+                    }
                     if ($now->between($lStart, $lEnd)) {
                         $results[$id] = [
                             'type' => 'INTRADAY',
@@ -220,6 +235,7 @@ final class GetExpectedAgentStateAction
                             'is_productive' => false,
                             'color' => '#f59e0b',
                         ];
+
                         continue;
                     }
                 }
@@ -227,7 +243,9 @@ final class GetExpectedAgentStateAction
                 if ($schedule->break_start_time && $schedule->break_end_time) {
                     $bStart = Carbon::parse($schedule->break_start_time)->setDate($now->year, $now->month, $now->day);
                     $bEnd = Carbon::parse($schedule->break_end_time)->setDate($now->year, $now->month, $now->day);
-                    if ($bEnd->lessThan($bStart)) $bEnd->addDay();
+                    if ($bEnd->lessThan($bStart)) {
+                        $bEnd->addDay();
+                    }
                     if ($now->between($bStart, $bEnd)) {
                         $results[$id] = [
                             'type' => 'INTRADAY',
@@ -235,16 +253,19 @@ final class GetExpectedAgentStateAction
                             'is_productive' => false,
                             'color' => '#f59e0b',
                         ];
+
                         continue;
                     }
                 }
             }
 
             // 4. Shift
-            if ($schedule && !$schedule->is_off && $schedule->start_time) {
+            if ($schedule && ! $schedule->is_off && $schedule->start_time) {
                 $start = Carbon::parse($schedule->start_time)->setDate($now->year, $now->month, $now->day);
                 $end = Carbon::parse($schedule->end_time)->setDate($now->year, $now->month, $now->day);
-                if ($end->lessThan($start)) $end->addDay();
+                if ($end->lessThan($start)) {
+                    $end->addDay();
+                }
 
                 if ($now->between($start, $end)) {
                     $results[$id] = [
@@ -253,6 +274,7 @@ final class GetExpectedAgentStateAction
                         'is_productive' => true,
                         'color' => '#10b981',
                     ];
+
                     continue;
                 }
             }

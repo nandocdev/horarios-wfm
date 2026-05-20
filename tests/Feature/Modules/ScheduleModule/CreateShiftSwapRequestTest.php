@@ -5,19 +5,16 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\ScheduleModule;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\PersonnelModule\Models\Employee;
-use App\Modules\PersonnelModule\Models\Team;
-use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Department;
 use App\Modules\PersonnelModule\Models\Directorate;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Position;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Livewire\RequestShiftSwap;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
-use Illuminate\Support\Carbon;
 use Livewire\Livewire;
-use Tests\TestCase;
 
 test('operator can request a shift swap with another employee', function () {
     // 1. Setup Organizational Foundation
@@ -51,7 +48,7 @@ test('operator can request a shift swap with another employee', function () {
     // 3. Setup Weekly Schedule and Assignments
     $date = now()->addDays(5);
     $monday = $date->copy()->startOfWeek();
-    
+
     $weeklySchedule = WeeklySchedule::create([
         'week_start_date' => $monday->toDateString(),
         'week_end_date' => $monday->copy()->addDays(6)->toDateString(),

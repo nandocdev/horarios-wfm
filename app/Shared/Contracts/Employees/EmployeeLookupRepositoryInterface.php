@@ -19,16 +19,14 @@ interface EmployeeLookupRepositoryInterface
     /**
      * Precarga en memoria el mapa login_id → employee_id y fullname → employee_id.
      * Debe llamarse una sola vez por ciclo de proceso (warmup).
-     *
-     * @return void
      */
     public function warmup(): void;
 
     /**
      * Resuelve el employee_id desde el login de Cisco (username).
      *
-     * @param  string|null $loginId  Login de Cisco (ej. "fcastillo")
-     * @return int|null              ID interno del empleado, o null si no existe
+     * @param  string|null  $loginId  Login de Cisco (ej. "fcastillo")
+     * @return int|null ID interno del empleado, o null si no existe
      */
     public function findByLoginId(?string $loginId): ?int;
 
@@ -37,17 +35,12 @@ interface EmployeeLookupRepositoryInterface
      *
      * Fallback cuando login_id no está disponible o no hay match.
      *
-     * @param  string|null $fullName  Nombre completo en formato CUIC (ej. "Fernando Castillo Valdez")
-     * @return int|null
+     * @param  string|null  $fullName  Nombre completo en formato CUIC (ej. "Fernando Castillo Valdez")
      */
     public function findByFullName(?string $fullName): ?int;
 
     /**
      * Intenta primero por loginId y, si falla, por fullName.
-     *
-     * @param  string|null $loginId
-     * @param  string|null $fullName
-     * @return int|null
      */
     public function resolve(?string $loginId, ?string $fullName = null): ?int;
 }

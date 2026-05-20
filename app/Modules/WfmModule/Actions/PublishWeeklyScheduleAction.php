@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Actions;
 
-use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Models\WeeklySchedule;
-use App\Modules\WfmModule\Notifications\SchedulePublishedNotification;
+use App\Shared\Events\WeeklySchedulePublished;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 class PublishWeeklyScheduleAction
 {
@@ -31,7 +29,7 @@ class PublishWeeklyScheduleAction
             ]);
 
             // Disparar evento de dominio para que otros módulos reaccionen (ej. Notificaciones)
-            \App\Shared\Events\WeeklySchedulePublished::dispatch($week, auth()->id() ?? 0);
+            WeeklySchedulePublished::dispatch($week, auth()->id() ?? 0);
 
             return $week;
         });

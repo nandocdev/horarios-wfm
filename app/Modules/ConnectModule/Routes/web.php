@@ -5,13 +5,13 @@ declare(strict_types=1);
 use App\Modules\ConnectModule\Http\Controllers\CallRecordController;
 use App\Modules\ConnectModule\Http\Controllers\CiscoFinesseController;
 use App\Modules\ConnectModule\Livewire\AgentDashboard;
+use App\Modules\ConnectModule\Livewire\CreateCallRecord;
 use App\Modules\ConnectModule\Livewire\EditCallRecord;
 use App\Modules\ConnectModule\Livewire\GeneralDashboard;
 use App\Modules\ConnectModule\Livewire\ListCallQueues;
 use App\Modules\ConnectModule\Livewire\ListCallRecords;
 use App\Modules\ConnectModule\Livewire\ListCaseSubtypes;
 use App\Modules\ConnectModule\Livewire\ListChannels;
-
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web'])->group(function () {
@@ -41,14 +41,10 @@ Route::middleware(['web'])->group(function () {
         Route::get('/contact-center/general-dashboard', GeneralDashboard::class)
             ->name('contact-center.general-dashboard');
 
-
-
-
-
         Route::get('/contact-center/calls', ListCallRecords::class)
             ->name('contact-center.calls.index');
 
-        Route::get('/contact-center/calls/create', \App\Modules\ConnectModule\Livewire\CreateCallRecord::class)
+        Route::get('/contact-center/calls/create', CreateCallRecord::class)
             ->name('contact-center.calls.create');
 
         Route::get('/contact-center/calls/{callRecord}/edit', EditCallRecord::class)
@@ -62,7 +58,6 @@ Route::middleware(['web'])->group(function () {
 
         Route::get('/contact-center/catalogs/subtypes', ListCaseSubtypes::class)
             ->name('contact-center.admin.subtypes.index');
-
 
     });
 });

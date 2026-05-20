@@ -6,11 +6,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class OperationalSettingsSeeder extends Seeder {
+class OperationalSettingsSeeder extends Seeder
+{
     /**
      * Run the database seeds.
      */
-    public function run(): void {
+    public function run(): void
+    {
         $settings = [
             [
                 'key' => 'late_login_grace_period',

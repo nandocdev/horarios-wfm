@@ -35,11 +35,12 @@ final class CuicSyncCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(SyncCuicDataAction $action): int {
+    public function handle(SyncCuicDataAction $action): int
+    {
         if ($this->option('loop')) {
             $this->info('=== Iniciando Sincronización CUIC ETL Continua (Ctrl+C para detener) ===');
             $interval = (int) $this->option('interval');
-            
+
             while (true) {
                 $this->performSync($action);
                 $this->line("Esperando {$interval}s para el próximo ciclo...");
@@ -48,6 +49,7 @@ final class CuicSyncCommand extends Command
         }
 
         $this->info('=== Iniciando Sincronización CUIC ETL Única ===');
+
         return $this->performSync($action);
     }
 
@@ -62,14 +64,14 @@ final class CuicSyncCommand extends Command
             $start = now()->subMinutes($minutes);
         }
 
-        $this->line("[" . now()->format('H:i:s') . "] Rango: <comment>{$start->toDateTimeString()}</comment> a <comment>{$end->toDateTimeString()}</comment>");
+        $this->line('['.now()->format('H:i:s')."] Rango: <comment>{$start->toDateTimeString()}</comment> a <comment>{$end->toDateTimeString()}</comment>");
 
         try {
             $stats = $action->execute($start, $end);
 
             $this->table(
                 ['Tipo de Datos', 'Registros'],
-                array_map(fn($k, $v) => [ucfirst($k), $v], array_keys($stats), array_values($stats))
+                array_map(fn ($k, $v) => [ucfirst($k), $v], array_keys($stats), array_values($stats))
             );
 
             // Trigger reconciliation for today and yesterday if transitions were synced
@@ -77,7 +79,7 @@ final class CuicSyncCommand extends Command
                 $this->line('Iniciando reconciliación de asistencia post-sync...');
                 $reconcileAction = app(ReconcileEmployeeAttendanceAction::class);
                 $employees = Employee::where('is_active', true)->get();
-                
+
                 // Reconciliar para hoy y ayer (Carbon::today() y Carbon::yesterday())
                 foreach ([now(), now()->subDay()] as $date) {
                     foreach ($employees as $employee) {
@@ -89,7 +91,7 @@ final class CuicSyncCommand extends Command
 
             return self::SUCCESS;
         } catch (\Throwable $e) {
-            $this->error('Error durante la sincronización: ' . $e->getMessage());
+            $this->error('Error durante la sincronización: '.$e->getMessage());
 
             Log::error('[CUIC-SYNC] Fallo en comando', [
                 'error' => $e->getMessage(),

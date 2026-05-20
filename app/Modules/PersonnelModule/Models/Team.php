@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Models;
 
 use App\Modules\CoreModule\Concerns\Auditable;
+use Database\Factories\Modules\PersonnelModule\Models\TeamFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,7 +23,7 @@ class Team extends Model
 
     protected static function newFactory()
     {
-        return \Database\Factories\Modules\PersonnelModule\Models\TeamFactory::new();
+        return TeamFactory::new();
     }
 
     protected $fillable = [

@@ -7,7 +7,8 @@ namespace App\Shared\DTOs\Schedules;
 /**
  * DTO para representar el horario programado de un empleado en un día.
  */
-final readonly class ScheduleDayDTO {
+final readonly class ScheduleDayDTO
+{
     public function __construct(
         public int $employee_id,
         public string $date,
@@ -21,6 +22,5 @@ final readonly class ScheduleDayDTO {
         public int $break_minutes = 15,
         public bool $is_off = false,
         public array $exceptions = []
-    ) {
-    }
+    ) {}
 }

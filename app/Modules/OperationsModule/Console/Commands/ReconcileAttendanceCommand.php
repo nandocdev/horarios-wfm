@@ -47,7 +47,7 @@ class ReconcileAttendanceCommand extends Command
                     $stats[$type]++;
                 }
             } catch (\Exception $e) {
-                $this->error("\nError procesando empleado {$employee->full_name}: " . $e->getMessage());
+                $this->error("\nError procesando empleado {$employee->full_name}: ".$e->getMessage());
             }
             $bar->advance();
         }

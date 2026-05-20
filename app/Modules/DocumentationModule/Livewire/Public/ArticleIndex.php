@@ -14,6 +14,7 @@ class ArticleIndex extends Component
     use WithPagination;
 
     public $search = '';
+
     public $category_id = null;
 
     public function render()
@@ -27,8 +28,8 @@ class ArticleIndex extends Component
 
         $articles = Article::published()
             ->when($this->search, function ($query) {
-                $query->where('title', 'like', '%' . $this->search . '%')
-                    ->orWhere('content', 'like', '%' . $this->search . '%');
+                $query->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('content', 'like', '%'.$this->search.'%');
             })
             ->when($this->category_id, function ($query) {
                 $query->whereHas('categories', function ($q) {

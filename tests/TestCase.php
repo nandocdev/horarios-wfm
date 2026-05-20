@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
 
@@ -13,10 +14,10 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // En entornos de test de feature, aseguramos que los permisos existan 
+        // En entornos de test de feature, aseguramos que los permisos existan
         // para evitar que el layout (sidebar) falle al renderizar.
-        if (! $this instanceof \Tests\Unit\TestCase) {
-            $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+        if (! $this instanceof Unit\TestCase) {
+            $this->seed(RolesAndPermissionsSeeder::class);
         }
     }
 

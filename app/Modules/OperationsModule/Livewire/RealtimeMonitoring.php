@@ -4,72 +4,92 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\ConnectModule\Models\CallQueue;
-use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
+use App\Modules\ConnectModule\Models\AgentStateTransition;
+use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Team;
-use App\Shared\Support\Metrics\MetricFormulas;
+use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
+use App\Modules\WfmModule\Models\Schedule;
+use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
-use Illuminate\Support\Collection;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\WithPagination;
+use App\Shared\Support\Metrics\MetricFormulas;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class RealtimeMonitoring extends Component
 {
     use WithPagination;
 
     public array $stats = [];
+
     public ?int $teamId = null;
+
     public ?int $positionFilter = null;
+
     public ?string $queueFilter = null;
+
     public ?string $statusFilter = null;
+
     public ?string $reasonFilter = null;
+
     public ?string $expectedStateFilter = null;
+
     public bool $onlyActive = true;
+
     public string $search = '';
+
     public string $sortField = 'first_name';
+
     public string $sortDirection = 'asc';
+
     public ?int $currentWeekId = null;
+
     public ?object $selectedAgent = null;
+
     public $agentEvents = [];
+
     public array $operationalSettings = [];
+
     public array $queueAhtGoals = [];
 
     public function mount()
     {
-        $this->authorize('monitorRealtime', \App\Modules\WfmModule\Models\Schedule::class);
-        
+        $this->authorize('monitorRealtime', Schedule::class);
+
         $user = auth()->user();
         $employee = $user->employee;
         $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
 
         // Validar acceso al teamId inicial
-        if ($this->teamId && !$isPowerUser) {
+        if ($this->teamId && ! $isPowerUser) {
             $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
-            if (!in_array($this->teamId, $managedTeamIds)) {
+            if (! in_array($this->teamId, $managedTeamIds)) {
                 $this->teamId = null;
             }
         }
 
-        $currentWeek = \App\Modules\WfmModule\Models\WeeklySchedule::where('week_start_date', '<=', now()->toDateString())
+        $currentWeek = WeeklySchedule::where('week_start_date', '<=', now()->toDateString())
             ->where('week_end_date', '>=', now()->toDateString())
             ->first();
-            
+
         $this->currentWeekId = $currentWeek?->id;
         $this->loadOperationalSettings();
     }
 
     private function loadOperationalSettings()
     {
-        $this->operationalSettings = \Illuminate\Support\Facades\DB::table('operational_settings')
+        $this->operationalSettings = DB::table('operational_settings')
             ->pluck('value', 'key')
             ->toArray();
-            
-        $this->queueAhtGoals = \App\Modules\ConnectModule\Models\CallQueue::pluck('aht_goal', 'name')->toArray();
+
+        $this->queueAhtGoals = CallQueue::pluck('aht_goal', 'name')->toArray();
     }
 
     public function clearFilters()
@@ -123,7 +143,7 @@ class RealtimeMonitoring extends Component
         $expectedStateAction = app(GetExpectedAgentStateAction::class);
 
         $employee = Employee::with(['team', 'position'])->find($empId);
-        
+
         if ($employee) {
             $real = $telemetryService->getBatchCurrentStates([$empId])[$empId] ?? null;
             $expected = $expectedStateAction->execute($empId);
@@ -142,12 +162,12 @@ class RealtimeMonitoring extends Component
                 'expected_state' => $expected,
             ];
 
-            $this->agentEvents = \App\Modules\ConnectModule\Models\AgentStateTransition::where('employee_id', $empId)
+            $this->agentEvents = AgentStateTransition::where('employee_id', $empId)
                 ->whereDate('transition_time', now()->toDateString())
                 ->orderBy('transition_time', 'desc')
                 ->limit(10)
                 ->get();
-                
+
             $this->dispatch('modal-show', name: 'agent-details-modal');
         }
     }
@@ -182,7 +202,7 @@ class RealtimeMonitoring extends Component
         }
 
         // Restricción de visibilidad por rol
-        if (!$isPowerUser) {
+        if (! $isPowerUser) {
             $query->whereIn('team_id', $managedTeamIds);
         }
 
@@ -195,9 +215,9 @@ class RealtimeMonitoring extends Component
         }
 
         if ($this->search) {
-            $query->where(function($q) {
-                $q->where('first_name', 'ilike', '%' . $this->search . '%')
-                  ->orWhere('last_name', 'ilike', '%' . $this->search . '%');
+            $query->where(function ($q) {
+                $q->where('first_name', 'ilike', '%'.$this->search.'%')
+                    ->orWhere('last_name', 'ilike', '%'.$this->search.'%');
             });
         }
 
@@ -222,18 +242,18 @@ class RealtimeMonitoring extends Component
             $currentState = strtoupper($real?->current_state ?? 'OFFLINE');
             $isAdherent = $this->calculateAdherence($currentState, $expected['type'] ?? null);
             $isLogoutOrOffline = in_array($currentState, ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
-            
+
             // Un cambio de estado es de "hoy" si ocurrió después de las 00:00 del servidor
             // O mejor aún, comparando la fecha de la marca de tiempo con la fecha actual
-            $lastChangeToday = $real?->last_changed_at 
-                ? \Illuminate\Support\Carbon::parse($real->last_changed_at)->isToday() 
+            $lastChangeToday = $real?->last_changed_at
+                ? Carbon::parse($real->last_changed_at)->isToday()
                 : false;
 
             // Un usuario es ausente o desconectado si se espera que esté en SHIFT o INTRADAY
             // pero su estado es Logout/Offline.
             $isExpectedActive = in_array($expected['type'], ['SHIFT', 'INTRADAY']);
 
-            $isAbsent = ($isExpectedActive && $isLogoutOrOffline && !$lastChangeToday);
+            $isAbsent = ($isExpectedActive && $isLogoutOrOffline && ! $lastChangeToday);
             $isDisconnected = ($isExpectedActive && $isLogoutOrOffline && $lastChangeToday);
 
             return (object) [
@@ -252,24 +272,31 @@ class RealtimeMonitoring extends Component
                 'is_adherent' => $isAdherent,
                 'is_absent' => $isAbsent,
                 'is_disconnected' => $isDisconnected,
-                'current_duration' => $real?->last_changed_at ? (int) max(0, time() - \Illuminate\Support\Carbon::parse($real->last_changed_at)->timestamp) : 0,
+                'current_duration' => $real?->last_changed_at ? (int) max(0, time() - Carbon::parse($real->last_changed_at)->timestamp) : 0,
                 'display_name' => $currentState,
                 'color_hex' => null,
                 'alerts' => $this->generateAlerts($real, $expected, $isAdherent, $isAbsent, $isDisconnected),
             ];
         });
-        
+
         // 4. Aplicar filtros avanzados y Ordenamiento
-        $collection = $agents->filter(function($agent) {
-            if ($this->statusFilter && $agent->current_state !== $this->statusFilter) return false;
-            if ($this->reasonFilter && $agent->reason_code !== $this->reasonFilter) return false;
-            if ($this->expectedStateFilter && $agent->expected_type !== $this->expectedStateFilter) return false;
+        $collection = $agents->filter(function ($agent) {
+            if ($this->statusFilter && $agent->current_state !== $this->statusFilter) {
+                return false;
+            }
+            if ($this->reasonFilter && $agent->reason_code !== $this->reasonFilter) {
+                return false;
+            }
+            if ($this->expectedStateFilter && $agent->expected_type !== $this->expectedStateFilter) {
+                return false;
+            }
+
             return true;
         });
 
         // Ordenamiento
         if ($this->sortField === 'agent') {
-            $collection = $collection->sortBy(fn($a) => $a->first_name . ' ' . $a->last_name, SORT_NATURAL, $this->sortDirection === 'desc');
+            $collection = $collection->sortBy(fn ($a) => $a->first_name.' '.$a->last_name, SORT_NATURAL, $this->sortDirection === 'desc');
         } elseif ($this->sortField === 'duration') {
             $collection = $collection->sortBy('current_duration', SORT_NUMERIC, $this->sortDirection === 'desc');
         } elseif ($this->sortField === 'state') {
@@ -310,23 +337,23 @@ class RealtimeMonitoring extends Component
         if ($expectedType === 'EXCEPTION') {
             return [];
         }
-        
+
         // Cargar umbrales desde settings o usar defaults
         $thresholds = [
             'personal_time' => (int) ($this->operationalSettings['personal_time_threshold'] ?? 900), // Default 15m
             'stuck_reserved' => (int) ($this->operationalSettings['stuck_reserved_threshold'] ?? 15), // Default 15s
             'long_talking' => (int) ($this->operationalSettings['long_talking_threshold'] ?? 1200), // Default 20m
             'overtime' => (int) ($this->operationalSettings['overtime_threshold'] ?? 1800), // Default 30m
-            'adherence_grace' => (int) ($this->operationalSettings['adherence_alert_threshold'] ?? 0), 
+            'adherence_grace' => (int) ($this->operationalSettings['adherence_alert_threshold'] ?? 0),
         ];
 
         // Calcular duración real en segundos
-        $durationSeconds = $real?->last_changed_at 
-            ? (int) max(0, time() - \Illuminate\Support\Carbon::parse($real->last_changed_at)->timestamp) 
+        $durationSeconds = $real?->last_changed_at
+            ? (int) max(0, time() - Carbon::parse($real->last_changed_at)->timestamp)
             : 0;
 
         // 1. Alerta de Adherencia General (Solo para conectados)
-        if (!$isAdherent && !$isLogoutOrOffline && $durationSeconds >= $thresholds['adherence_grace']) {
+        if (! $isAdherent && ! $isLogoutOrOffline && $durationSeconds >= $thresholds['adherence_grace']) {
             $label = 'Fuera de Adherencia';
             if ($expectedType === 'OFF') {
                 $label = 'Tiempo Extra No Prog.';
@@ -339,7 +366,7 @@ class RealtimeMonitoring extends Component
             $alerts[] = [
                 'type' => 'ADHERENCE',
                 'label' => $label,
-                'level' => 'critical'
+                'level' => 'critical',
             ];
         }
 
@@ -348,7 +375,7 @@ class RealtimeMonitoring extends Component
             $alerts[] = [
                 'type' => 'ABSENT',
                 'label' => 'Ausente en Turno',
-                'level' => 'critical'
+                'level' => 'critical',
             ];
         }
 
@@ -356,32 +383,32 @@ class RealtimeMonitoring extends Component
             $alerts[] = [
                 'type' => 'DISCONNECTED',
                 'label' => 'Agente Desconectado',
-                'level' => 'critical'
+                'level' => 'critical',
             ];
         }
 
         // 3. Alertas de Estado Específicas
-        
+
         // STUCK_RESERVED
         if ($currentState === 'RESERVED' && $durationSeconds > $thresholds['stuck_reserved']) {
             $alerts[] = [
                 'type' => 'STUCK_RESERVED',
                 'label' => 'Reserved Pegado',
-                'level' => 'critical'
+                'level' => 'critical',
             ];
         }
 
         // LONG_TALKING
         $currentQueue = $real->metadata['queue_name'] ?? ($real->metadata['csq_name'] ?? null);
         $queueGoal = $currentQueue ? ($this->queueAhtGoals[$currentQueue] ?? null) : null;
-            
+
         $talkingThreshold = $queueGoal && $queueGoal > 0 ? $queueGoal : $thresholds['long_talking'];
 
         if ($currentState === 'TALKING' && $durationSeconds > $talkingThreshold) {
             $alerts[] = [
                 'type' => 'LONG_TALKING',
                 'label' => 'Llamada Prolongada',
-                'level' => 'warning'
+                'level' => 'warning',
             ];
         }
 
@@ -390,7 +417,7 @@ class RealtimeMonitoring extends Component
             $alerts[] = [
                 'type' => 'PERSONAL_TIME',
                 'label' => 'Not Ready Prolongado',
-                'level' => 'warning'
+                'level' => 'warning',
             ];
         }
 
@@ -399,7 +426,7 @@ class RealtimeMonitoring extends Component
             $alerts[] = [
                 'type' => 'OVERTIME',
                 'label' => 'Exceso de Extra',
-                'level' => 'warning'
+                'level' => 'warning',
             ];
         }
 
@@ -408,8 +435,8 @@ class RealtimeMonitoring extends Component
 
     private function calculateStatsFromCollection($collection)
     {
-        $connectedAgents = $collection->filter(function($agent) {
-            return !in_array(strtoupper($agent->current_state), ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
+        $connectedAgents = $collection->filter(function ($agent) {
+            return ! in_array(strtoupper($agent->current_state), ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
         });
 
         $this->stats = [
@@ -420,10 +447,10 @@ class RealtimeMonitoring extends Component
             'talking' => $collection->where('current_state', 'TALKING')->count(),
             'not_ready' => $collection->where('current_state', 'NOT_READY')->count(),
             'absent_count' => $collection->where('is_absent', true)->count(),
-            'disconnected_count' => $collection->where('is_disconnected', true)->count(), 
+            'disconnected_count' => $collection->where('is_disconnected', true)->count(),
             // Adherencia basada SOLO en el universo de conectados
-            'adherence_percent' => $connectedAgents->count() > 0 
-                ? (int) round(($connectedAgents->where('is_adherent', true)->count() / $connectedAgents->count()) * 100) 
+            'adherence_percent' => $connectedAgents->count() > 0
+                ? (int) round(($connectedAgents->where('is_adherent', true)->count() / $connectedAgents->count()) * 100)
                 : 0,
             'worker_active' => $this->stats['worker_active'] ?? false,
             'worker_last_update' => $this->stats['worker_last_update'] ?? 'Nunca',
@@ -442,10 +469,10 @@ class RealtimeMonitoring extends Component
 
         return view('operations::livewire.realtime-monitoring', [
             'agents' => $this->loadData(),
-            'teams' => $isPowerUser 
-                ? Team::all() 
+            'teams' => $isPowerUser
+                ? Team::all()
                 : Team::whereIn('id', $employee?->getManagedTeamIds() ?? [])->get(),
-            'positions' => \App\Modules\PersonnelModule\Models\Position::all(),
+            'positions' => Position::all(),
             'queues' => CallQueue::all(),
             'reasons' => AgentRealtimeState::whereNotNull('reason_code')
                 ->distinct()

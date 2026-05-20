@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use App\Modules\WorkflowsModule\Models\ShiftSwapApproval;
+use App\Modules\WfmModule\Actions\ProcessShiftSwapAction;
 use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -16,7 +14,7 @@ class WfmSwapApprovals extends Component
 {
     use WithPagination;
 
-    public function approveSwap($requestId, \App\Modules\WfmModule\Actions\ProcessShiftSwapAction $action)
+    public function approveSwap($requestId, ProcessShiftSwapAction $action)
     {
         try {
             $action->execute((int) $requestId, Auth::user()->employee->id);

@@ -7,7 +7,6 @@ namespace Tests\Feature\Modules\Operations;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\Actions\ReconcileEmployeeAttendanceAction;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
-use App\Modules\OperationsModule\Models\IncidentType;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
@@ -35,7 +34,7 @@ class AttendanceReconciliationTest extends TestCase
 
         // 1. Setup Employee and Schedule (08:00 - 17:00)
         $employee = Employee::factory()->create(['is_active' => true]);
-        
+
         $schedule = Schedule::create([
             'name' => 'Turno Oficina',
             'start_time' => '08:00:00',
@@ -87,7 +86,7 @@ class AttendanceReconciliationTest extends TestCase
         Carbon::setTestNow($date->copy()->setTime(19, 0, 0));
 
         $employee = Employee::factory()->create(['is_active' => true]);
-        
+
         $schedule = Schedule::create([
             'name' => 'Turno Oficina',
             'start_time' => '08:00:00',

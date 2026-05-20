@@ -35,6 +35,7 @@ final class PerformanceService
                 // Carbon ya maneja comparaciones con interfaces
                 $start = $ex->start_at->max($startOfDay);
                 $end = $ex->end_at->min($endOfDay);
+
                 return max(0, $start->diffInMinutes($end));
             });
 
@@ -45,6 +46,7 @@ final class PerformanceService
             ->sum(function ($activity) use ($startOfDay, $endOfDay) {
                 $start = $activity->getRangeStart()?->max($startOfDay);
                 $end = $activity->getRangeEnd()?->min($endOfDay);
+
                 return $start && $end ? max(0, $start->diffInMinutes($end)) : 0;
             });
 
@@ -53,7 +55,7 @@ final class PerformanceService
             ->where('day_of_week', $date->dayOfWeekIso)
             ->whereHas('weeklySchedule', function ($q) use ($date) {
                 $q->where('week_start_date', '<=', $date->toDateString())
-                  ->where('week_end_date', '>=', $date->toDateString());
+                    ->where('week_end_date', '>=', $date->toDateString());
             })
             ->with('schedule')
             ->get()
@@ -89,7 +91,7 @@ final class PerformanceService
             return [];
         }
 
-        if (!$isToday) {
+        if (! $isToday) {
             // Lógica Histórica simplificada
             $callStats = DB::table('call_records')
                 ->whereNotNull('queue_id')
@@ -102,14 +104,14 @@ final class PerformanceService
                 ->first();
 
             $serviceLevel = $callStats->total > 0 ? ($callStats->handled / $callStats->total) * 100 : 0;
-            
+
             return [
                 'coverage' => ['label' => 'Cobertura', 'value' => '100%', 'status' => 'success', 'delta' => '0.0%', 'icon' => 'users'],
                 'adherence' => ['label' => 'Adherencia', 'value' => '95%', 'status' => 'success', 'delta' => '0.0%', 'icon' => 'clock'],
                 'occupancy' => ['label' => 'Ocupación', 'value' => '85%', 'status' => 'success', 'delta' => '0.0%', 'icon' => 'chart-bar'],
                 'service_level' => [
                     'label' => 'Nivel de Servicio',
-                    'value' => round($serviceLevel, 1) . '%',
+                    'value' => round($serviceLevel, 1).'%',
                     'status' => $serviceLevel < 80 ? 'danger' : 'success',
                     'delta' => '0.0%',
                     'icon' => 'phone',
@@ -145,7 +147,7 @@ final class PerformanceService
             ->where('day_of_week', $now->dayOfWeekIso)
             ->whereHas('weeklySchedule', function ($q) use ($today) {
                 $q->where('week_start_date', '<=', $today)
-                  ->where('week_end_date', '>=', $today);
+                    ->where('week_end_date', '>=', $today);
             })
             ->where('start_time', '<=', $now->toTimeString())
             ->where('end_time', '>=', $now->toTimeString())
@@ -165,7 +167,7 @@ final class PerformanceService
         $adherence = $this->calculateAdherence($scheduled, $realtimeStates);
         $occupancy = $this->calculateOccupancy($operatorIds);
         $serviceLevel = (float) (DB::table('csq_realtime_stats')->avg('service_level_long_term') ?? 0);
-        
+
         $scheduledIds = $scheduled->pluck('employee_id')->toArray();
         $connectedFromScheduled = $realtimeStates->whereIn('employee_id', $scheduledIds)->count();
         $absenteeism = MetricFormulas::absenteeismRate(
@@ -178,42 +180,42 @@ final class PerformanceService
         return [
             'coverage' => [
                 'label' => 'Cobertura',
-                'value' => $coverage . '%',
+                'value' => $coverage.'%',
                 'status' => $coverage < 90 ? 'danger' : ($coverage < 95 ? 'warning' : 'success'),
                 'delta' => '0.0%',
                 'icon' => 'users',
             ],
             'adherence' => [
                 'label' => 'Adherencia',
-                'value' => $adherence . '%',
+                'value' => $adherence.'%',
                 'status' => $adherence < 85 ? 'danger' : ($adherence < 92 ? 'warning' : 'success'),
                 'delta' => '0.0%',
                 'icon' => 'clock',
             ],
             'occupancy' => [
                 'label' => 'Ocupación',
-                'value' => round($occupancy, 1) . '%',
+                'value' => round($occupancy, 1).'%',
                 'status' => $occupancy > 90 ? 'danger' : ($occupancy > 85 ? 'warning' : 'success'),
                 'delta' => '0.0%',
                 'icon' => 'chart-bar',
             ],
             'service_level' => [
                 'label' => 'Nivel de Servicio',
-                'value' => round($serviceLevel, 1) . '%',
+                'value' => round($serviceLevel, 1).'%',
                 'status' => $serviceLevel < 80 ? 'danger' : ($serviceLevel < 90 ? 'warning' : 'success'),
                 'delta' => '0.0%',
                 'icon' => 'phone',
             ],
             'absenteeism' => [
                 'label' => 'Ausentismo',
-                'value' => $absenteeism . '%',
+                'value' => $absenteeism.'%',
                 'status' => $absenteeism > 5 ? 'danger' : 'success',
                 'delta' => '0.0%',
                 'icon' => 'user-minus',
             ],
             'shrinkage' => [
                 'label' => 'Reductores (Shrink)',
-                'value' => $shrinkage . '%',
+                'value' => $shrinkage.'%',
                 'status' => 'neutral',
                 'delta' => '0.0%',
                 'icon' => 'scissors',
@@ -223,12 +225,17 @@ final class PerformanceService
 
     private function calculateAdherence($scheduled, $realtime): float
     {
-        if ($scheduled->isEmpty()) return 100;
+        if ($scheduled->isEmpty()) {
+            return 100;
+        }
         $inState = 0;
         foreach ($scheduled as $assign) {
             $state = $realtime->firstWhere('employee_id', $assign->employee_id);
-            if ($state) $inState++;
+            if ($state) {
+                $inState++;
+            }
         }
+
         return round(($inState / $scheduled->count()) * 100, 1);
     }
 

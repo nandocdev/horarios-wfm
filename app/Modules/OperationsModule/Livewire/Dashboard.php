@@ -8,34 +8,40 @@ use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-class Dashboard extends Component {
+class Dashboard extends Component
+{
     public int $refreshInterval = 15;
+
     public string $selectedDate;
 
-    public function mount(): void {
+    public function mount(): void
+    {
         $this->selectedDate = now()->toDateString();
     }
 
     #[Computed]
-    public function isHistorical(): bool {
+    public function isHistorical(): bool
+    {
         return $this->selectedDate !== now()->toDateString();
     }
 
     #[Computed]
-    public function heroKpis(): array {
+    public function heroKpis(): array
+    {
         return app(PerformanceService::class)->getGlobalHeroKpis(Carbon::parse($this->selectedDate)) ?: $this->emptyHeroKpis();
     }
 
     #[Computed]
-    public function queueStats(): array {
+    public function queueStats(): array
+    {
         $date = Carbon::parse($this->selectedDate);
 
-        if (!$date->isToday()) {
+        if (! $date->isToday()) {
             return DB::table('call_records')
                 ->join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
                 ->whereDate('ivr_started_at', $this->selectedDate)
@@ -52,7 +58,7 @@ class Dashboard extends Component {
                 )
                 ->groupBy('call_queues.name')
                 ->get()
-                ->map(fn($item) => (array) $item)
+                ->map(fn ($item) => (array) $item)
                 ->toArray();
         }
 
@@ -106,11 +112,12 @@ class Dashboard extends Component {
     }
 
     #[Computed]
-    public function stateDistribution(): array {
+    public function stateDistribution(): array
+    {
         $date = Carbon::parse($this->selectedDate);
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])->pluck('id')->toArray();
 
-        if (!$date->isToday()) {
+        if (! $date->isToday()) {
             $states = DB::table('agent_state_transitions')
                 ->whereIn('employee_id', $operatorIds)
                 ->whereDate('transition_time', $this->selectedDate)
@@ -144,7 +151,8 @@ class Dashboard extends Component {
     }
 
     #[Computed]
-    public function pendingApprovals(): int {
+    public function pendingApprovals(): int
+    {
         return DB::table('leave_requests')
             ->where('status', 'pending')
             ->count() +
@@ -154,7 +162,8 @@ class Dashboard extends Component {
     }
 
     #[Computed]
-    public function volumeComparison(): array {
+    public function volumeComparison(): array
+    {
         $now = now();
         $startOfCurrentWeek = $now->copy()->startOfWeek();
         $endOfCurrentWeek = $now->copy()->endOfWeek();
@@ -219,12 +228,13 @@ class Dashboard extends Component {
     }
 
     #[Computed]
-    public function recentIncidents(): array {
+    public function recentIncidents(): array
+    {
         return AttendanceIncident::with(['employee', 'type'])
             ->orderByDesc('created_at')
             ->limit(5)
             ->get()
-            ->map(fn($incident) => (object) [
+            ->map(fn ($incident) => (object) [
                 'first_name' => $incident->employee->first_name,
                 'last_name' => $incident->employee->last_name,
                 'type' => $incident->type->name,
@@ -233,7 +243,8 @@ class Dashboard extends Component {
             ->toArray();
     }
 
-    private function emptyHeroKpis(): array {
+    private function emptyHeroKpis(): array
+    {
         return [
             'coverage' => ['label' => 'Cobertura', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'users'],
             'adherence' => ['label' => 'Adherencia', 'value' => '0%', 'status' => 'neutral', 'delta' => '0%', 'icon' => 'clock'],
@@ -244,7 +255,8 @@ class Dashboard extends Component {
         ];
     }
 
-    public function render() {
+    public function render()
+    {
         return view('operations::livewire.dashboard')
             ->layout('layouts.app', ['title' => 'Dashboard Operativo']);
     }

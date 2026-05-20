@@ -7,11 +7,13 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
-    public function up(): void {
+    public function up(): void
+    {
         // 1. CONFIGURACIÓN BASE DE POSTGRES
         if (DB::getDriverName() === 'pgsql') {
             DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
@@ -139,7 +141,8 @@ return new class extends Migration {
     /**
      * Reverse the migrations.
      */
-    public function down(): void {
+    public function down(): void
+    {
         DB::statement('DROP TABLE IF EXISTS agent_realtime_states');
         Schema::dropIfExists('intraday_activities');
         Schema::dropIfExists('activity_types');

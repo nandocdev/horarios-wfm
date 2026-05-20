@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Providers;
 
+use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
+use App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved;
 use App\Modules\WfmModule\Livewire\EmployeeWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\ManageAbsenceReasons;
 use App\Modules\WfmModule\Livewire\ManageActivityTypes;
@@ -23,6 +25,7 @@ use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Modules\WfmModule\Observers\LeaveRequestObserver;
 use App\Modules\WfmModule\Policies\AbsenceReasonCodePolicy;
 use App\Modules\WfmModule\Policies\ActivityTypePolicy;
 use App\Modules\WfmModule\Policies\AgentStatePolicy;
@@ -30,6 +33,11 @@ use App\Modules\WfmModule\Policies\ScheduledActivityDefinitionPolicy;
 use App\Modules\WfmModule\Policies\SchedulePolicy;
 use App\Modules\WfmModule\Policies\WeeklyScheduleAssignmentPolicy;
 use App\Modules\WfmModule\Policies\WeeklySchedulePolicy;
+use App\Modules\WfmModule\Services\ScheduleService;
+use App\Modules\WorkflowsModule\Models\LeaveRequest;
+use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
+use App\Shared\Events\ShiftSwapApproved;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -83,12 +91,12 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('wfm.my-metrics', MyMetrics::class);
 
         // Registro de Observadores
-        \App\Modules\WorkflowsModule\Models\LeaveRequest::observe(\App\Modules\WfmModule\Observers\LeaveRequestObserver::class);
+        LeaveRequest::observe(LeaveRequestObserver::class);
 
         // Registro de Eventos
-        \Illuminate\Support\Facades\Event::listen(
-            \App\Shared\Events\ShiftSwapApproved::class,
-            [\App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved::class, 'handle']
+        Event::listen(
+            ShiftSwapApproved::class,
+            [NotifyShiftSwapApproved::class, 'handle']
         );
     }
 
@@ -98,12 +106,12 @@ class ModuleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(
-            \App\Shared\Contracts\Schedules\ScheduleServiceInterface::class,
-            \App\Modules\WfmModule\Services\ScheduleService::class
+            ScheduleServiceInterface::class,
+            ScheduleService::class
         );
 
         $this->app->singleton(
-            \App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction::class
+            GetExpectedAgentStateAction::class
         );
     }
 }

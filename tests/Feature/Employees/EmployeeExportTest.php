@@ -5,10 +5,10 @@ declare(strict_types=1);
 use App\Modules\CoreModule\Models\Permission;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
-use App\Modules\PersonnelModule\Models\Employee;
-use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use App\Modules\PersonnelModule\Models\Department;
 use App\Modules\PersonnelModule\Models\Directorate;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Team;
 

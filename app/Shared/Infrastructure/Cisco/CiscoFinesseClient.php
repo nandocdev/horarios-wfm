@@ -8,7 +8,8 @@ use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class CiscoFinesseClient {
+class CiscoFinesseClient
+{
     protected string $baseUrl;
 
     protected string $username;
@@ -19,7 +20,8 @@ class CiscoFinesseClient {
 
     protected bool $verifySsl;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->baseUrl = config('services.uccx.url_base', env('UCCX_URL_BASE'));
         $this->username = config('services.uccx.username', env('UCCX_USERNAME'));
         $this->password = config('services.uccx.password', env('UCCX_PASSWORD'));
@@ -30,12 +32,13 @@ class CiscoFinesseClient {
     /**
      * Realiza una petición GET al API de Finesse.
      */
-    public function get(string $endpoint): array {
+    public function get(string $endpoint): array
+    {
         try {
             $response = Http::withBasicAuth($this->username, $this->password)
                 ->timeout($this->timeout)
                 ->withHeaders(['Accept' => 'application/xml'])
-                ->when(!$this->verifySsl, fn($http) => $http->withoutVerifying())
+                ->when(! $this->verifySsl, fn ($http) => $http->withoutVerifying())
                 ->get("{$this->baseUrl}/{$endpoint}");
 
             // if ($response->failed()) {
@@ -52,28 +55,32 @@ class CiscoFinesseClient {
     /**
      * Obtiene la información de un agente por su LoginID.
      */
-    public function getAgentInfo(string $loginId): array {
+    public function getAgentInfo(string $loginId): array
+    {
         return $this->get("User/{$loginId}");
     }
 
     /**
      * Obtiene los diálogos (llamadas) activos de un agente.
      */
-    public function getAgentDialogs(string $loginId): array {
+    public function getAgentDialogs(string $loginId): array
+    {
         return $this->get("User/{$loginId}/Dialogs");
     }
 
     /**
      * Obtiene la lista de todos los usuarios (agentes) en Finesse.
      */
-    public function getAllUsers(): array {
+    public function getAllUsers(): array
+    {
         return $this->get('Users');
     }
 
     /**
      * Convierte una cadena XML en un arreglo asociativo de PHP.
      */
-    protected function parseXml(string $xmlContent): array {
+    protected function parseXml(string $xmlContent): array
+    {
         // Limpiar el contenido de posibles caracteres invisibles al inicio
         $xmlContent = trim($xmlContent);
 
@@ -87,7 +94,7 @@ class CiscoFinesseClient {
 
             return json_decode($json, true);
         } catch (Exception $e) {
-            Log::error('Error al parsear XML de UCCX: ' . $e->getMessage());
+            Log::error('Error al parsear XML de UCCX: '.$e->getMessage());
 
             return [];
         }

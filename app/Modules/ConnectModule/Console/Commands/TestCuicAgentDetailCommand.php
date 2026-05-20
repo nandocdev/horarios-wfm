@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\FetchAgentDetailAction;
+use App\Modules\ConnectModule\Services\CuicReportService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -39,15 +40,15 @@ class TestCuicAgentDetailCommand extends Command
     public function handle(): int
     {
         // --- Resolución de parámetros ---
-        $dateStr  = $this->option('date')  ?: Carbon::yesterday()->toDateString();
+        $dateStr = $this->option('date') ?: Carbon::yesterday()->toDateString();
         $startStr = $this->option('start') ?: '06:00';
-        $endStr   = $this->option('end')   ?: '07:00';
+        $endStr = $this->option('end') ?: '07:00';
 
         [$startH, $startM] = array_map('intval', explode(':', $startStr));
-        [$endH,   $endM]   = array_map('intval', explode(':', $endStr));
+        [$endH,   $endM] = array_map('intval', explode(':', $endStr));
 
         $startDateTime = Carbon::parse($dateStr)->setTime($startH, $startM, 0);
-        $endDateTime   = Carbon::parse($dateStr)->setTime($endH,   $endM,   59);
+        $endDateTime = Carbon::parse($dateStr)->setTime($endH, $endM, 59);
 
         /** @var array<int, string> $agentNames */
         $agentNames = (array) $this->option('agent');
@@ -60,24 +61,26 @@ class TestCuicAgentDetailCommand extends Command
         $this->line('  ─────────────────────────────────────────────');
         $this->line("  Fecha  : <comment>{$dateStr}</comment>");
         $this->line("  Rango  : <comment>{$startDateTime->format('H:i:s')}</comment> → <comment>{$endDateTime->format('H:i:s')}</comment>");
-        $this->line('  Agentes: <comment>' . (empty($agentNames) ? 'TODOS' : implode(', ', $agentNames)) . '</comment>');
+        $this->line('  Agentes: <comment>'.(empty($agentNames) ? 'TODOS' : implode(', ', $agentNames)).'</comment>');
         $this->line('  ─────────────────────────────────────────────');
         $this->info('');
-        
+
         $this->line('  ⏳ Conectando con CUIC...');
 
         try {
-            /** @var \App\Modules\ConnectModule\Services\CuicReportService $service */
-            $service = app(\App\Modules\ConnectModule\Services\CuicReportService::class);
+            /** @var CuicReportService $service */
+            $service = app(CuicReportService::class);
             $rows = $service->executeReportWithFilter($reportKey, $startDateTime, $endDateTime, $agentNames);
         } catch (\Throwable $e) {
-            $this->error('  ✗ Error: ' . $e->getMessage());
+            $this->error('  ✗ Error: '.$e->getMessage());
+
             return self::FAILURE;
         }
 
         // --- Resultados ---
         if ($rows->isEmpty()) {
             $this->warn('  ⚠ Sin datos para el rango indicado.');
+
             return self::SUCCESS;
         }
 
@@ -92,11 +95,11 @@ class TestCuicAgentDetailCommand extends Command
                 : 'N/A';
 
             return [
-                'Agente'         => $row['agent_name']      ?? $row['agent_login_id'] ?? '—',
-                'Hora'           => $time,
-                'Estado'         => $row['agent_state']     ?? '—',
-                'Motivo'         => $row['reason_code']     ?? '—',
-                'Duración (seg)' => $row['duration']        ?? '—',
+                'Agente' => $row['agent_name'] ?? $row['agent_login_id'] ?? '—',
+                'Hora' => $time,
+                'Estado' => $row['agent_state'] ?? '—',
+                'Motivo' => $row['reason_code'] ?? '—',
+                'Duración (seg)' => $row['duration'] ?? '—',
             ];
         })->toArray();
 
@@ -106,7 +109,7 @@ class TestCuicAgentDetailCommand extends Command
         );
 
         if ($rows->count() > 20) {
-            $this->line("  <fg=gray>... y " . ($rows->count() - 20) . " filas más (usa --agent para filtrar)</>");
+            $this->line('  <fg=gray>... y '.($rows->count() - 20).' filas más (usa --agent para filtrar)</>');
         }
 
         // Dump completo opcional

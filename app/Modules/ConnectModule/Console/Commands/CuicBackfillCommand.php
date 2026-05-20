@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncCuicDataAction;
-use Carbon\Carbon;
+use App\Modules\ConnectModule\Emails\CuicBackfillReport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
-final class CuicBackfillCommand extends Command {
+final class CuicBackfillCommand extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -32,7 +34,8 @@ final class CuicBackfillCommand extends Command {
     /**
      * Execute the console command.
      */
-    public function handle(SyncCuicDataAction $action): int {
+    public function handle(SyncCuicDataAction $action): int
+    {
         $months = (int) $this->option('months');
         $days = $this->option('days');
         $chunkSize = (int) $this->option('chunk');
@@ -40,12 +43,13 @@ final class CuicBackfillCommand extends Command {
         $unattended = $this->option('unattended');
 
         $endDate = now();
-        
+
         if ($days !== null) {
             $startDate = now()->subDays((int) $days)->startOfDay();
         } else {
             if ($months < 1 || $months > 6) {
                 $this->error('El rango de meses debe estar entre 1 y 6.');
+
                 return self::FAILURE;
             }
             $startDate = now()->subMonths($months)->startOfDay();
@@ -98,7 +102,7 @@ final class CuicBackfillCommand extends Command {
             // @description: Ejecutar sincronización
             try {
                 $batchStats = $action->execute($currentIntervalStart, $currentIntervalEnd);
-                
+
                 foreach ($batchStats as $type => $count) {
                     $dailyStats['by_type'][$type] = ($dailyStats['by_type'][$type] ?? 0) + $count;
                     $dailyStats['total_records'] += $count;
@@ -107,15 +111,16 @@ final class CuicBackfillCommand extends Command {
                 $bar->advance();
             } catch (\Throwable $e) {
                 $this->newLine();
-                $errorMsg = "[{$currentIntervalStart->format('H:i')}] " . $e->getMessage();
-                $this->error("Error: " . $errorMsg);
-                
+                $errorMsg = "[{$currentIntervalStart->format('H:i')}] ".$e->getMessage();
+                $this->error('Error: '.$errorMsg);
+
                 $dailyStats['errors'][] = $errorMsg;
 
                 // En modo desatendido continuamos, de lo contrario preguntamos
-                if (!$unattended && !$this->option('no-interaction')) {
-                    if (!$this->confirm('¿Deseas continuar con el siguiente bloque?', true)) {
+                if (! $unattended && ! $this->option('no-interaction')) {
+                    if (! $this->confirm('¿Deseas continuar con el siguiente bloque?', true)) {
                         $bar->finish();
+
                         return self::FAILURE;
                     }
                 }
@@ -143,31 +148,33 @@ final class CuicBackfillCommand extends Command {
     /**
      * Reinicia el acumulador de estadísticas diarias.
      */
-    private function resetDailyStats(): array {
+    private function resetDailyStats(): array
+    {
         return [
             'total_records' => 0,
             'by_type' => ['transitions' => 0, 'performance' => 0, 'calls' => 0, 'chats' => 0],
-            'errors' => []
+            'errors' => [],
         ];
     }
 
     /**
      * Envía el reporte por correo electrónico.
      */
-    private function sendDailyReport(string $date, array $stats): void {
+    private function sendDailyReport(string $date, array $stats): void
+    {
         // Solo enviar si hubo actividad o errores
         if ($stats['total_records'] === 0 && empty($stats['errors'])) {
             return;
         }
 
         try {
-            \Illuminate\Support\Facades\Mail::to('ferncastillo@css.gob.pa')
-                ->send(new \App\Modules\ConnectModule\Emails\CuicBackfillReport($date, $stats));
-            
-            $this->line(" <info>✔</info> Reporte diario enviado a ferncastillo@css.gob.pa");
+            Mail::to('ferncastillo@css.gob.pa')
+                ->send(new CuicBackfillReport($date, $stats));
+
+            $this->line(' <info>✔</info> Reporte diario enviado a ferncastillo@css.gob.pa');
         } catch (\Throwable $e) {
-            $this->error("No se pudo enviar el reporte diario: " . $e->getMessage());
-            Log::error("[CUIC-BACKFILL] Fallo envío reporte email", ['error' => $e->getMessage()]);
+            $this->error('No se pudo enviar el reporte diario: '.$e->getMessage());
+            Log::error('[CUIC-BACKFILL] Fallo envío reporte email', ['error' => $e->getMessage()]);
         }
     }
 }

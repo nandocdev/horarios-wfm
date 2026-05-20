@@ -20,6 +20,7 @@ class AppSetting extends Model
     public static function get(string $key, mixed $default = null)
     {
         $setting = self::where('key', $key)->first();
+
         return $setting ? $setting->value : $default;
     }
 

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->foreignId('swap_request_id')->nullable()->constrained('shift_swap_requests')->nullOnDelete();
             $table->boolean('is_replaced')->default(false);
             $table->timestampTz('replaced_at')->nullable();
-            
+
             // Eliminar restricción única anterior para permitir históricos
             $table->dropUnique('ws_assignments_unique');
         });
@@ -50,7 +50,7 @@ return new class extends Migration
         Schema::table('weekly_schedule_assignments', function (Blueprint $table) {
             $table->dropConstrainedForeignId('swap_request_id');
             $table->dropColumn(['is_replaced', 'replaced_at']);
-            
+
             // Restaurar restricción original (advertencia: esto fallará si hay duplicados históricos)
             $table->unique(['weekly_schedule_id', 'employee_id', 'day_of_week'], 'ws_assignments_unique');
         });

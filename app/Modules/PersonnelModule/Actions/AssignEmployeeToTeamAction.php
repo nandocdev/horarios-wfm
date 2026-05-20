@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Actions;
 
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\DTOs\AssignEmployeeToTeamDTO;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\PersonnelModule\Models\TeamMember;
 use Illuminate\Database\QueryException;

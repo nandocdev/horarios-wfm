@@ -10,7 +10,6 @@ use App\Modules\WfmModule\Livewire\RequestLeave;
 use App\Modules\WorkflowsModule\Models\LeaveRequest;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
-use Tests\TestCase;
 
 test('operator can create a partial leave request', function () {
     $user = User::factory()->create();
@@ -47,8 +46,8 @@ test('partial leave cannot be created if overlapping existing leave exists', fun
 
     // existing leave 09:00 - 13:00
     $date = now()->addDays(3)->toDateString();
-    $existingStart = Carbon::parse($date . ' 09:00:00');
-    $existingEnd = Carbon::parse($date . ' 13:00:00');
+    $existingStart = Carbon::parse($date.' 09:00:00');
+    $existingEnd = Carbon::parse($date.' 13:00:00');
 
     LeaveRequest::create([
         'employee_id' => $employee->id,
@@ -63,15 +62,15 @@ test('partial leave cannot be created if overlapping existing leave exists', fun
     $this->actingAs($user);
 
     // Intentar crear uno que solapa (11:00 - 12:00)
-    // NOTA: Como RequestLeave no tiene validación de solapamiento en PHP actualmente, 
+    // NOTA: Como RequestLeave no tiene validación de solapamiento en PHP actualmente,
     // este test se espera que falle o se comporte según la lógica actual.
     // Por ahora lo alineamos para que al menos no lance Error de clase no encontrada.
-    
+
     Livewire::test(RequestLeave::class, ['type' => 'quarterly'])
         ->set('date', $date)
         ->set('startTime', '11:00')
         ->set('endTime', '12:00')
         ->set('reason', 'Solapamiento de prueba (largo)')
         ->call('submit');
-        // ->assertHasErrors(['date']); // Descomentar cuando se implemente la validación
+    // ->assertHasErrors(['date']); // Descomentar cuando se implemente la validación
 })->todo(); // Marcamos como TODO porque falta la lógica en el componente

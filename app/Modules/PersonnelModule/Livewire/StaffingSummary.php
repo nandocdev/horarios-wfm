@@ -5,17 +5,19 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Team;
-use App\Modules\PersonnelModule\Models\EmploymentStatus;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class StaffingSummary extends Component
 {
     public array $stats = [];
+
     public array $byTeam = [];
+
     public array $byPosition = [];
+
     public array $byStatus = [];
 
     public function mount()
@@ -35,26 +37,26 @@ class StaffingSummary extends Component
         ];
 
         // Por Equipo
-        $this->byTeam = Team::withCount(['employees' => function($q) {
-                $q->where('is_active', true);
-            }])
+        $this->byTeam = Team::withCount(['employees' => function ($q) {
+            $q->where('is_active', true);
+        }])
             ->active()
             ->orderBy('employees_count', 'desc')
             ->get()
             ->toArray();
 
         // Por Posición
-        $this->byPosition = Position::withCount(['employees' => function($q) {
-                $q->where('is_active', true);
-            }])
+        $this->byPosition = Position::withCount(['employees' => function ($q) {
+            $q->where('is_active', true);
+        }])
             ->orderBy('employees_count', 'desc')
             ->get()
             ->toArray();
 
         // Por Estatus de Empleo
-        $this->byStatus = EmploymentStatus::withCount(['employees' => function($q) {
-                $q->where('is_active', true);
-            }])
+        $this->byStatus = EmploymentStatus::withCount(['employees' => function ($q) {
+            $q->where('is_active', true);
+        }])
             ->get()
             ->toArray();
     }

@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
-use App\Modules\AuditModule\Models\AuditLog;
-use App\Modules\WfmModule\Models\AbsenceReasonCode;
-use App\Modules\WfmModule\Models\ActivityType;
-use App\Modules\WfmModule\Models\AgentState;
-use App\Modules\WfmModule\Models\Schedule;
-use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
+use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth as AuthFacade;
 use Illuminate\Support\Facades\Route as RouteFacade;
@@ -18,7 +13,8 @@ use Illuminate\Support\Facades\Route as RouteFacade;
  * Helper institucional para la gestión de la navegación (Sidebar y Navbar).
  * [MEJORA]: Filtra automáticamente los elementos basados en permisos de Spatie/Gates.
  */
-class MenuHelper {
+class MenuHelper
+{
     /**
      * Usuario actual para verificación de permisos.
      */
@@ -27,7 +23,8 @@ class MenuHelper {
     /**
      * Retorna la colección de elementos del menú lateral.
      */
-    public static function getSidebarItems($user = null, array $counts = []): Collection {
+    public static function getSidebarItems($user = null, array $counts = []): Collection
+    {
         self::$currentUser = $user ?: AuthFacade::user();
 
         return collect([
@@ -295,7 +292,7 @@ class MenuHelper {
                         'label' => __('Empleados'),
                         'route' => 'employees.index',
                         'pattern' => 'employees*',
-                        'gate' => ['viewAny', \App\Modules\PersonnelModule\Models\Employee::class],
+                        'gate' => ['viewAny', Employee::class],
                         'icon' => 'user-group',
                     ],
                     [
@@ -431,14 +428,15 @@ class MenuHelper {
                     ],
                 ],
             ],
-        ])->filter(fn($item) => self::canView($item))
-            ->map(fn($item) => self::processActiveStates($item));
+        ])->filter(fn ($item) => self::canView($item))
+            ->map(fn ($item) => self::processActiveStates($item));
     }
 
     /**
      * Retorna los elementos del pie del sidebar (Soporte).
      */
-    public static function getFooterItems($user = null): Collection {
+    public static function getFooterItems($user = null): Collection
+    {
         self::$currentUser = $user ?: AuthFacade::user();
 
         return collect([
@@ -463,18 +461,19 @@ class MenuHelper {
                 'pattern' => 'helpdesk/manage*',
                 'permission' => 'helpdesk.manage',
             ],
-        ])->filter(fn($item) => self::canView($item))
-            ->map(fn($item) => self::processActiveStates($item));
+        ])->filter(fn ($item) => self::canView($item))
+            ->map(fn ($item) => self::processActiveStates($item));
     }
 
     /**
      * Verifica si el usuario actual tiene permiso para ver el elemento.
      */
-    protected static function canView(array $item): bool {
+    protected static function canView(array $item): bool
+    {
         $user = self::$currentUser ?: AuthFacade::user();
 
         // 1. Si tiene submenú, verificar si al menos un hijo es visible
-        if (isset($item['submenu']) && !empty($item['submenu'])) {
+        if (isset($item['submenu']) && ! empty($item['submenu'])) {
             $hasVisibleChild = false;
             foreach ($item['submenu'] as $subItem) {
                 if (self::canView($subItem)) {
@@ -484,13 +483,13 @@ class MenuHelper {
             }
 
             // Si no hay hijos visibles, ocultar el padre aunque tenga permiso
-            if (!$hasVisibleChild) {
+            if (! $hasVisibleChild) {
                 return false;
             }
         }
 
         // 2. Si no requiere permiso ni gate, es visible para autenticados
-        if ((!isset($item['permission']) || empty($item['permission'])) && !isset($item['gate'])) {
+        if ((! isset($item['permission']) || empty($item['permission'])) && ! isset($item['gate'])) {
             return (bool) $user;
         }
 
@@ -511,12 +510,12 @@ class MenuHelper {
         }
 
         // 3. Permiso simple (Spatie)
-        if (isset($item['permission']) && !empty($item['permission'])) {
+        if (isset($item['permission']) && ! empty($item['permission'])) {
             return $user && $user->can($item['permission']);
         }
 
         // 4. Roles específicos (Spatie)
-        if (isset($item['roles']) && !empty($item['roles'])) {
+        if (isset($item['roles']) && ! empty($item['roles'])) {
             return $user && $user->hasAnyRole((array) $item['roles']);
         }
 
@@ -533,12 +532,13 @@ class MenuHelper {
     /**
      * Procesa recursivamente el estado activo basado en la ruta actual.
      */
-    protected static function processActiveStates(array $item): array {
+    protected static function processActiveStates(array $item): array
+    {
         // Si tiene submenú, procesar los hijos pero no filtrar nuevamente
         // ya que el filtrado se hace en el método getSidebarItems
         if (isset($item['submenu'])) {
             $item['submenu'] = collect($item['submenu'])
-                ->map(fn($sub) => self::processActiveStates($sub))
+                ->map(fn ($sub) => self::processActiveStates($sub))
                 ->toArray();
         }
 
@@ -550,7 +550,8 @@ class MenuHelper {
     /**
      * Determina si el elemento o alguno de sus hijos está activo.
      */
-    protected static function isActive(array $item): bool {
+    protected static function isActive(array $item): bool
+    {
         // Si tiene parámetros específicos, deben coincidir todos con la request actual
         if (isset($item['params'])) {
             foreach ($item['params'] as $key => $value) {
@@ -572,7 +573,7 @@ class MenuHelper {
 
         // Si algún hijo está activo
         if (isset($item['submenu'])) {
-            return collect($item['submenu'])->contains(fn($sub) => self::isActive($sub));
+            return collect($item['submenu'])->contains(fn ($sub) => self::isActive($sub));
         }
 
         return false;

@@ -9,11 +9,13 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ScheduleSeeder extends Seeder {
+class ScheduleSeeder extends Seeder
+{
     /**
      * Run the database seeds.
      */
-    public function run(): void {
+    public function run(): void
+    {
         DB::table('schedules')->truncate();
         $shifts = [
             ['name' => '06001400', 'start' => '06:00', 'end' => '14:00'],
@@ -40,7 +42,7 @@ class ScheduleSeeder extends Seeder {
                     'name' => $shift['name'],
                     'total_minutes' => $minutes,
                     'is_active' => true,
-                    'allowed_days' => [1, 2, 3, 4, 5]
+                    'allowed_days' => [1, 2, 3, 4, 5],
                 ]
             );
         }

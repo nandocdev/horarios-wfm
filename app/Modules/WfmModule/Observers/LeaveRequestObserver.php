@@ -42,8 +42,8 @@ class LeaveRequestObserver
                 'start_at' => $leaveRequest->start_time,
                 'end_at' => $leaveRequest->end_time,
                 'is_full_day' => $leaveRequest->minutes >= 480, // Asumimos día completo si son >= 8h
-                'remarks' => __('Sincronizado desde Solicitud #') . $leaveRequest->id . ': ' . $leaveRequest->reason,
-                'created_by' => auth()->id() ?? $leaveRequest->employee_id, 
+                'remarks' => __('Sincronizado desde Solicitud #').$leaveRequest->id.': '.$leaveRequest->reason,
+                'created_by' => auth()->id() ?? $leaveRequest->employee_id,
             ]
         );
 

@@ -40,25 +40,25 @@ final class FetchAgentDetailAction
     /**
      * Ejecuta el reporte con filtro de rango horario y agentes opcionales.
      *
-     * @param  Carbon              $startDateTime  Inicio del rango (fecha + hora)
-     * @param  Carbon|null         $endDateTime    Fin del rango (null = fin del día de $startDateTime)
-     * @param  array<int, string>  $agentNames     Nombres completos tal como aparecen en CUIC
+     * @param  Carbon  $startDateTime  Inicio del rango (fecha + hora)
+     * @param  Carbon|null  $endDateTime  Fin del rango (null = fin del día de $startDateTime)
+     * @param  array<int, string>  $agentNames  Nombres completos tal como aparecen en CUIC
      * @return Collection<int, array<string, mixed>>
      *
      * @throws \RuntimeException Si CUIC falla o la config está incompleta.
      */
     public function execute(
-        Carbon  $startDateTime,
+        Carbon $startDateTime,
         ?Carbon $endDateTime = null,
-        array   $agentNames  = []
+        array $agentNames = []
     ): Collection {
         $end = $endDateTime ?? (clone $startDateTime)->setTime(23, 59, 59);
 
         return $this->cuic->executeReportWithFilter(
-            reportKey:     'agent_detail',
+            reportKey: 'agent_detail',
             startDateTime: $startDateTime,
-            endDateTime:   $end,
-            agentNames:    $agentNames,
+            endDateTime: $end,
+            agentNames: $agentNames,
         );
     }
 }

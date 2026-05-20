@@ -48,10 +48,10 @@ return new class extends Migration
             // Can share a file OR a folder
             $table->foreignId('file_id')->nullable()->constrained('files')->cascadeOnDelete();
             $table->foreignId('folder_id')->nullable()->constrained('folders')->cascadeOnDelete();
-            
+
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); // Target user
             $table->foreignId('shared_by_id')->constrained('users')->cascadeOnDelete();
-            
+
             $table->enum('access_level', ['view', 'edit', 'admin'])->default('view');
             $table->timestampTz('expires_at')->nullable();
             $table->timestampsTz();

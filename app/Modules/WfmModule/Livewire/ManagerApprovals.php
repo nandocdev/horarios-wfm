@@ -28,7 +28,7 @@ class ManagerApprovals extends Component
             ->where('status', 'pending')
             ->where(function ($q) use ($manager, $managedTeamIds) {
                 $q->whereIn('employee_id', $manager->getAllSubordinateIds())
-                  ->orWhereHas('employee', fn($sq) => $sq->whereIn('team_id', $managedTeamIds));
+                    ->orWhereHas('employee', fn ($sq) => $sq->whereIn('team_id', $managedTeamIds));
             })
             ->firstOrFail();
 
@@ -60,7 +60,7 @@ class ManagerApprovals extends Component
             ->where('status', 'pending')
             ->where(function ($q) use ($manager, $managedTeamIds) {
                 $q->whereIn('employee_id', $manager->getAllSubordinateIds())
-                  ->orWhereHas('employee', fn($sq) => $sq->whereIn('team_id', $managedTeamIds));
+                    ->orWhereHas('employee', fn ($sq) => $sq->whereIn('team_id', $managedTeamIds));
             })
             ->firstOrFail();
 
@@ -87,15 +87,15 @@ class ManagerApprovals extends Component
         if ($manager) {
             $subordinateIds = $manager->getAllSubordinateIds();
             $managedTeamIds = $manager->getManagedTeamIds();
-            
+
             $query = LeaveRequest::with(['employee', 'employee.position', 'employee.team'])
                 ->where('status', 'pending');
 
             if ($manager->hasCoordinatorRights()) {
                 // Ve solicitudes de sus subordinados O de cualquier miembro de sus equipos gestionados
-                $query->where(function($q) use ($subordinateIds, $managedTeamIds) {
+                $query->where(function ($q) use ($subordinateIds, $managedTeamIds) {
                     $q->whereIn('employee_id', $subordinateIds)
-                      ->orWhereHas('employee', fn($sq) => $sq->whereIn('team_id', $managedTeamIds));
+                        ->orWhereHas('employee', fn ($sq) => $sq->whereIn('team_id', $managedTeamIds));
                 });
             } else {
                 // Solo ve solicitudes de sus subordinados

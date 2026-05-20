@@ -16,6 +16,7 @@ class IntradayActivityDTO
         public readonly string $start_time,
         public readonly string $end_time,
         public readonly ?string $notes = null,
+        public readonly ?int $approved_period_id = null,
     ) {}
 
     public static function fromArray(array $data): self
@@ -27,6 +28,7 @@ class IntradayActivityDTO
             start_time: (string) $data['start_time'],
             end_time: (string) $data['end_time'],
             notes: $data['notes'] ?? null,
+            approved_period_id: isset($data['approved_period_id']) ? (int) $data['approved_period_id'] : null,
         );
     }
 }

@@ -14,7 +14,7 @@ class IntradayActivity extends Model
     protected $table = 'intraday_activities';
 
     protected $fillable = [
-        'employee_id', 'activity_type_id', 'time_range', 'notes',
+        'employee_id', 'activity_type_id', 'approved_period_id', 'time_range', 'notes',
     ];
 
     public function employee(): BelongsTo
@@ -25,6 +25,14 @@ class IntradayActivity extends Model
     public function activityType(): BelongsTo
     {
         return $this->belongsTo(ActivityType::class);
+    }
+
+    /**
+     * Periodo aprobado al que pertenece esta actividad (si aplica).
+     */
+    public function approvedPeriod(): BelongsTo
+    {
+        return $this->belongsTo(ApprovedIntradayPeriod::class, 'approved_period_id');
     }
 
     /**

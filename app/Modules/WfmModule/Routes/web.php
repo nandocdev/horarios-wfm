@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\WfmModule\Livewire\EmployeeWeeklyPlanning;
+use App\Modules\WfmModule\Livewire\ImportWeeklySchedule;
 use App\Modules\WfmModule\Livewire\LeaveRequestHistory;
 use App\Modules\WfmModule\Livewire\ManageAbsenceReasons;
 use App\Modules\WfmModule\Livewire\ManageActivityTypes;
@@ -17,9 +18,9 @@ use App\Modules\WfmModule\Livewire\MyMetrics;
 use App\Modules\WfmModule\Livewire\MySchedule;
 use App\Modules\WfmModule\Livewire\MyTeam;
 use App\Modules\WfmModule\Livewire\OperationalSettings;
-
 use App\Modules\WfmModule\Livewire\RequestLeave;
 use App\Modules\WfmModule\Livewire\RequestShiftSwap;
+use App\Modules\WfmModule\Livewire\RequestSummary;
 use App\Modules\WfmModule\Livewire\SwapRequestHistory;
 use App\Modules\WfmModule\Livewire\TeamWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\WeeklyPlanning;
@@ -46,6 +47,7 @@ Route::middleware(['web', 'auth'])->prefix('schedules')->name('schedules.')->gro
     Route::get('/intraday-activities/manage', ManageIntradayActivities::class)->name('intraday-activities.manage');
     Route::get('/exceptions', ManageScheduleExceptions::class)->name('exceptions');
     Route::get('/planning/{week}/teams', WeeklyPlanningTeams::class)->name('planning.teams');
+    Route::get('/planning/{week}/import', ImportWeeklySchedule::class)->name('planning.import');
     Route::get('/planning/{week}/team/{team}', TeamWeeklyPlanning::class)->name('planning.team');
     Route::get('/planning/{week}/employee/{employee}', EmployeeWeeklyPlanning::class)->name('planning.employee');
 
@@ -57,7 +59,7 @@ Route::middleware(['web', 'auth'])->prefix('schedules')->name('schedules.')->gro
     Route::get('/scheduled-activities', ManageScheduledActivities::class)->name('scheduled-activities');
     Route::get('/operational-settings', OperationalSettings::class)->name('operational-settings');
 
-    Route::get('/reports/requests', \App\Modules\WfmModule\Livewire\RequestSummary::class)
+    Route::get('/reports/requests', RequestSummary::class)
         ->name('request-summary')
         ->can('reports.requests');
 });

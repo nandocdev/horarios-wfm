@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Shared\Contracts\Employees\EmployeeLookupRepositoryInterface;
+use Illuminate\Contracts\Console\Kernel;
 
-require __DIR__ . '/vendor/autoload.php';
-$app = require_once __DIR__ . '/bootstrap/app.php';
+require __DIR__.'/vendor/autoload.php';
+$app = require_once __DIR__.'/bootstrap/app.php';
 
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
 $lookup = app(EmployeeLookupRepositoryInterface::class);

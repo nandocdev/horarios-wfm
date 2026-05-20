@@ -1,11 +1,14 @@
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
-$app = require_once __DIR__ . '/bootstrap/app.php';
-$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+declare(strict_types=1);
+
+require __DIR__.'/vendor/autoload.php';
+$app = require_once __DIR__.'/bootstrap/app.php';
+$app->make(Kernel::class)->bootstrap();
 
 use App\Modules\ConnectModule\Services\CuicReportService;
 use Carbon\Carbon;
+use Illuminate\Contracts\Console\Kernel;
 
 $cuic = app(CuicReportService::class);
 $start = Carbon::now()->subMinutes(30);
@@ -20,6 +23,6 @@ try {
         echo "Columnas encontradas en la primera fila:\n";
         print_r(array_keys($rows->first()));
     }
-} catch (\Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+} catch (Exception $e) {
+    echo 'Error: '.$e->getMessage()."\n";
 }

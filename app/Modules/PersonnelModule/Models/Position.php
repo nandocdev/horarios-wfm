@@ -43,6 +43,15 @@ class Position extends Model
     /**
      * Empleados que ocupan este cargo.
      */
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class);
+    }
+
+    /**
+     * Empleados que ocupan este cargo.
+     * @deprecated Usar employees() para consistencia.
+     */
     public function users(): HasMany
     {
         return $this->hasMany(Employee::class);

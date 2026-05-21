@@ -80,7 +80,7 @@
                 @if($position['employees_count'] > 0)
                     <div class="p-3 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 flex justify-between items-center">
                         <div>
-                            <flux:text size="xs" class="uppercase tracking-tighter text-zinc-400 font-bold">{{ $position['code'] }}</flux:text>
+                            <flux:text size="xs" class="uppercase tracking-tighter text-zinc-400 font-bold">{{ $position['position_code'] }}</flux:text>
                             <flux:text class="font-medium block truncate max-w-[200px]">{{ $position['name'] }}</flux:text>
                         </div>
                         <flux:badge size="sm" color="indigo" inset="top" class="font-black">{{ $position['employees_count'] }}</flux:badge>

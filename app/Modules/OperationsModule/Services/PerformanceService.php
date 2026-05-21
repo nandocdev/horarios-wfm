@@ -78,10 +78,6 @@ final class PerformanceService
     public function getGlobalHeroKpis(?CarbonInterface $targetDate = null): array
     {
         $date = $targetDate ?? now();
-        $isToday = $date->isToday();
-        $formattedDate = $date->toDateString();
-
-        // 1. Universo de operadores
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
             ->where('is_active', true)
             ->pluck('id')
@@ -91,51 +87,76 @@ final class PerformanceService
             return [];
         }
 
-        if (! $isToday) {
-            // Lógica Histórica simplificada
-            $callStats = DB::table('call_records')
-                ->whereNotNull('queue_id')
-                ->whereDate('ivr_started_at', $formattedDate)
-                ->select(
-                    DB::raw('COUNT(*) as total'),
-                    DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
-                    DB::raw('AVG(talk_time) as avg_talk')
-                )
-                ->first();
+        $current = $this->calculateMetrics($date, $operatorIds);
+        $previous = $this->calculateMetrics($date->copy()->subDay(), $operatorIds);
 
-            $serviceLevel = $callStats->total > 0 ? ($callStats->handled / $callStats->total) * 100 : 0;
+        return [
+            'coverage' => [
+                'label' => 'Cobertura',
+                'value' => round($current['coverage'], 1).'%',
+                'status' => $current['coverage'] < 90 ? 'danger' : ($current['coverage'] < 95 ? 'warning' : 'success'),
+                'delta' => $this->formatDelta($current['coverage'], $previous['coverage']),
+                'icon' => 'users',
+            ],
+            'adherence' => [
+                'label' => 'Adherencia',
+                'value' => round($current['adherence'], 1).'%',
+                'status' => $current['adherence'] < 85 ? 'danger' : ($current['adherence'] < 92 ? 'warning' : 'success'),
+                'delta' => $this->formatDelta($current['adherence'], $previous['adherence']),
+                'icon' => 'clock',
+            ],
+            'occupancy' => [
+                'label' => 'Ocupación',
+                'value' => round($current['occupancy'], 1).'%',
+                'status' => $current['occupancy'] > 90 ? 'danger' : ($current['occupancy'] > 85 ? 'warning' : 'success'),
+                'delta' => $this->formatDelta($current['occupancy'], $previous['occupancy']),
+                'icon' => 'chart-bar',
+            ],
+            'service_level' => [
+                'label' => 'Nivel de Servicio',
+                'value' => round($current['service_level'], 1).'%',
+                'status' => $current['service_level'] < 80 ? 'danger' : ($current['service_level'] < 90 ? 'warning' : 'success'),
+                'delta' => $this->formatDelta($current['service_level'], $previous['service_level']),
+                'icon' => 'phone',
+            ],
+            'absenteeism' => [
+                'label' => 'Ausentismo',
+                'value' => round($current['absenteeism'], 1).'%',
+                'status' => $current['absenteeism'] > 5 ? 'danger' : 'success',
+                'delta' => $this->formatDelta($current['absenteeism'], $previous['absenteeism'], true),
+                'icon' => 'user-minus',
+            ],
+            'shrinkage' => [
+                'label' => 'Reductores (Shrink)',
+                'value' => round($current['shrinkage'], 1).'%',
+                'status' => 'neutral',
+                'delta' => $this->formatDelta($current['shrinkage'], $previous['shrinkage'], true),
+                'icon' => 'scissors',
+            ],
+        ];
+    }
 
-            return [
-                'coverage' => ['label' => 'Cobertura', 'value' => '100%', 'status' => 'success', 'delta' => '0.0%', 'icon' => 'users'],
-                'adherence' => ['label' => 'Adherencia', 'value' => '95%', 'status' => 'success', 'delta' => '0.0%', 'icon' => 'clock'],
-                'occupancy' => ['label' => 'Ocupación', 'value' => '85%', 'status' => 'success', 'delta' => '0.0%', 'icon' => 'chart-bar'],
-                'service_level' => [
-                    'label' => 'Nivel de Servicio',
-                    'value' => round($serviceLevel, 1).'%',
-                    'status' => $serviceLevel < 80 ? 'danger' : 'success',
-                    'delta' => '0.0%',
-                    'icon' => 'phone',
-                ],
-                'absenteeism' => ['label' => 'Ausentismo', 'value' => '0%', 'status' => 'success', 'delta' => '0.0%', 'icon' => 'user-minus'],
-                'shrinkage' => ['label' => 'Reductores', 'value' => '15%', 'status' => 'neutral', 'delta' => '0.0%', 'icon' => 'scissors'],
-            ];
+    /**
+     * Calcula las métricas para una fecha específica.
+     */
+    private function calculateMetrics(CarbonInterface $date, array $operatorIds): array
+    {
+        if ($date->isToday()) {
+            return $this->calculateRealtimeMetrics($operatorIds);
         }
 
-        // Lógica Realtime (Original)
+        return $this->calculateHistoricalMetrics($date, $operatorIds);
+    }
+
+    /**
+     * Lógica para el cálculo en tiempo real (basado en estados actuales).
+     */
+    private function calculateRealtimeMetrics(array $operatorIds): array
+    {
         $now = now();
         $today = $now->toDateString();
 
-        // 1. Universo de operadores
-        $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
-            ->where('is_active', true)
-            ->pluck('id')
-            ->toArray();
-
-        if (empty($operatorIds)) {
-            return [];
-        }
-
-        // 2. Programados actualmente (Excluyendo excepciones activas)
+        // 1. Programados actualmente
         $idsWithExceptions = ScheduleException::whereIn('employee_id', $operatorIds)
             ->where('start_at', '<=', $now)
             ->where('end_at', '>=', $now)
@@ -155,72 +176,100 @@ final class PerformanceService
 
         $totalScheduled = $scheduled->count();
 
-        // 3. Conectados actualmente (Cisco)
+        // 2. Conectados actualmente
         $realtimeStates = AgentRealtimeState::whereIn('employee_id', $operatorIds)
             ->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])
             ->get();
 
         $totalConnected = $realtimeStates->count();
 
-        // 4. Cálculos
-        $coverage = $totalScheduled > 0 ? min(100, round(($totalConnected / $totalScheduled) * 100, 1)) : 0;
+        // 3. Cálculos
+        $coverage = $totalScheduled > 0 ? ($totalConnected / $totalScheduled) * 100 : 0.0;
         $adherence = $this->calculateAdherence($scheduled, $realtimeStates);
-        $occupancy = $this->calculateOccupancy($operatorIds);
+        $occupancy = $this->calculateRealtimeOccupancy($operatorIds);
         $serviceLevel = (float) (DB::table('csq_realtime_stats')->avg('service_level_long_term') ?? 0);
 
-        $scheduledIds = $scheduled->pluck('employee_id')->toArray();
-        $connectedFromScheduled = $realtimeStates->whereIn('employee_id', $scheduledIds)->count();
+        $connectedFromScheduled = $realtimeStates->whereIn('employee_id', $scheduled->pluck('employee_id'))->count();
         $absenteeism = MetricFormulas::absenteeismRate(
             (float) MetricFormulas::absentPersonnel($totalScheduled, $connectedFromScheduled),
             (float) $totalScheduled
         );
 
-        $shrinkage = $this->calculateShrinkage($operatorIds, $now);
+        return [
+            'coverage' => min(100, $coverage),
+            'adherence' => $adherence,
+            'occupancy' => $occupancy,
+            'service_level' => $serviceLevel,
+            'absenteeism' => $absenteeism,
+            'shrinkage' => $this->calculateShrinkage($operatorIds, $now),
+        ];
+    }
+
+    /**
+     * Lógica para el cálculo histórico (basado en registros y transiciones).
+     */
+    private function calculateHistoricalMetrics(CarbonInterface $date, array $operatorIds): array
+    {
+        $formattedDate = $date->toDateString();
+
+        // 1. Service Level
+        $callStats = DB::table('call_records')
+            ->whereNotNull('queue_id')
+            ->whereDate('ivr_started_at', $formattedDate)
+            ->select(
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled')
+            )
+            ->first();
+        $sl = $callStats->total > 0 ? ($callStats->handled / $callStats->total) * 100 : 0.0;
+
+        // 2. Ocupación (basada en duraciones de transiciones)
+        $transitions = DB::table('agent_state_transitions')
+            ->whereIn('employee_id', $operatorIds)
+            ->whereDate('transition_time', $formattedDate)
+            ->get();
+
+        $durations = $transitions->groupBy(fn ($t) => strtoupper(trim($t->agent_state)))
+            ->map(fn ($group) => $group->sum('duration'));
+
+        $productive = ($durations['TALKING'] ?? 0) + ($durations['WORK'] ?? 0) + ($durations['RESERVED'] ?? 0);
+        $ready = $durations['READY'] ?? 0;
+        $occupancy = ($productive + $ready) > 0 ? ($productive / ($productive + $ready)) * 100 : 0.0;
+
+        // 3. Cobertura (Promedio diario estimado o conteo único de conectados vs programados)
+        $connectedCount = $transitions->whereNotIn('agent_state', ['Logout', 'Logged-in'])->pluck('employee_id')->unique()->count();
+        $scheduledCount = WeeklyScheduleAssignment::whereIn('employee_id', $operatorIds)
+            ->where('day_of_week', $date->dayOfWeekIso)
+            ->whereHas('weeklySchedule', function ($q) use ($formattedDate) {
+                $q->where('week_start_date', '<=', $formattedDate)
+                    ->where('week_end_date', '>=', $formattedDate);
+            })
+            ->count();
+        $coverage = $scheduledCount > 0 ? ($connectedCount / $scheduledCount) * 100 : 100.0;
+
+        // 4. Ausentismo
+        $absenteeism = $scheduledCount > 0 ? max(0, ($scheduledCount - $connectedCount) / $scheduledCount * 100) : 0.0;
 
         return [
-            'coverage' => [
-                'label' => 'Cobertura',
-                'value' => $coverage.'%',
-                'status' => $coverage < 90 ? 'danger' : ($coverage < 95 ? 'warning' : 'success'),
-                'delta' => '0.0%',
-                'icon' => 'users',
-            ],
-            'adherence' => [
-                'label' => 'Adherencia',
-                'value' => $adherence.'%',
-                'status' => $adherence < 85 ? 'danger' : ($adherence < 92 ? 'warning' : 'success'),
-                'delta' => '0.0%',
-                'icon' => 'clock',
-            ],
-            'occupancy' => [
-                'label' => 'Ocupación',
-                'value' => round($occupancy, 1).'%',
-                'status' => $occupancy > 90 ? 'danger' : ($occupancy > 85 ? 'warning' : 'success'),
-                'delta' => '0.0%',
-                'icon' => 'chart-bar',
-            ],
-            'service_level' => [
-                'label' => 'Nivel de Servicio',
-                'value' => round($serviceLevel, 1).'%',
-                'status' => $serviceLevel < 80 ? 'danger' : ($serviceLevel < 90 ? 'warning' : 'success'),
-                'delta' => '0.0%',
-                'icon' => 'phone',
-            ],
-            'absenteeism' => [
-                'label' => 'Ausentismo',
-                'value' => $absenteeism.'%',
-                'status' => $absenteeism > 5 ? 'danger' : 'success',
-                'delta' => '0.0%',
-                'icon' => 'user-minus',
-            ],
-            'shrinkage' => [
-                'label' => 'Reductores (Shrink)',
-                'value' => $shrinkage.'%',
-                'status' => 'neutral',
-                'delta' => '0.0%',
-                'icon' => 'scissors',
-            ],
+            'coverage' => min(100, $coverage),
+            'adherence' => 95.0, // TODO: Implementar cálculo exacto de adherencia histórica
+            'occupancy' => $occupancy,
+            'service_level' => $sl,
+            'absenteeism' => $absenteeism,
+            'shrinkage' => $this->calculateShrinkage($operatorIds, $date),
         ];
+    }
+
+    private function formatDelta(float $current, float $previous, bool $inverse = false): string
+    {
+        $diff = $current - $previous;
+        if (abs($diff) < 0.01) {
+            return '0.0%';
+        }
+
+        $sign = $diff > 0 ? '+' : '';
+
+        return $sign.round($diff, 1).'%';
     }
 
     private function calculateAdherence($scheduled, $realtime): float
@@ -239,7 +288,7 @@ final class PerformanceService
         return round(($inState / $scheduled->count()) * 100, 1);
     }
 
-    private function calculateOccupancy(array $operatorIds): float
+    private function calculateRealtimeOccupancy(array $operatorIds): float
     {
         $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
             ->whereIn('current_state', ['READY', 'TALKING', 'WORK', 'WORK_READY', 'RESERVED'])

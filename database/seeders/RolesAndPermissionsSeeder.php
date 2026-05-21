@@ -255,9 +255,13 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Supervisor
         Role::findByName('supervisor', 'web')->syncPermissions([
+            'menu.team',
             'schedules.view_own',
+            'schedules.view_team',
             'schedules.swap_request',
             'schedules.leave_request',
+            'schedules.approve_requests',
+            'wfm.leaves.manage',
             'schedules.justification_upload',
             'notifications.view',
             'notifications.send',
@@ -274,6 +278,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'wfm.availability.view',
             'wfm.planning.manage',
             'wfm.intraday.assign',
+            'wfm.leaves.manage',
             'schedules.view_own',
             'schedules.view_team',
             'schedules.approve_requests',
@@ -295,8 +300,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'menu.reports',
             'wfm.realtime.view',
             'wfm.availability.view',
+            'wfm.leaves.manage',
             'schedules.view_own',
             'schedules.view_team',
+            'schedules.approve_requests',
             'operations.view',
             'requests.view',
             'reports.scorecard',

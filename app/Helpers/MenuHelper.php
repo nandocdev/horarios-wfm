@@ -73,8 +73,8 @@ class MenuHelper
                     ],
                     [
                         'label' => __('Mis Solicitudes'),
-                        'route' => null, // TODO: route('schedules.my-requests')
-                        'pattern' => 'schedules/my-requests*',
+                        'route' => 'schedules.leave-history',
+                        'pattern' => 'schedules/leave-history*',
                         'permission' => null,
                         'icon' => 'document-text',
                     ],

@@ -15,7 +15,8 @@ final readonly class StandardizedPerformanceDTO
         public array $activities,
         public array $reasons,
         public array $metrics,
-        public array $queues
+        public array $queues,
+        public array $goals = []
     ) {}
 
     public static function empty(string $date): self
@@ -52,7 +53,8 @@ final readonly class StandardizedPerformanceDTO
                 'utilization_percentage' => 0,
                 'adherence_percentage' => 0,
             ],
-            queues: []
+            queues: [],
+            goals: []
         );
     }
 
@@ -65,6 +67,7 @@ final readonly class StandardizedPerformanceDTO
             'reasons' => $this->reasons,
             'metrics' => $this->metrics,
             'queues' => $this->queues,
+            'goals' => $this->goals,
         ];
     }
 }

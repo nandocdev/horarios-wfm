@@ -156,6 +156,10 @@
                     <p class="text-3xl font-black text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.productivity_percentage'), 1) }}%
                     </p>
+                    @php $prodGoal = collect($performanceData)->first()['goals']['goal_productivity'] ?? null; @endphp
+                    @if($prodGoal)
+                        <p class="text-[10px] text-blue-100 mt-1 opacity-80 font-bold tracking-wider uppercase">Meta: {{ $prodGoal }}%</p>
+                    @endif
                     <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
                         <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.productivity_percentage') }}%"></div>
                     </div>
@@ -172,6 +176,10 @@
                     <p class="text-3xl font-black text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.adherence_percentage'), 1) }}%
                     </p>
+                    @php $adhGoal = collect($performanceData)->first()['goals']['goal_adherence'] ?? null; @endphp
+                    @if($adhGoal)
+                        <p class="text-[10px] text-indigo-100 mt-1 opacity-80 font-bold tracking-wider uppercase">Meta: {{ $adhGoal }}%</p>
+                    @endif
                     <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
                         <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.adherence_percentage') }}%"></div>
                     </div>
@@ -188,7 +196,16 @@
                     <p class="text-3xl font-black text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.utilization_percentage'), 1) }}%
                     </p>
-                    <p class="text-[10px] text-amber-50 mt-2 italic opacity-80">Productivo vs Programado</p>
+                    @php $utilGoal = collect($performanceData)->first()['goals']['goal_utilization'] ?? null; @endphp
+                    @if($utilGoal)
+                        <p class="text-[10px] text-amber-50 mt-1 opacity-80 font-bold tracking-wider uppercase">Meta: {{ $utilGoal }}%</p>
+                    @else
+                        <p class="text-[10px] text-amber-50 mt-2 italic opacity-80">Productivo vs Programado</p>
+                    @endif
+                    
+                    <div class="mt-4 h-1 w-full bg-white/20 rounded-full overflow-hidden">
+                        <div class="h-full bg-white rounded-full" style="width: {{ collect($performanceData)->avg('metrics.utilization_percentage') }}%"></div>
+                    </div>
                 </div>
             </flux:tooltip>
 
@@ -228,7 +245,7 @@
                     </div>
                     <p class="text-xs font-bold text-purple-100 uppercase tracking-widest">Llamadas</p>
                     @php 
-                        $totalCalls = collect($performanceData)->flatMap(fn($d) => $d['queues'])->sum('total_calls');
+                        $totalCalls = collect($performanceData)->flatMap(fn($d) => array_values($d['queues']))->sum('total_calls');
                     @endphp
                     <p class="text-3xl font-black text-white mt-1">{{ $totalCalls }}</p>
                     <p class="text-[10px] text-purple-100 mt-2 italic opacity-80">Suma de todas las colas</p>

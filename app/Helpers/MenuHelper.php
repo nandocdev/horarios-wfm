@@ -104,6 +104,13 @@ class MenuHelper
                         'icon' => 'chart-bar-square',
                     ],
                     [
+                        'label' => __('Analítica Avanzada'),
+                        'route' => 'operations.advanced-analytics',
+                        'pattern' => 'operations/advanced-analytics*',
+                        'permission' => 'menu.team',
+                        'icon' => 'bolt',
+                    ],
+                    [
                         'label' => __('Vista del Equipo'),
                         'route' => 'schedules.my-team',
                         'pattern' => 'schedules/my-team*',

@@ -6,6 +6,7 @@ namespace App\Modules\OperationsModule\Providers;
 
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
 use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
+use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
 use App\Modules\OperationsModule\Livewire\AgentRealtimeCard;
 use App\Modules\OperationsModule\Livewire\AgentTimeline;
 use App\Modules\OperationsModule\Livewire\Dashboard;
@@ -52,5 +53,6 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('operations.agent-realtime-card', AgentRealtimeCard::class);
         Livewire::component('operations.agent-timeline', AgentTimeline::class);
         Livewire::component('operations.dashboard', Dashboard::class);
+        Livewire::component('operations.advanced-productivity-dashboard', AdvancedProductivityDashboard::class);
     }
 }

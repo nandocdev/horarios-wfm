@@ -134,9 +134,10 @@ final class MetricFormulas
         $isLogoutOrOffline = in_array($real, ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
         $productiveStates = ['READY', 'TALKING', 'WORK', 'RESERVED', 'HOLD', 'OUTBOUND'];
 
-        // Si el usuario está desconectado, no evaluamos adherencia negativa aquí
+        // Si el usuario está desconectado
         if ($isLogoutOrOffline) {
-            return true;
+            // Solo es adherente si se esperaba que estuviera fuera de jornada
+            return $expectedType === 'OFF';
         }
 
         // Si está conectado pero debería estar fuera de jornada -> No Adherente
@@ -150,6 +151,8 @@ final class MetricFormulas
 
         if ($expectedType === 'INTRADAY' || $expectedType === 'EXCEPTION') {
             // Se espera que esté en NOT_READY (auxiliar) para actividades o excepciones
+            // NOTA: Algunos sistemas cuentan TALKING como adherente en INTRADAY (ej. si entra llamada justo al irse)
+            // pero por rigor WFM, debe estar en Auxiliar.
             return $real === 'NOT_READY';
         }
 

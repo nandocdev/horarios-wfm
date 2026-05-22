@@ -202,12 +202,53 @@ class MenuHelper
                 'permission' => 'menu.reports',
                 'submenu' => [
                     [
-                        'label' => __('Asistencia y Puntualidad'),
+                        'label' => __('Centro de Reportes'),
+                        'route' => 'operations.reports',
+                        'pattern' => 'operations/reports*',
+                        'permission' => 'reports.reports',
+                        'icon' => 'squares-2x2',
+                        'badge' => 'HUB',
+                    ],
+                    // Capa 1: WFM Core
+                    [
+                        'label' => __('Adherencia y Cobertura'),
                         'route' => 'operations.team-performance',
                         'params' => ['view' => 'attendance'],
                         'pattern' => 'operations/team-performance*',
                         'permission' => 'reports.attendance',
-                        'icon' => 'clipboard-document-check',
+                        'icon' => 'clock',
+                    ],
+                    // Capa 2: Productividad
+                    [
+                        'label' => __('Productividad Operativa'),
+                        'route' => 'operations.advanced-analytics',
+                        'pattern' => 'operations/advanced-analytics*',
+                        'permission' => 'reports.scorecard',
+                        'icon' => 'bolt',
+                    ],
+                    // Capa 3: Colas
+                    [
+                        'label' => __('Performance por Cola'),
+                        'route' => 'operations.queue-performance',
+                        'pattern' => 'operations/queue-performance*',
+                        'permission' => 'reports.reports',
+                        'icon' => 'phone',
+                    ],
+                    // Capa 4: Workflow
+                    [
+                        'label' => __('Gestión de Solicitudes'),
+                        'route' => 'schedules.request-summary',
+                        'pattern' => 'schedules/reports/requests*',
+                        'permission' => 'reports.requests',
+                        'icon' => 'envelope-open',
+                    ],
+                    // Capa 5: Ejecutivo
+                    [
+                        'label' => __('Executive Dashboard'),
+                        'route' => 'operations.dashboard',
+                        'pattern' => 'operations/dashboard*',
+                        'permission' => 'reports.reports',
+                        'icon' => 'presentation-chart-line',
                     ],
                     [
                         'label' => __('Inventario de Staffing'),
@@ -215,20 +256,6 @@ class MenuHelper
                         'pattern' => 'personnel/reports/staffing*',
                         'permission' => 'reports.staffing',
                         'icon' => 'user-group',
-                    ],
-                    [
-                        'label' => __('Resumen de Solicitudes'),
-                        'route' => 'schedules.request-summary',
-                        'pattern' => 'schedules/reports/requests*',
-                        'permission' => 'reports.requests',
-                        'icon' => 'envelope-open',
-                    ],
-                    [
-                        'label' => __('Auditoría de Cambios'),
-                        'route' => 'audit.index',
-                        'pattern' => 'admin/audit*',
-                        'permission' => 'audit.view',
-                        'icon' => 'finger-print',
                     ],
                 ],
             ],

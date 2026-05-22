@@ -84,15 +84,16 @@ final class CalculateRealAdherenceAction
      */
     private function calculateForDay(Employee|int $employee, CarbonInterface $date): array
     {
+        $employeeId = $employee instanceof Employee ? $employee->id : $employee;
         $isToday = $date->isToday();
         $now = now();
         $limitTime = $isToday ? $now : $date->copy()->endOfDay();
 
         // 1. Obtener Línea de Tiempo Esperada (Planificada)
-        $expectedSegments = $this->getExpectedTimeline($employee->id, $date, $limitTime);
+        $expectedSegments = $this->getExpectedTimeline((int) $employeeId, $date, $limitTime);
         
         // 2. Obtener Línea de Tiempo Real (Telemetría)
-        $realSegments = $this->getRealTimeline($employee->id, $date);
+        $realSegments = $this->getRealTimeline((int) $employeeId, $date);
 
         $totalScheduled = 0;
         $totalAdherent = 0;
@@ -242,27 +243,83 @@ final class CalculateRealAdherenceAction
         $transitions = AgentStateTransition::where('employee_id', $employeeId)
             ->whereDate('transition_time', $date->toDateString())
             ->orderBy('transition_time')
+            ->orderBy('id') // Segundo criterio para consistencia
             ->get();
 
         $segments = [];
-        foreach ($transitions as $t) {
+        $count = $transitions->count();
+
+        foreach ($transitions as $i => $t) {
             $start = Carbon::parse($t->transition_time);
             $duration = (int) $t->duration;
             
-            // Si el día es hoy y el último estado tiene duración 0, asumimos que sigue en ese estado
-            if ($duration === 0 && $date->isToday()) {
+            // Solo extendemos la ÚLTIMA transición si tiene duración 0 y es hoy
+            if ($duration === 0 && $date->isToday() && ($i === $count - 1)) {
                 $duration = (int) $start->diffInSeconds(now());
             }
 
             if ($duration > 0) {
+                // Definir prioridades para estados reales (Talking > Ready > Not Ready > others)
+                $state = strtoupper(trim((string)$t->agent_state));
+                $priority = match($state) {
+                    'TALKING' => 10,
+                    'RESERVED' => 9,
+                    'WORK' => 8,
+                    'READY' => 7,
+                    'NOT_READY' => 6,
+                    default => 1
+                };
+
                 $segments[] = [
                     'start' => $start,
                     'end' => $start->copy()->addSeconds($duration),
-                    'state' => trim((string)$t->agent_state)
+                    'state' => $state,
+                    'priority' => $priority
                 ];
             }
         }
 
-        return $segments;
+        return $this->flattenRealSegments($segments);
+    }
+
+    /**
+     * Aplica lógica de capas para datos reales en caso de traslapes accidentales.
+     */
+    private function flattenRealSegments(array $segments): array
+    {
+        if (empty($segments)) return [];
+
+        $points = [];
+        foreach ($segments as $s) {
+            $points[] = $s['start']->getTimestamp();
+            $points[] = $s['end']->getTimestamp();
+        }
+        $points = array_unique($points);
+        sort($points);
+
+        $flattened = [];
+        for ($i = 0; $i < count($points) - 1; $i++) {
+            $tsStart = $points[$i];
+            $tsEnd = $points[$i+1];
+            
+            $best = null;
+            foreach ($segments as $s) {
+                if ($s['start']->getTimestamp() <= $tsStart && $s['end']->getTimestamp() >= $tsEnd) {
+                    if (!$best || $s['priority'] > $best['priority']) {
+                        $best = $s;
+                    }
+                }
+            }
+
+            if ($best) {
+                $flattened[] = [
+                    'start' => Carbon::createFromTimestamp($tsStart),
+                    'end' => Carbon::createFromTimestamp($tsEnd),
+                    'state' => $best['state']
+                ];
+            }
+        }
+
+        return $flattened;
     }
 }

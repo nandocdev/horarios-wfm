@@ -287,8 +287,14 @@ class RealtimeMonitoring extends Component
             if ($this->reasonFilter && $agent->reason_code !== $this->reasonFilter) {
                 return false;
             }
-            if ($this->expectedStateFilter && $agent->expected_type !== $this->expectedStateFilter) {
-                return false;
+
+            if ($this->expectedStateFilter) {
+                if ($this->expectedStateFilter === 'ABSENT') {
+                    return $agent->is_absent;
+                }
+                if ($agent->expected_type !== $this->expectedStateFilter) {
+                    return false;
+                }
             }
 
             return true;
@@ -482,6 +488,7 @@ class RealtimeMonitoring extends Component
                 'SHIFT' => 'En Turno',
                 'INTRADAY' => 'Actividad Programada',
                 'EXCEPTION' => 'Excepción/Permiso',
+                'ABSENT' => 'Ausentes',
                 'OFF' => 'Fuera de Jornada',
             ],
         ]);

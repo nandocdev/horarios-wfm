@@ -6,6 +6,7 @@ namespace App\Modules\OperationsModule\Services;
 
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
@@ -16,6 +17,10 @@ use Illuminate\Support\Facades\DB;
 
 final class PerformanceService
 {
+    public function __construct(
+        private readonly CalculateRealAdherenceAction $adherenceAction
+    ) {}
+
     /**
      * Calcula el Shrinkage (Reductores) dinámico para un grupo de empleados en una fecha.
      */
@@ -185,7 +190,10 @@ final class PerformanceService
 
         // 3. Cálculos
         $coverage = $totalScheduled > 0 ? ($totalConnected / $totalScheduled) * 100 : 0.0;
-        $adherence = $this->calculateAdherence($scheduled, $realtimeStates);
+        
+        $adherenceRes = $this->adherenceAction->executeBatch($operatorIds, $now);
+        $adherence = $adherenceRes['percentage'];
+
         $occupancy = $this->calculateRealtimeOccupancy($operatorIds);
         $serviceLevel = (float) (DB::table('csq_realtime_stats')->avg('service_level_long_term') ?? 0);
 
@@ -250,9 +258,12 @@ final class PerformanceService
         // 4. Ausentismo
         $absenteeism = $scheduledCount > 0 ? max(0, ($scheduledCount - $connectedCount) / $scheduledCount * 100) : 0.0;
 
+        // 5. Adherencia Real Histórica
+        $adherenceRes = $this->adherenceAction->executeBatch($operatorIds, $date);
+
         return [
             'coverage' => min(100, $coverage),
-            'adherence' => 95.0, // TODO: Implementar cálculo exacto de adherencia histórica
+            'adherence' => $adherenceRes['percentage'],
             'occupancy' => $occupancy,
             'service_level' => $sl,
             'absenteeism' => $absenteeism,
@@ -270,22 +281,6 @@ final class PerformanceService
         $sign = $diff > 0 ? '+' : '';
 
         return $sign.round($diff, 1).'%';
-    }
-
-    private function calculateAdherence($scheduled, $realtime): float
-    {
-        if ($scheduled->isEmpty()) {
-            return 100;
-        }
-        $inState = 0;
-        foreach ($scheduled as $assign) {
-            $state = $realtime->firstWhere('employee_id', $assign->employee_id);
-            if ($state) {
-                $inState++;
-            }
-        }
-
-        return round(($inState / $scheduled->count()) * 100, 1);
     }
 
     private function calculateRealtimeOccupancy(array $operatorIds): float

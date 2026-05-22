@@ -23,7 +23,8 @@ use Illuminate\Support\Collection;
 final class GetStandardizedPerformanceAction {
     public function __construct(
         private readonly ScheduleServiceInterface $scheduleService,
-        private readonly TelemetryServiceInterface $telemetryService
+        private readonly TelemetryServiceInterface $telemetryService,
+        private readonly CalculateRealAdherenceAction $adherenceAction
     ) {
     }
 
@@ -76,7 +77,7 @@ final class GetStandardizedPerformanceAction {
         $attendance = $this->calculateAttendance($schedule, $transitions);
         $reasons = $this->calculateTimeByReason($transitions);
         $activities = $this->calculateTimeByActivity($transitions, $scheduledMinutes, $date, $attendance['actual_entry'], $schedule);
-        $metrics = $this->calculateProductivity($transitions, $intradayActivities, $scheduledMinutes, $date, $schedule);
+        $metrics = $this->calculateProductivity($employee, $transitions, $intradayActivities, $scheduledMinutes, $date, $schedule);
         $metrics['total_logout_minutes'] = $activities['Logout'] ?? 0;
 
         $queues = $this->getCallVolumeSummary($callRecords);
@@ -263,7 +264,7 @@ final class GetStandardizedPerformanceAction {
         return $activities;
     }
 
-    private function calculateProductivity(Collection $transitions, Collection $intradayActivities, int $scheduledMinutes, CarbonInterface $date, $schedule): array {
+    private function calculateProductivity(Employee $employee, Collection $transitions, Collection $intradayActivities, int $scheduledMinutes, CarbonInterface $date, $schedule): array {
         $systemProductiveSeconds = $transitions->filter(fn($t) => $t->metadata['is_productive'] ?? false)->sum(fn($t) => $t->metadata['duration'] ?? 0);
         $intradayProductiveMinutes = $intradayActivities->filter(fn($a) => $a->activityType?->is_productive)
             ->sum(fn($a) => $a->getRangeStart() && $a->getRangeEnd() ? $a->getRangeStart()->diffInMinutes($a->getRangeEnd()) : 0);
@@ -290,9 +291,9 @@ final class GetStandardizedPerformanceAction {
             $end
         );
 
-        $adherencePercentage = $scheduledMinutes > 0
-            ? round(min(100, ($productiveMinutes / $scheduledMinutes) * 100), 1)
-            : 0;
+        // --- CÁLCULO DE ADHERENCIA REAL ---
+        $adherenceRes = $this->adherenceAction->execute($employee, $date);
+        $adherencePercentage = $adherenceRes['percentage'];
 
         return [
             'total_scheduled_minutes' => $scheduledMinutes,

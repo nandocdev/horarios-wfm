@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
@@ -96,9 +97,9 @@ class IntradayAvailability extends Component
         $ready = $realtimeStates->where('current_state', 'READY')->count();
         $notReady = $realtimeStates->where('current_state', 'NOT_READY')->count();
 
-        // Adherencia
-        $netScheduled = max(0, $totalScheduled);
-        $adherence = $netScheduled > 0 ? round((min($totalConnected, $netScheduled) / $netScheduled) * 100, 1) : 100;
+        // Adherencia Real Intradía (Desde el inicio hasta ahora)
+        $adherenceRes = app(CalculateRealAdherenceAction::class)->executeBatch($operadorIds, $now);
+        $adherence = $adherenceRes['percentage'];
 
         // Breakdown de Not Ready
         $notReadyBreakdown = $realtimeStates->where('current_state', 'NOT_READY')

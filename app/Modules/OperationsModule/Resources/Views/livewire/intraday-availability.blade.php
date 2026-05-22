@@ -15,7 +15,7 @@
         <!-- Adherencia -->
         <flux:card>
             <div class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-500">Adherencia Estimada</span>
+                <span class="text-sm font-medium text-gray-500">Adherencia Real Intradía</span>
                 <div class="flex items-end gap-2">
                     <span class="text-3xl font-bold {{ $this->realtimeMetrics['adherence'] < 85 ? 'text-red-600' : 'text-green-600' }}">
                         {{ $this->realtimeMetrics['adherence'] }}%

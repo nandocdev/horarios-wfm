@@ -10,13 +10,21 @@
         </div>
 
         <form wire:submit="save" class="p-6 space-y-6">
-            <div class="grid grid-cols-1 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <flux:field>
                     <flux:input wire:model="name" label="Nombre *" placeholder="Ingresa el nombre de la posición"
                         required />
                     <flux:error name="name" />
                 </flux:field>
 
+                <flux:field>
+                    <flux:input wire:model="position_code" label="Código de Posición *" placeholder="Ej. OP-001"
+                        required />
+                    <flux:error name="position_code" />
+                </flux:field>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6">
                 <flux:field>
                     <label for="department_id"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Departamento *</label>

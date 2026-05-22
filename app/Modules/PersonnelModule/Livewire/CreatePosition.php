@@ -19,6 +19,8 @@ class CreatePosition extends Component
 {
     public string $name = '';
 
+    public string $position_code = '';
+
     public ?string $description = '';
 
     public int $department_id;
@@ -32,6 +34,7 @@ class CreatePosition extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'position_code' => ['required', 'string', 'max:20', 'unique:positions,position_code'],
             'description' => ['nullable', 'string', 'max:1000'],
             'department_id' => ['required', 'integer', 'exists:departments,id'],
             'is_active' => ['boolean'],
@@ -45,6 +48,7 @@ class CreatePosition extends Component
     {
         return [
             'name' => 'nombre',
+            'position_code' => 'código de posición',
             'description' => 'descripción',
             'department_id' => 'departamento',
             'is_active' => 'estado activo',

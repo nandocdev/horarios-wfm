@@ -29,6 +29,7 @@ class UpdatePositionAction
         return DB::transaction(function () use ($position, $dto) {
             $position->update([
                 'name' => $dto->name,
+                'position_code' => $dto->position_code,
                 'description' => $dto->description,
                 'department_id' => $dto->department_id,
                 'is_active' => $dto->is_active,

@@ -19,6 +19,8 @@ class EditPosition extends Component
 
     public string $name = '';
 
+    public string $position_code = '';
+
     public ?string $description = '';
 
     public int $department_id;
@@ -31,9 +33,10 @@ class EditPosition extends Component
         $this->position = $position;
 
         $this->name = $position->name;
+        $this->position_code = $position->position_code;
         $this->description = $position->description;
         $this->department_id = $position->department_id;
-        $this->is_active = $position->is_active;
+        $this->is_active = (bool) $position->is_active;
     }
 
     /**
@@ -43,6 +46,7 @@ class EditPosition extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'position_code' => ['required', 'string', 'max:20', 'unique:positions,position_code,' . $this->position->id],
             'description' => ['nullable', 'string', 'max:1000'],
             'department_id' => ['required', 'integer', 'exists:departments,id'],
             'is_active' => ['boolean'],
@@ -56,6 +60,7 @@ class EditPosition extends Component
     {
         return [
             'name' => 'nombre',
+            'position_code' => 'código de posición',
             'description' => 'descripción',
             'department_id' => 'departamento',
             'is_active' => 'estado activo',

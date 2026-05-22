@@ -36,6 +36,7 @@ class CreatePositionAction
             return Position::create([
                 'department_id' => $dto->department_id,
                 'name' => $dto->name,
+                'position_code' => $dto->position_code,
                 'description' => $dto->description,
             ]);
         });

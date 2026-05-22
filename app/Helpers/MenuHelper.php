@@ -188,8 +188,8 @@ class MenuHelper
                     ],
                     [
                         'label' => __('Disponibilidad'),
-                        'route' => null, // TODO: Crear ruta
-                        'pattern' => 'schedules/availability*',
+                        'route' => 'operations.availability',
+                        'pattern' => 'operations/availability*',
                         'permission' => 'wfm.availability.view',
                         'icon' => 'check-circle',
                     ],

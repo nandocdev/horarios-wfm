@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\ConnectModule\Livewire;
+namespace App\Modules\OperationsModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ScheduleException;
@@ -12,10 +12,10 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 /**
- * Componente interactivo para el Dashboard de Operación en Tiempo Real.
+ * Componente interactivo para el Dashboard de Disponibilidad Intradía.
  * Muestra el estado actual de los agentes comparado con su horario planificado.
  */
-class RealtimeOperationDashboard extends Component
+class IntradayAvailability extends Component
 {
     /**
      * Define el intervalo de actualización automática (polling).
@@ -25,10 +25,10 @@ class RealtimeOperationDashboard extends Component
     #[Computed]
     public function realtimeMetrics(): array
     {
-        // 0. Obtener los IDs de los empleados que son "Operador I"
-        $operadorIds = Employee::whereHas('position', function ($q) {
-            $q->where('id', 1);
-        })->pluck('id')->toArray();
+        // 0. Obtener los IDs de los empleados que son posiciones operativas (IDs 1, 2, 5)
+        $operadorIds = Employee::whereIn('position_id', [1, 2, 5])
+            ->pluck('id')
+            ->toArray();
 
         if (empty($operadorIds)) {
             // Early return si no hay operadores
@@ -44,21 +44,21 @@ class RealtimeOperationDashboard extends Component
             ];
         }
 
-        // 1. Obtener todos los estados de Finesse (agentes conectados) filtrados por Operador I
+        // 1. Obtener todos los estados de Finesse (agentes conectados)
         $realtimeStates = DB::table('agent_realtime_states')
             ->select('employee_id', 'external_id', 'current_state', 'reason_code', 'metadata')
             ->where('current_state', '!=', 'LOGOUT')
             ->whereIn('employee_id', $operadorIds)
             ->get();
 
-        // 2. Obtener horarios del día actual (los que DEBERÍAN estar trabajando ahora) filtrados por Operador I
+        // 2. Obtener horarios del día actual
         $now = now();
         $currentAssignments = WeeklyScheduleAssignment::whereHas('weeklySchedule', function ($q) use ($now) {
             $q->where('week_start_date', '<=', $now->toDateString())
                 ->where('week_end_date', '>=', $now->toDateString());
         })
             ->whereIn('employee_id', $operadorIds)
-            ->where('day_of_week', (clone $now)->setTimezone(config('app.timezone'))->dayOfWeekIso)
+            ->where('day_of_week', $now->dayOfWeekIso)
             ->where('start_time', '<=', $now->toTimeString())
             ->where('end_time', '>=', $now->toTimeString())
             ->get();
@@ -66,7 +66,7 @@ class RealtimeOperationDashboard extends Component
         $scheduledEmployeeIds = $currentAssignments->pluck('employee_id')->toArray();
         $connectedEmployeeIds = $realtimeStates->pluck('employee_id')->toArray();
 
-        // 3. Obtener excepciones activas para los agentes agendados
+        // 3. Obtener excepciones activas
         $activeExceptions = ScheduleException::whereIn('employee_id', $scheduledEmployeeIds)
             ->where(function ($q) use ($now) {
                 $q->where(function ($q2) use ($now) {
@@ -89,15 +89,15 @@ class RealtimeOperationDashboard extends Component
         $absentIds = array_diff($scheduledEmployeeIds, $connectedEmployeeIds, $activeExceptions);
         $totalAbsent = count($absentIds);
 
-        // Agentes agendados que están en excepción (vacaciones, licencias)
+        // Agentes agendados que están en excepción
         $totalExceptions = count(array_intersect($scheduledEmployeeIds, $activeExceptions));
 
         $talking = $realtimeStates->where('current_state', 'TALKING')->count();
         $ready = $realtimeStates->where('current_state', 'READY')->count();
         $notReady = $realtimeStates->where('current_state', 'NOT_READY')->count();
 
-        // Simulación de Adherencia (agentes conectados / (agentes agendados - excepciones))
-        $netScheduled = max(0, $totalScheduled - $totalExceptions);
+        // Adherencia
+        $netScheduled = max(0, $totalScheduled);
         $adherence = $netScheduled > 0 ? round((min($totalConnected, $netScheduled) / $netScheduled) * 100, 1) : 100;
 
         // Breakdown de Not Ready
@@ -106,7 +106,7 @@ class RealtimeOperationDashboard extends Component
             ->map(fn ($group) => $group->count())
             ->toArray();
 
-        // Calcular agentes hablando por cola desde el Real Time de Operadores
+        // Agentes hablando por cola
         $agentsTalkingByQueue = [];
         foreach ($realtimeStates->where('current_state', 'TALKING') as $state) {
             $meta = json_decode($state->metadata, true) ?? [];
@@ -125,15 +125,11 @@ class RealtimeOperationDashboard extends Component
             ->orderByDesc('calls_waiting')
             ->get()
             ->map(function ($csq) use (&$agentsTalkingByQueue) {
-                // Sobrescribir agents_talking con la cuenta real de operadores
                 $csq->agents_talking = $agentsTalkingByQueue[$csq->csq_name] ?? 0;
-                // Eliminar del mapa para identificar las que no están en la tabla
                 unset($agentsTalkingByQueue[$csq->csq_name]);
-
                 return $csq;
             });
 
-        // Agregar colas que no están en la tabla de stats (ej: Directa / Outbound)
         foreach ($agentsTalkingByQueue as $name => $count) {
             $csqSummary->push((object) [
                 'csq_name' => $name,
@@ -146,13 +142,6 @@ class RealtimeOperationDashboard extends Component
                 'calls_abandoned_since_midnight' => 0,
             ]);
         }
-
-        // Filtrar colas sin actividad (sin llamadas ofrecidas en el día y sin actividad actual)
-        $csqSummary = $csqSummary->filter(function ($csq) {
-            return $csq->total_calls_since_midnight > 0
-                || $csq->agents_talking > 0
-                || $csq->calls_waiting > 0;
-        })->values();
 
         return [
             'total_scheduled' => $totalScheduled,
@@ -170,8 +159,7 @@ class RealtimeOperationDashboard extends Component
 
     public function render()
     {
-        // Layout principal
-        return view('connect::livewire.realtime-operation-dashboard')
-            ->layout('layouts.app', ['title' => 'Dashboard de Operación']);
+        return view('operations::livewire.intraday-availability')
+            ->layout('layouts.app', ['title' => 'Disponibilidad Intradía']);
     }
 }

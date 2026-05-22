@@ -10,6 +10,7 @@ use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
 use App\Modules\OperationsModule\Livewire\AgentRealtimeCard;
 use App\Modules\OperationsModule\Livewire\AgentTimeline;
 use App\Modules\OperationsModule\Livewire\Dashboard;
+use App\Modules\OperationsModule\Livewire\IntradayAvailability;
 use App\Modules\OperationsModule\Livewire\PerformanceScorecard;
 use App\Modules\OperationsModule\Livewire\RealtimeMonitoring;
 use App\Modules\OperationsModule\Livewire\TeamPerformanceSummary;
@@ -48,6 +49,7 @@ class ModuleServiceProvider extends ServiceProvider
         }
 
         Livewire::component('operations.realtime-monitoring', RealtimeMonitoring::class);
+        Livewire::component('operations.intraday-availability', IntradayAvailability::class);
         Livewire::component('operations.performance-scorecard', PerformanceScorecard::class);
         Livewire::component('operations.team-performance-summary', TeamPerformanceSummary::class);
         Livewire::component('operations.agent-realtime-card', AgentRealtimeCard::class);

@@ -84,7 +84,9 @@ final class CalculateRealAdherenceAction
      */
     private function calculateForDay(Employee|int $employee, CarbonInterface $date): array
     {
-        $employeeId = $employee instanceof Employee ? $employee->id : $employee;
+        // Normalizar ID del empleado
+        $employeeId = is_numeric($employee) ? (int) $employee : $employee->id;
+
         $isToday = $date->isToday();
         $now = now();
         $limitTime = $isToday ? $now : $date->copy()->endOfDay();

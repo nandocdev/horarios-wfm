@@ -80,6 +80,8 @@ final class GetStandardizedPerformanceAction {
         $metrics = $this->calculateProductivity($employee, $transitions, $intradayActivities, $scheduledMinutes, $date, $schedule);
         $metrics['total_logout_minutes'] = $activities['Logout'] ?? 0;
 
+        $logoutDetails = $this->calculateLogoutDetails($transitions, $schedule, $date);
+
         $queues = $this->getCallVolumeSummary($callRecords);
 
         // Obtener metas de KPIs configuradas
@@ -95,7 +97,8 @@ final class GetStandardizedPerformanceAction {
             reasons: $reasons,
             metrics: $metrics,
             queues: $queues,
-            goals: $goals
+            goals: $goals,
+            logout_details: $logoutDetails
         );
     }
 
@@ -316,5 +319,39 @@ final class GetStandardizedPerformanceAction {
                 ),
             ])
             ->toArray();
+    }
+
+    /**
+     * Calcula los detalles de desconexión (Logout) identificando los huecos entre actividades.
+     */
+    private function calculateLogoutDetails(Collection $transitions, $schedule, CarbonInterface $date): array
+    {
+        $details = [];
+        $count = $transitions->count();
+
+        if ($count < 2) {
+            return [];
+        }
+
+        for ($i = 0; $i < $count - 1; $i++) {
+            $current = $transitions->get($i);
+            $next = $transitions->get($i + 1);
+
+            $currentEnd = Carbon::parse($current->last_changed_at)->addSeconds((int)($current->metadata['duration'] ?? 0));
+            $nextStart = Carbon::parse($next->last_changed_at);
+
+            // Si hay un hueco mayor a 10 segundos entre actividades, lo consideramos un Logout/Desconexión
+            $gapSeconds = $nextStart->diffInSeconds($currentEnd, false);
+            if ($gapSeconds < -10) { // nextStart is after currentEnd (diffInSeconds with false returns negative if $this < $target)
+                $absGap = abs($gapSeconds);
+                $details[] = [
+                    'start_time' => $currentEnd->format('H:i:s'),
+                    'end_time' => $nextStart->format('H:i:s'),
+                    'duration_minutes' => round($absGap / 60, 1),
+                ];
+            }
+        }
+
+        return $details;
     }
 }

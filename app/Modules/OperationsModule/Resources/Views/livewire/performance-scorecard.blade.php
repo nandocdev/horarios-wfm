@@ -301,7 +301,7 @@
                         </div>
                     </div>
 
-                    <div class="p-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <div class="p-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8">
                         <!-- Columna 1: Asistencia y Entrada -->
                         <div class="space-y-4">
                             <div class="group">
@@ -406,22 +406,22 @@
                         </div>
 
                         <!-- Columna 3: Actividades UCCX -->
-                        <div>
+                        <div class="xl:col-span-2">
                             <div class="flex items-center gap-2 mb-3">
                                 <flux:icon name="cpu-chip" class="w-4 h-4 text-slate-400" />
                                 <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Estados y Auxiliares</h4>
                             </div>
-                            <div class="space-y-4">
-                                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm md:col-span-2">
                                     <p class="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">
                                         <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                                         Tiempo por Estado
                                     </p>
-                                    <div class="space-y-2">
+                                    <div class="grid grid-cols-2 gap-x-6 gap-y-2">
                                         @forelse($day['activities'] as $state => $minutes)
                                             <div class="flex flex-col gap-1">
-                                                <div class="flex justify-between text-xs">
-                                                    <span class="font-bold text-slate-600">{{ $state }}</span>
+                                                <div class="flex justify-between text-[10px]">
+                                                    <span class="font-bold text-slate-600 truncate">{{ $state }}</span>
                                                     <span class="font-black text-slate-900">{{ $this->formatMinutes($minutes) }}</span>
                                                 </div>
                                                 <div class="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -429,7 +429,7 @@
                                                 </div>
                                             </div>
                                         @empty
-                                            <p class="text-xs text-slate-400 italic">Sin actividad UCCX registrada</p>
+                                            <p class="text-xs text-slate-400 italic col-span-2">Sin actividad UCCX registrada</p>
                                         @endforelse
                                     </div>
                                 </div>
@@ -439,17 +439,39 @@
                                         <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
                                         Motivos de Auxiliar
                                     </p>
-                                    <div class="space-y-2">
+                                    <div class="space-y-2 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
                                         @forelse($day['reasons'] as $reason => $data)
-                                            <div class="flex justify-between text-xs items-center group py-1">
+                                            <div class="flex justify-between text-[10px] items-center group py-1">
                                                 <div class="flex items-center gap-2 min-w-0">
-                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-orange-100 text-orange-700 font-black text-[9px] shrink-0" title="{{ $data['count'] }} ocurrencia(s)">{{ $data['count'] }}</span>
+                                                    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-orange-100 text-orange-700 font-black text-[8px] shrink-0">{{ $data['count'] }}</span>
                                                     <span class="text-slate-600 font-medium group-hover:text-slate-900 transition-colors truncate">{{ $reason ?: 'Sin Motivo' }}</span>
                                                 </div>
-                                                <span class="font-black text-slate-700 bg-slate-50 px-1.5 py-0.5 rounded shrink-0 ml-2">{{ $this->formatMinutes($data['minutes']) }}</span>
+                                                <span class="font-black text-slate-700 bg-slate-50 px-1 py-0.5 rounded shrink-0 ml-2">{{ $this->formatMinutes($data['minutes']) }}</span>
                                             </div>
                                         @empty
                                             <p class="text-xs text-slate-400 italic">No se registraron auxiliares</p>
+                                        @endforelse
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        Historial de Desconexiones
+                                    </p>
+                                    <div class="space-y-2 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
+                                        @forelse($day['logout_details'] ?? [] as $logout)
+                                            <div class="flex justify-between text-[10px] items-center group py-1 border-b border-slate-50 last:border-0">
+                                                <div class="flex items-center gap-2">
+                                                    <flux:icon name="arrow-right-start-on-rectangle" variant="mini" class="w-3 h-3 text-rose-400" />
+                                                    <span class="text-slate-500 font-mono">{{ $logout['start_time'] }}</span>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">{{ $this->formatMinutes($logout['duration_minutes']) }}</span>
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <p class="text-xs text-slate-400 italic">No se detectaron desconexiones</p>
                                         @endforelse
                                     </div>
                                 </div>

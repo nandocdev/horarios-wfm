@@ -41,7 +41,8 @@ class WfmSwapApprovals extends Component
     public function render()
     {
         $requests = ShiftSwapRequest::with(['requester', 'recipient', 'requester.team', 'recipient.team'])
-            ->where('status', 'accepted')
+            ->whereIn('status', ['pending', 'accepted'])
+            ->orderByRaw("CASE WHEN status = 'accepted' THEN 0 ELSE 1 END")
             ->orderBy('start_date', 'asc')
             ->paginate(15);
 

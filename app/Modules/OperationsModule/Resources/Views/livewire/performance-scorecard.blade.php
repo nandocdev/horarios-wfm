@@ -455,10 +455,15 @@
                                 </div>
 
                                 <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                        Historial de Desconexiones
-                                    </p>
+                                    <div class="flex justify-between items-center mb-3">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase flex items-center gap-2">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                            Historial de Desconexiones
+                                        </p>
+                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 text-rose-700 font-black text-[9px] shrink-0" title="{{ count($day['logout_details'] ?? []) }} desconexión(es)">
+                                            {{ count($day['logout_details'] ?? []) }}
+                                        </span>
+                                    </div>
                                     <div class="space-y-2 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
                                         @forelse($day['logout_details'] ?? [] as $logout)
                                             <div class="flex justify-between text-[10px] items-center group py-1 border-b border-slate-50 last:border-0">

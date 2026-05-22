@@ -39,11 +39,14 @@
             </div>
         </form>
     </div>
-</div>
 
-<script>
-    $wire.on('directorateCreated', (event) => {
-        // Redirigir a la lista o mostrar mensaje
-        window.location.href = '{{ route("organization.directorates.index") }}';
-    });
-</script>
+    @push('scripts')
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('directorateCreated', (event) => {
+                    window.location.href = '{{ route("organization.directorates.index") }}';
+                });
+            });
+        </script>
+    @endpush
+</div>

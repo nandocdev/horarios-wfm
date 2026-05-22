@@ -47,11 +47,14 @@
             </div>
         </form>
     </div>
-</div>
 
-<script>
-    $wire.on('departmentCreated', (event) => {
-        // Redirigir a la lista o mostrar mensaje
-        window.location.href = '{{ route("organization.departments.index") }}';
-    });
-</script>
+    @push('scripts')
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('departmentCreated', (event) => {
+                    window.location.href = '{{ route("organization.departments.index") }}';
+                });
+            });
+        </script>
+    @endpush
+</div>

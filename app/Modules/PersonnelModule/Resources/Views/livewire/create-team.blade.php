@@ -46,11 +46,14 @@
             </div>
         </form>
     </flux:card>
-</div>
 
-<script>
-    $wire.on('teamCreated', (event) => {
-        // Redirigir a la lista o mostrar mensaje
-        window.location.href = '{{ route("organization.teams.index") }}';
-    });
-</script>
+    @push('scripts')
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('teamCreated', (event) => {
+                    window.location.href = '{{ route("organization.teams.index") }}';
+                });
+            });
+        </script>
+    @endpush
+</div>

@@ -4,41 +4,66 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Listeners;
 
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Mail\ShiftSwapApprovedMail;
 use App\Modules\WfmModule\Notifications\ShiftSwapApprovedNotification;
 use App\Shared\DTOs\NotificationDTO;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Mail;
 
 class NotifyShiftSwapApproved implements ShouldQueue
 {
     public function handle(ShiftSwapApproved $event): void
     {
         $request = $event->shiftSwap;
+        $approver = Employee::find($event->approverId);
 
-        // Notificar al solicitante
-        if ($request->requester?->user) {
-            $dto = new NotificationDTO(
-                title: 'Cambio de Turno Aprobado',
-                message: "Tu solicitud de cambio para el {$request->requested_date->format('d/m/Y')} ha sido aprobada.",
-                actionUrl: route('schedules.my-schedule'),
-                icon: 'check-circle',
-                level: 'success'
-            );
-
-            $request->requester->user->notify(new ShiftSwapApprovedNotification($dto));
+        if (!$request || !$approver) {
+            return;
         }
 
-        // Notificar al receptor
-        if ($request->recipient?->user) {
-            $dto = new NotificationDTO(
-                title: 'Intercambio de Turno Confirmado',
-                message: "Se ha confirmado el intercambio de turno con {$request->requester->full_name} para el {$request->requested_date->format('d/m/Y')}.",
-                actionUrl: route('schedules.my-schedule'),
-                icon: 'arrows-right-left',
-                level: 'info'
-            );
+        // 1. Recopilar destinatarios
+        $recipients = collect();
 
-            $request->recipient->user->notify(new ShiftSwapApprovedNotification($dto));
+        // Solicitante y su Jefe
+        if ($request->requester) {
+            $recipients->push($request->requester);
+            if ($request->requester->manager) {
+                $recipients->push($request->requester->manager);
+            }
+        }
+
+        // Receptor y su Jefe
+        if ($request->recipient) {
+            $recipients->push($request->recipient);
+            if ($request->recipient->manager) {
+                $recipients->push($request->recipient->manager);
+            }
+        }
+
+        // El WFM que aprueba
+        $recipients->push($approver);
+
+        // Eliminar duplicados y asegurar que tengan email
+        $recipients = $recipients->unique('id')->filter(fn($e) => !empty($e->email));
+
+        // 2. Enviar Notificaciones (App) y Correos
+        foreach ($recipients as $recipient) {
+            // Notificación interna (solo para usuarios del sistema)
+            if ($recipient->user) {
+                $dto = new NotificationDTO(
+                    title: 'Cambio de Turno Aprobado',
+                    message: "El cambio de turno para el {$request->requested_date->format('d/m/Y')} ha sido procesado.",
+                    actionUrl: route('schedules.my-schedule'),
+                    icon: 'check-circle',
+                    level: 'success'
+                );
+                $recipient->user->notify(new ShiftSwapApprovedNotification($dto));
+            }
+
+            // Enviar Correo Electrónico
+            Mail::to($recipient->email)->send(new ShiftSwapApprovedMail($request, $approver, $recipient));
         }
     }
 }

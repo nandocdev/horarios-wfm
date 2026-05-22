@@ -17,6 +17,8 @@ class RequestShiftSwap extends Component
 {
     public $requestedDate;
 
+    public $endDate;
+
     public $recipientId;
 
     public $reason;
@@ -28,6 +30,7 @@ class RequestShiftSwap extends Component
 
     protected $rules = [
         'requestedDate' => 'required|date|after_or_equal:today',
+        'endDate' => 'nullable|date|after_or_equal:requestedDate',
         'recipientId' => 'required|exists:employees,id',
         'reason' => 'nullable|string|max:255',
     ];
@@ -35,10 +38,19 @@ class RequestShiftSwap extends Component
     public function mount()
     {
         $this->requestedDate = now()->format('Y-m-d');
+        $this->endDate = now()->format('Y-m-d');
         $this->loadAssignments();
     }
 
     public function updatedRequestedDate()
+    {
+        if (!$this->endDate || Carbon::parse($this->endDate)->lt(Carbon::parse($this->requestedDate))) {
+            $this->endDate = $this->requestedDate;
+        }
+        $this->loadAssignments();
+    }
+
+    public function updatedEndDate()
     {
         $this->loadAssignments();
     }
@@ -130,7 +142,8 @@ class RequestShiftSwap extends Component
         $swapRequest = ShiftSwapRequest::create([
             'requester_id' => $requester->id,
             'recipient_id' => $this->recipientId,
-            'requested_date' => $this->requestedDate,
+            'start_date' => $this->requestedDate,
+            'end_date' => $this->endDate ?: $this->requestedDate,
             'status' => 'pending',
             'reason' => $this->reason,
             'requester_assignment_snapshot' => $this->requesterAssignment->toArray(),

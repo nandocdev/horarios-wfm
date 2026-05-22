@@ -30,28 +30,39 @@ class ProcessShiftSwapAction
                 throw new \Exception('La solicitud no está en estado aceptado para ser procesada.');
             }
 
-            // 2. Cargar y bloquear las asignaciones actuales
-            $assignmentA = $this->getAssignmentForLock((int) $request->requester_id, $request->requested_date->toDateString());
-            $assignmentB = $this->getAssignmentForLock((int) $request->recipient_id, $request->requested_date->toDateString());
+            $startDate = $request->start_date;
+            $endDate = $request->end_date ?: $startDate;
+            $currentDate = $startDate->copy();
 
-            if (! $assignmentA || ! $assignmentB) {
-                throw new \Exception('Una o ambas asignaciones originales ya no existen o fueron modificadas.');
+            while ($currentDate->lte($endDate)) {
+                $dateStr = $currentDate->toDateString();
+
+                // 2. Cargar y bloquear las asignaciones actuales para el día actual
+                $assignmentA = $this->getAssignmentForLock((int) $request->requester_id, $dateStr);
+                $assignmentB = $this->getAssignmentForLock((int) $request->recipient_id, $dateStr);
+
+                // Si no hay turnos ese día específico, saltamos (esto permite swaps de periodos con días libres)
+                if ($assignmentA && $assignmentB) {
+                    // 3. Validación de integridad contra Snapshots (Solo el primer día para mantener simplicidad de snapshot)
+                    if ($currentDate->equalTo($startDate)) {
+                        $this->validateAgainstSnapshot($assignmentA, $request->requester_assignment_snapshot);
+                        $this->validateAgainstSnapshot($assignmentB, $request->recipient_assignment_snapshot);
+                    }
+
+                    // 5. Ejecutar intercambio inmutable
+                    $this->performImmutableSwap($request, $assignmentA, $assignmentB);
+                }
+
+                $currentDate->addDay();
             }
-
-            // 3. Validación de integridad contra Snapshots
-            $this->validateAgainstSnapshot($assignmentA, $request->requester_assignment_snapshot);
-            $this->validateAgainstSnapshot($assignmentB, $request->recipient_assignment_snapshot);
 
             // 4. Crear registro de aprobación de WFM
             ShiftSwapApproval::create([
                 'shift_swap_request_id' => $request->id,
                 'approver_id' => $approverEmployeeId,
                 'status' => 'approved',
-                'comment' => 'Aprobado y procesado por WFM (Inmutable Flow)',
+                'comment' => 'Aprobado y procesado por WFM (Periodo: ' . $startDate->format('d/m') . ' - ' . $endDate->format('d/m') . ')',
             ]);
-
-            // 5. Ejecutar intercambio inmutable
-            $this->performImmutableSwap($request, $assignmentA, $assignmentB);
 
             // 6. Actualizar estado de la solicitud
             $request->update(['status' => 'approved']);

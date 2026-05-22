@@ -3,12 +3,12 @@
 
 Hola {{ $recipient_user->first_name }},
 
-Te informamos que la solicitud de cambio de turno para la fecha **{{ $swap->requested_date->format('d/m/Y') }}** ha sido aprobada y procesada por WFM (**{{ $approver->full_name }}**).
+Te informamos que la solicitud de cambio de turno para la fecha **{{ $swap->start_date->format('d/m/Y') }}** @if($swap->end_date && $swap->end_date->ne($swap->start_date)) al **{{ $swap->end_date->format('d/m/Y') }}** @endif ha sido aprobada y procesada por WFM (**{{ $approver->full_name }}**).
 
 ### Detalles del Cambio:
 - **Solicitante:** {{ $swap->requester->full_name }}
 - **Receptor:** {{ $swap->recipient->full_name }}
-- **Fecha:** {{ $swap->requested_date->format('l, d de F Y') }}
+- **Fecha:** {{ $swap->start_date->format('d/m/Y') }} @if($swap->end_date && $swap->end_date->ne($swap->start_date)) al {{ $swap->end_date->format('d/m/Y') }} @endif
 
 <x-mail::panel>
 **Nota de Coordinación Operativa:**

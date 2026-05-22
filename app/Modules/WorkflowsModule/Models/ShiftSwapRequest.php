@@ -14,7 +14,8 @@ class ShiftSwapRequest extends Model
     protected $fillable = [
         'requester_id',
         'recipient_id',
-        'requested_date',
+        'start_date',
+        'end_date',
         'status',
         'reason',
         'requester_assignment_snapshot',
@@ -22,10 +23,19 @@ class ShiftSwapRequest extends Model
     ];
 
     protected $casts = [
-        'requested_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
         'requester_assignment_snapshot' => 'array',
         'recipient_assignment_snapshot' => 'array',
     ];
+
+    /**
+     * Accesor para mantener compatibilidad si se consulta 'requested_date'
+     */
+    public function getRequestedDateAttribute()
+    {
+        return $this->start_date;
+    }
 
     public function requester(): BelongsTo
     {

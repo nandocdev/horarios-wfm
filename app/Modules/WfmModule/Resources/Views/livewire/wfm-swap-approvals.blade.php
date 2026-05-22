@@ -19,7 +19,10 @@
                 @forelse($requests as $request)
                     <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
                         <td class="p-4 text-sm font-medium">
-                            {{ $request->requested_date->format('d M, Y') }}
+                            {{ $request->start_date->format('d/m/Y') }}
+                            @if($request->end_date && $request->end_date->ne($request->start_date))
+                                - {{ $request->end_date->format('d/m/Y') }}
+                            @endif
                         </td>
                         <td class="p-4 text-sm">
                             <div class="flex flex-col">

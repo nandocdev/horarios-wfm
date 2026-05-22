@@ -13,11 +13,17 @@
                 </flux:callout>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <flux:field>
-                    <flux:label>Fecha del Cambio</flux:label>
+                    <flux:label>Fecha Inicio</flux:label>
                     <flux:input type="date" wire:model.live="requestedDate" />
                     <flux:error name="requestedDate" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>Fecha Fin (Opcional)</flux:label>
+                    <flux:input type="date" wire:model.live="endDate" />
+                    <flux:error name="endDate" />
                 </flux:field>
 
                 <flux:field>

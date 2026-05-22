@@ -42,7 +42,7 @@ class WfmSwapApprovals extends Component
     {
         $requests = ShiftSwapRequest::with(['requester', 'recipient', 'requester.team', 'recipient.team'])
             ->where('status', 'accepted')
-            ->orderBy('requested_date', 'asc')
+            ->orderBy('start_date', 'asc')
             ->paginate(15);
 
         return view('wfm::livewire.wfm-swap-approvals', [

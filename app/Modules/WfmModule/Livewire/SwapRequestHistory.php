@@ -34,7 +34,7 @@ class SwapRequestHistory extends Component
         ])->findOrFail($requestId);
 
         // Cargar horarios para el detalle
-        $date = Carbon::parse($this->selectedRequest->requested_date);
+        $date = Carbon::parse($this->selectedRequest->start_date);
         $dayOfWeek = $date->dayOfWeekIso;
 
         $week = WeeklySchedule::where('week_start_date', '<=', $date->toDateString())

@@ -26,13 +26,19 @@ class SwapRequestNotification extends Notification implements ShouldQueue
     {
         $requester = $this->swapRequest->requester;
 
+        $dateRange = $this->swapRequest->start_date->format('d/m/Y');
+        if ($this->swapRequest->end_date && $this->swapRequest->end_date->gt($this->swapRequest->start_date)) {
+            $dateRange .= ' al ' . $this->swapRequest->end_date->format('d/m/Y');
+        }
+
         return [
             'type' => 'swap_request',
             'swap_request_id' => $this->swapRequest->id,
             'requester_name' => "{$requester->first_name} {$requester->last_name}",
-            'requested_date' => $this->swapRequest->requested_date->format('Y-m-d'),
+            'start_date' => $this->swapRequest->start_date->format('Y-m-d'),
+            'end_date' => $this->swapRequest->end_date ? $this->swapRequest->end_date->format('Y-m-d') : null,
             'title' => 'Nueva Solicitud de Intercambio',
-            'message' => "{$requester->first_name} ha solicitado intercambiar un turno contigo para el día {$this->swapRequest->requested_date->format('d/m/Y')}.",
+            'message' => "{$requester->first_name} ha solicitado intercambiar un turno contigo para el periodo {$dateRange}.",
             'action_url' => route('schedules.swap-history'),
         ];
     }

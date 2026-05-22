@@ -27,7 +27,10 @@
                     @endphp
                     <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
                         <td class="p-4 text-sm font-medium">
-                            {{ $request->requested_date->format('d M, Y') }}
+                            {{ $request->start_date->format('d M, Y') }}
+                            @if($request->end_date && $request->end_date->gt($request->start_date))
+                                al {{ $request->end_date->format('d M, Y') }}
+                            @endif
                         </td>
                         <td class="p-4 text-sm text-zinc-500">
                             @if($isRequester)
@@ -114,7 +117,10 @@
         @if($selectedRequest)
             <div>
                 <flux:heading size="lg">Detalle de Solicitud #{{ $selectedRequest->id }}</flux:heading>
-                <flux:subheading>Intercambio solicitado para el {{ $selectedRequest->requested_date->format('d M, Y') }}
+                <flux:subheading>Intercambio solicitado para el {{ $selectedRequest->start_date->format('d M, Y') }}
+                    @if($selectedRequest->end_date && $selectedRequest->end_date->gt($selectedRequest->start_date))
+                        al {{ $selectedRequest->end_date->format('d M, Y') }}
+                    @endif
                 </flux:subheading>
             </div>
 

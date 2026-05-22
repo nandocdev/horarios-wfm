@@ -48,13 +48,18 @@ class NotifyShiftSwapApproved implements ShouldQueue
         // Eliminar duplicados y asegurar que tengan email
         $recipients = $recipients->unique('id')->filter(fn($e) => !empty($e->email));
 
+        $dateRange = $request->start_date->format('d/m/Y');
+        if ($request->end_date && $request->end_date->gt($request->start_date)) {
+            $dateRange .= ' al ' . $request->end_date->format('d/m/Y');
+        }
+
         // 2. Enviar Notificaciones (App) y Correos
         foreach ($recipients as $recipient) {
             // Notificación interna (solo para usuarios del sistema)
             if ($recipient->user) {
                 $dto = new NotificationDTO(
                     title: 'Cambio de Turno Aprobado',
-                    message: "El cambio de turno para el {$request->requested_date->format('d/m/Y')} ha sido procesado.",
+                    message: "El cambio de turno para el periodo {$dateRange} ha sido procesado.",
                     actionUrl: route('schedules.my-schedule'),
                     icon: 'check-circle',
                     level: 'success'

@@ -265,7 +265,7 @@ class MyTeam extends Component
                 $q->whereIn('requester_id', $memberIds)
                     ->orWhereIn('recipient_id', $memberIds);
             })
-            ->latest('requested_date')
+            ->latest('start_date')
             ->take(5)
             ->get();
 

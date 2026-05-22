@@ -20,7 +20,7 @@ test('recipient can accept a shift swap request', function () {
     $swap = ShiftSwapRequest::create([
         'requester_id' => $requester->id,
         'recipient_id' => $recipient->id,
-        'requested_date' => now()->addDays(5)->toDateString(),
+        'start_date' => now()->addDays(5)->toDateString(),
         'status' => 'pending',
     ]);
 
@@ -42,7 +42,7 @@ test('recipient can reject a shift swap request', function () {
     $swap = ShiftSwapRequest::create([
         'requester_id' => $requester->id,
         'recipient_id' => $recipient->id,
-        'requested_date' => now()->addDays(5)->toDateString(),
+        'start_date' => now()->addDays(5)->toDateString(),
         'status' => 'pending',
     ]);
 

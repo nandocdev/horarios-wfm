@@ -188,13 +188,13 @@ class RealtimeMonitoring extends Component
         $telemetryService = app(TelemetryServiceInterface::class);
         $expectedStateAction = app(GetExpectedAgentStateAction::class);
 
-        // Universo operativo: Cargos IDs 1, 2, 5
+        // Universo operativo: Cargos IDs 1, 2, 5, 11, 13
         $employee = auth()->user()->employee;
         $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 
         $query = Employee::query()
-            ->whereIn('position_id', [1, 2, 5])
+            ->whereIn('position_id', [1, 2, 5, 11, 13])
             ->with(['team', 'position']);
 
         if ($this->onlyActive) {

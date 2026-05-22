@@ -49,7 +49,7 @@ class AggregateAgentDailyMetricsCommand extends Command
         $this->info("Iniciando agregación de métricas para la fecha: {$dateStr}");
 
         $employees = Employee::query()
-            ->whereIn('position_id', [1, 2, 5]) // Solo posiciones operativas
+            ->whereIn('position_id', [1, 2, 5, 11, 13]) // Solo posiciones operativas
             ->get();
 
         $this->withProgressBar($employees, function ($employee) use ($date, $calculateAction) {

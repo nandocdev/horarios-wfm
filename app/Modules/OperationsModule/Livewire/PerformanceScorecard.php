@@ -99,7 +99,7 @@ class PerformanceScorecard extends Component {
             }
         } else {
             $query = Employee::query()
-                ->whereIn('position_id', [1, 2, 5])
+                ->whereIn('position_id', [1, 2, 5, 11, 13])
                 ->with(['team', 'position']);
 
             if (!$isPowerUser) {
@@ -154,7 +154,7 @@ class PerformanceScorecard extends Component {
             : Team::whereIn('id', $managedTeamIds)->get();
 
         $employeesQuery = Employee::query()
-            ->whereIn('position_id', [1, 2, 5])
+            ->whereIn('position_id', [1, 2, 5, 11, 13])
             ->orderBy('first_name');
 
         if (!$isPowerUser) {

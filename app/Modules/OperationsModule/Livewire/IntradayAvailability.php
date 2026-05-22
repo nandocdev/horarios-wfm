@@ -25,8 +25,8 @@ class IntradayAvailability extends Component
     #[Computed]
     public function realtimeMetrics(): array
     {
-        // 0. Obtener los IDs de los empleados que son posiciones operativas (IDs 1, 2, 5)
-        $operadorIds = Employee::whereIn('position_id', [1, 2, 5])
+        // 0. Obtener los IDs de los empleados que son posiciones operativas (IDs 1, 2, 5, 11, 13)
+        $operadorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
             ->pluck('id')
             ->toArray();
 

@@ -16,6 +16,12 @@ use App\Modules\OperationsModule\Livewire\QueuePerformanceReport;
 use App\Modules\OperationsModule\Livewire\RealtimeMonitoring;
 use App\Modules\OperationsModule\Livewire\ReportingFrameworkIndex;
 use App\Modules\OperationsModule\Livewire\TeamPerformanceSummary;
+use App\Modules\OperationsModule\Livewire\Widgets\CriticalAlertsWidget;
+use App\Modules\OperationsModule\Livewire\Widgets\HeroKpiWidget;
+use App\Modules\OperationsModule\Livewire\Widgets\QueueStatsWidget;
+use App\Modules\OperationsModule\Livewire\Widgets\RecentIncidentsWidget;
+use App\Modules\OperationsModule\Livewire\Widgets\StateDistributionWidget;
+use App\Modules\OperationsModule\Livewire\Widgets\VolumeComparisonWidget;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -60,5 +66,13 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('operations.agent-timeline', AgentTimeline::class);
         Livewire::component('operations.dashboard', Dashboard::class);
         Livewire::component('operations.advanced-productivity-dashboard', AdvancedProductivityDashboard::class);
+
+        // Registro de Widgets del Dashboard (Lazy Loading)
+        Livewire::component('operations.widgets.hero-kpi-widget', HeroKpiWidget::class);
+        Livewire::component('operations.widgets.queue-stats-widget', QueueStatsWidget::class);
+        Livewire::component('operations.widgets.state-distribution-widget', StateDistributionWidget::class);
+        Livewire::component('operations.widgets.volume-comparison-widget', VolumeComparisonWidget::class);
+        Livewire::component('operations.widgets.critical-alerts-widget', CriticalAlertsWidget::class);
+        Livewire::component('operations.widgets.recent-incidents-widget', RecentIncidentsWidget::class);
     }
 }

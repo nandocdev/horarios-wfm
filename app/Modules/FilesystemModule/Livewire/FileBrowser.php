@@ -163,18 +163,30 @@ class FileBrowser extends Component
 
     public function updatedUploads(): void
     {
+        $this->validate([
+            'uploads.*' => 'required|file|max:102400', // 100MB max por archivo
+        ], [
+            'uploads.*.max' => 'El archivo no debe pesar más de 100MB.',
+            'uploads.*.file' => 'El archivo debe ser un formato válido.',
+        ]);
+
         $action = app(UploadFileAction::class);
+        $successCount = 0;
 
         foreach ($this->uploads as $upload) {
             try {
                 $action->execute($upload, auth()->user(), $this->currentFolderId);
+                $successCount++;
             } catch (\Exception $e) {
-                \Flux::toast(text: $e->getMessage(), variant: 'danger');
+                \Flux::toast(text: "Error en {$upload->getClientOriginalName()}: " . $e->getMessage(), variant: 'danger');
             }
         }
 
         $this->uploads = [];
-        \Flux::toast('Archivos subidos correctamente.');
+        
+        if ($successCount > 0) {
+            \Flux::toast($successCount . ' archivo(s) subido(s) correctamente.');
+        }
     }
 
     public function download(int $fileId)
@@ -228,6 +240,27 @@ class FileBrowser extends Component
         $this->shareTargetUserId = null;
         \Flux::modal('share-modal')->close();
         \Flux::toast('Elemento compartido.');
+    }
+
+    public function togglePublic(int $fileId): void
+    {
+        if (! auth()->user()->can('filesystem.public.manage') && ! auth()->user()->hasAnyRole(['admin', 'wfm'])) {
+            \Flux::toast(text: 'No tienes permiso para gestionar archivos públicos.', variant: 'danger');
+
+            return;
+        }
+
+        $file = File::findOrFail($fileId);
+
+        if ($file->user_id !== auth()->id()) {
+            \Flux::toast(text: 'No tienes permiso para modificar este archivo.', variant: 'danger');
+
+            return;
+        }
+
+        $file->update(['is_public' => ! $file->is_public]);
+
+        \Flux::toast($file->is_public ? 'Archivo ahora es público.' : 'Archivo ahora es privado.');
     }
 
     public function getUsersProperty(): Collection

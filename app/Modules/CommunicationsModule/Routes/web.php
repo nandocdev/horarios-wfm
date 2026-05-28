@@ -72,8 +72,4 @@ Route::middleware('auth')->name('communications.')->group(function () {
     // Reacciones en shoutouts
     Route::post('shoutouts/{shoutout}/reactions', [ReactionController::class, 'store'])
         ->name('reactions.store');
-
-    // Página principal de comunicaciones (landing page)
-    Route::get('/', Home::class)
-        ->name('home');
 });

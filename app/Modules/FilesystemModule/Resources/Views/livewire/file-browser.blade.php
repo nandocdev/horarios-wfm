@@ -71,10 +71,28 @@
                     <flux:button icon="folder-plus" variant="ghost">Nueva Carpeta</flux:button>
                 </flux:modal.trigger>
 
-                <flux:button icon="cloud-arrow-up" variant="primary" onclick="document.getElementById('file-upload').click()">
-                    Subir Archivos
-                </flux:button>
-                <input type="file" id="file-upload" wire:model="uploads" multiple class="hidden">
+                <div x-data="{ isUploading: false, progress: 0 }" 
+                     x-on:livewire-upload-start="isUploading = true"
+                     x-on:livewire-upload-finish="isUploading = false"
+                     x-on:livewire-upload-error="isUploading = false; $wire.dispatch('toast', { message: 'Error: El archivo excede el límite del servidor o la conexión falló.', variant: 'danger' })"
+                     x-on:livewire-upload-progress="progress = $event.detail.progress">
+                    
+                    <flux:button 
+                        icon="cloud-arrow-up" 
+                        variant="primary" 
+                        onclick="document.getElementById('file-upload').click()"
+                        x-bind:disabled="isUploading"
+                    >
+                        <span x-show="!isUploading">Subir Archivos</span>
+                        <span x-show="isUploading" x-cloak>Subiendo... (<span x-text="progress"></span>%)</span>
+                    </flux:button>
+
+                    <input type="file" id="file-upload" wire:model="uploads" multiple class="hidden" accept=".jpg,.jpeg,.png,.svg,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.rar">
+                    
+                    @error('uploads.*') 
+                        <p class="text-xs text-red-500 mt-1 animate-pulse">{{ $message }}</p> 
+                    @enderror
+                </div>
             </div>
         </div>
 
@@ -140,6 +158,7 @@
                                 str_contains($file->mime_type, 'image') => 'photo',
                                 str_contains($file->mime_type, 'pdf') => 'document-text',
                                 str_contains($file->mime_type, 'video') => 'video-camera',
+                                str_contains($file->mime_type, 'zip') || str_contains($file->mime_type, 'compressed') => 'archive-box',
                                 default => 'document',
                             };
                         @endphp
@@ -151,13 +170,27 @@
                         <flux:menu>
                             <flux:menu.item icon="arrow-down-tray" wire:click="download({{ $file->id }})">Descargar</flux:menu.item>
                             <flux:menu.item icon="share" wire:click="share({{ $file->id }}, 'file')">Compartir</flux:menu.item>
+                            
+                            @if(auth()->user()->can('filesystem.public.manage') || auth()->user()->hasAnyRole(['admin', 'wfm']))
+                                <flux:menu.item icon="{{ $file->is_public ? 'eye-slash' : 'eye' }}" wire:click="togglePublic({{ $file->id }})">
+                                    {{ $file->is_public ? 'Hacer Privado' : 'Hacer Público' }}
+                                </flux:menu.item>
+                            @endif
+
                             <flux:menu.separator />
                             <flux:menu.item icon="trash" variant="danger" wire:click="delete({{ $file->id }}, 'file')">Eliminar</flux:menu.item>
                         </flux:menu>
                     </flux:dropdown>
                 </div>
                 <div class="mt-4">
-                    <div class="font-medium truncate text-zinc-700 dark:text-zinc-300" title="{{ $file->name }}">{{ $file->name }}</div>
+                    <div class="flex items-center gap-2">
+                        <div class="font-medium truncate text-zinc-700 dark:text-zinc-300" title="{{ $file->name }}">{{ $file->name }}</div>
+                        @if($file->is_public)
+                            <flux:tooltip content="Público en Centro de Descargas">
+                                <flux:icon name="globe-americas" variant="mini" class="text-blue-500" />
+                            </flux:tooltip>
+                        @endif
+                    </div>
                     <div class="flex justify-between items-center mt-2">
                         <div class="text-[10px] text-zinc-500 font-mono">{{ $file->formatted_size }}</div>
                         <div class="px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[9px] uppercase font-bold text-zinc-500 tracking-tighter">{{ $file->extension }}</div>

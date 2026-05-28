@@ -44,6 +44,14 @@ class MenuHelper
                 'permission' => null,
             ],
 
+            [
+                'label' => __('Descargas'),
+                'icon' => 'folder-arrow-down',
+                'route' => 'filesystem.download-center',
+                'pattern' => 'descargas*',
+                'permission' => null,
+            ],
+
             // ===== 1. MI ESPACIO =====
             [
                 'label' => __('Mi Espacio'),

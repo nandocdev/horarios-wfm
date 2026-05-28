@@ -54,7 +54,10 @@
                             class="shadow-lg shadow-cyan-500/20">
                             Publicar Reconocimiento
                         </flux:button>
-                        <flux:button variant="outline" size="lg" href="#noticias">
+                        <flux:button variant="outline" size="lg" href="{{ route('filesystem.download-center') }}" icon="folder-arrow-down" wire:navigate>
+                            Centro de Descargas
+                        </flux:button>
+                        <flux:button variant="ghost" size="lg" href="#noticias">
                             Explorar Novedades
                         </flux:button>
                     </div>
@@ -235,7 +238,7 @@
                                 ['icon' => 'calendar', 'label' => 'Horarios', 'color' => 'cyan', 'route' => 'schedules.my-schedule'],
                                 ['icon' => 'chart-pie', 'label' => 'Métricas', 'color' => 'blue', 'route' => 'dashboard'],
                                 ['icon' => 'lifebuoy', 'label' => 'Soporte', 'color' => 'purple', 'route' => 'helpdesk.my-tickets'],
-                                ['icon' => 'folder-open', 'label' => 'Docs', 'color' => 'amber', 'route' => 'home'], // Fallback a home por ahora
+                                ['icon' => 'folder-arrow-down', 'label' => 'Descargas', 'color' => 'amber', 'route' => 'filesystem.download-center'],
                             ];
                         @endphp
                         @foreach ($quickLinks as $item)

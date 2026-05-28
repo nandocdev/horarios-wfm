@@ -171,6 +171,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'helpdesk.view',
             'helpdesk.manage',
 
+            // Filesystem Module
+            'filesystem.public.manage',
+
             // Documentation Module
             'articles.viewAny',
             'articles.view',

@@ -73,6 +73,10 @@ class ManageIntradayActivities extends Component
 
     public string $assignNotes = '';
 
+    public string $minTimeLimit = '';
+
+    public string $maxTimeLimit = '';
+
     public function mount(): void
     {
         $this->date = now()->format('Y-m-d');
@@ -150,6 +154,9 @@ class ManageIntradayActivities extends Component
                     'notes'                 => $this->periodNotes ?: null,
                 ]);
             }
+            // Align list filters to show the newly created/edited period immediately
+            $this->date = $this->periodDate;
+            $this->selectedTeamId = $this->periodTeamId;
 
             \Flux::toast('Periodo aprobado guardado correctamente.');
             $this->showPeriodModal = false;
@@ -179,8 +186,10 @@ class ManageIntradayActivities extends Component
 
         $period = ApprovedIntradayPeriod::findOrFail($periodId);
         $this->assigningPeriodId = $period->id;
-        $this->startTime = $period->start_time;
-        $this->endTime = $period->end_time;
+        $this->startTime = Carbon::parse($period->start_time)->format('H:i');
+        $this->endTime = Carbon::parse($period->end_time)->format('H:i');
+        $this->minTimeLimit = $this->startTime;
+        $this->maxTimeLimit = $this->endTime;
         $this->reset(['selectedEmployeeIds', 'assignNotes']);
         $this->showAssignmentModal = true;
     }
@@ -193,8 +202,23 @@ class ManageIntradayActivities extends Component
 
         $this->validate([
             'selectedEmployeeIds'   => 'required|array|min:1',
-            'startTime'             => 'required',
-            'endTime'               => 'required|after:startTime',
+            'startTime'             => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if ($value < $this->minTimeLimit || $value > $this->maxTimeLimit) {
+                        $fail("La hora de inicio debe estar entre {$this->minTimeLimit} y {$this->maxTimeLimit}.");
+                    }
+                }
+            ],
+            'endTime'               => [
+                'required',
+                'after:startTime',
+                function ($attribute, $value, $fail) {
+                    if ($value < $this->minTimeLimit || $value > $this->maxTimeLimit) {
+                        $fail("La hora de fin debe estar entre {$this->minTimeLimit} y {$this->maxTimeLimit}.");
+                    }
+                }
+            ],
         ], [], [
             'selectedEmployeeIds' => 'Empleados',
             'startTime'           => 'Hora inicio',

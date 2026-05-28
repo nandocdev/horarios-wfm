@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CommunicationsModule\Listeners;
 
 use App\Modules\CommunicationsModule\Notifications\ShiftSwapApprovedNotification;
-use App\Modules\WfmModule\Events\ShiftSwapApproved;
+use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -20,6 +20,9 @@ class SendShiftSwapApprovedNotification implements ShouldQueue
             'type' => 'shift_swap.approved',
             'shift_swap_id' => $swap->id ?? null,
             'approver_id' => $event->approverId,
+            'title' => 'Intercambio de Turno Aprobado',
+            'message' => 'Tu solicitud de intercambio de turno ha sido aprobada por el supervisor.',
+            'level' => 'success',
         ];
 
         // Notify both parties if emails exist

@@ -53,7 +53,7 @@ class ProcessShiftSwapAction
                     $this->performImmutableSwap($request, $assignmentA, $assignmentB);
                 }
 
-                $currentDate->addDay();
+                $currentDate = $currentDate->addDay();
             }
 
             // 4. Crear registro de aprobación de WFM

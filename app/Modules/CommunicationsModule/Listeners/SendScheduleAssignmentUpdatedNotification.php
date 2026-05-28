@@ -48,6 +48,9 @@ class SendScheduleAssignmentUpdatedNotification implements ShouldQueue
             'week_period' => $weeklySchedule->week_start_date->format('d/m/Y').' al '.$weeklySchedule->week_end_date->format('d/m/Y'),
             'updated_by' => $event->updatedByUserId,
             'action_url' => url("/schedules/my-schedule?week={$weeklySchedule->id}&day={$assignment->day_of_week}"),
+            'title' => 'Horario Actualizado',
+            'message' => "Se ha modificado tu turno para el día {$assignment->date->format('d/m/Y')}.",
+            'level' => 'warning',
         ];
 
         try {

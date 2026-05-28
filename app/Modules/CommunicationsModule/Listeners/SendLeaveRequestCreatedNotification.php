@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\CommunicationsModule\Listeners;
 
 use App\Modules\CommunicationsModule\Notifications\LeaveRequestCreatedNotification;
-use App\Modules\WfmModule\Events\LeaveRequestCreated;
+use App\Modules\CoreModule\Models\User;
+use App\Shared\Events\LeaveRequestCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -23,13 +24,15 @@ class SendLeaveRequestCreatedNotification implements ShouldQueue
             'employee_id' => $leave->employee_id ?? null,
             'start_date' => $leave->start_date ?? null,
             'end_date' => $leave->end_date ?? null,
+            'title' => 'Nueva Solicitud de Ausencia',
+            'message' => 'Un miembro de tu equipo ha solicitado un permiso o vacaciones.',
+            'level' => 'info',
         ];
 
         if (! empty($leave->supervisor_id)) {
-            $supervisorEmail = DB::table('users')->where('id', $leave->supervisor_id)->value('email');
-            if (! empty($supervisorEmail)) {
-                Notification::route('mail', $supervisorEmail)
-                    ->notify(new LeaveRequestCreatedNotification($payload));
+            $supervisor = User::find($leave->supervisor_id);
+            if ($supervisor) {
+                $supervisor->notify(new LeaveRequestCreatedNotification($payload));
             }
         }
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CommunicationsModule\Listeners;
 
 use App\Modules\CommunicationsModule\Notifications\ShiftSwapReceivedNotification;
-use App\Modules\WfmModule\Events\ShiftSwapRequested;
+use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -22,6 +22,9 @@ class SendShiftSwapReceivedNotification implements ShouldQueue
             'employee_id_from' => $swap->employee_id_from ?? null,
             'employee_id_to' => $swap->employee_id_to ?? null,
             'date' => $swap->date ?? null,
+            'title' => 'Nueva Solicitud de Intercambio',
+            'message' => 'Has recibido una nueva solicitud de intercambio de turno de un compañero.',
+            'level' => 'info',
         ];
 
         // Notify the recipient (employee_id_to) via email if available

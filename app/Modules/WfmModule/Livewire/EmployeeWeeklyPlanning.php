@@ -9,6 +9,8 @@ use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Modules\WfmModule\Notifications\ScheduleModifiedNotification;
+use App\Shared\DTOs\NotificationDTO;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -156,6 +158,16 @@ class EmployeeWeeklyPlanning extends Component
                     'break_end_time' => $breakEndTime,
                 ]
             );
+        }
+
+        if ($this->week->status === 'published' && $this->employee->user) {
+            $dto = new NotificationDTO(
+                title: 'Horario Modificado',
+                message: "Tu horario para la semana del {$this->week->week_start_date->format('d/m/Y')} ha sido actualizado por un supervisor.",
+                actionUrl: route('schedules.my-schedule'),
+                level: 'warning'
+            );
+            $this->employee->user->notify(new ScheduleModifiedNotification($dto));
         }
 
         \Flux::toast('Horario semanal actualizado correctamente.');

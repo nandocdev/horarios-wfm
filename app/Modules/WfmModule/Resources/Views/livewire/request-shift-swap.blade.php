@@ -36,7 +36,15 @@
                         @endforeach
                     </flux:select>
                     <flux:error name="recipientId" />
-                    <flux:description>Solo se muestran Operadores I de otros equipos.</flux:description>
+                    <flux:description>
+                        @if(!$requesterAssignment)
+                            Debes tener un turno asignado en la fecha seleccionada para realizar un intercambio.
+                        @elseif($peers->isEmpty())
+                            No se encontraron compañeros con tu mismo cargo y un horario distinto para esta fecha.
+                        @else
+                            Se muestran compañeros con tu mismo cargo y horario diferente.
+                        @endif
+                    </flux:description>
                 </flux:field>
             </div>
 

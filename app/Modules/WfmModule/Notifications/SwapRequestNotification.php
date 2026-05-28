@@ -7,6 +7,7 @@ namespace App\Modules\WfmModule\Notifications;
 use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
 class SwapRequestNotification extends Notification implements ShouldQueue
@@ -19,7 +20,7 @@ class SwapRequestNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toArray(object $notifiable): array
@@ -39,7 +40,13 @@ class SwapRequestNotification extends Notification implements ShouldQueue
             'end_date' => $this->swapRequest->end_date ? $this->swapRequest->end_date->format('Y-m-d') : null,
             'title' => 'Nueva Solicitud de Intercambio',
             'message' => "{$requester->first_name} ha solicitado intercambiar un turno contigo para el periodo {$dateRange}.",
+            'level' => 'info',
             'action_url' => route('schedules.swap-history'),
         ];
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage($this->toArray($notifiable));
     }
 }

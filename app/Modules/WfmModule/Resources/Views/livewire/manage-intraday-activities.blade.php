@@ -199,26 +199,49 @@
             </flux:heading>
 
             <div class="grid grid-cols-2 gap-4">
-                <flux:select wire:model="periodTeamId" label="Equipo" placeholder="Seleccione..." class="col-span-2">
-                    @foreach($teams as $team)
-                        <flux:select.option :value="$team->id">{{ $team->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                <flux:field class="col-span-2">
+                    <flux:select wire:model="periodTeamId" label="Equipo" placeholder="Seleccione...">
+                        @foreach($teams as $team)
+                            <flux:select.option :value="$team->id">{{ $team->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="periodTeamId" />
+                </flux:field>
 
-                <flux:select wire:model="periodActivityDefinitionId" label="Actividad" placeholder="Seleccione..." class="col-span-2">
-                    @foreach($definitions as $def)
-                        <flux:select.option :value="$def->id">{{ $def->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                <flux:field class="col-span-2">
+                    <flux:select wire:model="periodActivityDefinitionId" label="Actividad" placeholder="Seleccione...">
+                        @foreach($definitions as $def)
+                            <flux:select.option :value="$def->id">{{ $def->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="periodActivityDefinitionId" />
+                </flux:field>
 
-                <flux:input type="date" wire:model="periodDate" label="Fecha" />
-                <flux:input type="number" wire:model="periodMaxSlots" label="Máx. Slots" min="1" max="100" />
+                <flux:field>
+                    <flux:input type="date" wire:model="periodDate" label="Fecha" />
+                    <flux:error name="periodDate" />
+                </flux:field>
 
-                <flux:input type="time" wire:model="periodStartTime" label="Hora inicio" />
-                <flux:input type="time" wire:model="periodEndTime" label="Hora fin" />
+                <flux:field>
+                    <flux:input type="number" wire:model="periodMaxSlots" label="Máx. Slots" min="1" max="100" />
+                    <flux:error name="periodMaxSlots" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:input type="time" wire:model="periodStartTime" label="Hora inicio" />
+                    <flux:error name="periodStartTime" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:input type="time" wire:model="periodEndTime" label="Hora fin" />
+                    <flux:error name="periodEndTime" />
+                </flux:field>
             </div>
 
-            <flux:input wire:model="periodNotes" label="Notas (opcional)" placeholder="Indicaciones adicionales..." />
+            <flux:field>
+                <flux:input wire:model="periodNotes" label="Notas (opcional)" placeholder="Indicaciones adicionales..." />
+                <flux:error name="periodNotes" />
+            </flux:field>
 
             <div class="flex justify-end gap-3 pt-2">
                 <flux:button wire:click="$set('showPeriodModal', false)" variant="ghost">Cancelar</flux:button>
@@ -260,11 +283,20 @@
             </flux:fieldset>
 
             <div class="grid grid-cols-2 gap-4">
-                <flux:input type="time" wire:model="startTime" label="Hora inicio" />
-                <flux:input type="time" wire:model="endTime" label="Hora fin" />
+                <flux:field>
+                    <flux:input type="time" wire:model="startTime" label="Hora inicio" min="{{ $minTimeLimit }}" max="{{ $maxTimeLimit }}" />
+                    <flux:error name="startTime" />
+                </flux:field>
+                <flux:field>
+                    <flux:input type="time" wire:model="endTime" label="Hora fin" min="{{ $minTimeLimit }}" max="{{ $maxTimeLimit }}" />
+                    <flux:error name="endTime" />
+                </flux:field>
             </div>
 
-            <flux:input wire:model="assignNotes" label="Notas (opcional)" placeholder="Instrucciones adicionales..." />
+            <flux:field>
+                <flux:input wire:model="assignNotes" label="Notas (opcional)" placeholder="Instrucciones adicionales..." />
+                <flux:error name="assignNotes" />
+            </flux:field>
 
             <div class="flex justify-end gap-3 pt-2">
                 <flux:button wire:click="$set('showAssignmentModal', false)" variant="ghost">Cancelar</flux:button>

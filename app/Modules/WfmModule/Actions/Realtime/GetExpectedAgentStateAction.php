@@ -85,7 +85,7 @@ final class GetExpectedAgentStateAction
                 $lStart = Carbon::parse($schedule->lunch_start_time)->setDate($now->year, $now->month, $now->day);
                 $lEnd = Carbon::parse($schedule->lunch_end_time)->setDate($now->year, $now->month, $now->day);
                 if ($lEnd->lessThan($lStart)) {
-                    $lEnd->addDay();
+                    $lEnd = $lEnd->addDay();
                 }
 
                 if ($now->between($lStart, $lEnd)) {
@@ -103,7 +103,7 @@ final class GetExpectedAgentStateAction
                 $bStart = Carbon::parse($schedule->break_start_time)->setDate($now->year, $now->month, $now->day);
                 $bEnd = Carbon::parse($schedule->break_end_time)->setDate($now->year, $now->month, $now->day);
                 if ($bEnd->lessThan($bStart)) {
-                    $bEnd->addDay();
+                    $bEnd = $bEnd->addDay();
                 }
 
                 if ($now->between($bStart, $bEnd)) {
@@ -122,7 +122,7 @@ final class GetExpectedAgentStateAction
             $start = Carbon::parse($schedule->start_time)->setDate($now->year, $now->month, $now->day);
             $end = Carbon::parse($schedule->end_time)->setDate($now->year, $now->month, $now->day);
             if ($end->lessThan($start)) {
-                $end->addDay();
+                $end = $end->addDay();
             }
 
             if ($now->between($start, $end)) {
@@ -226,7 +226,7 @@ final class GetExpectedAgentStateAction
                     $lStart = Carbon::parse($schedule->lunch_start_time)->setDate($now->year, $now->month, $now->day);
                     $lEnd = Carbon::parse($schedule->lunch_end_time)->setDate($now->year, $now->month, $now->day);
                     if ($lEnd->lessThan($lStart)) {
-                        $lEnd->addDay();
+                        $lEnd = $lEnd->addDay();
                     }
                     if ($now->between($lStart, $lEnd)) {
                         $results[$id] = [
@@ -244,7 +244,7 @@ final class GetExpectedAgentStateAction
                     $bStart = Carbon::parse($schedule->break_start_time)->setDate($now->year, $now->month, $now->day);
                     $bEnd = Carbon::parse($schedule->break_end_time)->setDate($now->year, $now->month, $now->day);
                     if ($bEnd->lessThan($bStart)) {
-                        $bEnd->addDay();
+                        $bEnd = $bEnd->addDay();
                     }
                     if ($now->between($bStart, $bEnd)) {
                         $results[$id] = [
@@ -264,7 +264,7 @@ final class GetExpectedAgentStateAction
                 $start = Carbon::parse($schedule->start_time)->setDate($now->year, $now->month, $now->day);
                 $end = Carbon::parse($schedule->end_time)->setDate($now->year, $now->month, $now->day);
                 if ($end->lessThan($start)) {
-                    $end->addDay();
+                    $end = $end->addDay();
                 }
 
                 if ($now->between($start, $end)) {

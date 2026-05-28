@@ -199,7 +199,23 @@
                 </div>
             </div>
 
-            <div class="flex justify-end pt-4">
+            <div class="flex justify-between pt-4 border-t dark:border-zinc-800">
+                <div class="flex gap-2">
+                    @if($selectedRequest->status === 'pending')
+                        @if($selectedRequest->recipient_id === $currentEmployeeId)
+                            <flux:button wire:click="acceptSwap({{ $selectedRequest->id }})"
+                                wire:confirm="¿Confirmas que deseas intercambiar tu turno?"
+                                variant="primary" size="sm">Aceptar</flux:button>
+                            <flux:button wire:click="rejectSwap({{ $selectedRequest->id }})"
+                                wire:confirm="¿Estás seguro de que deseas rechazar este cambio?"
+                                variant="subtle" size="sm">Rechazar</flux:button>
+                        @elseif($selectedRequest->requester_id === $currentEmployeeId)
+                             <flux:button wire:click="cancelSwap({{ $selectedRequest->id }})"
+                                wire:confirm="¿Estás seguro de que deseas cancelar esta solicitud?"
+                                variant="danger" size="sm">Cancelar Solicitud</flux:button>
+                        @endif
+                    @endif
+                </div>
                 <flux:modal.close>
                     <flux:button variant="subtle">Cerrar</flux:button>
                 </flux:modal.close>

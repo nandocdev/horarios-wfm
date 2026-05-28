@@ -29,7 +29,7 @@ class RequestShiftSwap extends Component
     public $recipientAssignment = null;
 
     protected $rules = [
-        'requestedDate' => 'required|date|after_or_equal:today',
+        'requestedDate' => 'required|date|after:today',
         'endDate' => 'nullable|date|after_or_equal:requestedDate',
         'recipientId' => 'required|exists:employees,id',
         'reason' => 'nullable|string|max:255',
@@ -37,8 +37,9 @@ class RequestShiftSwap extends Component
 
     public function mount()
     {
-        $this->requestedDate = now()->format('Y-m-d');
-        $this->endDate = now()->format('Y-m-d');
+        // Por defecto, sugerir mañana
+        $this->requestedDate = now()->addDay()->format('Y-m-d');
+        $this->endDate = now()->addDay()->format('Y-m-d');
         $this->loadAssignments();
     }
 
@@ -70,6 +71,7 @@ class RequestShiftSwap extends Component
         $date = Carbon::parse($this->requestedDate);
         $dayOfWeek = $date->dayOfWeekIso;
 
+        // Buscar la semana que contiene la fecha (independientemente del estado para permitir pruebas)
         $week = WeeklySchedule::whereDate('week_start_date', '<=', $date->toDateString())
             ->whereDate('week_end_date', '>=', $date->toDateString())
             ->first();
@@ -77,7 +79,6 @@ class RequestShiftSwap extends Component
         if (! $week) {
             $this->requesterAssignment = null;
             $this->recipientAssignment = null;
-
             return;
         }
 
@@ -106,36 +107,25 @@ class RequestShiftSwap extends Component
 
         if (! $requester) {
             $this->addError('general', 'No tienes un perfil de empleado asociado.');
-
             return;
         }
 
         $recipient = Employee::with('position')->find($this->recipientId);
 
-        // 1. Validar que sea Operador I
-        if ($recipient->position?->name !== 'Operador Asist. Serv. Aseg. I') {
-            $this->addError('recipientId', 'Solo puedes solicitar cambios de turno a compañeros con cargo Operador I.');
-
+        // 1. Validar que tenga el mismo cargo
+        if ($recipient->position_id !== $requester->position_id) {
+            $this->addError('recipientId', "Solo puedes solicitar cambios de turno a compañeros con tu mismo cargo ({$requester->position?->name}).");
             return;
         }
 
-        // 2. Validar que sean de equipos distintos
-        if ($recipient->team_id === $requester->team_id) {
-            $this->addError('recipientId', 'El cambio de turno debe ser con un compañero de otro equipo.');
-
-            return;
-        }
-
-        // 3. Validar que los turnos existan y sean distintos (ya cargados en loadAssignments)
+        // 2. Validar que los turnos existan y sean distintos
         if (! $this->requesterAssignment || ! $this->recipientAssignment) {
             $this->addError('general', 'Ambos empleados deben tener turnos asignados ese día para realizar un intercambio (swap).');
-
             return;
         }
 
         if ($this->requesterAssignment->schedule_id === $this->recipientAssignment->schedule_id) {
             $this->addError('recipientId', 'No puedes realizar un swap con un compañero que tiene tu mismo turno.');
-
             return;
         }
 
@@ -164,36 +154,37 @@ class RequestShiftSwap extends Component
     {
         $currentEmployee = Auth::user()->employee;
         $peers = collect();
-        if ($currentEmployee && $this->requesterAssignment) {
+
+        if ($currentEmployee && $this->requestedDate) {
             $date = Carbon::parse($this->requestedDate);
             $dayOfWeek = $date->dayOfWeekIso;
 
-            $peers = Employee::with(['team', 'position'])
-                ->whereHas('position', function ($query) {
-                    $query->where('name', 'Operador Asist. Serv. Aseg. I');
-                })
-                ->where('team_id', '!=', $currentEmployee->team_id)
-                ->where('id', '!=', $currentEmployee->id)
-                // 1. Debe tener un turno asignado ese día
-                ->whereHas('assignments', function ($query) use ($date, $dayOfWeek) {
-                    $query->where('is_replaced', false)
-                        ->where('day_of_week', $dayOfWeek)
-                        ->whereHas('weeklySchedule', function ($q) use ($date) {
-                            $q->whereDate('week_start_date', '<=', $date->toDateString())
-                                ->whereDate('week_end_date', '>=', $date->toDateString());
-                        });
-                })
-                // 2. Ese turno debe ser distinto al del solicitante
-                ->whereDoesntHave('assignments', function ($query) use ($date, $dayOfWeek) {
-                    $query->where('is_replaced', false)
-                        ->where('day_of_week', $dayOfWeek)
-                        ->where('schedule_id', $this->requesterAssignment->schedule_id)
-                        ->whereHas('weeklySchedule', function ($q) use ($date) {
-                            $q->whereDate('week_start_date', '<=', $date->toDateString())
-                                ->whereDate('week_end_date', '>=', $date->toDateString());
-                        });
-                })
-                ->get();
+            // Asegurar que tenemos el horario cargado
+            $this->loadAssignments();
+
+            if ($this->requesterAssignment) {
+                $peers = Employee::with(['team', 'position'])
+                    ->where('position_id', $currentEmployee->position_id)
+                    ->where('id', '!=', $currentEmployee->id)
+                    // 1. Debe tener un turno asignado ese día en la misma semana
+                    ->whereHas('assignments', function ($query) use ($dayOfWeek, $date) {
+                        $query->where('day_of_week', $dayOfWeek)
+                            ->whereHas('weeklySchedule', function ($q) use ($date) {
+                                $q->whereDate('week_start_date', '<=', $date->toDateString())
+                                    ->whereDate('week_end_date', '>=', $date->toDateString());
+                            });
+                    })
+                    // 2. Ese turno debe ser distinto al del solicitante
+                    ->whereDoesntHave('assignments', function ($query) use ($dayOfWeek, $date) {
+                        $query->where('day_of_week', $dayOfWeek)
+                            ->where('schedule_id', $this->requesterAssignment->schedule_id)
+                            ->whereHas('weeklySchedule', function ($q) use ($date) {
+                                $q->whereDate('week_start_date', '<=', $date->toDateString())
+                                    ->whereDate('week_end_date', '>=', $date->toDateString());
+                            });
+                    })
+                    ->get();
+            }
         }
 
         return view('wfm::livewire.request-shift-swap', [

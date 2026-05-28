@@ -293,8 +293,8 @@ class MyTeam extends Component
         $days = [];
         $current = $this->weekStart->copy();
         for ($i = 0; $i < 7; $i++) {
-            $days[] = $current->copy();
-            $current->addDay();
+            $days[] = $current;
+            $current = $current->addDay();
         }
 
         return $days;

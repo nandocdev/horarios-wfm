@@ -9,6 +9,8 @@ use App\Modules\WfmModule\DTOs\IntradayActivityDTO;
 use App\Modules\WfmModule\Models\ApprovedIntradayPeriod;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
+use App\Modules\WfmModule\Notifications\IntradayActivityNotification;
+use App\Shared\DTOs\NotificationDTO;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -85,7 +87,7 @@ class AssignIntradayActivityAction
                 // Validar que el empleado pertenezca al equipo del periodo aprobado
                 if ($approvedPeriod !== null) {
                     $employee = Employee::find($employeeId);
-                    if (! $employee || $employee->team_id !== $approvedPeriod->team_id) {
+                    if (! $employee || (int) $employee->team_id !== (int) $approvedPeriod->team_id) {
                         $errors[] = "El empleado ID {$employeeId} no pertenece al equipo del periodo aprobado.";
                         continue;
                     }
@@ -110,6 +112,21 @@ class AssignIntradayActivityAction
                     'time_range'         => $tstzRange,
                     'notes'              => $dto->notes,
                 ]);
+
+                // Notificar al empleado
+                $employeeNotify = Employee::find($employeeId);
+                if ($employeeNotify && $employeeNotify->user) {
+                    $startTime = Carbon::parse($dto->date.' '.$dto->start_time)->format('H:i');
+                    $endTime = Carbon::parse($dto->date.' '.$dto->end_time)->format('H:i');
+                    
+                    $dtoNotify = new NotificationDTO(
+                        title: 'Nueva Actividad Asignada',
+                        message: "Se te ha asignado la actividad '{$definition->name}' para hoy de {$startTime} a {$endTime}.",
+                        actionUrl: route('schedules.my-schedule'),
+                        level: 'info'
+                    );
+                    $employeeNotify->user->notify(new IntradayActivityNotification($dtoNotify));
+                }
 
                 $createdActivities[] = $activity;
             }

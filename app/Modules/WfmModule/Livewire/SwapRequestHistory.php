@@ -6,7 +6,9 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
 use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Shared\DTOs\NotificationDTO;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -67,31 +69,70 @@ class SwapRequestHistory extends Component
             ->firstOrFail();
 
         $request->update(['status' => 'cancelled']);
+
+        // Notificar al destinatario si el usuario existía
+        if ($request->recipient?->user) {
+            $dto = new NotificationDTO(
+                title: 'Solicitud Cancelada',
+                message: "{$employee->full_name} ha cancelado la solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
+                actionUrl: route('schedules.swap-history'),
+                level: 'warning'
+            );
+            $request->recipient->user->notify(new SwapStatusChangedNotification($dto));
+        }
+
         \Flux::toast('Solicitud cancelada correctamente.');
+        $this->dispatch('modal-hide', name: 'swap-details');
     }
 
     public function acceptSwap($requestId)
     {
         $employee = Auth::user()->employee;
-        $request = ShiftSwapRequest::where('id', $requestId)
+        $request = ShiftSwapRequest::with(['requester', 'requester.user'])->where('id', $requestId)
             ->where('recipient_id', $employee->id)
             ->where('status', 'pending')
             ->firstOrFail();
 
         $request->update(['status' => 'accepted']);
+
+        // Notificar al solicitante
+        if ($request->requester?->user) {
+            $dto = new NotificationDTO(
+                title: 'Intercambio Aceptado',
+                message: "{$employee->full_name} ha aceptado tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')}. Pendiente por aprobación de supervisor.",
+                actionUrl: route('schedules.swap-history'),
+                level: 'success'
+            );
+            $request->requester->user->notify(new SwapStatusChangedNotification($dto));
+        }
+
         \Flux::toast('Has aceptado el intercambio de turno.', variant: 'success');
+        $this->dispatch('modal-hide', name: 'swap-details');
     }
 
     public function rejectSwap($requestId)
     {
         $employee = Auth::user()->employee;
-        $request = ShiftSwapRequest::where('id', $requestId)
+        $request = ShiftSwapRequest::with(['requester', 'requester.user'])->where('id', $requestId)
             ->where('recipient_id', $employee->id)
             ->where('status', 'pending')
             ->firstOrFail();
 
         $request->update(['status' => 'rejected']);
+
+        // Notificar al solicitante
+        if ($request->requester?->user) {
+            $dto = new NotificationDTO(
+                title: 'Intercambio Rechazado',
+                message: "{$employee->full_name} ha rechazado tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
+                actionUrl: route('schedules.swap-history'),
+                level: 'danger'
+            );
+            $request->requester->user->notify(new SwapStatusChangedNotification($dto));
+        }
+
         \Flux::toast('Has rechazado el intercambio de turno.');
+        $this->dispatch('modal-hide', name: 'swap-details');
     }
 
     public function render()

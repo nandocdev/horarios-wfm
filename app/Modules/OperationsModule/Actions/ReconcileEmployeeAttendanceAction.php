@@ -7,6 +7,8 @@ namespace App\Modules\OperationsModule\Actions;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OperationsModule\Models\IncidentType;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Notifications\AttendanceIncidentNotification;
+use App\Shared\DTOs\NotificationDTO;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Log;
@@ -115,7 +117,7 @@ final class ReconcileEmployeeAttendanceAction
             return null;
         }
 
-        return AttendanceIncident::create([
+        $incident = AttendanceIncident::create([
             'employee_id' => $employee->id,
             'incident_type_id' => $type->id,
             'incident_date' => $date->toDateString(),
@@ -123,5 +125,18 @@ final class ReconcileEmployeeAttendanceAction
             'end_time' => $endTime,
             'admin_comment' => $comment,
         ]);
+
+        // Notificar al empleado
+        if ($employee->user) {
+            $dto = new NotificationDTO(
+                title: 'Incidencia de Asistencia',
+                message: "Se ha registrado una incidencia de tipo '{$type->name}' para el día {$date->format('d/m/Y')}. Motivo: {$comment}",
+                actionUrl: route('schedules.my-schedule'), // O una ruta de incidencias si existe
+                level: 'warning'
+            );
+            $employee->user->notify(new AttendanceIncidentNotification($dto));
+        }
+
+        return $incident;
     }
 }

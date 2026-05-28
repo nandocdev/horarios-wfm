@@ -36,7 +36,7 @@ final class GetEmployeePerformanceAction
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
 
             if ($end->lessThan($start)) {
-                $end->addDay();
+                $end = $end->addDay();
             }
 
             $scheduledMinutes = (int) $start->diffInMinutes($end);
@@ -246,7 +246,7 @@ final class GetEmployeePerformanceAction
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
             if ($end->lessThan($start)) {
-                $end->addDay();
+                $end = $end->addDay();
             }
 
             $isWithinSchedule = $now->between($start, $end);
@@ -289,7 +289,7 @@ final class GetEmployeePerformanceAction
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
             if ($end->lessThan($start)) {
-                $end->addDay();
+                $end = $end->addDay();
             }
         }
 

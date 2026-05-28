@@ -69,7 +69,7 @@ final class GetStandardizedPerformanceAction {
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
             if ($end->lessThan($start)) {
-                $end->addDay();
+                $end = $end->addDay();
             }
             $scheduledMinutes = (int) $start->diffInMinutes($end);
         }
@@ -255,7 +255,7 @@ final class GetStandardizedPerformanceAction {
                 $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
                 $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
                 if ($end->lessThan($start)) {
-                    $end->addDay();
+                    $end = $end->addDay();
                 }
                 $shiftDuration = $start->diffInMinutes($end);
                 $activities['Logout'] = $totalConnectedMinutes < $shiftDuration ? round($shiftDuration - $totalConnectedMinutes, 1) : 0;
@@ -283,7 +283,7 @@ final class GetStandardizedPerformanceAction {
             $start = Carbon::parse($schedule->start_time)->setDate($date->year, $date->month, $date->day);
             $end = Carbon::parse($schedule->end_time)->setDate($date->year, $date->month, $date->day);
             if ($end->lessThan($start)) {
-                $end->addDay();
+                $end = $end->addDay();
             }
         }
 

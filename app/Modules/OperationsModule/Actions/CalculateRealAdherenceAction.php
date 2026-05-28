@@ -43,7 +43,7 @@ final class CalculateRealAdherenceAction
             
             $dailyResults[$current->toDateString()] = $result;
             
-            $current->addDay();
+            $current = $current->addDay();
         }
 
         $globalPercentage = $totalScheduledSeconds > 0 
@@ -142,7 +142,7 @@ final class CalculateRealAdherenceAction
         // --- A. Base Shift ---
         $shiftStart = Carbon::parse($dayInfo->start_time)->setDate($date->year, $date->month, $date->day);
         $shiftEnd = Carbon::parse($dayInfo->end_time)->setDate($date->year, $date->month, $date->day);
-        if ($shiftEnd->lt($shiftStart)) { $shiftEnd->addDay(); }
+        if ($shiftEnd->lt($shiftStart)) { $shiftEnd = $shiftEnd->addDay(); }
         
         // Truncar al límite (ahora si es hoy)
         $shiftStart = $shiftStart->min($limitTime);
@@ -173,7 +173,7 @@ final class CalculateRealAdherenceAction
         if ($dayInfo->lunch_start_time) {
             $lStart = Carbon::parse($dayInfo->lunch_start_time)->setDate($date->year, $date->month, $date->day)->min($limitTime);
             $lEnd = Carbon::parse($dayInfo->lunch_end_time)->setDate($date->year, $date->month, $date->day)->min($limitTime);
-            if ($lEnd->lt($lStart)) { $lEnd->addDay(); }
+            if ($lEnd->lt($lStart)) { $lEnd = $lEnd->addDay(); }
             if ($lStart->lt($lEnd)) {
                 $segments[] = ['start' => $lStart, 'end' => $lEnd, 'type' => 'INTRADAY', 'priority' => 2];
             }

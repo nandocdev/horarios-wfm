@@ -125,7 +125,7 @@ class RequestLeave extends Component
         $typeLabel = $this->type === 'quarterly' ? 'trimestral' : 'compensatorio';
         \Flux::toast("Solicitud de permiso {$typeLabel} enviada al jefe inmediato.");
 
-        return redirect()->route('schedules.my-schedule');
+        return redirect()->route('schedules.leave-history');
     }
 
     protected function getAssignment($dateString)

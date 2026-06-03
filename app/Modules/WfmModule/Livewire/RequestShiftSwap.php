@@ -147,7 +147,7 @@ class RequestShiftSwap extends Component
 
         \Flux::toast('Solicitud de cambio de turno enviada correctamente.');
 
-        return redirect()->route('schedules.my-schedule');
+        return redirect()->route('schedules.swap-history');
     }
 
     public function render()

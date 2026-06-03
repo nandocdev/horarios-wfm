@@ -263,13 +263,8 @@
                         </flux:card>
                     </a>
 
-                    <div class="mt-4 flex flex-wrap gap-2 border-t pt-4 dark:border-zinc-700">
-                        <flux:button href="{{ route('schedules.swap-history') }}" wire:navigate variant="link" size="sm" icon-trailing="arrow-right">
-                            Historial Cambios
-                        </flux:button>
-                        <flux:button href="{{ route('schedules.leave-history') }}" wire:navigate variant="link" size="sm" icon-trailing="arrow-right">
-                            Historial Permisos
-                        </flux:button>
+                    <div class="mt-4 border-t pt-4 dark:border-zinc-700">
+                        <p class="text-xs text-zinc-500">Puedes ver el estado de tus solicitudes en el menú lateral.</p>
                     </div>
                 </div>
             </div>

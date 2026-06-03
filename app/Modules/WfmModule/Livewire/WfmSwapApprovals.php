@@ -72,6 +72,8 @@ class WfmSwapApprovals extends Component
 
     public function approveSwap($requestId, ProcessShiftSwapAction $action)
     {
+        $this->authorize('wfm.swaps.manage');
+
         try {
             $employee = Auth::user()->employee;
             if (! $employee) {
@@ -87,6 +89,8 @@ class WfmSwapApprovals extends Component
 
     public function rejectSwap($requestId, $reason = 'Rechazado por WFM')
     {
+        $this->authorize('wfm.swaps.manage');
+
         $request = ShiftSwapRequest::with(['requester', 'recipient', 'requester.user', 'recipient.user'])
             ->where('id', $requestId)
             ->where('status', 'accepted')

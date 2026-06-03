@@ -41,7 +41,7 @@ Route::middleware(['web', 'auth'])->prefix('schedules')->name('schedules.')->gro
 
     // Operación (Coordinador/WFM)
 
-    Route::get('/wfm-approvals', WfmSwapApprovals::class)->name('wfm-approvals');
+    Route::get('/wfm-approvals', WfmSwapApprovals::class)->name('wfm-approvals')->can('wfm.swaps.manage');
     Route::get('/manager-approvals', ManagerApprovals::class)->name('manager-approvals');
     Route::get('/planning', WeeklyPlanning::class)->name('planning');
     Route::get('/intraday-activities/manage', ManageIntradayActivities::class)->name('intraday-activities.manage');

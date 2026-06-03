@@ -77,6 +77,7 @@
                                             icon="eye">
                                     Detalles
                                 </flux:button>
+                                @can('wfm.swaps.manage')
                                 @if($currentTab === 'pending' && $request->status === 'accepted')
                                     <flux:button wire:click="approveSwap({{ $request->id }})" 
                                                 wire:confirm="¿Estás seguro de aprobar este cambio? Se aplicará el intercambio de turnos en el horario inmediatamente." 
@@ -93,6 +94,7 @@
                                         Rechazar
                                     </flux:button>
                                 @endif
+                                @endcan
                             </div>
                         </td>
                     </tr>
@@ -208,6 +210,7 @@
 
             <div class="flex justify-between pt-4 border-t dark:border-zinc-800">
                 <div class="flex gap-2">
+                    @can('wfm.swaps.manage')
                     @if($selectedRequest->status === 'accepted')
                         <flux:button wire:click="approveSwap({{ $selectedRequest->id }})" 
                                     wire:confirm="¿Estás seguro de aprobar este cambio?" 
@@ -222,6 +225,7 @@
                             Rechazar
                         </flux:button>
                     @endif
+                    @endcan
                 </div>
                 <flux:modal.close>
                     <flux:button variant="ghost">Cerrar</flux:button>

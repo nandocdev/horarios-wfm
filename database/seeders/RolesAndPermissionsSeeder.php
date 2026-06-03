@@ -179,6 +179,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'articles.view',
             'articles.manage',
 
+            // Knowledge Base Module
+            'knowledge.viewAny',
+            'knowledge.manage',
+
             // Navigation Menu Permissions
             'menu.admin',
             'menu.organization',
@@ -254,6 +258,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.view',
             'helpdesk.view',
             'articles.viewAny',
+            'knowledge.viewAny',
         ]);
 
         // Supervisor
@@ -270,6 +275,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.send',
             'helpdesk.view',
             'articles.viewAny',
+            'knowledge.viewAny',
         ]);
 
         // Coordinator
@@ -294,6 +300,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.view',
             'notifications.send',
             'articles.viewAny',
+            'knowledge.viewAny',
         ]);
 
         // Chief
@@ -316,6 +323,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'analytics.export',
             'notifications.view',
             'articles.viewAny',
+            'knowledge.viewAny',
         ]);
 
         // Director
@@ -334,6 +342,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'analytics.export',
             'news.viewAny',
             'articles.viewAny',
+            'knowledge.viewAny',
         ]);
 
         // Limpiar caché final

@@ -31,9 +31,9 @@ class AgentTimeline extends Component
     {
         $segments = [];
         // Filtramos solo los estados reales y actividades intradía/turnos para la barra
-        // La barra representará de las 06:00 a las 22:00 para mejor visibilidad, o el rango del turno
-        $startWindow = Carbon::now()->startOfDay()->addHours(6);
-        $endWindow = Carbon::now()->startOfDay()->addHours(22);
+        // La barra representará de las 05:00 a las 18:00 (horario plataforma + margen)
+        $startWindow = Carbon::now()->startOfDay()->addHours(5);
+        $endWindow = Carbon::now()->startOfDay()->addHours(18);
         $totalMinutes = $endWindow->diffInMinutes($startWindow);
 
         foreach ($timeline as $item) {

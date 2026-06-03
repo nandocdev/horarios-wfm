@@ -2,7 +2,7 @@
     {{-- Barra Visual del Día (Fija) --}}
     <div class="flex-none bg-slate-50 p-4 rounded-xl border border-slate-100">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Vista Visual del Día (06:00 - 22:00)</h3>
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Vista Visual del Día (05:00 - 18:00)</h3>
             <div class="flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-medium text-slate-400">
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Talking</div>
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-400"></span> Ready</div>
@@ -32,8 +32,8 @@
             {{-- Indicador de Hora Actual --}}
             @php
                 $now = now();
-                $startWin = $now->copy()->startOfDay()->addHours(6);
-                $endWin = $now->copy()->startOfDay()->addHours(22);
+                $startWin = $now->copy()->startOfDay()->addHours(5);
+                $endWin = $now->copy()->startOfDay()->addHours(18);
                 $isWithin = $now->between($startWin, $endWin);
                 $nowPos = $isWithin ? (($now->diffInMinutes($startWin)) / $endWin->diffInMinutes($startWin)) * 100 : -1;
             @endphp
@@ -46,11 +46,11 @@
         </div>
         
         <div class="flex justify-between mt-2 text-[10px] text-slate-400 font-mono">
-            <span>06:00</span>
-            <span>10:00</span>
+            <span>05:00</span>
+            <span>08:00</span>
+            <span>11:00</span>
             <span>14:00</span>
             <span>18:00</span>
-            <span>22:00</span>
         </div>
     </div>
 

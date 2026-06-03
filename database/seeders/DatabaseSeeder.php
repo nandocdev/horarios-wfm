@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             HelpdeskCategoriesSeeder::class,
             OperationalSettingsSeeder::class,
             VacacionesSeeder::class,
+            KnowledgeBaseSeeder::class,
         ]);
 
         // Asegurar que el usuario administrador mantenga permisos totales

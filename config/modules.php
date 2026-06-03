@@ -28,5 +28,6 @@ return [
         App\Modules\HelpdeskModule\Providers\ModuleServiceProvider::class,
         App\Modules\DocumentationModule\Providers\ModuleServiceProvider::class,
         App\Modules\FilesystemModule\Providers\ModuleServiceProvider::class,
+        App\Modules\KnowledgeModule\Providers\ModuleServiceProvider::class,
     ],
 ];

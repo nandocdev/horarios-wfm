@@ -80,7 +80,14 @@ class MenuHelper
                         'icon' => 'chart-bar',
                     ],
                     [
-                        'label' => __('Mis Solicitudes'),
+                        'label' => __('Historial de Cambios'),
+                        'route' => 'schedules.swap-history',
+                        'pattern' => 'schedules/swap-history*',
+                        'permission' => null,
+                        'icon' => 'arrows-right-left',
+                    ],
+                    [
+                        'label' => __('Historial de Permisos'),
                         'route' => 'schedules.leave-history',
                         'pattern' => 'schedules/leave-history*',
                         'permission' => null,
@@ -280,6 +287,13 @@ class MenuHelper
                         'pattern' => 'admin/documentation*',
                         'permission' => 'articles.manage',
                         'icon' => 'book-open',
+                    ],
+                    [
+                        'label' => __('Base de Conocimiento'),
+                        'route' => 'knowledge.admin',
+                        'pattern' => 'admin/knowledge*',
+                        'permission' => 'knowledge.manage',
+                        'icon' => 'academic-cap',
                     ],
                     [
                         'label' => __('Usuarios'),
@@ -487,6 +501,13 @@ class MenuHelper
                 'icon' => 'book-open',
                 'route' => 'documentation.index',
                 'pattern' => 'docs*',
+                'permission' => null,
+            ],
+            [
+                'label' => __('Base de Conocimiento'),
+                'icon' => 'academic-cap',
+                'route' => 'knowledge.index',
+                'pattern' => 'knowledge*',
                 'permission' => null,
             ],
             [

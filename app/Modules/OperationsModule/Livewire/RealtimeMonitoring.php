@@ -256,6 +256,10 @@ class RealtimeMonitoring extends Component
             $isAbsent = ($isExpectedActive && $isLogoutOrOffline && ! $lastChangeToday);
             $isDisconnected = ($isExpectedActive && $isLogoutOrOffline && $lastChangeToday);
 
+            // Calcular duración de forma segura (Unix timestamp)
+            $lastChangeTs = $real?->last_changed_at ? Carbon::parse($real->last_changed_at)->timestamp : 0;
+            $currentDuration = $lastChangeTs > 0 ? (int) max(0, now()->timestamp - $lastChangeTs) : 0;
+
             return (object) [
                 'id' => $employee->id,
                 'emp_id' => $employee->id,
@@ -272,7 +276,7 @@ class RealtimeMonitoring extends Component
                 'is_adherent' => $isAdherent,
                 'is_absent' => $isAbsent,
                 'is_disconnected' => $isDisconnected,
-                'current_duration' => $real?->last_changed_at ? (int) max(0, time() - Carbon::parse($real->last_changed_at)->timestamp) : 0,
+                'current_duration' => $currentDuration,
                 'display_name' => $currentState,
                 'color_hex' => null,
                 'alerts' => $this->generateAlerts($real, $expected, $isAdherent, $isAbsent, $isDisconnected),
@@ -354,9 +358,8 @@ class RealtimeMonitoring extends Component
         ];
 
         // Calcular duración real en segundos
-        $durationSeconds = $real?->last_changed_at
-            ? (int) max(0, time() - Carbon::parse($real->last_changed_at)->timestamp)
-            : 0;
+        $lastChangeTs = $real?->last_changed_at ? Carbon::parse($real->last_changed_at)->timestamp : 0;
+        $durationSeconds = $lastChangeTs > 0 ? (int) max(0, now()->timestamp - $lastChangeTs) : 0;
 
         // 1. Alerta de Adherencia General (Solo para conectados)
         if (! $isAdherent && ! $isLogoutOrOffline && $durationSeconds >= $thresholds['adherence_grace']) {

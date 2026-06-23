@@ -158,13 +158,17 @@ class CiscoSyncCommand extends Command implements Isolatable
      */
     protected function updateAgentRealtimeState(int $employeeId, string $externalId, array $data, array $dialogInfo = []): void
     {
-        $state = $data['state'] ?? 'UNKNOWN';
+        $state = strtoupper($data['state'] ?? 'UNKNOWN');
         $reasonCode = $data['reasonCode'] ?? null;
         $stateChangeTime = $data['stateChangeTime'] ?? null;
 
         // Si el reasonCode es un arreglo (del XML), extraer el nombre o ID
         if (is_array($reasonCode)) {
             $reasonCode = $reasonCode['label'] ?? ($reasonCode['id'] ?? 'N/A');
+        }
+
+        if ($reasonCode !== null) {
+            $reasonCode = strtoupper((string) $reasonCode);
         }
 
         $lastChangedAt = now()->utc();
@@ -177,18 +181,20 @@ class CiscoSyncCommand extends Command implements Isolatable
                 // Forzamos UTC al parsear si no hay offset, ya que Cisco UCCX suele enviar tiempos en UTC
                 // pero a veces el XML no incluye el indicador 'Z'.
                 $lastChangedAt = Carbon::parse($stateChangeTime, 'UTC')->utc();
+
+                // Mitigación de Clock Drift: Si la fecha de Cisco es en el futuro (comparada con el servidor),
+                // la ajustamos a "ahora" para evitar duraciones negativas o 0 persistentes.
+                if ($lastChangedAt->isFuture()) {
+                    $lastChangedAt = now()->utc();
+                }
             } catch (\Exception $e) {
                 Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: ".$e->getMessage());
             }
         } else {
-            // Si Cisco no provee stateChangeTime (común en TALKING),
+            // Si Cisco no provee stateChangeTime (común en TALKING o errores transitorios),
             // conservamos la fecha que ya estaba en la base de datos para no reiniciar el cronómetro a 0.
-            if ($existingState && $existingState->current_state === $state) {
+            if ($existingState && strtoupper((string) $existingState->current_state) === $state && strtoupper((string) ($existingState->reason_code ?? '')) === ($reasonCode ?? '')) {
                 $lastChangedAt = Carbon::parse($existingState->last_changed_at)->utc();
-            } elseif ($existingState && $state === 'TALKING' && isset($dialogInfo['start_time'])) {
-                // Si tienes la hora de inicio de la llamada desde el dialog, podrías usarla,
-                // de lo contrario usamos la hora actual (primer segundo de la llamada).
-                $lastChangedAt = now()->utc();
             }
         }
 
@@ -203,7 +209,7 @@ class CiscoSyncCommand extends Command implements Isolatable
                     'state_change_time_original' => $stateChangeTime,
                     'last_sync_at' => now()->utc()->toIso8601String(),
                     'parsed_at_utc' => $lastChangedAt->toIso8601String(),
-                    'call_info' => $dialogInfo, // Inyectar info de la llamada
+                    'call_info' => $dialogInfo,
                 ])),
                 'updated_at' => now(),
             ]

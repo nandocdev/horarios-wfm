@@ -154,7 +154,7 @@ class CiscoSync implements ShouldQueue
      */
     protected function updateAgentRealtimeState(int $employeeId, string $externalId, array $data, array $dialogInfo = []): void
     {
-        $state = $data['state'] ?? 'UNKNOWN';
+        $state = strtoupper($data['state'] ?? 'UNKNOWN');
         $reasonCode = $data['reasonCode'] ?? null;
         $stateChangeTime = $data['stateChangeTime'] ?? null;
 
@@ -162,12 +162,27 @@ class CiscoSync implements ShouldQueue
             $reasonCode = $reasonCode['label'] ?? ($reasonCode['id'] ?? 'N/A');
         }
 
+        if ($reasonCode !== null) {
+            $reasonCode = strtoupper((string) $reasonCode);
+        }
+
         $lastChangedAt = now()->utc();
+
+        // Obtener el estado previo para preservar el tiempo si no hay stateChangeTime
+        $existingState = DB::table('agent_realtime_states')->where('employee_id', $employeeId)->first();
+
         if ($stateChangeTime) {
             try {
                 $lastChangedAt = Carbon::parse($stateChangeTime)->utc();
+                if ($lastChangedAt->isFuture()) {
+                    $lastChangedAt = now()->utc();
+                }
             } catch (\Exception $e) {
                 Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: ".$e->getMessage());
+            }
+        } else {
+            if ($existingState && strtoupper((string) $existingState->current_state) === $state && strtoupper((string) ($existingState->reason_code ?? '')) === ($reasonCode ?? '')) {
+                $lastChangedAt = Carbon::parse($existingState->last_changed_at)->utc();
             }
         }
 

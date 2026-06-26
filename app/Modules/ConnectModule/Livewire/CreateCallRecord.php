@@ -13,6 +13,7 @@ use App\Modules\ConnectModule\Models\CaseSubtype;
 use App\Modules\ConnectModule\Models\Channel;
 use App\Modules\ConnectModule\Services\CitizenValidationService;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -174,6 +175,64 @@ class CreateCallRecord extends Component
             ->get();
     }
 
+    #[Computed]
+    public function qualityCapsules(): array
+    {
+        $queueId = (int) $this->form->queue_id;
+        
+        $capsules = [
+            'general' => [
+                ['title' => 'Empatía en la Atención', 'content' => 'Recuerda sonreír y usar un tono de voz empático en cada interacción.', 'icon' => 'heart'],
+                ['title' => 'Tiempos de Resolución', 'content' => 'Intenta mantener la llamada por debajo de 3 minutos sin sacrificar calidad.', 'icon' => 'clock'],
+                ['title' => 'Validación de Identidad', 'content' => 'Siempre confirma los datos del asegurado/beneficiario antes de brindar información.', 'icon' => 'shield-check'],
+            ],
+            1 => [
+                ['title' => 'Citas Médicas', 'content' => 'Verifica la disponibilidad en el sistema antes de cancelar una cita previa.', 'icon' => 'calendar'],
+                ['title' => 'Recordatorio', 'content' => 'Ofrece al paciente enviar el comprobante de cita por correo electrónico.', 'icon' => 'envelope'],
+            ],
+            2 => [
+                ['title' => 'Soporte Técnico', 'content' => 'Asegúrate de registrar el código de error exacto mencionado por el usuario.', 'icon' => 'wrench'],
+                ['title' => 'Escalamiento', 'content' => 'Si no resuelves en 5 minutos, escala el caso a nivel 2 usando el ticket.', 'icon' => 'arrow-up-circle'],
+            ]
+        ];
+
+        return $capsules[$queueId] ?? $capsules['general'];
+    }
+
+    #[Computed]
+    public function callScript(): array
+    {
+        $queueId = (int) $this->form->queue_id;
+
+        $scripts = [
+            'general' => [
+                'Saludo inicial: "Gracias por llamar, le atiende [Tu Nombre], ¿con quién tengo el gusto?"',
+                'Escuchar activamente el motivo de la llamada.',
+                'Validar número de cédula o identificación en el sistema.',
+                'Brindar información o realizar la gestión solicitada.',
+                'Preguntar: "¿Hay algo más en lo que pueda ayudarle hoy?"',
+                'Despedida estándar e invitarlos a usar los canales digitales.',
+            ],
+            1 => [
+                'Saludo inicial: "Centro de Contacto, le atiende [Tu Nombre], ¿en qué le puedo asistir?"',
+                'Solicitar número de cédula para validar asegurado/beneficiario.',
+                'Consultar especialidad y centro de atención deseado.',
+                'Buscar disponibilidad y ofrecer fechas.',
+                'Confirmar la cita y generar número de control.',
+                'Despedida recordando el tiempo de antelación para la cita.',
+            ],
+            2 => [
+                'Saludo técnico: "Soporte Técnico, soy [Tu Nombre], ¿cuál es su incidencia?"',
+                'Solicitar datos de la terminal y ubicación.',
+                'Realizar diagnóstico de primer nivel (ping, reinicio).',
+                'Solucionar o documentar los pasos realizados en el ticket.',
+                'Brindar número de ticket al usuario.',
+            ]
+        ];
+
+        return $scripts[$queueId] ?? $scripts['general'];
+    }
+
     public function render()
     {
         $subtypes = CaseSubtype::when($this->form->queue_id, fn ($query) => $query->byQueue($this->form->queue_id))
@@ -189,6 +248,8 @@ class CreateCallRecord extends Component
             'queues' => $queues,
             'channels' => Channel::active()->orderBy('name')->get(),
             'history' => $this->history,
+            'qualityCapsules' => $this->qualityCapsules(),
+            'callScript' => $this->callScript(),
         ])->layout('layouts.app');
     }
 }

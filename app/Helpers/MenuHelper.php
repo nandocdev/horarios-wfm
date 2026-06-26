@@ -287,6 +287,13 @@ class MenuHelper {
                         'icon' => 'book-open',
                     ],
                     [
+                        'label' => __('Base de Conocimiento'),
+                        'route' => 'knowledge.admin',
+                        'pattern' => 'admin/knowledge*',
+                        'permission' => 'knowledge.manage',
+                        'icon' => 'academic-cap',
+                    ],
+                    [
                         'label' => __('Usuarios'),
                         'route' => 'users.index',
                         'pattern' => 'admin/users*',
@@ -431,14 +438,6 @@ class MenuHelper {
                 'icon' => 'chat-bubble-left-right',
                 'permission' => 'menu.communications',
                 'submenu' => [
-
-                    [
-                        'label' => __('Base de Conocimiento'),
-                        'route' => 'knowledge.admin',
-                        'pattern' => 'admin/knowledge*',
-                        'permission' => 'knowledge.manage',
-                        'icon' => 'academic-cap',
-                    ],
                     [
                         'label' => __('Noticias'),
                         'route' => 'communications.news.index',

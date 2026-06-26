@@ -9,6 +9,39 @@
         </flux:button>
     </div>
 
+    {{-- Cápsulas de Calidad (Slider) --}}
+    @if(count($qualityCapsules) > 0)
+    <div x-data="{ current: 0, count: {{ count($qualityCapsules) }} }" 
+         x-init="setInterval(() => { current = (current + 1) % count }, 8000)" 
+         class="w-full relative overflow-hidden rounded-xl border border-blue-200 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/10">
+        <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${current * 100}%)`">
+            @foreach($qualityCapsules as $index => $capsule)
+            <div class="w-full flex-shrink-0 p-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0 p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg">
+                        <flux:icon icon="{{ $capsule['icon'] }}" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div class="flex-1">
+                        <flux:heading size="sm" class="text-blue-800 dark:text-blue-300">{{ $capsule['title'] }}</flux:heading>
+                        <flux:text size="sm" class="text-blue-700/80 dark:text-blue-400/80">{{ $capsule['content'] }}</flux:text>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        
+        {{-- Controles del slider --}}
+        <div class="absolute bottom-2 right-4 flex items-center gap-1.5">
+            @foreach($qualityCapsules as $index => $capsule)
+                <button @click="current = {{ $index }}" 
+                        class="h-1.5 rounded-full transition-all duration-300"
+                        :class="current === {{ $index }} ? 'w-4 bg-blue-500' : 'w-1.5 bg-blue-200 dark:bg-blue-800'">
+                </button>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {{-- Formulario --}}
         <div class="lg:col-span-2">
@@ -103,6 +136,31 @@
                     </div>
                 </div>
             </flux:card>
+
+            {{-- Script de Llamada --}}
+            @if(count($callScript) > 0)
+            <flux:card class="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800">
+                <div class="flex items-center gap-2 mb-4">
+                    <flux:icon icon="clipboard-document-list" size="sm" class="text-zinc-500" />
+                    <flux:heading size="sm">Script de Atención</flux:heading>
+                </div>
+                
+                <div class="space-y-3" x-data="{ checked: [] }">
+                    @foreach($callScript as $index => $step)
+                        <div class="flex items-start gap-3 group">
+                            <div class="pt-0.5">
+                                <flux:checkbox wire:key="script-step-{{ $index }}" x-model="checked" value="{{ $index }}" id="step-{{ $index }}" />
+                            </div>
+                            <label for="step-{{ $index }}" 
+                                   class="text-sm cursor-pointer select-none transition-colors duration-200" 
+                                   :class="checked.includes('{{ $index }}') ? 'line-through text-zinc-400 dark:text-zinc-500' : 'text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100'">
+                                {{ $step }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </flux:card>
+            @endif
 
             {{-- Validación de Derechos --}}
             @if($citizenData)

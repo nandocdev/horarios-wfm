@@ -92,7 +92,8 @@
                                                     <div class="flex flex-col gap-0.5">
                                                         <span class="text-xs font-semibold">{{ $startTime }} - {{ $endTime }}</span>
                                                         @if($assignment->schedule)
-                                                            <span class="text-[9px] text-zinc-500 uppercase">{{ $assignment->schedule->name }}</span>
+                                                            <span
+                                                                class="text-[9px] text-zinc-500 uppercase">{{ $assignment->schedule->name }}</span>
                                                         @endif
                                                     </div>
                                                 @else
@@ -136,12 +137,12 @@
                                 </div>
                             </div>
                             <flux:badge size="sm" :variant="match($swap->status) {
-                                        'pending' => 'warning',
-                                        'accepted' => 'success',
-                                        'approved' => 'primary',
-                                        'rejected' => 'danger',
-                                        default => 'zinc'
-                                    }">
+                                            'pending' => 'warning',
+                                            'accepted' => 'success',
+                                            'approved' => 'primary',
+                                            'rejected' => 'danger',
+                                            default => 'zinc'
+                                        }">
                                 {{ __($swap->status) }}
                             </flux:badge>
                         </div>
@@ -168,11 +169,11 @@
                                 </div>
                             </div>
                             <flux:badge size="sm" :variant="match($leave->status) {
-                                        'pending' => 'warning',
-                                        'approved' => 'success',
-                                        'rejected' => 'danger',
-                                        default => 'zinc'
-                                    }">
+                                            'pending' => 'warning',
+                                            'approved' => 'success',
+                                            'rejected' => 'danger',
+                                            default => 'zinc'
+                                        }">
                                 {{ __($leave->status) }}
                             </flux:badge>
                         </div>
@@ -216,7 +217,8 @@
                 <div class="flex gap-2 justify-end">
                     @if($incidentForm['id'])
                         <flux:spacer />
-                        <flux:button variant="danger" icon="trash" wire:click="deleteIncident" wire:confirm="{{ __('¿Estás seguro de eliminar este registro?') }}">
+                        <flux:button variant="danger" icon="trash" wire:click="deleteIncident"
+                            wire:confirm="{{ __('¿Estás seguro de eliminar este registro?') }}">
                             {{ __('Eliminar') }}
                         </flux:button>
                     @endif

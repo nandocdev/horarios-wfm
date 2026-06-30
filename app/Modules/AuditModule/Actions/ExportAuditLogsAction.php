@@ -19,15 +19,13 @@ final class ExportAuditLogsAction
         return DB::transaction(function () use ($dto) {
             return AuditLog::query()
                 ->with('user')
-                ->when($dto->search, fn ($query) => $query->where(function ($sub) use ($dto) {
-                    $sub->where('entity_type', 'ilike', "%{$dto->search}%")
-                        ->orWhere('action', 'ilike', "%{$dto->search}%")
-                        ->orWhere('ip_address', 'ilike', "%{$dto->search}%");
-                }))
-                ->when($dto->action, fn ($query) => $query->where('action', $dto->action))
-                ->when($dto->entityType, fn ($query) => $query->where('entity_type', $dto->entityType))
-                ->when($dto->dateFrom, fn ($query) => $query->whereDate('created_at', '>=', $dto->dateFrom))
-                ->when($dto->dateTo, fn ($query) => $query->whereDate('created_at', '<=', $dto->dateTo))
+                ->filter([
+                    'search' => $dto->search,
+                    'action' => $dto->action,
+                    'entity_type' => $dto->entityType,
+                    'date_from' => $dto->dateFrom,
+                    'date_to' => $dto->dateTo,
+                ])
                 ->orderByDesc('created_at')
                 ->get();
         });

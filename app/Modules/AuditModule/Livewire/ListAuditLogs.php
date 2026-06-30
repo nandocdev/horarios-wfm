@@ -25,6 +25,10 @@ class ListAuditLogs extends Component
 
     public int $perPage = 20;
 
+    public bool $showDetailModal = false;
+
+    public ?AuditLog $selectedLog = null;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'action' => ['except' => ''],
@@ -68,15 +72,13 @@ class ListAuditLogs extends Component
     {
         return AuditLog::query()
             ->with('user')
-            ->when($this->search, function (Builder $query) {
-                $query->where('entity_type', 'ilike', "%{$this->search}%")
-                    ->orWhere('action', 'ilike', "%{$this->search}%")
-                    ->orWhere('ip_address', 'ilike', "%{$this->search}%");
-            })
-            ->when($this->action, fn (Builder $query) => $query->where('action', $this->action))
-            ->when($this->entityType, fn (Builder $query) => $query->where('entity_type', $this->entityType))
-            ->when($this->dateFrom, fn (Builder $query) => $query->whereDate('created_at', '>=', $this->dateFrom))
-            ->when($this->dateTo, fn (Builder $query) => $query->whereDate('created_at', '<=', $this->dateTo))
+            ->filter([
+                'search' => $this->search,
+                'action' => $this->action,
+                'entity_type' => $this->entityType,
+                'date_from' => $this->dateFrom,
+                'date_to' => $this->dateTo,
+            ])
             ->orderByDesc('created_at');
     }
 
@@ -92,6 +94,18 @@ class ListAuditLogs extends Component
         ]);
 
         return redirect()->to(route('audit.export').'?'.$params);
+    }
+
+    public function showDetail(int $logId): void
+    {
+        $this->selectedLog = AuditLog::with('user')->findOrFail($logId);
+        $this->showDetailModal = true;
+    }
+
+    public function closeDetail(): void
+    {
+        $this->showDetailModal = false;
+        $this->selectedLog = null;
     }
 
     public function render()

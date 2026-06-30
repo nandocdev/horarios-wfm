@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\AuditModule\Listeners;
 
 use App\Modules\AuditModule\Models\AuditLog;
-use App\Modules\WfmModule\Events\LeaveRequestDecision;
+use App\Shared\Events\LeaveRequestDecision;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class AuditLeaveRequestDecisionListener implements ShouldQueue
@@ -17,11 +17,14 @@ class AuditLeaveRequestDecisionListener implements ShouldQueue
         AuditLog::create([
             'entity_type' => get_class($leave),
             'entity_id' => $leave->id ?? null,
-            'action' => 'leave_request.decision',
+            'action' => 'leave_request.'.$event->status,
             'before' => null,
-            'after' => array_merge($leave->toArray() ?? [], ['decision' => $event->decision]),
-            'ip_address' => request()?->ip(),
-            'user_id' => $event->approverId,
+            'after' => array_merge($leave?->toArray() ?? [], [
+                'decision' => $event->status,
+                'reason' => $event->reason,
+            ]),
+            'ip_address' => null,
+            'user_id' => $event->decidedByUserId,
         ]);
     }
 }

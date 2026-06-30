@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\AuditModule\Listeners;
 
 use App\Modules\AuditModule\Models\AuditLog;
-use App\Modules\WfmModule\Events\LeaveRequestCreated;
+use App\Shared\Events\LeaveRequestCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class AuditLeaveRequestCreatedListener implements ShouldQueue
@@ -19,9 +19,9 @@ class AuditLeaveRequestCreatedListener implements ShouldQueue
             'entity_id' => $leave->id ?? null,
             'action' => 'leave_request.created',
             'before' => null,
-            'after' => $leave->toArray() ?? null,
-            'ip_address' => request()?->ip(),
-            'user_id' => $leave->employee_id ?? auth()->id(),
+            'after' => $leave?->toArray(),
+            'ip_address' => null,
+            'user_id' => $event->requestedByUserId,
         ]);
     }
 }

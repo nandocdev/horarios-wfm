@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\AuditModule\Listeners;
 
 use App\Modules\AuditModule\Models\AuditLog;
-use App\Modules\WfmModule\Events\ShiftSwapApproved;
+use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class AuditShiftSwapApprovedListener implements ShouldQueue
@@ -19,8 +19,8 @@ class AuditShiftSwapApprovedListener implements ShouldQueue
             'entity_id' => $swap->id ?? null,
             'action' => 'shift_swap.approved',
             'before' => null,
-            'after' => $swap->toArray() ?? null,
-            'ip_address' => request()?->ip(),
+            'after' => $swap?->toArray(),
+            'ip_address' => null,
             'user_id' => $event->approverId,
         ]);
     }

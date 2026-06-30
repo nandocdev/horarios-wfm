@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\AuditModule\Listeners;
 
 use App\Modules\AuditModule\Models\AuditLog;
-use App\Modules\WfmModule\Events\WeeklySchedulePublished;
+use App\Shared\Events\WeeklySchedulePublished;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class AuditWeeklySchedulePublishedListener implements ShouldQueue
@@ -19,8 +19,8 @@ class AuditWeeklySchedulePublishedListener implements ShouldQueue
             'entity_id' => $weekly->id ?? null,
             'action' => 'weekly_schedule.published',
             'before' => null,
-            'after' => $weekly->toArray() ?? null,
-            'ip_address' => request()?->ip(),
+            'after' => $weekly?->toArray(),
+            'ip_address' => null,
             'user_id' => $event->publishedByUserId,
         ]);
     }

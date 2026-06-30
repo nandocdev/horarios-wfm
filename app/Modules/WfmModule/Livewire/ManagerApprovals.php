@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\WorkflowsModule\Models\LeaveRequest;
 use App\Modules\WorkflowsModule\Models\LeaveRequestApproval;
+use App\Shared\Events\LeaveRequestDecision;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -44,6 +45,8 @@ class ManagerApprovals extends Component
             $leave->update(['status' => 'approved']);
         });
 
+        LeaveRequestDecision::dispatch($leave, 'approved', auth()->id(), $comment);
+
         \Flux::toast('Permiso aprobado correctamente.', variant: 'success');
     }
 
@@ -75,6 +78,8 @@ class ManagerApprovals extends Component
 
             $leave->update(['status' => 'rejected']);
         });
+
+        LeaveRequestDecision::dispatch($leave, 'rejected', auth()->id(), $comment);
 
         \Flux::toast('Permiso rechazado.');
     }

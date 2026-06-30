@@ -12,6 +12,7 @@ class LeaveRequestCreated
     use Dispatchable, SerializesModels;
 
     public function __construct(
-        public mixed $leaveRequest
+        public mixed $leaveRequest,
+        public int|string $requestedByUserId,
     ) {}
 }

@@ -7,6 +7,7 @@ namespace App\Modules\WfmModule\Livewire;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WorkflowsModule\Models\LeaveRequest;
+use App\Shared\Events\LeaveRequestCreated;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -112,7 +113,7 @@ class RequestLeave extends Component
             return;
         }
 
-        LeaveRequest::create([
+        $leave = LeaveRequest::create([
             'employee_id' => $employee->id,
             'type' => $this->type,
             'start_time' => $start,
@@ -121,6 +122,8 @@ class RequestLeave extends Component
             'status' => 'pending',
             'reason' => $this->reason,
         ]);
+
+        LeaveRequestCreated::dispatch($leave, auth()->id());
 
         $typeLabel = $this->type === 'quarterly' ? 'trimestral' : 'compensatorio';
         \Flux::toast("Solicitud de permiso {$typeLabel} enviada al jefe inmediato.");

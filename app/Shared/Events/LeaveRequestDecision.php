@@ -14,6 +14,7 @@ class LeaveRequestDecision
     public function __construct(
         public mixed $leaveRequest,
         public string $status,
-        public ?string $reason = null
+        public int|string $decidedByUserId,
+        public ?string $reason = null,
     ) {}
 }

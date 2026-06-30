@@ -9,6 +9,7 @@ use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Notifications\SwapRequestNotification;
 use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -140,7 +141,8 @@ class RequestShiftSwap extends Component
             'recipient_assignment_snapshot' => $this->recipientAssignment->toArray(),
         ]);
 
-        // Notificar al destinatario
+        ShiftSwapRequested::dispatch($swapRequest);
+
         if ($recipient->user) {
             $recipient->user->notify(new SwapRequestNotification($swapRequest));
         }

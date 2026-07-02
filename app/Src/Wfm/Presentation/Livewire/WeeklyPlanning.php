@@ -52,7 +52,7 @@ class WeeklyPlanning extends Component
 
     public function render()
     {
-        return view('wfm::livewire.weekly-planning', [
+        return view('wfm-src::livewire.weekly-planning', [
             'weeks' => EloquentWeeklySchedule::withCount('assignments')
                 ->latest('week_start_date')
                 ->paginate(10),

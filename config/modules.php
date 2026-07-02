@@ -26,6 +26,7 @@ return [
         App\Src\TimeAndAttendance\Infrastructure\Providers\TimeAndAttendanceServiceProvider::class,
         App\Src\Workflows\Infrastructure\Providers\WorkflowsServiceProvider::class,
         App\Src\Knowledge\Infrastructure\Providers\KnowledgeServiceProvider::class,
+        App\Src\Quality\Infrastructure\Providers\QualityServiceProvider::class,
 
         // Legacy module providers
         ModuleServiceProvider::class,

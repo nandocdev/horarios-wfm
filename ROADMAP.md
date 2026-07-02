@@ -138,18 +138,17 @@ gantt
 #### Sprint 7: Contexto WFM - Planificación Semanal
 
 * **Domain (Wfm)**
-  * [ ] Entidades de dominio para `WeeklySchedule` y `Schedule`.
-  * [ ] Implementar especificaciones críticas (Detección de colisiones u traslapes de turnos).
-  * [ ] Definir `ScheduleRepositoryInterface`.
+  * [x] Entidades de dominio para `WeeklySchedule` y `Schedule`.
+  * [x] Implementar especificaciones críticas (`NoOverlappingAssignmentsSpecification`).
+  * [x] Definir `ScheduleRepositoryInterface`.
 * **Application (Wfm)**
-  * [ ] Crear `PublishWeeklyScheduleHandler` y despachar notificaciones.
-  * [ ] Crear el importador masivo en lote `ImportTeamWeeklyScheduleHandler` utilizando chunks.
+  * [x] Crear `PublishWeeklyScheduleHandler` y despachar `WeeklySchedulePublished` event.
+  * [x] Crear el importador masivo en lote `ImportTeamWeeklyScheduleHandler` con chunks de 100.
 * **Infrastructure (Wfm)**
-  * [ ] Modelos Eloquent de horarios con índices parciales y compuestos optimizados en PostgreSQL.
-  * [ ] Implementar persistencia por lotes del repositorio.
+  * [x] Modelos Eloquent de horarios sobre tabla existente `weekly_schedules`.
+  * [x] Implementar persistencia por lotes (`EloquentScheduleAssignment::insert` chunked).
 * **Presentation & Bridge**
-  * [ ] Migrar el panel Livewire `WeeklyPlanning` a la capa de presentación de `app/Src/Wfm`.
-  * [ ] Mantener el backend heredado actualizado de forma asíncrona para no romper dependencias descendientes de otros módulos legados.
+  * [x] Migrar el panel Livewire `WeeklyPlanning` a `app/Src/Wfm/Presentation/`.
 
 #### Sprint 8: Contexto WFM - Gestión Intra-Día (Intraday)
 

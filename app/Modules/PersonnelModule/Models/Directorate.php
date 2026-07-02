@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Models;
 
-use App\Modules\CoreModule\Concerns\Auditable;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 

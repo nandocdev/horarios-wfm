@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\CoreModule\Models;
 
-use App\Modules\CoreModule\Concerns\Auditable;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\Traits\Auditable;
 use App\Modules\CoreModule\Notifications\ResetPasswordNotification;
 use App\Modules\PersonnelModule\Models\Employee;
 use Database\Factories\UserFactory;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Models;
 
-use App\Modules\CoreModule\Concerns\Auditable;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\Traits\Auditable;
 use Database\Factories\Modules\PersonnelModule\Models\TeamFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

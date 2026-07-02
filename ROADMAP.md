@@ -230,12 +230,13 @@ gantt
 #### Sprint 14: Contexto Quality - Auditoría de Llamadas
 
 * **Domain (Quality)**
-  * [ ] Entidad `EvaluationForm`, `EvaluationCriteria` y `AgentEvaluation`.
-  * [ ] Implementar la regla de negocio de anulación por Errores Críticos (Fatal Errors).
+  * [x] Entidades `EvaluationForm`, `EvaluationCriteria` y `AgentEvaluation` (con máquina de estados draft→completed→disputed→void).
+  * [x] Regla de negocio `FatalErrorRuleService`: si cualquier criterio marcado como error crítico tiene score 0, la evaluación se anula (score=0, status=void).
 * **Application (Quality)**
-  * [ ] Crear el flujo de justificación y apelación de notas (`DisputeRequest`).
+  * [x] `SubmitEvaluationHandler` con cálculo de score ponderado + aplicación de fatal error.
+  * [x] `RaiseDisputeHandler` para apelación de notas.
 * **Presentation**
-  * [ ] Migrar el reproductor de llamadas interactivo con llenado de rúbrica a Livewire.
+  * [x] `AgentEvaluationForm` Livewire con selector de formulario, rúbrica dinámica y puntaje por criterio.
 
 #### Sprint 15: Contexto Analytics - Procesamiento de KPIs
 

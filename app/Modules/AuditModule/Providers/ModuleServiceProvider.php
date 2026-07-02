@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Modules\AuditModule\Providers;
 
-use App\Modules\AuditModule\Console\Commands\AuditPruneCommand;
-use App\Modules\AuditModule\Listeners\AuditLeaveRequestCreatedListener;
-use App\Modules\AuditModule\Listeners\AuditLeaveRequestDecisionListener;
-use App\Modules\AuditModule\Listeners\AuditShiftSwapApprovedListener;
-use App\Modules\AuditModule\Listeners\AuditWeeklySchedulePublishedListener;
-use App\Modules\AuditModule\Livewire\ListAuditLogs;
-use App\Modules\AuditModule\Models\AuditLog;
-use App\Modules\AuditModule\Policies\AuditLogPolicy;
+use App\Modules\AuditModule\Domain\Repositories\AuditLogRepository;
+use App\Modules\AuditModule\Infrastructure\Console\Commands\AuditPruneCommand;
+use App\Modules\AuditModule\Infrastructure\Listeners\LogLeaveRequestCreatedListener;
+use App\Modules\AuditModule\Infrastructure\Listeners\LogLeaveRequestDecisionListener;
+use App\Modules\AuditModule\Infrastructure\Listeners\LogShiftSwapApprovedListener;
+use App\Modules\AuditModule\Infrastructure\Listeners\LogWeeklySchedulePublishedListener;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\AuditLogModel;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\AuditLogEloquentRepository;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\Policies\AuditLogPolicy;
+use App\Modules\AuditModule\Presentation\Livewire\ListAuditLogs;
 use App\Shared\Events\LeaveRequestCreated;
 use App\Shared\Events\LeaveRequestDecision;
 use App\Shared\Events\ShiftSwapApproved;
@@ -24,6 +26,13 @@ use Livewire\Livewire;
 
 class ModuleServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->bind(AuditLogRepository::class, AuditLogEloquentRepository::class);
+
+        $this->registerCommands();
+    }
+
     public function boot(): void
     {
         $this->registerRoutes();
@@ -31,15 +40,10 @@ class ModuleServiceProvider extends ServiceProvider
         $this->registerLivewireComponents();
         $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'audit');
 
-        Event::listen(WeeklySchedulePublished::class, AuditWeeklySchedulePublishedListener::class);
-        Event::listen(LeaveRequestCreated::class, AuditLeaveRequestCreatedListener::class);
-        Event::listen(LeaveRequestDecision::class, AuditLeaveRequestDecisionListener::class);
-        Event::listen(ShiftSwapApproved::class, AuditShiftSwapApprovedListener::class);
-    }
-
-    public function register(): void
-    {
-        $this->registerCommands();
+        Event::listen(WeeklySchedulePublished::class, LogWeeklySchedulePublishedListener::class);
+        Event::listen(LeaveRequestCreated::class, LogLeaveRequestCreatedListener::class);
+        Event::listen(LeaveRequestDecision::class, LogLeaveRequestDecisionListener::class);
+        Event::listen(ShiftSwapApproved::class, LogShiftSwapApprovedListener::class);
     }
 
     private function registerCommands(): void
@@ -56,12 +60,12 @@ class ModuleServiceProvider extends ServiceProvider
         Route::middleware(['web', 'auth', 'verified'])
             ->prefix('admin/audit')
             ->name('audit.')
-            ->group(__DIR__.'/../Routes/web.php');
+            ->group(__DIR__.'/../Presentation/Routes/web.php');
     }
 
     private function registerPolicies(): void
     {
-        Gate::policy(AuditLog::class, AuditLogPolicy::class);
+        Gate::policy(AuditLogModel::class, AuditLogPolicy::class);
     }
 
     private function registerLivewireComponents(): void

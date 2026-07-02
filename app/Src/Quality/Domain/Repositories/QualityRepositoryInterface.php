@@ -8,8 +8,7 @@ use App\Src\Quality\Domain\Entities\AgentEvaluation;
 use App\Src\Quality\Domain\Entities\DisputeRequest;
 use App\Src\Quality\Domain\Entities\EvaluationForm;
 
-interface QualityRepositoryInterface
-{
+interface QualityRepositoryInterface {
     public function saveForm(EvaluationForm $form): EvaluationForm;
     public function findFormById(int $id): ?EvaluationForm;
     public function findAllForms(): array;

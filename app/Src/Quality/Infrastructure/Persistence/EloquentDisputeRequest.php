@@ -6,8 +6,7 @@ namespace App\Src\Quality\Infrastructure\Persistence;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EloquentDisputeRequest extends Model
-{
+class EloquentDisputeRequest extends Model {
     protected $table = 'quality_dispute_requests';
 
     protected $fillable = [

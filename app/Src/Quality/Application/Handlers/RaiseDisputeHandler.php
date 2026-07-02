@@ -8,14 +8,13 @@ use App\Src\Quality\Application\DTOs\RaiseDisputeDTO;
 use App\Src\Quality\Domain\Entities\DisputeRequest;
 use App\Src\Quality\Domain\Repositories\QualityRepositoryInterface;
 
-final class RaiseDisputeHandler
-{
+final class RaiseDisputeHandler {
     public function __construct(
         private QualityRepositoryInterface $repository,
-    ) {}
+    ) {
+    }
 
-    public function handle(RaiseDisputeDTO $dto): DisputeRequest
-    {
+    public function handle(RaiseDisputeDTO $dto): DisputeRequest {
         $evaluation = $this->repository->findEvaluationById($dto->evaluationId);
 
         if ($evaluation === null) {

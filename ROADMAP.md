@@ -215,9 +215,11 @@ gantt
 #### Sprint 13: Contexto Knowledge - Base de Datos Documental
 
 * **Domain & Application (Knowledge)**
-  * [ ] Consolidar la lógica del editor de artículos de ayuda (`Documentation` + `Knowledge`).
+  * [x] Consolidar lógica de artículos: entidad `Article` con título, slug, contenido, categoría, versión, estados (draft/review/published/archived), tags y colas.
+  * [x] `CreateArticleHandler` con persistencia transaccional y sync de tags/queues.
+  * [x] `SearchArticlesHandler` con filtros por texto, categoría y tag.
 * **Presentation**
-  * [ ] Migrar el buscador inteligente de ayuda interna.
+  * [x] `ArticleSearch` Livewire con búsqueda en tiempo real (debounce), filtro por categoría y grid de resultados.
 
 ---
 

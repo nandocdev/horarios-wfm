@@ -23,6 +23,7 @@ return [
         App\Src\HumanResources\Infrastructure\Providers\HumanResourcesServiceProvider::class,
         App\Src\Connect\Infrastructure\Providers\ConnectServiceProvider::class,
         App\Src\Wfm\Infrastructure\Providers\WfmServiceProvider::class,
+        App\Src\TimeAndAttendance\Infrastructure\Providers\TimeAndAttendanceServiceProvider::class,
 
         // Legacy module providers
         ModuleServiceProvider::class,

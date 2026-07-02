@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace App\Src\Identity\Domain\ValueObjects;
 
-final class IdentityRole
-{
+final class IdentityRole {
     public function __construct(
         private readonly string $name,
         private readonly string $code,
         private readonly int $hierarchyLevel,
         private readonly string $guardName = 'web',
-    ) {}
+    ) {
+    }
 
-    public static function fromArray(array $data): self
-    {
+    public static function fromArray(array $data): self {
         return new self(
             name: $data['name'],
             code: strtoupper($data['code'] ?? $data['name']),
@@ -23,28 +22,23 @@ final class IdentityRole
         );
     }
 
-    public function name(): string
-    {
+    public function name(): string {
         return $this->name;
     }
 
-    public function code(): string
-    {
+    public function code(): string {
         return $this->code;
     }
 
-    public function hierarchyLevel(): int
-    {
+    public function hierarchyLevel(): int {
         return $this->hierarchyLevel;
     }
 
-    public function guardName(): string
-    {
+    public function guardName(): string {
         return $this->guardName;
     }
 
-    public function toArray(): array
-    {
+    public function toArray(): array {
         return [
             'name' => $this->name,
             'code' => $this->code,

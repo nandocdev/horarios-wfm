@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Modules\AuditModule\Models\AuditLog;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\AuditLogModel;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AuditLogFactory extends Factory
 {
-    protected $model = AuditLog::class;
+    protected $model = AuditLogModel::class;
 
     public function definition()
     {

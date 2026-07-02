@@ -83,24 +83,24 @@
     </flux:card>
 
     <flux:modal wire:model="showDetailModal" class="md:min-w-[45rem] space-y-6">
-        @if($selectedLog)
+        @if($selectedLogData)
             <div>
                 <flux:heading size="lg">Detalle de Cambio</flux:heading>
-                <flux:subheading>{{ $selectedLog->created_at->format('Y-m-d H:i:s') }} —
-                    {{ class_basename($selectedLog->entity_type) }} #{{ $selectedLog->entity_id }}</flux:subheading>
+                <flux:subheading>{{ $selectedLogData['created_at'] }} —
+                    {{ class_basename($selectedLogData['entity_type']) }} #{{ $selectedLogData['entity_id'] }}</flux:subheading>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Acción</span>
-                    <flux:badge size="sm" color="{{ match($selectedLog->action) { 'created' => 'emerald', 'updated' => 'indigo', 'deleted' => 'rose', default => 'zinc' } }}" inset="top">
-                        {{ strtoupper($selectedLog->action) }}
+                    <flux:badge size="sm" color="{{ match($selectedLogData['action']) { 'created' => 'emerald', 'updated' => 'indigo', 'deleted' => 'rose', default => 'zinc' } }}" inset="top">
+                        {{ strtoupper($selectedLogData['action']) }}
                     </flux:badge>
                 </div>
                 <div class="space-y-1">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Usuario</span>
-                    <p class="text-sm">{{ $selectedLog->user?->name ?? 'Sistema' }}</p>
-                    <p class="text-xs text-zinc-400">IP: {{ $selectedLog->ip_address ?? 'N/A' }}</p>
+                    <p class="text-sm">{{ $selectedLogData['user_id'] ? 'Usuario #'.$selectedLogData['user_id'] : 'Sistema' }}</p>
+                    <p class="text-xs text-zinc-400">IP: {{ $selectedLogData['ip_address'] ?? 'N/A' }}</p>
                 </div>
             </div>
 
@@ -108,8 +108,8 @@
                 <div class="space-y-2">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Valores Anteriores (before)</span>
                     <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border overflow-auto max-h-64">
-                        @if($selectedLog->before)
-                            <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLog->before, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                        @if($selectedLogData['before'])
+                            <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLogData['before'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                         @else
                             <p class="text-xs text-zinc-400 italic">Sin datos previos</p>
                         @endif
@@ -118,8 +118,8 @@
                 <div class="space-y-2">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Valores Nuevos (after)</span>
                     <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border overflow-auto max-h-64">
-                        @if($selectedLog->after)
-                            <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLog->after, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+                        @if($selectedLogData['after'])
+                            <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLogData['after'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                         @else
                             <p class="text-xs text-zinc-400 italic">Sin datos nuevos</p>
                         @endif

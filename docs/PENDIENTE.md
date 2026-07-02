@@ -5,7 +5,7 @@
 1. Ruta legacy admin/audit sigue activa en config/modules.php (convivencia Strangler Fig). Cuando se quiera migrar por completo, se actualiza el redirect en web.php global o se reemplaza la ruta legacy.
 2. Listener para Src DDD events está comentado en el provider (AuditSrcWeeklySchedulePublishedListener). Descomentar cuando el contexto Src/Wfm esté activo en producción.
 3. Tests para app/Src/Platform — existen 66 tests para el módulo legacy. Faltan tests unitarios para los handlers/DTOs/entities nuevos.
-Las rutas nuevas están en admin/platform/audit (sin conflicto con las legacy en admin/audit).
+Las rutas nuevas están en admin/platform/audit (sin conflicto con las legacy en admin/audit).ringing
 
 ## CommunicationsModule
 

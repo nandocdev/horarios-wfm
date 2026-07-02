@@ -72,10 +72,11 @@ gantt
 #### Sprint 3: Contexto Identity - Presentación & Redirección
 
 * **Presentation (Identity)**
-  * [ ] Crear rutas de autenticación en `app/Src/Identity/Presentation/Routes/web.php`.
-  * [ ] Diseñar el controlador de Login y adaptarlo al frontend del legado.
-  * [ ] Crear componentes Livewire de administración en `app/Src/Identity/Presentation/Livewire/ManageUsers.php`.
+  * [x] Crear rutas de administración en `app/Src/Identity/Presentation/Routes/web.php`.
+  * [x] Diseñar el controlador de Login y adaptarlo al frontend del legado.
+  * [x] Crear componentes Livewire de administración en `app/Src/Identity/Presentation/Livewire/ManageUsers.php`.
 * **Legacy Bridge**
+  * [ ] Puente completo de autenticación pendiente de definir estrategia de migración gradual (Strangler Fig).
   * [ ] Reconfigurar `config/auth.php` para apuntar al nuevo modelo de usuario de `app/Src/`.
   * [ ] Asegurar que las llamadas heredadas a `Auth::user()` devuelvan de forma segura el modelo del puente o la base del framework sin romper vistas antiguas de Blade.
   * [ ] Validar en producción la entrega continua de la autenticación.

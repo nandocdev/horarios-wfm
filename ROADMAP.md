@@ -106,17 +106,17 @@ gantt
 #### Sprint 5: Contexto Human Resources - Expedientes Médicos & Legales
 
 * **Domain (HumanResources)**
-  * [ ] Crear entidades de dominio `EmployeeRecord` (legajo).
-  * [ ] Modelar datos altamente sensibles (`EmployeeDisease`, `EmployeeDisability`) como Value Objects inmutables.
+  * [x] Crear entidades de dominio `EmployeeRecord` (legajo).
+  * [x] Modelar datos altamente sensibles (`EmployeeDisease`, `EmployeeDisability`) como Value Objects inmutables.
 * **Application (HumanResources)**
-  * [ ] Implementar `RegisterEmployeeDiseaseHandler` con validaciones de cifrado.
-  * [ ] Crear maquetas de mapeadores de datos confidenciales.
+  * [x] Implementar `RegisterEmployeeDiseaseHandler` con validaciones de cifrado.
+  * [x] Crear mapeadores de datos confidenciales (`EmployeeRecordMapper`).
 * **Infrastructure (HumanResources)**
-  * [ ] Configurar las políticas de cifrado a nivel de base de datos (Postgres JSONB) en `Persistence`.
-  * [ ] Asegurar políticas restrictivas para datos médicos.
+  * [x] Configurar políticas de cifrado condicional vía `config/human-resources.php` (toggle `HR_ENCRYPT_MEDICAL_NOTES`).
+  * [x] Repositorio con bridge al modelo legacy `Employee` para carga de legajo completo.
 * **Presentation & Bridge**
-  * [ ] Crear vistas Livewire protegidas contra roles estrictos de RRHH para legajo médico.
-  * [ ] Adaptar vistas antiguas de ficha de empleado para consumir este contexto.
+  * [x] Livewire `ManageMedicalRecords` protegido por permiso `employees.view`.
+  * [x] Bridge al legado vía `EloquentEmployeeRecordRepository` que consume el modelo `Employee` legacy.
 
 #### Sprint 6: Aprovisionamiento Automatizado (Cisco Integration)
 

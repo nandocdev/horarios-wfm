@@ -120,14 +120,14 @@ gantt
 
 #### Sprint 6: Aprovisionamiento Automatizado (Cisco Integration)
 
-* **Domain & Application (Organization/Cisco)**
-  * [ ] Definir el puerto de integración `CiscoAprovisioningInterface`.
-  * [ ] Crear handler `SyncEmployeeWithCiscoHandler` activado por eventos organizacionales.
-* **Infrastructure (Organization/Cisco)**
-  * [ ] Implementar el cliente REST Guzzle contra la API de Cisco Finesse (`CiscoAprovisioningAdapter`).
-  * [ ] Agregar reintentos con retraso exponencial (Backoff) mediante Jobs de Laravel.
+* **Domain & Application (Connect)**
+  * [x] Definir el puerto de integración `CiscoAprovisioningInterface`.
+  * [x] Crear handler `SyncEmployeeWithCiscoHandler` activado por eventos organizacionales.
+* **Infrastructure (Connect)**
+  * [x] Implementar el cliente REST Guzzle contra la API de Cisco Finesse (`CiscoFinesseAdapter`).
+  * [x] Agregar reintentos con retraso exponencial (Backoff) mediante Jobs de Laravel.
 * **Legacy Bridge**
-  * [ ] Sustituir los antiguos despachos HTTP de `PersonnelModule` por la publicación del evento de dominio de transición.
+  * [ ] Sustituir los antiguos despachos HTTP de `PersonnelModule` por eventos de dominio (pendiente de migración completa del módulo legacy).
 
 ---
 

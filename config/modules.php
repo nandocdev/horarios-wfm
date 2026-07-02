@@ -19,6 +19,7 @@ return [
         // App/Src context providers (DDD migration)
         App\Src\Platform\Infrastructure\Providers\PlatformServiceProvider::class,
         App\Src\Identity\Infrastructure\Providers\IdentityServiceProvider::class,
+        App\Src\Organization\Infrastructure\Providers\OrganizationServiceProvider::class,
 
         // Legacy module providers
         ModuleServiceProvider::class,

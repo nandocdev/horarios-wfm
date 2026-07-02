@@ -24,6 +24,7 @@ return [
         App\Src\Connect\Infrastructure\Providers\ConnectServiceProvider::class,
         App\Src\Wfm\Infrastructure\Providers\WfmServiceProvider::class,
         App\Src\TimeAndAttendance\Infrastructure\Providers\TimeAndAttendanceServiceProvider::class,
+        App\Src\Workflows\Infrastructure\Providers\WorkflowsServiceProvider::class,
 
         // Legacy module providers
         ModuleServiceProvider::class,

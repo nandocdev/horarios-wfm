@@ -3,28 +3,20 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::table('schedule_exceptions', function (Blueprint $blueprint) {
-            $blueprint->nullableMorphs('origin'); // origin_type, origin_id
-        });
+/**
+ * MIGRACIÓN OBSOLETA — Consolidada en 2026_07_02_000001_unified_schedule_module_schema
+ *
+ * Esta migración se mantiene en el historio por compatibilidad, pero no hace nada.
+ * El campo origin_type y origin_id ya están incluidos en la tabla schedule_exceptions
+ * desde la migración unificada.
+ */
+return new class extends Migration {
+    public function up(): void {
+        // NOOP: Columnas ya creadas por migración unificada
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('schedule_exceptions', function (Blueprint $blueprint) {
-            $blueprint->dropMorphs('origin');
-        });
+    public function down(): void {
+        // NOOP: No se elimina nada aquí
     }
 };

@@ -6,8 +6,7 @@ namespace App\Src\Analytics\Infrastructure\Persistence;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EloquentAgentDailyMetric extends Model
-{
+class EloquentAgentDailyMetric extends Model {
     protected $table = 'agent_daily_metrics';
 
     protected $fillable = [

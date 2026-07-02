@@ -11,15 +11,14 @@ use App\Src\Analytics\Domain\Repositories\AnalyticsRepositoryInterface;
 use App\Src\Analytics\Domain\Services\KpiCalculationService;
 use DateTimeImmutable;
 
-final class CalculateDailyMetricsHandler
-{
+final class CalculateDailyMetricsHandler {
     public function __construct(
         private AnalyticsRepositoryInterface $repository,
         private KpiCalculationService $kpi,
-    ) {}
+    ) {
+    }
 
-    public function handle(int $employeeId, DateTimeImmutable $date): AgentDailyMetric
-    {
+    public function handle(int $employeeId, DateTimeImmutable $date): AgentDailyMetric {
         $calls = AgentCallPerformance::where('employee_id', $employeeId)
             ->whereDate('start_time', $date->format('Y-m-d'))
             ->get();

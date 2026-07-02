@@ -7,14 +7,13 @@ namespace App\Src\Analytics\Application\Handlers;
 use App\Modules\PersonnelModule\Models\Employee;
 use DateTimeImmutable;
 
-final class BatchAggregateHandler
-{
+final class BatchAggregateHandler {
     public function __construct(
         private CalculateDailyMetricsHandler $metricsHandler,
-    ) {}
+    ) {
+    }
 
-    public function handle(DateTimeImmutable $date, ?array $employeeIds = null): array
-    {
+    public function handle(DateTimeImmutable $date, ?array $employeeIds = null): array {
         $employees = $employeeIds
             ? Employee::whereIn('id', $employeeIds)->active()->get()
             : Employee::active()->get();

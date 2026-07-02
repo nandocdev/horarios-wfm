@@ -9,15 +9,12 @@ use App\Src\Analytics\Infrastructure\Console\AggregateMetricsCommand;
 use App\Src\Analytics\Infrastructure\Persistence\EloquentAnalyticsRepository;
 use Illuminate\Support\ServiceProvider;
 
-final class AnalyticsServiceProvider extends ServiceProvider
-{
-    public function register(): void
-    {
+final class AnalyticsServiceProvider extends ServiceProvider {
+    public function register(): void {
         $this->app->bind(AnalyticsRepositoryInterface::class, EloquentAnalyticsRepository::class);
     }
 
-    public function boot(): void
-    {
+    public function boot(): void {
         if ($this->app->runningInConsole()) {
             $this->commands([AggregateMetricsCommand::class]);
         }

@@ -8,10 +8,8 @@ use App\Src\Analytics\Domain\Entities\AgentDailyMetric;
 use App\Src\Analytics\Infrastructure\Persistence\EloquentAgentDailyMetric;
 use DateTimeImmutable;
 
-final class AnalyticsMapper
-{
-    public static function toDomain(EloquentAgentDailyMetric $e): AgentDailyMetric
-    {
+final class AnalyticsMapper {
+    public static function toDomain(EloquentAgentDailyMetric $e): AgentDailyMetric {
         return new AgentDailyMetric(
             id: $e->id,
             employeeId: $e->employee_id,
@@ -34,10 +32,11 @@ final class AnalyticsMapper
         );
     }
 
-    private static function toImmutable(mixed $date): DateTimeImmutable
-    {
-        if ($date instanceof DateTimeImmutable) return $date;
-        if ($date instanceof \DateTime) return DateTimeImmutable::createFromMutable($date);
+    private static function toImmutable(mixed $date): DateTimeImmutable {
+        if ($date instanceof DateTimeImmutable)
+            return $date;
+        if ($date instanceof \DateTime)
+            return DateTimeImmutable::createFromMutable($date);
         return new DateTimeImmutable((string) $date);
     }
 }

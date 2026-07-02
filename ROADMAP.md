@@ -1,236 +1,254 @@
-# 🗺️ ROADMAP DE DESARROLLO — WFM Call Center CSS (v2.0)
+# Roadmap de Migración a Modular Monolith DDD (Strangler Fig)
 
-**Proyecto:** HorariosWFM (Monolito Modular)
-**Estado:** Actualizado a Marzo 2026
-**Arquitectura:** Laravel 12 + Livewire 3 + FluxUI + PostgreSQL
-**Uso para IA:** Copiar la referencia de la tarea (ej. `UC-LRQ-01`) y pasarla al agente junto con el prompt de `new-task`.
+Este documento define el plan ordenado por fases y sprints para migrar incrementalmente el monolito modular de `app/Modules/` a la nueva arquitectura limpia en `app/Src/`.
 
----
-
-## 📊 MÉTRICAS Y ESTADO ACTUAL (Marzo 2026)
-
-* **Progreso General:** ~80% del sistema funcional (Núcleo base operativo).
-* **Testing:** Suite base completa (31 tests pasando, 72 assertions). CI/CD configurado.
-* **UI/UX:** Integración global de FluxUI y Heroicons completada. Formularios reactivos.
-* **Arquitectura:** Patrón `ModuleServiceProvider` estandarizado, Actions, DTOs, transacciones DB.
-
-### ⚠️ Deuda Técnica Global (Obligatorio para nuevas tareas IA)
-- [ ] **GLO-01 (ULIDs):** Todo nuevo modelo debe heredar de un `BaseModel` que use **ULIDs** como Primary Key, no IDs autoincrementales.
-- [ ] **GLO-02 (Performance):** Mantener `preventLazyLoading` activo. Toda consulta nueva debe usar `with()`.
-- [ ] **GLO-03 (Testing):** Todo nuevo `UC-XXX` debe incluir su respectivo Feature Test en Pest/PHPUnit.
+Cada sprint detalla las tareas por capas (`Domain`, `Application`, `Infrastructure`, `Presentation` y `Legacy Bridge`) para dar un seguimiento granular al avance.
 
 ---
 
-## 🟢 FASE 1 / SPRINTS 0-1: Foundation & Organization (Completado ✅)
+## 🗺️ Resumen de Fases y Cronograma Estimado
 
-> *Base sólida, permisos, auditoría y estructura organizativa. Integración de FluxUI.*
-
-### Módulo: Core & Organization & Geography
-- [x] UC-COR-01: Autenticación Fortify/Sanctum, Login y Rate Limiting.
-- [x] UC-COR-02: CRUD de Usuarios y SoftDeletes.
-- [x] UC-COR-03: RBAC (Spatie Permissions) jerárquico + Caché de permisos.
-- [x] UC-ORG-01: Estructura organizacional completa (Directorates → Teams).
-- [x] UC-GEO-01: Catálogo geográfico (LocationModule).
-- [ ] NA: Forzar cambio de contraseña en primer login (Implementar en Fase 2).
-
-### Módulo: Audit & Cache
-- [x] UC-AUD-01: Modelo `AuditLog` y Trait `Auditable` implementado.
-- [x] UC-AUD-02: Componente UI Livewire (FluxUI) para visor/búsqueda de logs operativos.
-  - [x] UC-AUD-02.1: Listado paginado de `audit_logs` con filtros (usuario, entidad, acción, rango de fechas).
-  - [x] UC-AUD-02.2: Acción de exportar CSV/JSON para resultados filtrados.
-  - [x] UC-AUD-02.3: Políticas de acceso `audit.view` y `audit.export` (Spatie + Gate).
-  - [x] UC-AUD-02.4: Test de integración Pest para UI y API de logs.
-- [x] UC-AUD-03: Command de retención/limpieza de logs (`audit:prune --days=...`).
-- [x] UC-CAC-01: Caché inteligente habilitado en config e invalidación en Observers.
-
----
-
-## 🟢 FASE 2 / SPRINT 2: Employees (Completado ✅)
-
-> *Núcleo del negocio. Gestión de personal y jerarquías operativas.*
-
-### Módulo: Employees
-- [x] UC-EMP-01: Modelos `Employee`, `EmploymentStatus` con jerarquía (`parent_id`).
-  - [x] UC-EMP-01.1: Relaciones completas con `Team`, `Department`, `Position` y cascada de desactivación por status.
-  - [x] UC-EMP-01.2: Índices de DB `employee(team_id, status_id, deleted_at)` y `status(parent_id)`.
-- [x] UC-EMP-02: Interfaz Livewire reactiva con filtros avanzados (búsqueda, dpto, cargo).
-  - [x] UC-EMP-02.1: Paginación server-side con `with('team','position','status')` + anti N+1 test.
-  - [x] UC-EMP-02.2: Export CSV/Excel desde UI (selected/all) y parámetros de rango de fechas.
-- [x] UC-EMP-03: Policies con scope por `team_id` y permisos granulares.
-  - [x] UC-EMP-03.1: Distintos scopes `own` vs `others` y `force_delete` solo para roles de alto privilegio.
-  - [x] UC-EMP-03.2: Policy `effectivePermissions` con role hierarchy y administrator override.
-- [x] UC-EMP-04: Importador masivo CSV. **[DEUDA TÉCNICA: Refactorizado a Chunked/Queueable para evitar memory leaks]**.
-  - [x] UC-EMP-04.1: Acción `ImportEmployeesAction` con `LazyCollection::chunk(1000)` + `DB::transaction` por chunk.
-  - [x] UC-EMP-04.2: Job/Batch en queue y reporte de filas rechazadas / inválidas.
-  - [x] UC-EMP-04.3: Manejo de duplicados, relaciones inexistentes (`position`, `team`) y rollback selectivo.
+```mermaid
+gantt
+    title Plan de Migración Arquitectónica
+    dateFormat  YYYY-MM-DD
+    section Fase 1: Cimientos
+    Shared Kernel & Platform     :done, p1_kernel, 2026-07-02, 1d
+    Contexto Identity (Domain)   :done, p1_identity_domain, after p1_kernel, 1d
+    Contexto Identity (App)      :done, p1_identity_app, after p1_identity_domain, 1d
+    Contexto Identity (Infra+Pres):active, p1_identity, after p1_identity_app, 12d
+    section Fase 2: Core Organizacional
+    Contexto Organization        :p2_org, after p1_identity, 14d
+    Contexto HumanResources      :p2_hr, after p2_org, 14d
+    section Fase 3: WFM & Asistencia
+    Contexto WFM                 :p3_wfm, after p2_hr, 21d
+    Contexto TimeAndAttendance   :p3_ta, after p3_wfm, 21d
+    section Fase 4: Operaciones y Procesos
+    Contexto Workflows           :p4_wf, after p3_ta, 14d
+    Contexto Connect             :p4_connect, after p4_wf, 14d
+    Contexto Helpdesk & Knowledge:p4_hd_k, after p4_connect, 14d
+    section Fase 5: Negocio Final
+    Contexto Quality             :p5_quality, after p4_hd_k, 14d
+    Contexto Analytics           :p5_analytics, after p5_quality, 14d
+```
 
 ---
 
-## 🔵 FASE 3 / SPRINT 3: Scheduling (Core Técnico) (En Progreso 🟡)
+## 🛠️ Desglose de Fases, Sprints y Tareas
 
-> *Módulo más complejo. Riesgo alto de consultas N+1 y solapamientos.*
+### FASE 1: Cimentación de Plataforma e Identidad (Sprints 1-3)
 
-### Objetivo general
+**Objetivo:** Establecer el núcleo compartido (Shared Kernel), configurar las herramientas globales de infraestructura e implementar el primer Bounded Context (`Identity`) redireccionando la autenticación del legado de forma transparente.
 
-Diseñar e implementar el módulo de Scheduling que reemplaza el proceso Excel, garantizando validaciones en tiempo real (no solapamientos), auditoría completa y publicación semanal automatizada.
+#### Sprint 1: Shared Kernel & Platform Bootstrapping
 
-### Entregables clave (Sprint 3)
+* **Domain (Shared / Platform)**
+  * [x] Definir clases base para `ValueObjects` abstractos (ej. `Uuid`, `Email`, `DateRange`).
+  * [x] Definir clases base para `DomainEvent` y despachadores agnósticos al framework.
+  * [x] Definir interfaces base de `Repository` y excepciones de dominio comunes.
+* **Infrastructure (Platform)**
+  * [x] Migrar el sistema de logs a `app/Src/Platform/Infrastructure/Persistence/EloquentAuditLog.php`.
+  * [x] Mudar el adaptador de almacenamiento a `app/Src/Platform/Infrastructure/Integrations/S3StorageAdapter.php`.
+  * [x] Reimplementar la pasarela de notificaciones en `app/Src/Platform/Infrastructure/Notifications/`.
+  * [x] Configurar el Service Provider global de `Platform` para registrar servicios transversales.
+* **Legacy Bridge**
+  * [x] Reemplazar las llamadas directas de `AuditLog::log` en `app/Modules/` para que apunten al nuevo `Platform/Infrastructure` usando un helper provisional.
 
-- [x] UC-SCH-01: Modelos base `Schedule`, `BreakTemplate` y `Shift` con ULIDs y casts.
-- [x] UC-SCH-02: CRUD y Actions atómicos para `BreakTemplate` (Livewire + FluxUI).
-- [x] UC-SCH-03: `ScheduleValidationService` (validaciones: start < end, contigüidad, no-solapamiento por empleado/role/puesto).
+#### Sprint 2: Contexto Identity - Dominio & Aplicación
 
-### Weekly Planning (Sprint 3 → Sprint 4)
+* **Domain (Identity)**
+  * [x] Crear la entidad de dominio `User` (PHP pura, desacoplada de Eloquent).
+  * [x] Crear Value Objects para `Password` (con reglas de hash internas), `Email` e `IdentityRole`.
+  * [x] Definir el contrato `UserRepositoryInterface`.
+  * [x] Definir eventos de dominio `UserCreated`, `UserPasswordReset`.
+* **Application (Identity)**
+  * [x] Crear DTOs para solicitudes de autenticación y registro (`LoginDTO`, `CreateUserDTO`).
+  * [x] Implementar `AuthenticateUserHandler` resolviendo la lógica de verificación de firmas.
+  * [x] Implementar `CreateUserHandler` y su correspondiente `UserMapper` (conversión Dominio <-> Eloquent).
+* **Infrastructure (Identity)**
+  * [ ] Crear el modelo Eloquent `app/Src/Identity/Infrastructure/Persistence/EloquentUser.php`.
+  * [ ] Crear la implementación concreta del repositorio `app/Src/Identity/Infrastructure/Persistence/EloquentUserRepository.php`.
 
-- [x] **UC-PRE-01:** Validación de preparación pre-planificación (PASO 1)
-  - `ValidatePreparationAction`: Sincronizar empleados activos, validar estructura de equipos y catálogo
-  - `PreparationValidationDTO`: Resultados de validación con problemas bloqueantes y warnings
-  - `PreparationValidator` Livewire: UI para mostrar estado de preparación con métricas visuales
-  - Tests feature completos y permisos `schedules.validate_preparation`
-- [ ] UC-WPL-01: Modelos `WeeklySchedule`, `WeeklyScheduleAssignment` (estructura para publicaciones semanales).
-- [x] UC-WPL-01: Modelos `WeeklySchedule`, `WeeklyScheduleAssignment` (estructura para publicaciones semanales).
-- [ ] UC-WPL-02: Constraints y migraciones: índices compuestos y constraints DB (`unique` y `exclude overlaps` donde aplique).
-- [x] UC-WPL-02: Constraints y migraciones: índices compuestos y constraints DB (`unique` y `exclude overlaps` donde aplique).
-- [x] UC-WPL-03: `AssignEmployeeScheduleAction` (bulk inserts, validación por lote con `ScheduleValidationService`).
-- [x] UC-WPL-04: Componente Livewire para asignación en grid con edición masiva y preflight validation.
+#### Sprint 3: Contexto Identity - Presentación & Redirección
 
-### Timeline y hitos (alineado con `docs/features/schedule.md`)
-
-- Semana 9: Implementar modelos base y DDL (UC-SCH-01). Entregable: migraciones + modelos + observers.
-- Semana 10: Implementar CRUD de plantillas y Actions (UC-SCH-02). Entregable: Livewire Forms + tests feature.
-- Semana 11: Publicación & "Mi Horario" (primer MVP de publicación semanal y vista "Mi Horario").
-- Semana 12: Pruebas de performance y validación masiva (solapamientos, bulk assign). Ajustes antes de integrar WeeklyPlanning.
-
-### Criterios de aceptación (DoD)
-
-- Toda inserción/actualización en Scheduling debe ejecutarse dentro de `DB::transaction()`.
-- No permitir lazy-loading en endpoints/Livewire; usar `with()` y tests que verifiquen ausencia de N+1.
-- `ScheduleValidationService` cubre: start < end, solapamiento por empleado y colisión con `BreakTemplate` y `IntradayActivity`.
-- Tests: Feature tests en Pest para Actions, y pruebas unitarias para `ScheduleValidationService` (casos borde: end == existing.start permitido).
-- Migraciones incluyen constraints explícitos de PostgreSQL cuando corresponda (exclusion constraints si procede).
-
-### Riesgos y mitigaciones
-
-- Riesgo: Validación de solapamientos costosa en consultas grandes. Mitigación: indexar por employee_id + date, usar queries por rango y bulk checks en memoria por batch.
-- Riesgo: Publicación semanal puede bloquear operaciones si hay jobs largos. Mitigación: publicar usando Jobs/Batch con feedback (progress) y estrategias de retriable slices.
-
-### Tareas futuras (Sprint 4+)
-
-- [ ] Integrar `LeaveRequest` y `ShiftSwap` con el motor de validación para evitar inconsistencias.
-- [ ] Enlace con CISCO para registrar asistencia real-time y reconciliar incidencias con `AttendanceIncident`.
-- [ ] Dashboard de cumplimiento de horario y reportes automatizados (UC-REP-02).
-
+* **Presentation (Identity)**
+  * [ ] Crear rutas de autenticación en `app/Src/Identity/Presentation/Routes/web.php`.
+  * [ ] Diseñar el controlador de Login y adaptarlo al frontend del legado.
+  * [ ] Crear componentes Livewire de administración en `app/Src/Identity/Presentation/Livewire/ManageUsers.php`.
+* **Legacy Bridge**
+  * [ ] Reconfigurar `config/auth.php` para apuntar al nuevo modelo de usuario de `app/Src/`.
+  * [ ] Asegurar que las llamadas heredadas a `Auth::user()` devuelvan de forma segura el modelo del puente o la base del framework sin romper vistas antiguas de Blade.
+  * [ ] Validar en producción la entrega continua de la autenticación.
 
 ---
 
-## � FASE 4 / SPRINT 4: Workflows (Flujo Operativo Real) (Completado ✅)
+### FASE 2: Core Organizacional (Sprints 4-6)
 
-> *Desacoplado en módulos independientes por principios SOLID.*
+**Objetivo:** Extraer la estructura organizacional y de legajo de RRHH del caótico `PersonnelModule` heredado, separándolos en dos contextos limpios.
 
-### Objetivo
+#### Sprint 4: Contexto Organization - Organigrama & Equipos
 
-Construir el conjunto de Workflows operativos que permitan a empleados y coordinadores gestionar permisos (vacaciones, ausencias), intercambios de turno y aprobaciones con trazabilidad y validación automática contra el motor de Scheduling.
+* **Domain (Organization)**
+  * [ ] Crear entidades de dominio para `Directorate`, `Department`, `Team` y `Position`.
+  * [ ] Definir especificaciones de negocio (ej. "Un equipo no puede tener más de 20 agentes").
+  * [ ] Definir `OrganizationRepositoryInterface`.
+* **Application (Organization)**
+  * [ ] Crear comandos y handlers para el mantenimiento de la estructura (`CreateTeamHandler`, `MoveEmployeeToTeamHandler`).
+  * [ ] Crear DTOs de lectura rápida para mallas organizativas.
+* **Infrastructure (Organization)**
+  * [ ] Modelos Eloquent y migraciones para la estructura relacional de los equipos.
+  * [ ] Implementar el repositorio de base de datos.
+* **Presentation & Bridge**
+  * [ ] Implementar la interfaz visual de gestión de equipos (Livewire).
+  * [ ] Redireccionar consultas de otros módulos del legado (`app/Modules/`) para leer los equipos de la nueva base de datos mediante el puente.
 
-### Entregables (Sprint 4)
+#### Sprint 5: Contexto Human Resources - Expedientes Médicos & Legales
 
-- [x] UC-LRQ-01: Modelos `LeaveRequest` y `LeaveRequestApproval` con estados y trazabilidad (aprobado/pendiente/rechazado).
-- [x] UC-LRQ-02: `CreateLeaveRequestAction` que valida contra `ScheduleValidationService` y `WeeklySchedule` para asegurar que no se rompa cobertura.
-- [x] UC-LRQ-03: `ApproveLeaveRequestAction` / `RejectLeaveRequestAction` con comentarios y auditoría (observer/event → AuditLog).
-- [x] UC-LRQ-04: Bandeja Livewire para Coordinadores con filtros por `team_id`, fecha, estado y acciones en lote.
+* **Domain (HumanResources)**
+  * [ ] Crear entidades de dominio `EmployeeRecord` (legajo).
+  * [ ] Modelar datos altamente sensibles (`EmployeeDisease`, `EmployeeDisability`) como Value Objects inmutables.
+* **Application (HumanResources)**
+  * [ ] Implementar `RegisterEmployeeDiseaseHandler` con validaciones de cifrado.
+  * [ ] Crear maquetas de mapeadores de datos confidenciales.
+* **Infrastructure (HumanResources)**
+  * [ ] Configurar las políticas de cifrado a nivel de base de datos (Postgres JSONB) en `Persistence`.
+  * [ ] Asegurar políticas restrictivas para datos médicos.
+* **Presentation & Bridge**
+  * [ ] Crear vistas Livewire protegidas contra roles estrictos de RRHH para legajo médico.
+  * [ ] Adaptar vistas antiguas de ficha de empleado para consumir este contexto.
 
-- [x] UC-SWP-01: Modelo `ShiftSwapRequest` con estado y referencias a `WeeklyScheduleAssignment` originales.
-- [x] UC-SWP-02: `CreateShiftSwapRequestAction` + `RespondToShiftSwapAction` para manejo de aceptación/rechazo por la contraparte.
-- [x] UC-SWP-03: `ApproveShiftSwapAction` que valida compatibilidad horaria usando `ScheduleValidationService` y chequea cobertura mínima.
+#### Sprint 6: Aprovisionamiento Automatizado (Cisco Integration)
 
-### Timeline y criterios de aceptación
-
-- Semana 13: Modelos y migraciones (LRQ, SWP) con constraints y tests unitarios.
-- Semana 14: Implementación Actions y reglas de negocio (validaciones contra solapamientos, cobertura mínima).
-- Semana 15: Livewire UI para coordinadores y usuarios (solicitudes, respuesta, historial).
-- Semana 16: Integración con Jobs/Notifications y pruebas end-to-end.
-
-Aceptación (DoD):
-
-- Todas las solicitudes pasan por `FormRequest` y Policies; los Actions se ejecutan dentro de `DB::transaction()`.
-- Validaciones automáticas contra solapamientos a través de `ScheduleValidationService`.
-- Auditoría completa: quien solicitó, quien aprobó, motivo y timestamps en `AuditLog`.
-- Tests: Feature tests para flujo completo (crear → responder → aprobar/rechazar) y tests unitarios para Actions.
-
-### Riesgos y mitigaciones
-
-- Riesgo: Gran volumen de solicitudes concurrentes que bloquean la publicación semanal. Mitigación: procesar aprobaciones en Jobs en background y aplicar locks por `weekly_schedule_id` para evitar race conditions.
-- Riesgo: Usuarios forzando cambios que violan cobertura. Mitigación: bloquear aprobaciones si coverage < threshold y requerir escalado manual.
-
----
-
-## � FASE 5 / SPRINT 5: Operations (Intradía e Incidencias) (En Progreso 🟡)
-
-> *Control en tiempo real del piso de operaciones.*
-
-### Objetivo
-
-Implementar las capacidades de operación en tiempo real: planificación intradía, actividades puntuales, registro y reconciliación de incidencias de asistencia (tardanzas, ausencias) integradas con el motor de Scheduling y con fuentes externas (CISCO).
-
-### Entregables (Sprint 5)
-
-- [ ] UC-INP-01: Modelos `IntradayActivity` y `IntradayActivityAssignment` que permitan actividades temporales sin romper el turno principal.
-- [ ] UC-INP-02: `AssignIntradayActivityAction` con validaciones de capacidad y bloqueo de conflictos con `ScheduleValidationService`.
-- [ ] UC-INP-03: UI FluxUI (MyDay) con timeline y posibilidad de reasignar actividades intra-día.
-
-- [x] UC-ATT-01: Modelos `IncidentType` y `AttendanceIncident` con integración de fuentes (CISCO events).
-- [x] UC-ATT-02: `RecordAttendanceIncidentAction` que crea incidentes, notifica al empleado y sugiere acciones (justificar, solicitar permiso).
-- [x] UC-ATT-03: Componentes UI para gestionar incidencias y reconciliación automática con `LeaveRequest` y `WeeklySchedule`.
-
-### Timeline y criterios de aceptación
-
-- Semana 17: Modelos y APIs para Intraday + Attendance; migraciones y tests unitarios.
-- Semana 18: Implementar MyDay timeline (Livewire) y asignación de actividades.
-- Semana 19: Integración con CISCO (punto de partida: ingest de eventos) y pruebas de reconciliación.
-- Semana 20: Robustez y performance (pruebas de carga para ingest masivo de eventos y conciliación).
-
-Aceptación (DoD):
-
-- Integración con CISCO debe ser desacoplada (Jobs/Queue) y logueada en `AuditLog`.
-- Incidencias creadas por fuentes externas deben poder mapearse automáticamente a `LeaveRequest` o generar alertas para intervención manual.
-- No lazy-loading en endpoints que repueblen UI; usar `with()` y paginación eficiente.
-- Tests: cobertura de integración (ingest → reconciliación → notificaciones) y pruebas de performance.
-
-### Riesgos y mitigaciones
-
-- Riesgo: Volumen alto de eventos CISCO que generan spikes. Mitigación: ingest por batches y backpressure en queues; escalar workers.
-- Riesgo: Desajuste entre eventos y asignaciones semanales. Mitigación: implementar reconciliación heurística y fallback manual con trazabilidad.
-
-### Dependencias críticas
-
-- `ScheduleValidationService` — usado por Workflows, WeeklyPlanning e Intraday.
-- Jobs/Queue — para ingest de eventos, publicación y reconciliación.
-- Observers/Events — para mantener `AuditLog` y cache coherente.
-
+* **Domain & Application (Organization/Cisco)**
+  * [ ] Definir el puerto de integración `CiscoAprovisioningInterface`.
+  * [ ] Crear handler `SyncEmployeeWithCiscoHandler` activado por eventos organizacionales.
+* **Infrastructure (Organization/Cisco)**
+  * [ ] Implementar el cliente REST Guzzle contra la API de Cisco Finesse (`CiscoAprovisioningAdapter`).
+  * [ ] Agregar reintentos con retraso exponencial (Backoff) mediante Jobs de Laravel.
+* **Legacy Bridge**
+  * [ ] Sustituir los antiguos despachos HTTP de `PersonnelModule` por la publicación del evento de dominio de transición.
 
 ---
 
-## 📊 FASE 6 / SPRINT 6: Reporting & Analytics
+### FASE 3: WFM & Asistencia (Sprints 7-10)
 
-### Módulo: Reports & Dashboard
-- [ ] UC-REP-01: `AttendanceReportService` y exportación a Excel/CSV.
-- [ ] UC-REP-02: `ScheduleComplianceReportService` (Adherencia al horario).
-- [ ] UC-DBR-01: Dashboard Livewire con KPIs (Ausentismo, Cobertura) integrando Recharts/Chart.js.
+**Objetivo:** Migrar los dos módulos operativos más complejos y críticos para el cálculo de nómina y planificación de turnos.
+
+#### Sprint 7: Contexto WFM - Planificación Semanal
+
+* **Domain (Wfm)**
+  * [ ] Entidades de dominio para `WeeklySchedule` y `Schedule`.
+  * [ ] Implementar especificaciones críticas (Detección de colisiones u traslapes de turnos).
+  * [ ] Definir `ScheduleRepositoryInterface`.
+* **Application (Wfm)**
+  * [ ] Crear `PublishWeeklyScheduleHandler` y despachar notificaciones.
+  * [ ] Crear el importador masivo en lote `ImportTeamWeeklyScheduleHandler` utilizando chunks.
+* **Infrastructure (Wfm)**
+  * [ ] Modelos Eloquent de horarios con índices parciales y compuestos optimizados en PostgreSQL.
+  * [ ] Implementar persistencia por lotes del repositorio.
+* **Presentation & Bridge**
+  * [ ] Migrar el panel Livewire `WeeklyPlanning` a la capa de presentación de `app/Src/Wfm`.
+  * [ ] Mantener el backend heredado actualizado de forma asíncrona para no romper dependencias descendientes de otros módulos legados.
+
+#### Sprint 8: Contexto WFM - Gestión Intra-Día (Intraday)
+
+* **Domain (Wfm/Intraday)**
+  * [ ] Entidades `IntradayActivity` y `ActivityType`.
+  * [ ] Servicio de dominio `GetExpectedAgentStateService` para calcular el estado ideal de un agente en un segundo exacto.
+* **Application (Wfm/Intraday)**
+  * [ ] Implementar comandos para re-programar descansos y breaks dinámicamente.
+* **Infrastructure (Wfm/Intraday)**
+  * [ ] Implementar caché de Redis para las consultas calientes del estado esperado del agente.
+* **Presentation**
+  * [ ] Diseñar el panel de visualización del día del agente (`MyDay` Livewire).
+
+#### Sprint 9: Contexto Time & Attendance - Control de Marcaciones (Punch Clock)
+
+* **Domain (TimeAndAttendance)**
+  * [ ] Entidad de dominio `AttendancePunch` (Marcaciones de Entrada/Salida).
+  * [ ] Entidad `AttendanceIncident` (Tardanza, Falta, Salida Temprana).
+* **Application (TimeAndAttendance)**
+  * [ ] Crear `ProcessEmployeePunchHandler`.
+  * [ ] Servicio de aplicación para contrastar las marcaciones reales contra el horario esperado de WFM.
+* **Infrastructure (TimeAndAttendance)**
+  * [ ] Adaptadores para conectarse al validador de identidad de la empresa (Biométricos / SSO).
+
+#### Sprint 10: Adherencia en Tiempo Real & Conciliación
+
+* **Domain & Application (TimeAndAttendance)**
+  * [ ] Crear el motor de conciliación automatizado para generar las incidencias justificadas e injustificadas al final de la jornada.
+* **Presentation & Bridge**
+  * [ ] Diseñar el visualizador de incidencias y el formulario para justificar tardanzas.
+  * [ ] Conectar la base de datos de incidencias a los sistemas legados de cálculo de bonificaciones operativas.
 
 ---
 
-## 🌐 FASE 7 / SPRINT 7: Engagement (Ampliación v2.0)
+### FASE 4: Procesos Operativos y de Soporte (Sprints 11-13)
 
-> *Funcionalidades de valor agregado para retención y servicio externo.*
+**Objetivo:** Migrar los flujos de comunicación con telefonía CTI, base de conocimientos y la lógica del motor de aprobaciones.
 
-- [x] UC-COM-01: Comunicaciones internas (`NewsArticle`, `NewsCategory`) - **Implementado parcialmente**.
-- [ ] UC-SUR-01: Encuestas internas y clima laboral (`Surveys`).
-- [ ] UC-CIT-01: Gestión de Ciudadanos y registro de llamadas entrantes (`Citizens`).
+#### Sprint 11: Contexto Workflows - Motor de Aprobación
+
+* **Domain (Workflows)**
+  * [ ] Entidades abstractas `ApprovalRequest` y `ApprovalSignature`.
+  * [ ] Definir máquina de estados para solicitudes L1/L2/L3.
+* **Application (Workflows)**
+  * [ ] Crear controladores del motor de workflow genérico.
+* **Infrastructure & Presentation**
+  * [ ] Diseñar tablas relacionales genéricas para tickets de aprobación.
+  * [ ] Migrar bandejas Livewire de aprobación.
+
+#### Sprint 12: Contexto Connect - Capa de Integración Telefónica (CTI)
+
+* **Domain & Application (Connect)**
+  * [ ] Definir el Anti-Corruption Layer (ACL) para normalizar llamadas de telefonía.
+* **Infrastructure (Connect)**
+  * [ ] Adaptadores Cisco Finesse / Avaya.
+  * [ ] Listener de eventos telefónicos por WebSockets.
+
+#### Sprint 13: Contexto Knowledge - Base de Datos Documental
+
+* **Domain & Application (Knowledge)**
+  * [ ] Consolidar la lógica del editor de artículos de ayuda (`Documentation` + `Knowledge`).
+* **Presentation**
+  * [ ] Migrar el buscador inteligente de ayuda interna.
 
 ---
 
-## 🛠️ INSTRUCCIONES DE USO PARA EL AGENTE DE IA
+### FASE 5: Calidad y Analítica Final (Sprints 14-16)
 
-1. **Lee el contexto:** Antes de codificar, analiza este roadmap y el prompt principal.
-2. **Usa el Código UC:** El usuario te dará un código (Ej. `UC-WPL-03`).
-3. **Aplica Deuda Técnica (GLO):** Automáticamente asegura que tu código cumpla con las reglas GLO-01, GLO-02 y GLO-03 (ULIDs, no N+1, y Tests).
-4. **Respeta Git Flow:** Genera los comandos de rama, los commits atómicos y el código listo para producción.
+**Objetivo:** Migrar el control de calidad de llamadas y la capa analítica de visualización de KPI corporativos.
+
+#### Sprint 14: Contexto Quality - Auditoría de Llamadas
+
+* **Domain (Quality)**
+  * [ ] Entidad `EvaluationForm`, `EvaluationCriteria` y `AgentEvaluation`.
+  * [ ] Implementar la regla de negocio de anulación por Errores Críticos (Fatal Errors).
+* **Application (Quality)**
+  * [ ] Crear el flujo de justificación y apelación de notas (`DisputeRequest`).
+* **Presentation**
+  * [ ] Migrar el reproductor de llamadas interactivo con llenado de rúbrica a Livewire.
+
+#### Sprint 15: Contexto Analytics - Procesamiento de KPIs
+
+* **Domain & Application (Analytics)**
+  * [ ] Servicios de cálculo matemático para KPIs clave (TMO, Adherencia, FCR, Nivel de Servicio).
+* **Infrastructure (Analytics)**
+  * [ ] Implementar la base de datos de analítica (Datamart) con agregaciones programadas (Cron/Jobs).
+
+#### Sprint 16: Cierre de Migración, Limpieza y Depreciación
+
+* **Pruebas de Integración**
+  * [ ] Ejecución de suite completa de pruebas Pest validando de punta a punta.
+* **Depreciación**
+  * [ ] Desactivar definitivamente el enrutamiento y carga de Service Providers de `app/Modules/`.
+  * [ ] Eliminar la carpeta `app/Modules/` (Fin del Strangler Fig Pattern).
+
+---
+
+## 📈 Seguimiento y Gestión del Cambio
+
+1. **Definición de Hecho (DoD):**
+   * Una tarea en `ROADMAP.md` se marca como completada `[x]` únicamente cuando el código en `app/Src/` tiene pruebas unitarias/integración con cobertura > 80% y ha sido desplegado a producción bajo el puente de transición.
+2. **Actualización continua:**
+   * Este roadmap debe ser actualizado al final de cada iteración por el agente a cargo de la fase correspondiente.

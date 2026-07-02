@@ -62,6 +62,13 @@ final class EloquentAttendanceRepository implements AttendanceRepositoryInterfac
         return $eloquent ? AttendanceMapper::incidentToDomain($eloquent, $typeCode) : null;
     }
 
+    public function findIncidentById(int $id): ?AttendanceIncident
+    {
+        $eloquent = EloquentAttendanceIncident::find($id);
+        if (! $eloquent) return null;
+        return AttendanceMapper::incidentToDomain($eloquent, '');
+    }
+
     public function findIncidentsByDate(DateTimeImmutable $date): array
     {
         return EloquentAttendanceIncident::whereDate('incident_date', $date->format('Y-m-d'))

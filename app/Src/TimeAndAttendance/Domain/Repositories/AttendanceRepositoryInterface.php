@@ -14,6 +14,7 @@ interface AttendanceRepositoryInterface
     public function findPunchesByEmployee(int $employeeId, DateTimeImmutable $date): array;
 
     public function saveIncident(AttendanceIncident $incident): AttendanceIncident;
+    public function findIncidentById(int $id): ?AttendanceIncident;
     public function findIncidentsByEmployee(int $employeeId, DateTimeImmutable $date): array;
     public function findIncidentByTypeAndDate(int $employeeId, string $typeCode, DateTimeImmutable $date): ?AttendanceIncident;
     public function findIncidentsByDate(DateTimeImmutable $date): array;

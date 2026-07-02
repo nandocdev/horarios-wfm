@@ -8,10 +8,8 @@ use App\Src\Connect\Domain\Entities\CallEvent;
 use App\Src\Connect\Domain\ValueObjects\CallStatus;
 use DateTimeImmutable;
 
-final class TelephonyNormalizationService
-{
-    public function normalizeCiscoWebhook(array $payload): CallEvent
-    {
+final class TelephonyNormalizationService {
+    public function normalizeCiscoWebhook(array $payload): CallEvent {
         $type = $payload['event'] ?? 'call_start';
         $externalCallId = $payload['call_id'] ?? $payload['ciscoCallId'] ?? '';
 
@@ -45,8 +43,7 @@ final class TelephonyNormalizationService
         );
     }
 
-    public function normalizeAvayaWebhook(array $payload): CallEvent
-    {
+    public function normalizeAvayaWebhook(array $payload): CallEvent {
         $type = $payload['event_type'] ?? 'call_start';
         $externalCallId = $payload['call_id'] ?? $payload['session_id'] ?? '';
 

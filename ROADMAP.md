@@ -193,13 +193,13 @@ gantt
 #### Sprint 11: Contexto Workflows - Motor de Aprobación
 
 * **Domain (Workflows)**
-  * [ ] Entidades abstractas `ApprovalRequest` y `ApprovalSignature`.
-  * [ ] Definir máquina de estados para solicitudes L1/L2/L3.
+  * [x] Entidades `ApprovalRequest` (type, requesterId, payload, requiredLevels) y `ApprovalSignature` (approverId, action, level).
+  * [x] Máquina de estados `WorkflowState` con transiciones formalizadas: pending → l1/l2/l3_approved → approved, con rejected/cancelled desde cualquier estado no final.
 * **Application (Workflows)**
-  * [ ] Crear controladores del motor de workflow genérico.
+  * [x] Handlers `SubmitApprovalRequestHandler` y `ProcessApprovalHandler` con validación de state machine.
 * **Infrastructure & Presentation**
-  * [ ] Diseñar tablas relacionales genéricas para tickets de aprobación.
-  * [ ] Migrar bandejas Livewire de aprobación.
+  * [x] Eloquent models + repository con sync de signatures.
+  * [x] Bandeja `ApprovalInbox` Livewire con tabs, aprobar/rechazar con comentario.
 
 #### Sprint 12: Contexto Connect - Capa de Integración Telefónica (CTI)
 

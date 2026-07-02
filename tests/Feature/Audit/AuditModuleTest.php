@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Modules\AuditModule\Models\AuditLog;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\AuditLogModel;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Team;
 
@@ -11,7 +11,7 @@ it('shows audit list to admin users', function () {
     $admin = User::factory()->create();
     $admin->assignRole('admin');
 
-    AuditLog::factory()->create([
+    AuditLogModel::factory()->create([
         'entity_type' => Team::class,
         'entity_id' => 1,
         'action' => 'created',
@@ -31,7 +31,7 @@ it('applies search filters to audit logs', function () {
     $admin = User::factory()->create();
     $admin->assignRole('admin');
 
-    AuditLog::factory()->createMany([
+    AuditLogModel::factory()->createMany([
         [
             'entity_type' => Team::class,
             'entity_id' => 1,

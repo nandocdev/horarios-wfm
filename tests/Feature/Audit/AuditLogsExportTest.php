@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Modules\AuditModule\Models\AuditLog;
+use App\Modules\AuditModule\Infrastructure\Persistence\Eloquent\AuditLogModel;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Team;
@@ -20,7 +20,7 @@ it('exports filtered audit logs as csv', function () {
 
     $admin->assignRole('admin');
 
-    AuditLog::factory()->create([
+    AuditLogModel::factory()->create([
         'entity_type' => Team::class,
         'entity_id' => 1,
         'action' => 'created',
@@ -44,7 +44,7 @@ it('exports filtered audit logs as json', function () {
 
     $admin->assignRole('admin');
 
-    AuditLog::factory()->create([
+    AuditLogModel::factory()->create([
         'entity_type' => Team::class,
         'entity_id' => 1,
         'action' => 'updated',

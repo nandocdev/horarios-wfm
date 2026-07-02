@@ -90,18 +90,18 @@ gantt
 #### Sprint 4: Contexto Organization - Organigrama & Equipos
 
 * **Domain (Organization)**
-  * [ ] Crear entidades de dominio para `Directorate`, `Department`, `Team` y `Position`.
-  * [ ] Definir especificaciones de negocio (ej. "Un equipo no puede tener más de 20 agentes").
-  * [ ] Definir `OrganizationRepositoryInterface`.
+  * [x] Crear entidades de dominio para `Directorate`, `Department`, `Team` y `Position`.
+  * [x] Definir especificaciones de negocio (ej. "Un equipo no puede tener más de 20 agentes").
+  * [x] Definir `OrganizationRepositoryInterface`.
 * **Application (Organization)**
-  * [ ] Crear comandos y handlers para el mantenimiento de la estructura (`CreateTeamHandler`, `MoveEmployeeToTeamHandler`).
-  * [ ] Crear DTOs de lectura rápida para mallas organizativas.
+  * [x] Crear comandos y handlers para el mantenimiento de la estructura (`CreateTeamHandler`, `MoveEmployeeToTeamHandler`).
+  * [x] Crear DTOs de lectura rápida para mallas organizativas.
 * **Infrastructure (Organization)**
-  * [ ] Modelos Eloquent y migraciones para la estructura relacional de los equipos.
-  * [ ] Implementar el repositorio de base de datos.
+  * [x] Modelos Eloquent y migraciones para la estructura relacional de los equipos.
+  * [x] Implementar el repositorio de base de datos.
 * **Presentation & Bridge**
-  * [ ] Implementar la interfaz visual de gestión de equipos (Livewire).
-  * [ ] Redireccionar consultas de otros módulos del legado (`app/Modules/`) para leer los equipos de la nueva base de datos mediante el puente.
+  * [x] Implementar la interfaz visual de gestión de equipos (Livewire).
+  * [x] Endpoints API JSON para consultas de estructura organizativa desde módulos legados.
 
 #### Sprint 5: Contexto Human Resources - Expedientes Médicos & Legales
 

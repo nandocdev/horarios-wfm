@@ -50,9 +50,13 @@ final class EloquentAuditLogRepository implements AuditLogRepositoryInterface {
     }
 
     public function search(array $filters, int $perPage = 25): array {
-        $query = EloquentAuditLog::query();
+        $query = EloquentAuditLog::with('user');
         $query->filter($filters);
         $query->orderBy('created_at', 'desc');
+
+        if ($perPage <= 0) {
+            return $query->get()->all();
+        }
 
         return $query->paginate($perPage)->items();
     }

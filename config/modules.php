@@ -20,6 +20,7 @@ return [
         App\Src\Platform\Infrastructure\Providers\PlatformServiceProvider::class,
         App\Src\Identity\Infrastructure\Providers\IdentityServiceProvider::class,
         App\Src\Organization\Infrastructure\Providers\OrganizationServiceProvider::class,
+        App\Src\HumanResources\Infrastructure\Providers\HumanResourcesServiceProvider::class,
 
         // Legacy module providers
         ModuleServiceProvider::class,

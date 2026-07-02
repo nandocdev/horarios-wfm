@@ -153,14 +153,15 @@ gantt
 #### Sprint 8: Contexto WFM - Gestión Intra-Día (Intraday)
 
 * **Domain (Wfm/Intraday)**
-  * [ ] Entidades `IntradayActivity` y `ActivityType`.
-  * [ ] Servicio de dominio `GetExpectedAgentStateService` para calcular el estado ideal de un agente en un segundo exacto.
+  * [x] Entidades `IntradayActivity`, `ActivityType` y `ApprovedIntradayPeriod`.
+  * [x] Servicio de dominio `GetExpectedAgentStateService` para calcular el estado ideal (OFF/SHIFT/INTRADAY/EXCEPTION) en un segundo exacto.
 * **Application (Wfm/Intraday)**
-  * [ ] Implementar comandos para re-programar descansos y breaks dinámicamente.
+  * [x] Implementar `AssignIntradayActivityHandler` con validación de traslapes.
+  * [x] Implementar `RescheduleBreakHandler` para re-programar descansos y breaks dinámicamente.
 * **Infrastructure (Wfm/Intraday)**
-  * [ ] Implementar caché de Redis para las consultas calientes del estado esperado del agente.
+  * [x] Implementar caché de Redis (`CachedIntradayService` con 60s TTL) para consultas calientes del estado esperado.
 * **Presentation**
-  * [ ] Diseñar el panel de visualización del día del agente (`MyDay` Livewire).
+  * [x] Panel `MyDay` Livewire con estado actual del agente en tiempo real.
 
 #### Sprint 9: Contexto Time & Attendance - Control de Marcaciones (Punch Clock)
 

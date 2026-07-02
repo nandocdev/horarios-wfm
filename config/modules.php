@@ -16,6 +16,11 @@ return [
     */
 
     'enabled' => [
+        // App/Src context providers (DDD migration)
+        App\Src\Platform\Infrastructure\Providers\PlatformServiceProvider::class,
+        App\Src\Identity\Infrastructure\Providers\IdentityServiceProvider::class,
+
+        // Legacy module providers
         ModuleServiceProvider::class,
         App\Modules\PersonnelModule\Providers\ModuleServiceProvider::class,
         App\Modules\OperationsModule\Providers\ModuleServiceProvider::class,

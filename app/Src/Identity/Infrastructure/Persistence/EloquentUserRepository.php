@@ -8,6 +8,8 @@ use App\Src\Identity\Application\Mappers\UserMapper;
 use App\Src\Identity\Domain\Entities\User;
 use App\Src\Identity\Domain\Repositories\UserRepositoryInterface;
 use App\Src\Shared\Domain\ValueObjects\Email;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 final class EloquentUserRepository implements UserRepositoryInterface
 {
@@ -26,11 +28,10 @@ final class EloquentUserRepository implements UserRepositoryInterface
         );
 
         if (! empty($user->roles())) {
-            $roleNames = array_map(
-                fn ($role) => $role->name(),
-                $user->roles(),
-            );
-            $eloquent->syncRoles($roleNames);
+            $roleNames = array_map(fn ($role) => $role->name(), $user->roles());
+            $spatieRoles = Role::whereIn('name', $roleNames)->get();
+
+            $this->syncRoles($eloquent, $spatieRoles->pluck('id')->toArray());
         }
 
         return UserMapper::toDomain($eloquent);
@@ -82,17 +83,30 @@ final class EloquentUserRepository implements UserRepositoryInterface
         }
 
         if (isset($filters['role'])) {
-            $query->role($filters['role']);
+            $query->whereHas('roles', fn ($q) => $q->where('name', $filters['role']));
         }
 
-        return $query->orderBy('created_at', 'desc')
-            ->paginate($perPage)
-            ->through(fn (EloquentUser $eloquent) => UserMapper::toDomain($eloquent))
-            ->items();
+        $paginator = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        $paginator->through(fn (EloquentUser $eloquent) => UserMapper::toDomain($eloquent));
+
+        return $paginator->items();
     }
 
     public function count(): int
     {
         return EloquentUser::count();
+    }
+
+    private function syncRoles(EloquentUser $user, array $roleIds): void
+    {
+        $pivotTable = config('permission.table_names.model_has_roles');
+        $morphKey = config('permission.column_names.model_morph_key');
+
+        $user->$morphKey = $user->getKey();
+
+        $user->roles()->sync($roleIds);
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }

@@ -177,10 +177,12 @@ gantt
 #### Sprint 10: Adherencia en Tiempo Real & Conciliación
 
 * **Domain & Application (TimeAndAttendance)**
-  * [ ] Crear el motor de conciliación automatizado para generar las incidencias justificadas e injustificadas al final de la jornada.
+  * [x] Crear el motor de conciliación automatizado (`EndOfDayReconciliationService`) para generar incidencias al final de la jornada (ausencias, tardanzas >5min, salidas tempranas).
+  * [x] `JustifyIncidentHandler` para justificar/resolver incidencias con máquina de estados.
+  * [x] Comando `attendance:reconcile {date?}` para ejecución masiva con barra de progreso.
 * **Presentation & Bridge**
-  * [ ] Diseñar el visualizador de incidencias y el formulario para justificar tardanzas.
-  * [ ] Conectar la base de datos de incidencias a los sistemas legados de cálculo de bonificaciones operativas.
+  * [x] Livewire `ListIncidents` con tabla, búsqueda y formulario inline de justificación.
+  * [x] `BonusCalculationBridge` para conectar incidencias con sistemas legacy de bonificaciones (conteo de injustificadas, minutos de tardanza, asistencia perfecta, resumen mensual).
 
 ---
 

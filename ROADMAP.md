@@ -66,8 +66,8 @@ gantt
   * [x] Implementar `AuthenticateUserHandler` resolviendo la lógica de verificación de firmas.
   * [x] Implementar `CreateUserHandler` y su correspondiente `UserMapper` (conversión Dominio <-> Eloquent).
 * **Infrastructure (Identity)**
-  * [ ] Crear el modelo Eloquent `app/Src/Identity/Infrastructure/Persistence/EloquentUser.php`.
-  * [ ] Crear la implementación concreta del repositorio `app/Src/Identity/Infrastructure/Persistence/EloquentUserRepository.php`.
+  * [x] Crear el modelo Eloquent `app/Src/Identity/Infrastructure/Persistence/EloquentUser.php`.
+  * [x] Crear la implementación concreta del repositorio `app/Src/Identity/Infrastructure/Persistence/EloquentUserRepository.php`.
 
 #### Sprint 3: Contexto Identity - Presentación & Redirección
 

@@ -241,9 +241,13 @@ gantt
 #### Sprint 15: Contexto Analytics - Procesamiento de KPIs
 
 * **Domain & Application (Analytics)**
-  * [ ] Servicios de cálculo matemático para KPIs clave (TMO, Adherencia, FCR, Nivel de Servicio).
+  * [x] `KpiCalculationService` con 12 KPIs: productivity, utilization, adherence, AHT, occupancy, serviceLevel, coverageRate, absenteeismRate, PWI, capacityCalls.
+  * [x] `CalculateDailyMetricsHandler` que cruza datos de llamadas y telemetría para calcular métricas diarias por agente.
+  * [x] `BatchAggregateHandler` para procesamiento masivo.
 * **Infrastructure (Analytics)**
-  * [ ] Implementar la base de datos de analítica (Datamart) con agregaciones programadas (Cron/Jobs).
+  * [x] Datamart `EloquentAgentDailyMetric` sobre tabla `agent_daily_metrics` con 20 fields de KPIs.
+  * [x] `AnalyticsRepositoryInterface` con `saveMetric`, `aggregateByTeam`, `getLatestMetricsByEmployee`.
+  * [x] Comando `analytics:aggregate {date?}` para agregación programada por cron/scheduler.
 
 #### Sprint 16: Cierre de Migración, Limpieza y Depreciación
 

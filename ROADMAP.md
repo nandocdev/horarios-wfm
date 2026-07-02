@@ -204,10 +204,13 @@ gantt
 #### Sprint 12: Contexto Connect - Capa de Integración Telefónica (CTI)
 
 * **Domain & Application (Connect)**
-  * [ ] Definir el Anti-Corruption Layer (ACL) para normalizar llamadas de telefonía.
+  * [x] ACL `TelephonyNormalizationService` que normaliza webhooks de Cisco y Avaya a `CallEvent` unificado.
+  * [x] `CallEvent` entidad normalizada (provider-agnostic) + `CallStatus` VO + `TelephonyProvider` VO.
+  * [x] `ProcessCallEventHandler` orquesta normalización, persistencia y dispatch de evento.
 * **Infrastructure (Connect)**
-  * [ ] Adaptadores Cisco Finesse / Avaya.
-  * [ ] Listener de eventos telefónicos por WebSockets.
+  * [x] Adaptadores: `CiscoFinesseAdapter` (Sprint 6) + `AvayaCallAdapter` configurable vía `config/connect.php`.
+  * [x] `TelephonyEventSubscriber` con handlers para webhooks Cisco/Avaya + validación de tipos de evento.
+  * [x] Webhook endpoints `POST /api/connect/{provider}/webhook` para recepción de eventos en tiempo real.
 
 #### Sprint 13: Contexto Knowledge - Base de Datos Documental
 

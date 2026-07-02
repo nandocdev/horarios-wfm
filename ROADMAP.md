@@ -166,13 +166,13 @@ gantt
 #### Sprint 9: Contexto Time & Attendance - Control de Marcaciones (Punch Clock)
 
 * **Domain (TimeAndAttendance)**
-  * [ ] Entidad de dominio `AttendancePunch` (Marcaciones de Entrada/Salida).
-  * [ ] Entidad `AttendanceIncident` (Tardanza, Falta, Salida Temprana).
+  * [x] Entidad de dominio `AttendancePunch` (Marcaciones de Entrada/Salida/Break/Lunch).
+  * [x] Entidad `AttendanceIncident` (Tardanza, Falta, Salida Temprana) con máquina de estados (open → justified/unjustified → resolved).
 * **Application (TimeAndAttendance)**
-  * [ ] Crear `ProcessEmployeePunchHandler`.
-  * [ ] Servicio de aplicación para contrastar las marcaciones reales contra el horario esperado de WFM.
+  * [x] Crear `ProcessEmployeePunchHandler` con dispatch de `EmployeePunched` event.
+  * [x] Servicio `ReconcileAttendanceHandler` para contrastar marcaciones reales vs horario esperado y generar incidencias automáticas (tardanza >5min, ausencia sin punch).
 * **Infrastructure (TimeAndAttendance)**
-  * [ ] Adaptadores para conectarse al validador de identidad de la empresa (Biométricos / SSO).
+  * [x] `IdentityValidatorInterface` + `NullIdentityValidator` (placeholder para integración futura con biométricos/SSO).
 
 #### Sprint 10: Adherencia en Tiempo Real & Conciliación
 

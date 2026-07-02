@@ -21,6 +21,7 @@ return [
         App\Src\Identity\Infrastructure\Providers\IdentityServiceProvider::class,
         App\Src\Organization\Infrastructure\Providers\OrganizationServiceProvider::class,
         App\Src\HumanResources\Infrastructure\Providers\HumanResourcesServiceProvider::class,
+        App\Src\Connect\Infrastructure\Providers\ConnectServiceProvider::class,
 
         // Legacy module providers
         ModuleServiceProvider::class,

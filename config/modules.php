@@ -27,6 +27,7 @@ return [
         App\Src\Workflows\Infrastructure\Providers\WorkflowsServiceProvider::class,
         App\Src\Knowledge\Infrastructure\Providers\KnowledgeServiceProvider::class,
         App\Src\Quality\Infrastructure\Providers\QualityServiceProvider::class,
+        App\Src\Analytics\Infrastructure\Providers\AnalyticsServiceProvider::class,
 
         // Legacy module providers
         ModuleServiceProvider::class,

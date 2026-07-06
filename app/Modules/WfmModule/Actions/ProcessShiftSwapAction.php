@@ -26,8 +26,8 @@ class ProcessShiftSwapAction
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if ($request->status !== 'accepted') {
-                throw new \Exception('La solicitud no está en estado aceptado para ser procesada.');
+            if ($request->status !== 'approved') {
+                throw new \Exception('La solicitud debe estar aprobada para ser procesada en el horario.');
             }
 
             $startDate = $request->start_date;
@@ -56,19 +56,8 @@ class ProcessShiftSwapAction
                 $currentDate = $currentDate->addDay();
             }
 
-            // 4. Crear registro de aprobación de WFM
-            ShiftSwapApproval::create([
-                'shift_swap_request_id' => $request->id,
-                'approver_id' => $approverEmployeeId,
-                'status' => 'approved',
-                'comment' => 'Aprobado y procesado por WFM (Periodo: ' . $startDate->format('d/m') . ' - ' . $endDate->format('d/m') . ')',
-            ]);
-
-            // 6. Actualizar estado de la solicitud
-            $request->update(['status' => 'approved']);
-
-            // 7. Disparar evento de dominio
-            event(new ShiftSwapApproved($request, $approverEmployeeId));
+            // El WorkflowsModule es el encargado de registrar el Approval y actualizar el estado de la solicitud.
+            // Esta Action se limita únicamente a aplicar los cambios físicos en la rejilla de horarios.
 
             return true;
         });

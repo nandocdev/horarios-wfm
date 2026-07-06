@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Providers;
 
 use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
+use App\Modules\WfmModule\Listeners\ApplyShiftSwapToSchedule;
 use App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved;
 use App\Modules\WfmModule\Livewire\EmployeeWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\ManageAbsenceReasons;
@@ -94,6 +95,10 @@ class ModuleServiceProvider extends ServiceProvider
         LeaveRequest::observe(LeaveRequestObserver::class);
 
         // Registro de Eventos
+        Event::listen(
+            ShiftSwapApproved::class,
+            [ApplyShiftSwapToSchedule::class, 'handle']
+        );
         Event::listen(
             ShiftSwapApproved::class,
             [NotifyShiftSwapApproved::class, 'handle']

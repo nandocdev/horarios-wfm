@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Modules\WorkflowsModule\Actions\ApproveLeaveRequestAction;
+use App\Modules\WorkflowsModule\Actions\RejectLeaveRequestAction;
 use App\Modules\WorkflowsModule\Models\LeaveRequest;
 use App\Modules\WorkflowsModule\Models\LeaveRequestApproval;
 use App\Shared\Events\LeaveRequestDecision;
@@ -16,7 +18,7 @@ class ManagerApprovals extends Component
 {
     use WithPagination;
 
-    public function approveLeave($leaveId, $comment = 'Aprobado por Jefe Inmediato')
+    public function approveLeave($leaveId, ApproveLeaveRequestAction $action, $comment = 'Aprobado por Jefe Inmediato')
     {
         $manager = Auth::user()->employee;
         if (! $manager) {
@@ -33,24 +35,12 @@ class ManagerApprovals extends Component
             })
             ->firstOrFail();
 
-        DB::transaction(function () use ($leave, $manager, $comment) {
-            LeaveRequestApproval::create([
-                'leave_request_id' => $leave->id,
-                'approver_id' => $manager->id,
-                'status' => 'approved',
-                'comment' => $comment,
-                'step_order' => 1,
-            ]);
-
-            $leave->update(['status' => 'approved']);
-        });
-
-        LeaveRequestDecision::dispatch($leave, 'approved', auth()->id(), $comment);
+        $action->execute((int) $leave->id, $manager->id, (int) auth()->id(), $comment);
 
         \Flux::toast('Permiso aprobado correctamente.', variant: 'success');
     }
 
-    public function rejectLeave($leaveId, $comment = 'Rechazado por Jefe Inmediato')
+    public function rejectLeave($leaveId, RejectLeaveRequestAction $action, $comment = 'Rechazado por Jefe Inmediato')
     {
         $manager = Auth::user()->employee;
         if (! $manager) {
@@ -67,19 +57,7 @@ class ManagerApprovals extends Component
             })
             ->firstOrFail();
 
-        DB::transaction(function () use ($leave, $manager, $comment) {
-            LeaveRequestApproval::create([
-                'leave_request_id' => $leave->id,
-                'approver_id' => $manager->id,
-                'status' => 'rejected',
-                'comment' => $comment,
-                'step_order' => 1,
-            ]);
-
-            $leave->update(['status' => 'rejected']);
-        });
-
-        LeaveRequestDecision::dispatch($leave, 'rejected', auth()->id(), $comment);
+        $action->execute((int) $leave->id, $manager->id, (int) auth()->id(), $comment);
 
         \Flux::toast('Permiso rechazado.');
     }

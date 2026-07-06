@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Modules\WfmModule\Actions\ProcessShiftSwapAction;
+use App\Modules\WorkflowsModule\Actions\ApproveShiftSwapAction;
+use App\Modules\WorkflowsModule\Actions\RejectShiftSwapAction;
 use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
 use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
@@ -70,7 +71,7 @@ class WfmSwapApprovals extends Component
         $this->dispatch('modal-show', name: 'swap-details');
     }
 
-    public function approveSwap($requestId, ProcessShiftSwapAction $action)
+    public function approveSwap($requestId, ApproveShiftSwapAction $action)
     {
         $this->authorize('wfm.swaps.manage');
 
@@ -87,19 +88,16 @@ class WfmSwapApprovals extends Component
         }
     }
 
-    public function rejectSwap($requestId, $reason = 'Rechazado por WFM')
+    public function rejectSwap($requestId, RejectShiftSwapAction $action, $reason = 'Rechazado por WFM')
     {
         $this->authorize('wfm.swaps.manage');
 
-        $request = ShiftSwapRequest::with(['requester', 'recipient', 'requester.user', 'recipient.user'])
-            ->where('id', $requestId)
-            ->where('status', 'accepted')
-            ->firstOrFail();
+        $employee = Auth::user()->employee;
+        if (! $employee) {
+            throw new \RuntimeException('El usuario autenticado debe tener un perfil de empleado asociado para rechazar solicitudes.');
+        }
 
-        $request->update([
-            'status' => 'rejected',
-            'rejection_reason' => $reason,
-        ]);
+        $request = $action->execute((int) $requestId, $employee->id, $reason);
 
         // Notificar a ambas partes
         $dto = new NotificationDTO(

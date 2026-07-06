@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Modules\AuditModule\Models\AuditLog;
 use App\Modules\CoreModule\Models\User;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function () {
     $this->user = User::withoutEvents(fn () => User::factory()->create());
@@ -89,6 +90,10 @@ it('ip_address acepta NULL', function () {
 });
 
 it('indice compuesto (entity_type, entity_id) existe en PostgreSQL', function () {
+    if (DB::connection()->getDriverName() !== 'pgsql') {
+        test()->markTestSkipped('Requiere PostgreSQL para consultar pg_indexes');
+    }
+
     $indexes = DB::select("
         SELECT indexname FROM pg_indexes
         WHERE tablename = 'audit_logs'

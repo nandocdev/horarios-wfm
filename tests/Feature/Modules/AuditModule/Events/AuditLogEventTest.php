@@ -86,7 +86,7 @@ it('AuditWeeklySchedulePublishedListener registra el log con el contenido correc
 
     expect($log)->not->toBeNull()
         ->and($log->entity_type)->toBe(get_class($week))
-        ->and($log->entity_id)->toBe($week->id)
+        ->and($log->entity_id)->toEqual($week->id)
         ->and($log->user_id)->toBe($user->id)
         ->and($log->ip_address)->toBeNull()
         ->and($log->before)->toBeNull()
@@ -113,7 +113,7 @@ it('AuditLeaveRequestCreatedListener registra el log con requestedByUserId', fun
 
     expect($log)->not->toBeNull()
         ->and($log->entity_type)->toBe(get_class($leave))
-        ->and($log->entity_id)->toBe($leave->id)
+        ->and($log->entity_id)->toEqual($leave->id)
         ->and($log->user_id)->toBe($user->id)
         ->and($log->ip_address)->toBeNull();
 });
@@ -184,7 +184,7 @@ it('AuditShiftSwapApprovedListener registra shift_swap.approved con approverId',
 
     expect($log)->not->toBeNull()
         ->and($log->entity_type)->toBe(get_class($swap))
-        ->and($log->entity_id)->toBe($swap->id)
+        ->and($log->entity_id)->toEqual($swap->id)
         ->and($log->user_id)->toBe($user->id)
         ->and($log->ip_address)->toBeNull();
 });

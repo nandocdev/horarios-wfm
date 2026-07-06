@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class AuditLog extends Model
 {
@@ -71,9 +72,10 @@ class AuditLog extends Model
     public function scopeFilter(Builder $query, array $filters): void
     {
         $query->when($filters['search'] ?? null, fn ($q, $v) => $q->where(function ($sub) use ($v) {
-            $sub->where('entity_type', 'ilike', "%{$v}%")
-                ->orWhere('action', 'ilike', "%{$v}%")
-                ->orWhere('ip_address', 'ilike', "%{$v}%");
+            $pattern = '%' . $v . '%';
+            $sub->where(DB::raw('LOWER(entity_type)'), 'like', strtolower($pattern))
+                ->orWhere(DB::raw('LOWER(action)'), 'like', strtolower($pattern))
+                ->orWhere(DB::raw('LOWER(ip_address)'), 'like', strtolower($pattern));
         }))
             ->when($filters['action'] ?? null, fn ($q, $v) => $q->where('action', $v))
             ->when($filters['entity_type'] ?? null, fn ($q, $v) => $q->where('entity_type', $v))

@@ -58,14 +58,14 @@ Soporta dos modos de visualización:
 *   **Componente:** `HeroKpiWidget.php` → `PerformanceService::getGlobalHeroKpis()`
 *   **Caché (Redis):** Para evitar que el polling de 15 segundos sobrecargue PostgreSQL, los cálculos históricos pesados (*Ausentismo* y *Shrinkage*) se almacenan en Redis con un TTL de 2 minutos. Las métricas volátiles de telefonía se calculan en vivo.
 
-| KPI | Qué mide | Umbrales | Cálculo (Realtime) |
-|---|---|---|---|
-| **Cobertura** | % de agentes programados que están conectados | 🔴 <90% · 🟡 90-95% · 🟢 ≥95% | Conectados / Programados × 100 |
-| **Adherencia** | % de tiempo que los agentes cumplen el estado planificado | 🔴 <85% · 🟡 85-92% · 🟢 ≥92% | `AdherenceAction::executeBatch()` |
-| **Ocupación** | % de tiempo productivo vs. disponible (Ready) | 🔴 >90% · 🟡 85-90% · 🟢 ≤85% | Talking+Work+Reserved / (Talking+Work+Reserved+Ready) |
-| **Nivel de Servicio** | % de llamadas atendidas dentro del SLA | 🔴 <80% · 🟡 80-90% · 🟢 ≥90% | Promedio `csq_realtime_stats.service_level_long_term` |
-| **Ausentismo** | % de agentes programados que no se conectaron | 🔴 >5% · 🟢 ≤5% | (Programados - Conectados) / Programados × 100 |
-| **Shrinkage** | % de tiempo no productivo sobre el total pagado | Neutro (Informativo) | Calculado en base a excepciones y micro-actividades |
+| KPI                   | Qué mide                                                  | Umbrales                   | Cálculo (Realtime)                                    |
+| --------------------- | --------------------------------------------------------- | -------------------------- | ----------------------------------------------------- |
+| **Cobertura**         | % de agentes programados que están conectados             | 🔴 <90% · 🟡 90-95% · 🟢 ≥95% | Conectados / Programados × 100                        |
+| **Adherencia**        | % de tiempo que los agentes cumplen el estado planificado | 🔴 <85% · 🟡 85-92% · 🟢 ≥92% | `AdherenceAction::executeBatch()`                     |
+| **Ocupación**         | % de tiempo productivo vs. disponible (Ready)             | 🔴 >90% · 🟡 85-90% · 🟢 ≤85% | Talking+Work+Reserved / (Talking+Work+Reserved+Ready) |
+| **Nivel de Servicio** | % de llamadas atendidas dentro del SLA                    | 🔴 <80% · 🟡 80-90% · 🟢 ≥90% | Promedio `csq_realtime_stats.service_level_long_term` |
+| **Ausentismo**        | % de agentes programados que no se conectaron             | 🔴 >5% · 🟢 ≤5%              | (Programados - Conectados) / Programados × 100        |
+| **Shrinkage**         | % de tiempo no productivo sobre el total pagado           | Neutro (Informativo)       | Calculado en base a excepciones y micro-actividades   |
 
 ---
 
@@ -73,16 +73,16 @@ Soporta dos modos de visualización:
 *   **Componente:** `QueueStatsWidget.php`
 *   Muestra el rendimiento en tiempo real de todas las colas ACD activas de Cisco UCCX.
 
-| Columna | Descripción | Origen / Comportamiento |
-|---|---|---|
-| **Cola** | Nombre de la cola Cisco | `csq_realtime_stats.csq_name` |
-| **Espera** | Llamadas esperando en cola | `csq_realtime_stats.calls_waiting` (Saca alerta visual si >5) |
-| **Hablando** | Agentes en estado TALKING en esa cola | `AgentRealtimeState` agrupado por cola CTI |
-| **Recibidas** | Llamadas entrantes hoy | `csq_realtime_stats.total_calls_since_midnight` |
-| **Atendidas** | Llamadas atendidas hoy | `csq_realtime_stats.calls_handled_since_midnight` |
-| **Abandonadas** | Llamadas abandonadas hoy | Diferencia: Recibidas - Atendidas |
-| **T. Máx. Espera** | Tiempo de la llamada más antigua en espera | `csq_realtime_stats.longest_call_in_queue` |
-| **SL %** | Porcentaje de nivel de servicio | `csq_realtime_stats.service_level_long_term` (Badge dinámico) |
+| Columna            | Descripción                                | Origen / Comportamiento                                       |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------------- |
+| **Cola**           | Nombre de la cola Cisco                    | `csq_realtime_stats.csq_name`                                 |
+| **Espera**         | Llamadas esperando en cola                 | `csq_realtime_stats.calls_waiting` (Saca alerta visual si >5) |
+| **Hablando**       | Agentes en estado TALKING en esa cola      | `AgentRealtimeState` agrupado por cola CTI                    |
+| **Recibidas**      | Llamadas entrantes hoy                     | `csq_realtime_stats.total_calls_since_midnight`               |
+| **Atendidas**      | Llamadas atendidas hoy                     | `csq_realtime_stats.calls_handled_since_midnight`             |
+| **Abandonadas**    | Llamadas abandonadas hoy                   | Diferencia: Recibidas - Atendidas                             |
+| **T. Máx. Espera** | Tiempo de la llamada más antigua en espera | `csq_realtime_stats.longest_call_in_queue`                    |
+| **SL %**           | Porcentaje de nivel de servicio            | `csq_realtime_stats.service_level_long_term` (Badge dinámico) |
 
 ---
 

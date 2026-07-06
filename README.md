@@ -19,9 +19,7 @@
 
 <br>
 
-<p align="center">
-  <img src="public/img/institutional_wfm_hero.png" alt="Hero WFM CSS" width="100%"/>
-</p>
+
 
 ---
 

@@ -4,49 +4,32 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Modules\WfmModule\Livewire\Forms\LeaveRequestForm;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WorkflowsModule\Actions\CreateLeaveRequestAction;
 use App\Modules\WorkflowsModule\DTOs\CreateLeaveRequestDTO;
 use App\Modules\WorkflowsModule\Models\LeaveRequest;
-use App\Shared\Events\LeaveRequestCreated;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class RequestLeave extends Component
 {
-    public $type; // 'quarterly' o 'compensatory'
+    public LeaveRequestForm $form;
 
-    public $date;
+    public int $availableMinutes = 0;
 
-    public $startTime;
-
-    public $endTime;
-
-    public $reason;
-
-    public $isFullDay = false;
-
-    public $availableMinutes = 0;
-
-    public $usedMinutes = 0;
-
-    protected $rules = [
-        'date' => 'required|date|after_or_equal:today',
-        'startTime' => 'required_if:isFullDay,false',
-        'endTime' => 'required_if:isFullDay,false',
-        'reason' => 'required|string|min:10',
-    ];
+    public int $usedMinutes = 0;
 
     public function mount($type = 'quarterly')
     {
-        $this->type = $type;
-        $this->date = now()->format('Y-m-d');
+        $this->form->type = $type;
+        $this->form->date = now()->format('Y-m-d');
         $this->calculateBalance();
     }
 
-    public function updatedType()
+    public function updatedFormType()
     {
         $this->calculateBalance();
     }
@@ -58,7 +41,7 @@ class RequestLeave extends Component
             return;
         }
 
-        if ($this->type === 'quarterly') {
+        if ($this->form->type === 'quarterly') {
             $startOfQuarter = now()->startOfQuarter();
             $endOfQuarter = now()->endOfQuarter();
 
@@ -79,30 +62,30 @@ class RequestLeave extends Component
 
     public function submit(CreateLeaveRequestAction $action)
     {
-        $this->validate();
+        $this->form->validate();
 
         $employee = Auth::user()->employee;
         if (! $employee) {
             return;
         }
 
-        $start = Carbon::parse($this->date.' '.($this->isFullDay ? '00:00' : $this->startTime));
-        $end = Carbon::parse($this->date.' '.($this->isFullDay ? '23:59' : $this->endTime));
+        $start = Carbon::parse($this->form->date.' '.($this->form->isFullDay ? '00:00' : $this->form->startTime));
+        $end = Carbon::parse($this->form->date.' '.($this->form->isFullDay ? '23:59' : $this->form->endTime));
 
-        if ($this->isFullDay) {
-            $assignment = $this->getAssignment($this->date);
+        if ($this->form->isFullDay) {
+            $assignment = $this->getAssignment($this->form->date);
             if (! $assignment) {
-                $this->addError('date', 'No tienes un turno asignado para este día.');
+                $this->addError('form.date', 'No tienes un turno asignado para este día.');
 
                 return;
             }
-            $start = Carbon::parse($this->date.' '.$assignment->start_time->format('H:i:s'));
-            $end = Carbon::parse($this->date.' '.$assignment->end_time->format('H:i:s'));
+            $start = Carbon::parse($this->form->date.' '.$assignment->start_time->format('H:i:s'));
+            $end = Carbon::parse($this->form->date.' '.$assignment->end_time->format('H:i:s'));
         }
 
         $requestedMinutes = (int) $start->diffInMinutes($end);
 
-        if ($this->type === 'quarterly' && $requestedMinutes > $this->availableMinutes) {
+        if ($this->form->type === 'quarterly' && $requestedMinutes > $this->availableMinutes) {
             $hours = round($this->availableMinutes / 60, 1);
             $this->addError('general', "No tienes suficiente saldo trimestral. Saldo restante: {$hours} horas.");
 
@@ -110,23 +93,23 @@ class RequestLeave extends Component
         }
 
         if ($requestedMinutes <= 0) {
-            $this->addError('endTime', 'La hora de fin debe ser posterior a la de inicio.');
+            $this->addError('form.endTime', 'La hora de fin debe ser posterior a la de inicio.');
 
             return;
         }
 
         $dto = new CreateLeaveRequestDTO(
             employeeId: (int) $employee->id,
-            type: $this->type,
+            type: $this->form->type,
             startTime: $start,
             endTime: $end,
             minutes: $requestedMinutes,
-            reason: $this->reason
+            reason: $this->form->reason
         );
 
         $action->execute($dto, (int) auth()->id());
 
-        $typeLabel = $this->type === 'quarterly' ? 'trimestral' : 'compensatorio';
+        $typeLabel = $this->form->type === 'quarterly' ? 'trimestral' : 'compensatorio';
         \Flux::toast("Solicitud de permiso {$typeLabel} enviada al jefe inmediato.");
 
         $this->redirect(route('schedules.leave-history'), navigate: true);

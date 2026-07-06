@@ -22,10 +22,10 @@ test('operator can create a partial leave request', function () {
     $date = now()->addDays(2)->toDateString();
 
     Livewire::test(RequestLeave::class, ['type' => 'quarterly'])
-        ->set('date', $date)
-        ->set('startTime', '10:00')
-        ->set('endTime', '12:00')
-        ->set('reason', 'Motivos personales de prueba (largo)')
+        ->set('form.date', $date)
+        ->set('form.startTime', '10:00')
+        ->set('form.endTime', '12:00')
+        ->set('form.reason', 'Motivos personales de prueba (largo)')
         ->call('submit')
         ->assertHasNoErrors();
 
@@ -67,10 +67,10 @@ test('partial leave cannot be created if overlapping existing leave exists', fun
     // Por ahora lo alineamos para que al menos no lance Error de clase no encontrada.
 
     Livewire::test(RequestLeave::class, ['type' => 'quarterly'])
-        ->set('date', $date)
-        ->set('startTime', '11:00')
-        ->set('endTime', '12:00')
-        ->set('reason', 'Solapamiento de prueba (largo)')
+        ->set('form.date', $date)
+        ->set('form.startTime', '11:00')
+        ->set('form.endTime', '12:00')
+        ->set('form.reason', 'Solapamiento de prueba (largo)')
         ->call('submit');
-    // ->assertHasErrors(['date']); // Descomentar cuando se implemente la validación
+    // ->assertHasErrors(['form.date']); // Descomentar cuando se implemente la validación
 })->todo(); // Marcamos como TODO porque falta la lógica en el componente

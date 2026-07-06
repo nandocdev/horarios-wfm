@@ -38,7 +38,7 @@
                         toolbar: { show: true }
                     },
                     series: [
-                        // Grupo Semana Anterior
+                        // Grupo Semana Anterior (S2 - Colores Claros)
                         { 
                             name: 'Atendidas (' + @js($volumeComparison['prev_week_label']) + ')', 
                             group: 'anterior', 
@@ -49,7 +49,7 @@
                             group: 'anterior', 
                             data: @js($volumeComparison['previous_abandoned']) 
                         },
-                        // Grupo Semana Actual
+                        // Grupo Semana Actual (S1 - Colores Sólidos)
                         { 
                             name: 'Atendidas (' + @js($volumeComparison['curr_week_label']) + ')', 
                             group: 'actual', 
@@ -63,10 +63,14 @@
                     ],
                     xaxis: {
                         categories: @js($volumeComparison['labels']),
-                        axisBorder: { show: true },
-                        labels: { style: { colors: '#71717a', fontSize: '12px' } }
+                        axisBorder: { show: true, color: '#3f3f46' },
+                        axisTicks: { show: true, color: '#3f3f46' },
+                        labels: { style: { colors: '#a1a1aa', fontSize: '12px' } }
                     },
-                    colors: ['#22c55e', '#ef4444', '#86efac', '#fca5a5'],
+                    yaxis: {
+                        labels: { style: { colors: '#a1a1aa', fontSize: '12px' } }
+                    },
+                    colors: ['#86efac', '#fca5a5', '#22c55e', '#ef4444'],
                     plotOptions: {
                         bar: {
                             horizontal: false,
@@ -75,11 +79,17 @@
                         }
                     },
                     dataLabels: { enabled: false },
-                    legend: { position: 'top' },
+                    legend: { 
+                        position: 'top',
+                        labels: { colors: '#a1a1aa' }
+                    },
+                    grid: {
+                        borderColor: '#27272a'
+                    },
                     tooltip: { 
                         shared: true, 
                         intersect: false,
-                        theme: 'light'
+                        theme: 'dark'
                     }
                 });
                 this.chart.render();

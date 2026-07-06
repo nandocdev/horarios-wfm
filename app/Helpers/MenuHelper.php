@@ -78,6 +78,13 @@ class MenuHelper {
                         'icon' => 'chart-bar',
                     ],
                     [
+                        'label' => __('Mi Desempeño'),
+                        'route' => 'operations.agent-performance',
+                        'pattern' => 'operations/agent-performance*',
+                        'permission' => null,
+                        'icon' => 'presentation-chart-bar',
+                    ],
+                    [
                         'label' => __('Historial de Cambios'),
                         'route' => 'schedules.swap-history',
                         'pattern' => 'schedules/swap-history*',

@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Providers;
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
 use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
 use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
+use App\Modules\OperationsModule\Livewire\AgentPerformanceDashboard;
 use App\Modules\OperationsModule\Livewire\AgentRealtimeCard;
 use App\Modules\OperationsModule\Livewire\AgentTimeline;
 use App\Modules\OperationsModule\Livewire\Dashboard;
@@ -22,6 +23,7 @@ use App\Modules\OperationsModule\Livewire\Widgets\QueueStatsWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\RecentIncidentsWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\StateDistributionWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\VolumeComparisonWidget;
+use App\Modules\OperationsModule\Services\AgentPerformanceService;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -36,6 +38,10 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             PerformanceService::class
+        );
+
+        $this->app->singleton(
+            AgentPerformanceService::class
         );
     }
 
@@ -66,6 +72,7 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('operations.agent-timeline', AgentTimeline::class);
         Livewire::component('operations.dashboard', Dashboard::class);
         Livewire::component('operations.advanced-productivity-dashboard', AdvancedProductivityDashboard::class);
+        Livewire::component('operations.agent-performance-dashboard', AgentPerformanceDashboard::class);
 
         // Registro de Widgets del Dashboard (Lazy Loading)
         Livewire::component('operations.widgets.hero-kpi-widget', HeroKpiWidget::class);

@@ -11,6 +11,7 @@ use App\Modules\OperationsModule\Livewire\QueuePerformanceReport;
 use App\Modules\OperationsModule\Livewire\RealtimeMonitoring;
 use App\Modules\OperationsModule\Livewire\ReportingFrameworkIndex;
 use App\Modules\OperationsModule\Livewire\TeamPerformanceSummary;
+use App\Reports\EmployeePerformanceReport;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->group(function () {
@@ -23,4 +24,10 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/operations/advanced-analytics', AdvancedProductivityDashboard::class)->name('operations.advanced-analytics');
     Route::get('/operations/queue-performance', QueuePerformanceReport::class)->name('operations.queue-performance');
     Route::get('/operations/reports', ReportingFrameworkIndex::class)->name('operations.reports');
+
+    Route::get('/operations/reports/performance/{employee}/pdf', function (int $employee) {
+        $emp = \App\Modules\PersonnelModule\Models\Employee::findOrFail($employee);
+        $report = new EmployeePerformanceReport($emp);
+        return $report->stream();
+    })->name('operations.reports.performance-pdf');
 });

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -42,6 +43,8 @@ class AppServiceProvider extends ServiceProvider
         if (class_exists('\Flux\FluxServiceProvider')) {
             app()->register(FluxServiceProvider::class);
         }
+
+        View::addNamespace('reports', resource_path('views/reports'));
 
         $this->configureDefaults();
     }

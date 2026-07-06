@@ -1,83 +1,79 @@
-# 🚀 WFM — Call Center CSS
-## Sistema de Gestión y Optimización del Talento Humano
+<p align="center">
+  <img src="public/img/logo_full.png" alt="WFM CSS" width="400"/>
+</p>
 
-> **Transformando la operatividad del Call Center de la Caja de Seguro Social de Panamá a través de la tecnología.**
+<p align="center">
+  <strong>Transformando la operatividad del Call Center de la Caja de Seguro Social de Panamá</strong>
+</p>
 
-![PHP](https://img.shields.io/badge/PHP-8.5-777BB4?logo=php&logoColor=white)
-![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
-![Modular Monolith](https://img.shields.io/badge/Architecture-Modular_Monolith-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+<br>
 
----
+<p align="center">
+  <img src="public/img/institutional_wfm_hero.png" alt="Hero WFM" width="100%"/>
+</p>
 
-## 🌟 La Visión
-El sistema **WFM (Workforce Management)** nace para profesionalizar la gestión de turnos y el rendimiento operativo. Lo que antes era un laberinto de hojas de cálculo y correos electrónicos, hoy es un ecosistema digital integrado que garantiza transparencia, eficiencia y equidad para cada operador y coordinador del Call Center.
-
-### 🎯 Objetivos Clave
-*   **Precisión Operativa:** Planificación semanal automatizada libre de errores humanos.
-*   **Visibilidad en Tiempo Real:** Monitoreo activo de adherencia y estados de los agentes.
-*   **Empoderamiento del Colaborador:** Autogestión de permisos, vacaciones y cambios de turno.
-*   **Trazabilidad Total:** Auditoría inmutable de cada decisión administrativa.
+<br>
 
 ---
 
-## 🏗️ Arquitectura de Vanguardia: El Monolito Modular
-A diferencia de los sistemas tradicionales, WFM está construido bajo un enfoque de **Monolito Modular**. Esto nos da la robustez de una aplicación centralizada con la agilidad y el desacoplamiento de los microservicios.
+## El desafío
 
-### Nuestros Dominios Principales
+Antes de WFM, la gestión de horarios del Call Center CSS era un laberinto de hojas de cálculo, correos interminables y procesos manuales propensos a errores. Coordinar a cientos de operadores, gestionar permisos, controlar la asistencia y medir el rendimiento exigía un esfuerzo titánico — y la información siempre llegaba tarde.
 
-| Módulo | Descripción | Propósito |
-| :--- | :--- | :--- |
-| **🛡️ Personnel** | Núcleo de Capital Humano | Centraliza la jerarquía organizacional, posiciones y datos del personal. |
-| **🛰️ Connect** | Integración Cisco UCCX | Telemetría en tiempo real y sincronización de estados y desempeño histórico. |
-| **📅 WFM** | Motor de Planificación | Gestión de horarios base, actividades intradía y excepciones programadas. |
-| **⚙️ Operations** | Dashboard de Desempeño | Cálculo avanzado de métricas (Productividad vs Utilización) y monitoreo de adherencia. |
-| **🤝 Workflows** | Flujos de Aprobación | Procesamiento inteligente de solicitudes de permisos y cambios de turno. |
+Nacimos para cambiar eso.
 
----
+## Qué es WFM
 
-## 📊 Métricas que Importan
-Nuestro sistema no solo cuenta llamadas; analiza el comportamiento para mejorar la toma de decisiones:
+**Workforce Management CSS** es la plataforma digital que unifica la planificación, la operación en tiempo real y la gestión del talento humano del Call Center. Un ecosistema donde coordinadores y agentes trabajan sobre la misma verdad operacional.
 
-*   **Productividad:** Eficiencia del agente mientras está conectado.
-*   **Utilización WFM:** Cumplimiento real frente a la jornada pagada y programada.
-*   **Adherencia:** Comparación instantánea entre el estado real (Cisco) y el planificado (WFM).
+### Capacidades clave
 
----
+| | |
+|---|---|
+| **Planificación semanal** | Horarios inteligentes sin solapamientos, con validación automática y publicación con un clic |
+| **Operación en vivo** | Monitoreo de adherencia, estados de agentes y actividades intradía en tiempo real |
+| **Autogestión** | Permisos, vacaciones y cambios de turno sin papeleo ni intermediarios |
+| **Métricas reales** | Productividad, utilización WFM y adherencia calculadas contra la operación real (Cisco) |
+| **Trazabilidad total** | Cada decisión queda registrada. Auditoría inmutable de principio a fin |
 
-## 🛠️ Stack Tecnológico
-*   **Backend:** PHP 8.5+ con Laravel 13.
-*   **Frontend:** Livewire (Componentes reactivos sin salir de PHP) y Flux UI.
-*   **Base de Datos:** PostgreSQL 16 con tipos de datos avanzados (Rangos de tiempo).
-*   **Infraestructura:** Preparado para despliegue en entornos institucionales de alta seguridad.
+## Cómo funciona
 
----
+<p align="center">
+  <img src="public/img/banner01.png" alt="Dashboard" width="49%"/>
+  <img src="public/img/banner02.png" alt="Planning" width="49%"/>
+</p>
 
-## 🚀 Inicio Rápido para Desarrolladores
+El sistema se organiza en dominios que cubren el ciclo completo de la operación:
 
-Si eres parte del equipo de ingeniería, sigue estos pasos para desplegar tu entorno local:
+**Personnel** — El núcleo del talento humano. Organización, equipos, posiciones y datos del personal centralizados.
 
-```bash
-# 1. Clonar y preparar dependencias
-git clone https://github.com/nandocdev/horarios-wfm.git
-composer install
-npm install && npm run build
+**WFM (Planning)** — El motor de horarios. Planificación semanal, actividades intradía, excepciones y publicación automatizada.
 
-# 2. Configurar entorno
-cp .env.example .env
-php artisan key:generate
+**Connect** — La integración con Cisco UCCX. Telemetría en vivo, histórico de llamadas y sincronización de estados de agente.
 
-# 3. Base de datos y Semillas
-php artisan migrate --seed
-```
+**Operations** — El dashboard de desempeño. Adherencia, productividad, reconciliación de asistencia y métricas en tiempo real.
 
----
+**Workflows** — Los flujos de aprobación. Solicitudes de permisos, cambios de turno y aprobaciones con trazabilidad completa.
 
-## 🔒 Seguridad y Privacidad
-El sistema implementa un modelo de **RBAC (Role-Based Access Control)** estricto, asegurando que la información sensible del personal solo sea visible para los niveles jerárquicos autorizados (Jefaturas y Directores).
+## Impacto
 
----
+| Antes | Ahora |
+|---|---|
+| Planificación manual en Excel | Horarios generados y validados en segundos |
+| Solicitudes por correo | Autogestión con aprobaciones en línea |
+| Reportes tardíos | Métricas en tiempo real contra operación Cisco |
+| Información dispersa | Una sola fuente de verdad |
 
-## 📄 Licencia
-Software propietario desarrollado para la **Caja de Seguro Social de Panamá**.
-Todos los derechos reservados. 2026.
+## Tecnología
+
+| | |
+|---|---|
+| Backend | PHP + Laravel |
+| Frontend | Livewire + Flux UI |
+| Base de datos | PostgreSQL |
+| Tiempo real | WebSockets |
+| Infraestructura | Entornos institucionales de alta seguridad |
+
+## Licencia
+
+Software propietario &mdash; **Caja de Seguro Social de Panamá**. Todos los derechos reservados. 2026.

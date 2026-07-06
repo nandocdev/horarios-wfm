@@ -35,6 +35,7 @@ use App\Modules\WfmModule\Policies\SchedulePolicy;
 use App\Modules\WfmModule\Policies\WeeklyScheduleAssignmentPolicy;
 use App\Modules\WfmModule\Policies\WeeklySchedulePolicy;
 use App\Modules\WfmModule\Services\ScheduleService;
+use App\Modules\WfmModule\Services\ScheduleValidationService;
 use App\Modules\WorkflowsModule\Models\LeaveRequest;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Events\ShiftSwapApproved;
@@ -113,6 +114,10 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->singleton(
             ScheduleServiceInterface::class,
             ScheduleService::class
+        );
+
+        $this->app->singleton(
+            ScheduleValidationService::class
         );
 
         $this->app->singleton(

@@ -13,6 +13,7 @@ use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 final class PerformanceService
@@ -80,9 +81,30 @@ final class PerformanceService
     /**
      * Calcula los KPIs globales para el Dashboard.
      */
+    /**
+     * Calcula los KPIs globales para el Dashboard.
+     */
     public function getGlobalHeroKpis(?CarbonInterface $targetDate = null): array
     {
         $date = $targetDate ?? now();
+        $dateStr = $date->toDateString();
+
+        // 1. Si no es hoy, cachear el resultado completo por 24 horas (86400 segundos)
+        if (!$date->isToday()) {
+            return Cache::remember("wfm:hero_kpis:historical:{$dateStr}", 86400, function () use ($date) {
+                return $this->resolveHeroKpisData($date);
+            });
+        }
+
+        // 2. Si es hoy, resolver los Hero KPIs (ayer se cacheará internamente por 1 hora)
+        return $this->resolveHeroKpisData($date);
+    }
+
+    /**
+     * Resuelve los datos de Hero KPIs.
+     */
+    private function resolveHeroKpisData(CarbonInterface $date): array
+    {
         $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
             ->where('is_active', true)
             ->pluck('id')
@@ -93,7 +115,14 @@ final class PerformanceService
         }
 
         $current = $this->calculateMetrics($date, $operatorIds);
-        $previous = $this->calculateMetrics($date->copy()->subDay(), $operatorIds);
+        
+        $yesterday = $date->copy()->subDay();
+        $yesterdayStr = $yesterday->toDateString();
+        
+        // Cachear las métricas de ayer por 1 hora (3600 segundos)
+        $previous = Cache::remember("wfm:hero_kpis_metrics:historical:{$yesterdayStr}", 3600, function () use ($yesterday, $operatorIds) {
+            return $this->calculateMetrics($yesterday, $operatorIds);
+        });
 
         return [
             'coverage' => [
@@ -188,7 +217,7 @@ final class PerformanceService
 
         $totalConnected = $realtimeStates->count();
 
-        // 3. Cálculos
+        // 3. Cálculos en tiempo real
         $coverage = $totalScheduled > 0 ? ($totalConnected / $totalScheduled) * 100 : 0.0;
         
         $adherenceRes = $this->adherenceAction->executeBatch($operatorIds, $now);
@@ -197,11 +226,43 @@ final class PerformanceService
         $occupancy = $this->calculateRealtimeOccupancy($operatorIds);
         $serviceLevel = (float) (DB::table('csq_realtime_stats')->avg('service_level_long_term') ?? 0);
 
-        $connectedFromScheduled = $realtimeStates->whereIn('employee_id', $scheduled->pluck('employee_id'))->count();
-        $absenteeism = MetricFormulas::absenteeismRate(
-            (float) MetricFormulas::absentPersonnel($totalScheduled, $connectedFromScheduled),
-            (float) $totalScheduled
-        );
+        // 4. Cachear ausentismo de hoy por 120 segundos para evitar sobrecarga
+        $absenteeism = Cache::remember("wfm:realtime:absenteeism", 120, function () use ($operatorIds, $now, $today) {
+            $idsWithEx = ScheduleException::whereIn('employee_id', $operatorIds)
+                ->where('start_at', '<=', $now)
+                ->where('end_at', '>=', $now)
+                ->pluck('employee_id')
+                ->toArray();
+
+            $sched = WeeklyScheduleAssignment::whereIn('employee_id', $operatorIds)
+                ->whereNotIn('employee_id', $idsWithEx)
+                ->where('day_of_week', $now->dayOfWeekIso)
+                ->whereHas('weeklySchedule', function ($q) use ($today) {
+                    $q->where('week_start_date', '<=', $today)
+                        ->where('week_end_date', '>=', $today);
+                })
+                ->where('start_time', '<=', $now->toTimeString())
+                ->where('end_time', '>=', $now->toTimeString())
+                ->get();
+
+            $totalSched = $sched->count();
+
+            $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
+                ->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])
+                ->get();
+
+            $connectedFromSched = $states->whereIn('employee_id', $sched->pluck('employee_id'))->count();
+            
+            return (float) MetricFormulas::absenteeismRate(
+                (float) MetricFormulas::absentPersonnel($totalSched, $connectedFromSched),
+                (float) $totalSched
+            );
+        });
+
+        // 5. Cachear shrinkage de hoy por 120 segundos
+        $shrinkage = Cache::remember("wfm:realtime:shrinkage", 120, function () use ($operatorIds, $now) {
+            return (float) $this->calculateShrinkage($operatorIds, $now);
+        });
 
         return [
             'coverage' => min(100, $coverage),
@@ -209,7 +270,7 @@ final class PerformanceService
             'occupancy' => $occupancy,
             'service_level' => $serviceLevel,
             'absenteeism' => $absenteeism,
-            'shrinkage' => $this->calculateShrinkage($operatorIds, $now),
+            'shrinkage' => $shrinkage,
         ];
     }
 

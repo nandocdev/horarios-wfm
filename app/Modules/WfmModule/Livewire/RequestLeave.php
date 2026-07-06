@@ -6,6 +6,8 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Modules\WorkflowsModule\Actions\CreateLeaveRequestAction;
+use App\Modules\WorkflowsModule\DTOs\CreateLeaveRequestDTO;
 use App\Modules\WorkflowsModule\Models\LeaveRequest;
 use App\Shared\Events\LeaveRequestCreated;
 use Illuminate\Support\Carbon;
@@ -75,7 +77,7 @@ class RequestLeave extends Component
         }
     }
 
-    public function submit()
+    public function submit(CreateLeaveRequestAction $action)
     {
         $this->validate();
 
@@ -113,22 +115,21 @@ class RequestLeave extends Component
             return;
         }
 
-        $leave = LeaveRequest::create([
-            'employee_id' => $employee->id,
-            'type' => $this->type,
-            'start_time' => $start,
-            'end_time' => $end,
-            'minutes' => $requestedMinutes,
-            'status' => 'pending',
-            'reason' => $this->reason,
-        ]);
+        $dto = new CreateLeaveRequestDTO(
+            employeeId: (int) $employee->id,
+            type: $this->type,
+            startTime: $start,
+            endTime: $end,
+            minutes: $requestedMinutes,
+            reason: $this->reason
+        );
 
-        LeaveRequestCreated::dispatch($leave, auth()->id());
+        $action->execute($dto, (int) auth()->id());
 
         $typeLabel = $this->type === 'quarterly' ? 'trimestral' : 'compensatorio';
         \Flux::toast("Solicitud de permiso {$typeLabel} enviada al jefe inmediato.");
 
-        return redirect()->route('schedules.leave-history');
+        $this->redirect(route('schedules.leave-history'), navigate: true);
     }
 
     protected function getAssignment($dateString)

@@ -77,7 +77,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-1">
             {{-- Critical Alerts Widget (Lazy) --}}
-            <livewire:operations.widgets.critical-alerts-widget :key="'alerts-'.$selectedDate" />
+            <livewire:operations.widgets.critical-alerts-widget :selectedDate="$selectedDate" :key="'alerts-'.$selectedDate" />
         </div>
 
         <div class="lg:col-span-2">

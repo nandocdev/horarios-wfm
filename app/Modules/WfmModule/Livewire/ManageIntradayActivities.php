@@ -8,6 +8,9 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\AssignIntradayActivityAction;
 use App\Modules\WfmModule\Actions\CreateApprovedIntradayPeriodAction;
+use App\Modules\WfmModule\Actions\UpdateApprovedIntradayPeriodAction;
+use App\Modules\WfmModule\Actions\DeleteApprovedIntradayPeriodAction;
+use App\Modules\WfmModule\Actions\DeleteIntradayActivityAction;
 use App\Modules\WfmModule\DTOs\IntradayActivityDTO;
 use App\Modules\WfmModule\Models\ApprovedIntradayPeriod;
 use App\Modules\WfmModule\Models\IntradayActivity;
@@ -111,7 +114,7 @@ class ManageIntradayActivities extends Component
         $this->showPeriodModal = true;
     }
 
-    public function savePeriod(CreateApprovedIntradayPeriodAction $action): void
+    public function savePeriod(CreateApprovedIntradayPeriodAction $createAction, UpdateApprovedIntradayPeriodAction $updateAction): void
     {
         $this->authorize('wfm.intraday.periods.manage');
 
@@ -132,27 +135,22 @@ class ManageIntradayActivities extends Component
         ]);
 
         try {
+            $data = [
+                'team_id'               => $this->periodTeamId,
+                'activity_definition_id' => $this->periodActivityDefinitionId,
+                'date'                  => $this->periodDate,
+                'start_time'            => $this->periodStartTime,
+                'end_time'              => $this->periodEndTime,
+                'max_slots'             => $this->periodMaxSlots,
+                'notes'                 => $this->periodNotes ?: null,
+            ];
+
             if ($this->periodId) {
-                // Edición
-                ApprovedIntradayPeriod::findOrFail($this->periodId)->update([
-                    'team_id'               => $this->periodTeamId,
-                    'activity_definition_id' => $this->periodActivityDefinitionId,
-                    'date'                  => $this->periodDate,
-                    'start_time'            => $this->periodStartTime,
-                    'end_time'              => $this->periodEndTime,
-                    'max_slots'             => $this->periodMaxSlots,
-                    'notes'                 => $this->periodNotes ?: null,
-                ]);
+                // Edición mediante Action
+                $updateAction->execute((int) $this->periodId, $data);
             } else {
-                $action->execute([
-                    'team_id'               => $this->periodTeamId,
-                    'activity_definition_id' => $this->periodActivityDefinitionId,
-                    'date'                  => $this->periodDate,
-                    'start_time'            => $this->periodStartTime,
-                    'end_time'              => $this->periodEndTime,
-                    'max_slots'             => $this->periodMaxSlots,
-                    'notes'                 => $this->periodNotes ?: null,
-                ]);
+                // Creación mediante Action
+                $createAction->execute($data);
             }
             // Align list filters to show the newly created/edited period immediately
             $this->date = $this->periodDate;
@@ -169,10 +167,10 @@ class ManageIntradayActivities extends Component
         }
     }
 
-    public function deletePeriod(int $id): void
+    public function deletePeriod(int $id, DeleteApprovedIntradayPeriodAction $action): void
     {
         $this->authorize('wfm.intraday.periods.manage');
-        ApprovedIntradayPeriod::findOrFail($id)->delete();
+        $action->execute($id);
         \Flux::toast('Periodo aprobado eliminado.');
     }
 
@@ -249,9 +247,9 @@ class ManageIntradayActivities extends Component
         }
     }
 
-    public function deleteActivity(int $id): void
+    public function deleteActivity(int $id, DeleteIntradayActivityAction $action): void
     {
-        IntradayActivity::findOrFail($id)->delete();
+        $action->execute($id);
         \Flux::toast('Actividad eliminada.');
     }
 

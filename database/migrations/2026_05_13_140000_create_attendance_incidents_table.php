@@ -26,7 +26,7 @@ return new class extends Migration
 
         // 2. Crear attendance_incidents
         Schema::create('attendance_incidents', function (Blueprint $table) {
-            $table->id();
+            $table->ulid('id')->primary();
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             $table->foreignId('incident_type_id')->constrained('incident_types')->cascadeOnDelete();
             $table->date('incident_date');

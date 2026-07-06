@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Models;
 
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Database\Eloquent\Model;
+use App\Shared\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AttendanceIncident extends Model
+class AttendanceIncident extends BaseModel
 {
     protected $fillable = [
         'employee_id', 'incident_type_id', 'incident_date',

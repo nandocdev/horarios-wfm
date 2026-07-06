@@ -48,9 +48,9 @@ test('operator can create a full day leave request', function () {
 
     // 2. Test Livewire Component (RequestLeave es el nuevo componente consolidado)
     Livewire::test(RequestLeave::class, ['type' => 'quarterly'])
-        ->set('date', $date->toDateString())
-        ->set('isFullDay', true)
-        ->set('reason', 'Necesito permiso por motivos personales (más de 10 caracteres)')
+        ->set('form.date', $date->toDateString())
+        ->set('form.isFullDay', true)
+        ->set('form.reason', 'Necesito permiso por motivos personales (más de 10 caracteres)')
         ->call('submit')
         ->assertHasNoErrors();
 

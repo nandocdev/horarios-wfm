@@ -1,5 +1,5 @@
 <flux:card>
-    <flux:heading size="lg" class="mb-6">Distribución de Estados</flux:heading>
+    <flux:heading size="lg" class="mb-6">Distribución de Estados ({{ $this->isHistorical ? 'Histórico' : 'Realtime' }})</flux:heading>
 
     <div class="relative flex items-center justify-center py-2" x-data="{
             chart: null,
@@ -23,12 +23,12 @@
                                 size: '75%',
                                 labels: {
                                     show: true,
-                                    name: { show: true, offsetY: -10, fontSize: '12px', color: '#71717a' },
-                                    value: { show: true, offsetY: 5, fontSize: '20px', fontWeight: 'bold', color: '#27272a' },
+                                    name: { show: true, offsetY: -10, fontSize: '12px', color: '#a1a1aa' },
+                                    value: { show: true, offsetY: 5, fontSize: '20px', fontWeight: 'bold', color: '#ffffff' },
                                     total: {
                                         show: true,
                                         label: 'Agentes',
-                                        color: '#71717a',
+                                        color: '#a1a1aa',
                                         formatter: function (w) {
                                             return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                                         }
@@ -37,7 +37,7 @@
                             }
                         }
                     },
-                    tooltip: { enabled: true, theme: 'light' }
+                    tooltip: { enabled: true, theme: 'dark' }
                 });
                 this.chart.render();
             },

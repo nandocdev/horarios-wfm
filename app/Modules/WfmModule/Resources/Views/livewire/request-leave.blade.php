@@ -1,14 +1,14 @@
 <div class="max-w-2xl mx-auto space-y-6">
     <div>
-        <flux:heading size="xl">Solicitar Permiso {{ $type === 'quarterly' ? 'Trimestral' : 'Compensatorio' }}</flux:heading>
-        @if($type === 'quarterly')
+        <flux:heading size="xl">Solicitar Permiso {{ $form->type === 'quarterly' ? 'Trimestral' : 'Compensatorio' }}</flux:heading>
+        @if($form->type === 'quarterly')
             <flux:subheading>Puedes solicitar hasta 8 horas por trimestre (Ene-Mar, Abr-Jun, Jul-Sep, Oct-Dic).</flux:subheading>
         @else
             <flux:subheading>Solicita tiempo libre a cambio de tus horas extra trabajadas.</flux:subheading>
         @endif
     </div>
 
-    @if($type === 'quarterly')
+    @if($form->type === 'quarterly')
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <flux:card class="flex flex-col items-center justify-center p-4 text-center">
                 <span class="text-xs text-zinc-500 uppercase font-bold mb-1">Saldo Disponible</span>
@@ -34,7 +34,7 @@
 
             <flux:field>
                 <flux:label>Tipo de Permiso</flux:label>
-                <flux:select wire:model.live="type">
+                <flux:select wire:model.live="form.type">
                     <flux:select.option value="quarterly">Permiso Trimestral (8h)</flux:select.option>
                     <flux:select.option value="compensatory">Permiso Compensatorio</flux:select.option>
                 </flux:select>
@@ -42,33 +42,33 @@
 
             <flux:field>
                 <flux:label>Fecha del Permiso</flux:label>
-                <flux:input type="date" wire:model.live="date" />
-                <flux:error name="date" />
+                <flux:input type="date" wire:model.live="form.date" />
+                <flux:error name="form.date" />
             </flux:field>
 
             <div class="flex items-center gap-4 py-2">
-                <flux:checkbox wire:model.live="isFullDay" label="Permiso por jornada completa" />
+                <flux:checkbox wire:model.live="form.isFullDay" label="Permiso por jornada completa" />
             </div>
 
-            @if(!$isFullDay)
+            @if(!$form->isFullDay)
                 <div class="grid grid-cols-2 gap-4">
                     <flux:field>
                         <flux:label>Hora Inicio</flux:label>
-                        <flux:input type="time" wire:model="startTime" />
-                        <flux:error name="startTime" />
+                        <flux:input type="time" wire:model="form.startTime" />
+                        <flux:error name="form.startTime" />
                     </flux:field>
                     <flux:field>
                         <flux:label>Hora Fin</flux:label>
-                        <flux:input type="time" wire:model="endTime" />
-                        <flux:error name="endTime" />
+                        <flux:input type="time" wire:model="form.endTime" />
+                        <flux:error name="form.endTime" />
                     </flux:field>
                 </div>
             @endif
 
             <flux:field>
                 <flux:label>Motivo</flux:label>
-                <flux:textarea wire:model="reason" placeholder="Justifica brevemente tu solicitud..." />
-                <flux:error name="reason" />
+                <flux:textarea wire:model="form.reason" placeholder="Justifica brevemente tu solicitud..." />
+                <flux:error name="form.reason" />
             </flux:field>
 
             <div class="flex items-center gap-2 pt-4 border-t dark:border-zinc-700">

@@ -24,6 +24,29 @@ class Dashboard extends Component
         return $this->selectedDate !== now()->toDateString();
     }
 
+    #[Computed]
+    public function ctiStatus(): array
+    {
+        try {
+            $latest = \App\Modules\ConnectModule\Models\CsqRealtimeStat::latest('updated_at')->first();
+            if ($latest && $latest->updated_at && $latest->updated_at->gt(now()->subMinutes(2))) {
+                return [
+                    'online' => true,
+                    'label' => 'CTI Online',
+                    'updated_at' => $latest->updated_at->format('H:i:s'),
+                ];
+            }
+        } catch (\Exception $e) {
+            // Fallback silencioso en caso de caída o tabla inexistente
+        }
+
+        return [
+            'online' => false,
+            'label' => 'CTI Offline',
+            'updated_at' => now()->format('H:i:s'),
+        ];
+    }
+
     public function render()
     {
         return view('operations::livewire.dashboard')

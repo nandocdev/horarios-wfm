@@ -9,12 +9,19 @@ use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 #[Lazy]
 class QueueStatsWidget extends Component
 {
     public string $selectedDate;
+
+    #[Computed]
+    public function isHistorical(): bool
+    {
+        return $this->selectedDate !== now()->toDateString();
+    }
 
     public function mount(string $selectedDate): void
     {

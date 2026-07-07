@@ -32,11 +32,11 @@
                             <flux:text size="sm" class="font-medium">{{ $item->responses_count }} votos</flux:text>
                         </flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-2">
                                 @php
                                     $statusColor = match($item->status) {
                                         'draft' => 'slate',
-                                        'pending_review' => 'orange',
+                                        'pending_review' => 'amber',
                                         'published' => 'green',
                                         'archived' => 'red',
                                         default => 'slate',
@@ -64,7 +64,7 @@
                                     <flux:button variant="ghost" icon="chart-bar" size="sm" tooltip="Ver Resultados" />
                                 </flux:modal.trigger>
 
-                                <flux:modal name="results-poll-{{ $item->id }}" class="md:w-[500px]">
+                                <flux:modal name="results-poll-{{ $item->id }}" class="md:max-w-lg">
                                     <div class="space-y-4">
                                         <div>
                                             <flux:heading size="lg">{{ $item->question }}</flux:heading>
@@ -81,20 +81,20 @@
                                                     $votes = $option['votes'] ?? 0;
                                                     $percentage = $totalVotes > 0 ? round(($votes / $totalVotes) * 100) : 0;
                                                 @endphp
-                                                <div class="space-y-1">
+                                                <div class="space-y-2">
                                                     <div class="flex justify-between text-sm font-medium">
                                                         <span>{{ $option['text'] }}</span>
                                                         <span>{{ $percentage }}% ({{ $votes }})</span>
                                                     </div>
-                                                    <div class="w-full bg-zinc-100 rounded-full h-2.5 dark:bg-zinc-800">
-                                                        <div class="bg-{{ $option['color'] ?? 'blue' }}-500 h-2.5 rounded-full" style="width: {{ $percentage }}%"></div>
+                                                    <div class="w-full bg-slate-100 rounded-full h-2 dark:bg-slate-800">
+                                                        <div class="bg-{{ $option['color'] ?? 'blue' }}-500 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
                                                     </div>
                                                 </div>
                                             @endforeach
 
-                                            <div class="pt-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
+                                            <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
                                                 <flux:text size="sm" class="font-medium">Total de participaciones:</flux:text>
-                                                <flux:badge size="sm" color="zinc" variant="solid">{{ $totalVotes }} votos</flux:badge>
+                                                <flux:badge size="sm" color="slate" variant="solid">{{ $totalVotes }} votos</flux:badge>
                                             </div>
                                         </div>
 

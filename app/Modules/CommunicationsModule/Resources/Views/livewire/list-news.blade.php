@@ -32,11 +32,11 @@
                         <flux:table.cell>{{ $item->author->name }}</flux:table.cell>
                         <flux:table.cell>{{ $item->published_at->format('d/m/Y H:i') }}</flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-2">
                                 @php
                                     $statusColor = match($item->status) {
                                         'draft' => 'slate',
-                                        'pending_review' => 'orange',
+                                        'pending_review' => 'amber',
                                         'published' => 'green',
                                         'archived' => 'red',
                                         default => 'slate',

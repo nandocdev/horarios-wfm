@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 max-w-[960px] mx-auto">
     <div>
         <flux:heading size="xl">{{ $mode === 'edit' ? 'Editar Reconocimiento' : 'Crear Nuevo Reconocimiento' }}</flux:heading>
         <flux:subheading>Reconoce el excelente trabajo de un colaborador ante toda la organización.</flux:subheading>
@@ -32,15 +32,15 @@
 
                     <div class="pt-4">
                         <flux:label>Imagen del Banner (Opcional)</flux:label>
-                        <flux:text size="sm" class="mb-3">Esta imagen se mostrará como fondo en el carrusel de reconocimientos.</flux:text>
+                        <flux:text size="sm" class="mb-4">Esta imagen se mostrará como fondo en el carrusel de reconocimientos.</flux:text>
                         
                         <div class="flex items-start gap-4">
                             @if($form->image)
-                                <div class="relative w-32 h-20 rounded-md overflow-hidden border border-zinc-200">
+                                <div class="relative w-32 h-20 rounded-md overflow-hidden border border-slate-200">
                                     <img src="{{ $form->image->temporaryUrl() }}" class="w-full h-full object-cover">
                                 </div>
                             @elseif($mode === 'edit' && $shoutout->hasMedia('banner'))
-                                <div class="relative w-32 h-20 rounded-md overflow-hidden border border-zinc-200">
+                                <div class="relative w-32 h-20 rounded-md overflow-hidden border border-slate-200">
                                     <img src="{{ $shoutout->getFirstMediaUrl('banner', 'thumb') }}" class="w-full h-full object-cover">
                                 </div>
                             @endif
@@ -48,7 +48,7 @@
                             <div class="flex-1">
                                 <flux:input type="file" wire:model="form.image" accept="image/*" />
                                 <flux:error name="form.image" />
-                                <div wire:loading wire:target="form.image" class="mt-2 text-xs text-indigo-600 font-medium italic">
+                                <div wire:loading wire:target="form.image" class="mt-2 text-xs text-slate-600 font-medium italic">
                                     Subiendo imagen...
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                 </div>
             </flux:card>
 
-            <div class="flex gap-3">
+            <div class="flex gap-4">
                 <flux:button variant="ghost" class="flex-1" href="{{ route('communications.shoutouts.index') }}" wire:navigate>
                     Cancelar
                 </flux:button>

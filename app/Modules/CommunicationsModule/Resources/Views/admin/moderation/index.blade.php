@@ -16,24 +16,24 @@
         @endif
 
         <div x-data="{ tab: 'news' }" class="space-y-4">
-            <div class="flex space-x-4 border-b border-zinc-200 dark:border-zinc-700 pb-px">
+            <div class="flex space-x-4 border-b border-slate-200 dark:border-slate-700 pb-px">
                 <button type="button" 
                     @click="tab = 'news'"
-                    :class="tab === 'news' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300'"
+                    :class="tab === 'news' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
                     class="px-4 py-2 text-sm font-medium border-b-2 transition-opacity flex items-center gap-2">
                     <flux:icon name="newspaper" class="w-4 h-4" />
                     Noticias ({{ $pendingNews->total() }})
                 </button>
                 <button type="button" 
                     @click="tab = 'polls'"
-                    :class="tab === 'polls' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300'"
+                    :class="tab === 'polls' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
                     class="px-4 py-2 text-sm font-medium border-b-2 transition-opacity flex items-center gap-2">
                     <flux:icon name="presentation-chart-line" class="w-4 h-4" />
                     Encuestas ({{ $pendingPolls->total() }})
                 </button>
                 <button type="button" 
                     @click="tab = 'shoutouts'"
-                    :class="tab === 'shoutouts' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300'"
+                    :class="tab === 'shoutouts' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'"
                     class="px-4 py-2 text-sm font-medium border-b-2 transition-opacity flex items-center gap-2">
                     <flux:icon name="sparkles" class="w-4 h-4" />
                     Reconocimientos ({{ $pendingShoutouts->total() }})
@@ -49,7 +49,7 @@
                                 <flux:heading size="lg">{{ $news->title }}</flux:heading>
                                 <flux:text class="mt-1 line-clamp-2">{{ $news->excerpt }}</flux:text>
                                 <div class="flex items-center gap-2 mt-2">
-                                    <flux:badge size="sm" color="zinc">Por: {{ $news->author->name }}</flux:badge>
+                                    <flux:badge size="sm" color="slate">Por: {{ $news->author->name }}</flux:badge>
                                     <flux:text size="xs">{{ $news->created_at->diffForHumans() }}</flux:text>
                                 </div>
                             </div>
@@ -66,7 +66,7 @@
                                     <flux:button variant="ghost" color="red" size="sm">Rechazar</flux:button>
                                 </flux:modal.trigger>
 
-                                <flux:modal name="reject-news-{{ $news->id }}" class="md:w-[450px]">
+                                <flux:modal name="reject-news-{{ $news->id }}" class="md:max-w-md">
                                     <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-4">
                                         @csrf
                                         <input type="hidden" name="action" value="reject">
@@ -90,7 +90,7 @@
                         </div>
                     </flux:card>
                 @empty
-                    <flux:text align="center" class="py-12 text-zinc-500">No hay noticias pendientes de revisión.</flux:text>
+                    <flux:text align="center" class="py-12 text-slate-500">No hay noticias pendientes de revisión.</flux:text>
                 @endforelse
                 <div class="mt-4">
                     {{ $pendingNews->links() }}
@@ -105,7 +105,7 @@
                             <div class="flex-1">
                                 <flux:heading size="lg">{{ $poll->question }}</flux:heading>
                                 <div class="flex items-center gap-2 mt-2">
-                                    <flux:badge size="sm" color="zinc">Autor: Administración</flux:badge>
+                                    <flux:badge size="sm" color="slate">Autor: Administración</flux:badge>
                                     <flux:text size="xs">{{ $poll->created_at->diffForHumans() }}</flux:text>
                                 </div>
                             </div>
@@ -122,7 +122,7 @@
                                     <flux:button variant="ghost" color="red" size="sm">Rechazar</flux:button>
                                 </flux:modal.trigger>
 
-                                <flux:modal name="reject-poll-{{ $poll->id }}" class="md:w-[450px]">
+                                <flux:modal name="reject-poll-{{ $poll->id }}" class="md:max-w-md">
                                     <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-4">
                                         @csrf
                                         <input type="hidden" name="action" value="reject">
@@ -146,7 +146,7 @@
                         </div>
                     </flux:card>
                 @empty
-                    <flux:text align="center" class="py-12 text-zinc-500">No hay encuestas pendientes de revisión.</flux:text>
+                    <flux:text align="center" class="py-12 text-slate-500">No hay encuestas pendientes de revisión.</flux:text>
                 @endforelse
                 <div class="mt-4">
                     {{ $pendingPolls->links() }}
@@ -161,7 +161,7 @@
                             <div class="flex-1">
                                 <flux:text class="italic font-medium">"{{ $shoutout->message }}"</flux:text>
                                 <div class="flex items-center gap-2 mt-3">
-                                    <flux:badge size="sm" color="indigo">Para: {{ $shoutout->employee->name }}</flux:badge>
+                                    <flux:badge size="sm" color="slate">Para: {{ $shoutout->employee->name }}</flux:badge>
                                     <flux:text size="xs">{{ $shoutout->created_at->diffForHumans() }}</flux:text>
                                 </div>
                             </div>
@@ -178,7 +178,7 @@
                                     <flux:button variant="ghost" color="red" size="sm">Rechazar</flux:button>
                                 </flux:modal.trigger>
 
-                                <flux:modal name="reject-shoutout-{{ $shoutout->id }}" class="md:w-[450px]">
+                                <flux:modal name="reject-shoutout-{{ $shoutout->id }}" class="md:max-w-md">
                                     <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-4">
                                         @csrf
                                         <input type="hidden" name="action" value="reject">
@@ -202,7 +202,7 @@
                         </div>
                     </flux:card>
                 @empty
-                    <flux:text align="center" class="py-12 text-zinc-500">No hay reconocimientos pendientes de revisión.</flux:text>
+                    <flux:text align="center" class="py-12 text-slate-500">No hay reconocimientos pendientes de revisión.</flux:text>
                 @endforelse
                 <div class="mt-4">
                     {{ $pendingShoutouts->links() }}

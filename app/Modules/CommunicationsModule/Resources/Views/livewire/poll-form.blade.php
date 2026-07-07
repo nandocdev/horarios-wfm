@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 max-w-[960px] mx-auto">
     <div>
         <flux:heading size="xl">{{ $mode === 'edit' ? 'Editar Encuesta' : 'Crear Nueva Encuesta' }}</flux:heading>
         <flux:subheading>Define la pregunta y las opciones para recolectar feedback de los empleados.</flux:subheading>
@@ -16,9 +16,9 @@
 
                     <flux:separator text="Opciones de Respuesta" />
 
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         @foreach($form->options as $index => $option)
-                            <div class="flex items-end gap-3" wire:key="option-{{ $index }}">
+                            <div class="flex items-end gap-4" wire:key="option-{{ $index }}">
                                 <div class="flex-1">
                                     <flux:input 
                                         wire:model="form.options.{{ $index }}.text" 
@@ -31,11 +31,8 @@
                                         <option value="blue">Azul</option>
                                         <option value="green">Verde</option>
                                         <option value="red">Rojo</option>
-                                        <option value="yellow">Amarillo</option>
-                                        <option value="indigo">Indigo</option>
-                                        <option value="purple">Morado</option>
-                                        <option value="pink">Rosa</option>
-                                        <option value="gray">Gris</option>
+                                        <option value="amber">Amarillo</option>
+                                        <option value="slate">Gris</option>
                                     </flux:select>
                                 </div>
                                 @if(count($form->options) > 2)
@@ -87,7 +84,7 @@
                 </div>
             </flux:card>
 
-            <div class="flex gap-3">
+            <div class="flex gap-4">
                 <flux:button variant="ghost" class="flex-1" href="{{ route('communications.polls.index') }}" wire:navigate>
                     Cancelar
                 </flux:button>

@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 max-w-[960px] mx-auto">
     <div>
         <flux:heading size="xl">{{ $mode === 'edit' ? 'Editar Noticia' : 'Crear Nueva Noticia' }}</flux:heading>
         <flux:subheading>Completa los campos para publicar contenido en la página de inicio.</flux:subheading>
@@ -77,13 +77,13 @@
                     <flux:error name="form.featured_image" />
 
                     @if ($form->featured_image)
-                        <div class="mt-2 text-xs text-zinc-500">Imagen seleccionada:
+                        <div class="mt-2 text-xs text-slate-500">Imagen seleccionada:
                             {{ $form->featured_image->getClientOriginalName() }}
                         </div>
                     @elseif ($mode === 'edit' && $this->news->hasMedia('featured_image'))
                         <div class="mt-2">
                             <img src="{{ $this->news->getFirstMediaUrl('featured_image') }}"
-                                class="h-24 w-full object-cover rounded shadow" />
+                                class="h-24 w-full object-cover rounded-md shadow-sm" />
                         </div>
                     @endif
 
@@ -93,7 +93,7 @@
                     <flux:error name="form.attachments" />
                     <flux:error name="form.attachments.*" />
                     <flux:subheading class="mt-1 text-xs">Múltiples archivos permitidos.</flux:subheading>
-                    <flux:subheading class="text-xs text-zinc-500">
+                    <flux:subheading class="text-xs text-slate-500">
                         Límite efectivo del servidor: {{ ini_get('upload_max_filesize') }} por archivo.
                     </flux:subheading>
 
@@ -101,8 +101,8 @@
                         <div class="mt-4 space-y-2">
                             <flux:heading size="sm">Archivos actuales:</flux:heading>
                             @foreach($this->news->getMedia('attachments') as $media)
-                                <div class="flex items-center justify-between p-2 bg-zinc-50 rounded border text-xs">
-                                    <span class="truncate max-w-[150px]">{{ $media->file_name }}</span>
+                                <div class="flex items-center justify-between p-2 bg-slate-50 rounded-md border border-slate-200 text-xs">
+                                    <span class="truncate max-w-36">{{ $media->file_name }}</span>
                                     <flux:button variant="ghost" icon="trash" size="xs" color="red"
                                         wire:click="deleteMedia({{ $media->id }})" wire:confirm="¿Eliminar archivo?" />
                                 </div>
@@ -112,7 +112,7 @@
                 </div>
             </flux:card>
 
-            <div class="flex gap-3">
+            <div class="flex gap-4">
                 <flux:button variant="ghost" class="flex-1" href="{{ route('communications.news.index') }}"
                     wire:navigate>Cancelar</flux:button>
                 @if($mode === 'create')

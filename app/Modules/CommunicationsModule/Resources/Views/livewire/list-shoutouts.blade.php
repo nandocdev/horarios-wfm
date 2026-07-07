@@ -30,11 +30,11 @@
                         <flux:table.cell>{{ $item->employee->full_name ?? 'N/A' }}</flux:table.cell>
                         <flux:table.cell class="max-w-xs truncate">{{ $item->message }}</flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex flex-col gap-1">
+                            <div class="flex flex-col gap-2">
                                 @php
                                     $statusColor = match($item->status) {
                                         'draft' => 'slate',
-                                        'pending_review' => 'orange',
+                                        'pending_review' => 'amber',
                                         'published' => 'green',
                                         'archived' => 'red',
                                         default => 'slate',

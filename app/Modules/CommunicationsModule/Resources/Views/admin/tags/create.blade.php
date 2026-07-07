@@ -5,11 +5,11 @@
 @section('content')
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-2xl mx-auto">
-            <div class="flex items-center mb-6">
-                <a href="{{ route('communications.admin.tags.index') }}" class="text-blue-600 hover:text-blue-800 mr-4">
+            <div class="flex items-center mb-8">
+                <a href="{{ route('communications.admin.tags.index') }}" class="text-slate-600 hover:text-slate-900 mr-4">
                     ← Volver a Etiquetas
                 </a>
-                <h1 class="text-3xl font-bold text-gray-900">Crear Etiqueta</h1>
+                <h1 class="text-3xl font-bold text-slate-900">Crear Etiqueta</h1>
             </div>
 
             <div class="bg-white shadow-md rounded-md p-4">
@@ -17,11 +17,11 @@
                     @csrf
 
                     <div class="mb-4">
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="name" class="block text-sm font-medium text-slate-700 mb-2">
                             Nombre *
                         </label>
                         <input type="text" id="name" name="name" value="{{ old('name') }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 @error('name') border-red-500 @enderror"
+                            class="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-950 @error('name') border-red-500 @enderror"
                             required>
                         @error('name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -29,42 +29,42 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="description" class="block text-sm font-medium text-slate-700 mb-2">
                             Descripción
                         </label>
                         <textarea id="description" name="description" rows="3"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
+                            class="w-full px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-950 @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
                         @error('description')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="mb-4">
-                        <label for="color" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="color" class="block text-sm font-medium text-slate-700 mb-2">
                             Color
                         </label>
-                        <input type="color" id="color" name="color" value="{{ old('color', '#10B981') }}"
-                            class="w-20 h-10 border border-gray-300 rounded-md @error('color') border-red-500 @enderror">
+                        <input type="color" id="color" name="color" value="{{ old('color', '#64748B') }}"
+                            class="w-20 h-10 border border-slate-200 rounded-md @error('color') border-red-500 @enderror">
                         @error('color')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="mb-6">
+                    <div class="mb-8">
                         <label class="flex items-center">
                             <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
-                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                            <span class="ml-2 text-sm text-gray-700">Etiqueta activa</span>
+                                class="rounded border-slate-200 text-blue-600 focus:ring-slate-950">
+                            <span class="ml-2 text-sm text-slate-700">Etiqueta activa</span>
                         </label>
                     </div>
 
-                    <div class="flex justify-end space-x-3">
+                    <div class="flex justify-end space-x-4">
                         <a href="{{ route('communications.admin.tags.index') }}"
-                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            class="px-4 py-2 border border-slate-200 rounded-md text-slate-700 hover:bg-slate-50">
                             Cancelar
                         </a>
                         <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-slate-950">
                             Crear Etiqueta
                         </button>
                     </div>

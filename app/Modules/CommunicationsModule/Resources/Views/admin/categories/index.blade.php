@@ -4,62 +4,62 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Categorías</h1>
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-900">Categorías</h1>
             <a href="{{ route('communications.admin.categories.create') }}"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
+                class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md font-medium">
                 Nueva Categoría
             </a>
         </div>
 
         @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-8">
                 {{ session('success') }}
             </div>
         @endif
 
         <div class="bg-white shadow-md rounded-md overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50 sticky top-0 z-10">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Nombre
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Descripción
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Estado
                         </th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                             Acciones
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-slate-200">
                     @forelse($categories as $category)
-                        <tr>
-                            <td class="px-4 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
+                        <tr class="hover:bg-slate-50 transition-colors duration-150">
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                <div class="text-sm font-medium text-slate-900">
                                     {{ $category->name }}
                                 </div>
                             </td>
-                            <td class="px-4 py-4">
-                                <div class="text-sm text-gray-900">
+                            <td class="px-4 py-2">
+                                <div class="text-sm text-slate-900">
                                     {{ Str::limit($category->description, 50) }}
                                 </div>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap">
+                            <td class="px-4 py-2 whitespace-nowrap">
                                 <span
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $category->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-md {{ $category->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                     {{ $category->is_active ? 'Activa' : 'Inactiva' }}
                                 </span>
                             </td>
-                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                            <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
                                 <div class="inline-flex items-center gap-2">
                                     <a href="{{ route('communications.admin.categories.show', $category) }}"
                                         title="Ver categoría"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 transition">
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition">
                                         <span class="sr-only">Ver</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
@@ -72,7 +72,7 @@
 
                                     <a href="{{ route('communications.admin.categories.edit', $category) }}"
                                         title="Editar categoría"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition">
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-md border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition">
                                         <span class="sr-only">Editar</span>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
@@ -102,7 +102,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-4 text-center text-gray-500">
+                            <td colspan="4" class="px-4 py-4 text-center text-slate-500">
                                 No hay categorías registradas.
                             </td>
                         </tr>

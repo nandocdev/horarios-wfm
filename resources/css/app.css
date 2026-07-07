@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -8,14 +9,19 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-
-/* resources/css/theme.css */
-
 @theme {
 
     /*
     |--------------------------------------------------------------------------
-    | Base
+    | Font
+    |--------------------------------------------------------------------------
+    */
+
+    --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Base — Neutral Palette (Tailwind Slate)
     |--------------------------------------------------------------------------
     */
 
@@ -33,23 +39,24 @@
 
     /*
     |--------------------------------------------------------------------------
-    | Accent
+    | Accent — Primary #000000
     |--------------------------------------------------------------------------
     */
 
-    --color-accent: var(--color-indigo-500);
-    --color-accent-content: var(--color-indigo-600);
+    --color-accent: var(--color-neutral-900);
+    --color-accent-content: var(--color-neutral-950);
     --color-accent-foreground: var(--color-white);
 
     /*
     |--------------------------------------------------------------------------
-    | Semantic
+    | Semantic Colors
     |--------------------------------------------------------------------------
     */
 
-    --color-success: var(--color-emerald-500);
+    --color-success: var(--color-green-600);
     --color-warning: var(--color-amber-500);
-    --color-danger: var(--color-rose-500);
+    --color-danger: var(--color-red-600);
+    --color-info: var(--color-blue-600);
 
     /*
     |--------------------------------------------------------------------------
@@ -65,8 +72,8 @@
 
     .dark {
 
-        --color-accent: var(--color-indigo-400);
-        --color-accent-content: var(--color-indigo-300);
+        --color-accent: var(--color-neutral-300);
+        --color-accent-content: var(--color-neutral-200);
 
         --color-app: var(--color-slate-950);
         --color-card: var(--color-slate-900);

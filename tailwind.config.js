@@ -8,9 +8,7 @@ export default {
     "./vendor/livewire/flux/stubs/resources/views/flux/**/*.blade.php",
   ],
   safelist: [
-    { pattern: /bg-(blue|amber|indigo|emerald|green|zinc|primary)-500/ },
-    { pattern: /ring-(blue|amber|indigo|emerald|green|zinc|primary)-500\/20/ },
-    { pattern: /ring-(blue|amber|indigo|emerald|green|zinc|primary)-500\/30/ },
+    { pattern: /bg-slate-(50|100|200|300|400|500|600|700|800|900|950)/ },
   ],
   theme: {
     extend: {},

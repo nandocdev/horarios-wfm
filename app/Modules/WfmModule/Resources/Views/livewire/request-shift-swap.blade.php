@@ -60,7 +60,7 @@
                 <div class="space-y-2">
                     <flux:label>Tu Horario</flux:label>
                     <flux:card @class([
-                        'p-4 bg-zinc-50 dark:bg-zinc-900/50',
+                        'p-4 bg-slate-50 dark:bg-slate-900/50',
                         'border-red-200 dark:border-red-900/50' => !$requesterAssignment && $requestedDate
                     ])>
                         @if($requesterAssignment)
@@ -73,7 +73,7 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div
-                                        class="text-xs p-2 rounded bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300">
+                                        class="text-xs p-2 rounded-md bg-slate-100 dark:bg-slate-900/20 text-slate-700 dark:text-slate-300">
                                         <div class="flex items-center gap-1 font-semibold mb-1">
                                             <flux:icon name="fire" size="xs" />
                                             <span>Almuerzo</span>
@@ -81,7 +81,7 @@
                                         {{ \Illuminate\Support\Carbon::parse($requesterAssignment->lunch_start_time)->format('H:i') }}
                                     </div>
                                     <div
-                                        class="text-xs p-2 rounded bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
+                                        class="text-xs p-2 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300">
                                         <div class="flex items-center gap-1 font-semibold mb-1">
                                             <flux:icon name="bolt" size="xs" />
                                             <span>Break</span>
@@ -89,7 +89,7 @@
                                         {{ \Illuminate\Support\Carbon::parse($requesterAssignment->break_start_time)->format('H:i') }}
                                     </div>
                                 </div>
-                                <p class="text-[10px] text-zinc-500 uppercase font-bold">
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">
                                     {{ $requesterAssignment->schedule->name }}</p>
                             </div>
                         @else
@@ -105,12 +105,12 @@
                 <div class="space-y-2">
                     <flux:label>Horario del Compañero</flux:label>
                     <flux:card @class([
-                        'p-4 bg-zinc-50 dark:bg-zinc-900/50',
+                        'p-4 bg-slate-50 dark:bg-slate-900/50',
                         'border-red-200 dark:border-red-900/50' => !$recipientAssignment && $recipientId
                     ])>
                         @if($recipientAssignment)
                             <div class="space-y-3">
-                                <div class="flex items-center gap-2 text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                                <div class="flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300">
                                     <flux:icon name="clock" size="sm" />
                                     <span>{{ \Illuminate\Support\Carbon::parse($recipientAssignment->start_time)->format('H:i') }}
                                         -
@@ -118,7 +118,7 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-2">
                                     <div
-                                        class="text-xs p-2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                                        class="text-xs p-2 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                                         <div class="flex items-center gap-1 font-semibold mb-1">
                                             <flux:icon name="fire" size="xs" />
                                             <span>Almuerzo</span>
@@ -126,7 +126,7 @@
                                         {{ \Illuminate\Support\Carbon::parse($recipientAssignment->lunch_start_time)->format('H:i') }}
                                     </div>
                                     <div
-                                        class="text-xs p-2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                                        class="text-xs p-2 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                                         <div class="flex items-center gap-1 font-semibold mb-1">
                                             <flux:icon name="bolt" size="xs" />
                                             <span>Break</span>
@@ -134,7 +134,7 @@
                                         {{ \Illuminate\Support\Carbon::parse($recipientAssignment->break_start_time)->format('H:i') }}
                                     </div>
                                 </div>
-                                <p class="text-[10px] text-zinc-500 uppercase font-bold">
+                                <p class="text-[10px] text-slate-500 uppercase font-bold">
                                     {{ $recipientAssignment->schedule->name }}</p>
                             </div>
                         @else
@@ -149,7 +149,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 pt-4 border-t dark:border-zinc-700">
+            <div class="flex items-center gap-2 pt-4 border-t dark:border-slate-700">
                 <flux:button type="submit" variant="primary">Enviar Solicitud</flux:button>
                 <flux:button href="{{ route('schedules.my-schedule') }}" wire:navigate variant="subtle">Cancelar
                 </flux:button>

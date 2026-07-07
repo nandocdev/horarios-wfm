@@ -18,7 +18,7 @@
         </div>
 
         <flux:table>
-            <flux:table.columns>
+            <flux:table.columns class="sticky top-0 z-10 bg-white">
                 <flux:table.column sticky>{{ __('Empleado') }}</flux:table.column>
                 <flux:table.column>{{ __('Motivo') }}</flux:table.column>
                 <flux:table.column>{{ __('Desde') }}</flux:table.column>
@@ -29,33 +29,33 @@
 
             <flux:table.rows>
                 @foreach($exceptions as $exception)
-                    <flux:table.row :key="$exception->id">
-                        <flux:table.cell sticky>
+                    <flux:table.row :key="$exception->id" class="hover:bg-slate-50">
+                        <flux:table.cell sticky class="py-2">
                             <div class="flex items-center gap-3">
                                 <flux:avatar initials="{{ $exception->employee->initials }}" size="xs" />
                                 <div class="flex flex-col">
                                     <span class="text-sm font-medium">{{ $exception->employee->full_name }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $exception->employee->username }}</span>
+                                    <span class="text-xs text-slate-500">{{ $exception->employee->username }}</span>
                                 </div>
                             </div>
                         </flux:table.cell>
-                        <flux:table.cell>
-                            <flux:badge :color="$exception->reason?->color ?? 'zinc'" size="sm" class="font-bold">
+                        <flux:table.cell class="py-2">
+                            <flux:badge :color="$exception->reason?->color ?? 'slate'" size="sm" class="font-bold">
                                 {{ $exception->reason?->name ?? __('N/A') }}
                             </flux:badge>
                         </flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <span class="text-sm">{{ $exception->start_at->format('d M, Y H:i') }}</span>
                         </flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <span class="text-sm">{{ $exception->end_at->format('d M, Y H:i') }}</span>
                         </flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <flux:badge variant="ghost" size="sm">
                                 {{ $exception->is_full_day ? __('Sí') : __('No') }}
                             </flux:badge>
                         </flux:table.cell>
-                        <flux:table.cell align="end">
+                        <flux:table.cell align="end" class="py-2">
                             <div class="flex justify-end gap-2">
                                 <flux:button wire:click="edit({{ $exception->id }})" variant="ghost" size="sm" icon="pencil-square" />
                                 <flux:button wire:confirm="{{ __('¿Seguro que desea eliminar esta excepción?') }}" 
@@ -77,7 +77,7 @@
     </flux:card>
 
     <!-- Modal de Registro/Edición -->
-    <flux:modal wire:model="showCreateModal" class="min-w-[500px]">
+    <flux:modal wire:model="showCreateModal" class="w-full max-w-lg">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ $selectedExceptionId ? __('Editar Excepción') : __('Nueva Excepción') }}</flux:heading>

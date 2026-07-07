@@ -5,7 +5,7 @@
     </div>
 
     <flux:table :paginate="$schedules">
-        <flux:table.columns>
+        <flux:table.columns class="sticky top-0 z-10 bg-white">
             <flux:table.column>Nombre</flux:table.column>
             <flux:table.column>Horario</flux:table.column>
             <flux:table.column>Días</flux:table.column>
@@ -17,35 +17,35 @@
 
         <flux:table.rows>
             @foreach ($schedules as $schedule)
-                <flux:table.row :key="$schedule->id">
-                    <flux:table.cell class="font-medium">{{ $schedule->name }}</flux:table.cell>
-                    <flux:table.cell>{{ $schedule->start_time }} - {{ $schedule->end_time }}</flux:table.cell>
-                    <flux:table.cell>
+                <flux:table.row :key="$schedule->id" class="hover:bg-slate-50">
+                    <flux:table.cell class="py-2" class="font-medium">{{ $schedule->name }}</flux:table.cell>
+                    <flux:table.cell class="py-2">{{ $schedule->start_time }} - {{ $schedule->end_time }}</flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <div class="flex gap-1">
                             @php
                                 $dayLabels = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
                                 $allowed = $schedule->allowed_days ?? [];
                             @endphp
                             @foreach($dayLabels as $dayNum => $label)
-                                <span class="text-xs font-bold {{ in_array($dayNum, $allowed) ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-300 dark:text-zinc-700' }}">
+                                <span class="text-xs font-bold {{ in_array($dayNum, $allowed) ? 'text-blue-600 dark:text-blue-400' : 'text-slate-300 dark:text-slate-700' }}">
                                     {{ $label }}
                                 </span>
                             @endforeach
                         </div>
                     </flux:table.cell>
-                    <flux:table.cell>{{ $schedule->total_minutes }}</flux:table.cell>
-                    <flux:table.cell>
-                        <div class="text-xs text-zinc-500">
+                    <flux:table.cell class="py-2">{{ $schedule->total_minutes }}</flux:table.cell>
+                    <flux:table.cell class="py-2">
+                        <div class="text-xs text-slate-500">
                             B: {{ $schedule->break_minutes }}m ({{ $schedule->is_break_paid ? 'P' : 'NP' }}) / 
                             L: {{ $schedule->lunch_minutes }}m ({{ $schedule->is_lunch_paid ? 'P' : 'NP' }})
                         </div>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <flux:badge :color="$schedule->is_active ? 'green' : 'red'" >
                             {{ $schedule->is_active ? 'Activo' : 'Inactivo' }}
                         </flux:badge>
                     </flux:table.cell>
-                    <flux:table.cell align="end">
+                    <flux:table.cell class="py-2" align="end">
                         <flux:button wire:click="edit({{ $schedule->id }})" variant="ghost" size="sm" icon="pencil" />
                         <flux:button wire:click="delete({{ $schedule->id }})" variant="ghost" size="sm" icon="trash" color="red" wire:confirm="¿Estás seguro de eliminar este turno?" />
                     </flux:table.cell>

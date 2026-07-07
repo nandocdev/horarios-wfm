@@ -24,13 +24,13 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-zinc-200 dark:border-zinc-800">
-                            <th class="py-3 px-4 font-semibold text-sm text-zinc-500 dark:text-zinc-400 min-w-[200px]">
+                        <tr class="border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10 bg-white">
+                            <th class="py-2 px-4 font-semibold text-sm text-slate-500 dark:text-slate-400 min-w-[200px]">
                                 {{ __('Empleado') }}
                             </th>
                             @foreach($days as $day)
                                 <th
-                                    class="py-3 px-4 font-semibold text-sm text-center {{ $day->isToday() ? 'bg-accent/10 text-accent' : 'text-zinc-500 dark:text-zinc-400' }}">
+                                    class="py-2 px-4 font-semibold text-sm text-center {{ $day->isToday() ? 'bg-accent/10 text-accent' : 'text-slate-500 dark:text-slate-400' }}">
                                     <div class="flex flex-col">
                                         <span>{{ $day->isoFormat('ddd') }}</span>
                                         <span class="text-xs">{{ $day->format('d/m') }}</span>
@@ -42,13 +42,13 @@
                     <tbody>
                         @forelse($members as $member)
                             <tr
-                                class="border-b border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-opacity">
-                                <td class="py-3 px-4">
+                                class="border-b border-slate-100 dark:border-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-opacity">
+                                <td class="py-2 px-4">
                                     <div class="flex items-center gap-3">
                                         <flux:avatar initials="{{ $member->initials }}" size="sm" />
                                         <div class="flex flex-col">
                                             <span class="text-sm font-medium">{{ $member->full_name }}</span>
-                                            <span class="text-xs text-zinc-500">{{ $member->position?->name }}</span>
+                                            <span class="text-xs text-slate-500">{{ $member->position?->name }}</span>
                                         </div>
                                     </div>
                                 </td>
@@ -63,7 +63,7 @@
                                             return $day->between($req->start_time->startOfDay(), $req->end_time->endOfDay());
                                         });
                                     @endphp
-                                    <td class="py-2 px-1 text-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-opacity"
+                                    <td class="py-1.5 px-1 text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-opacity"
                                         wire:click="openIncidentModal({{ $member->id }}, '{{ $day->toDateString() }}')">
                                         <div class="flex flex-col gap-1">
                                             @foreach($dayExceptions as $ex)
@@ -76,10 +76,10 @@
                                             @endforeach
 
                                             @foreach($dayPending as $pending)
-                                                <div class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto opacity-60 border border-dashed border-zinc-400 bg-zinc-100 dark:bg-zinc-800"
+                                                <div class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto opacity-60 border border-dashed border-slate-400 bg-slate-100 dark:bg-slate-800"
                                                     title="{{ __('Solicitud Pendiente') }}: {{ $pending->type }}">
                                                     {{ $pending->type }}
-                                                    <span class="block text-[8px] italic text-zinc-500">{{ __('Pendiente') }}</span>
+                                                    <span class="block text-[8px] italic text-slate-500">{{ __('Pendiente') }}</span>
                                                 </div>
                                             @endforeach
 
@@ -93,11 +93,11 @@
                                                         <span class="text-xs font-semibold">{{ $startTime }} - {{ $endTime }}</span>
                                                         @if($assignment->schedule)
                                                             <span
-                                                                class="text-[9px] text-zinc-500 uppercase">{{ $assignment->schedule->name }}</span>
+                                                                class="text-[9px] text-slate-500 uppercase">{{ $assignment->schedule->name }}</span>
                                                         @endif
                                                     </div>
                                                 @else
-                                                    <span class="text-xs text-zinc-400 italic">{{ __('Libre') }}</span>
+                                                    <span class="text-xs text-slate-400 italic">{{ __('Libre') }}</span>
                                                 @endif
                                             @endif
                                         </div>
@@ -106,7 +106,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-zinc-500 italic">
+                                <td colspan="8" class="py-12 text-center text-slate-500 italic">
                                     {{ __('No se encontraron miembros en este equipo o alcance.') }}
                                 </td>
                             </tr>
@@ -122,18 +122,18 @@
                 <div class="space-y-4">
                     @forelse($recentSwaps as $swap)
                         <div
-                            class="flex items-center justify-between p-3 rounded-md border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+                            class="flex items-center justify-between p-3 rounded-md border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                             <div class="flex items-center gap-3">
                                 <div class="flex -space-x-2">
                                     <flux:avatar initials="{{ $swap->requester->initials }}" size="xs"
-                                        class="ring-2 ring-white dark:ring-zinc-900" />
+                                        class="ring-2 ring-white dark:ring-slate-900" />
                                     <flux:avatar initials="{{ $swap->recipient->initials }}" size="xs"
-                                        class="ring-2 ring-white dark:ring-zinc-900" />
+                                        class="ring-2 ring-white dark:ring-slate-900" />
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="text-sm font-medium">{{ $swap->requester->first_name }} ⇄
                                         {{ $swap->recipient->first_name }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $swap->requested_date->format('d/m/Y') }}</span>
+                                    <span class="text-xs text-slate-500">{{ $swap->requested_date->format('d/m/Y') }}</span>
                                 </div>
                             </div>
                             <flux:badge size="sm" :variant="match($swap->status) {
@@ -141,13 +141,13 @@
                                             'accepted' => 'success',
                                             'approved' => 'primary',
                                             'rejected' => 'danger',
-                                            default => 'zinc'
+                                            default => 'slate'
                                         }">
                                 {{ __($swap->status) }}
                             </flux:badge>
                         </div>
                     @empty
-                        <p class="text-sm text-zinc-500 italic">
+                        <p class="text-sm text-slate-500 italic">
                             {{ __('No hay solicitudes de cambio recientes en tu equipo.') }}
                         </p>
                     @endforelse
@@ -159,12 +159,12 @@
                 <div class="space-y-4">
                     @forelse($upcomingExceptions as $leave)
                         <div
-                            class="flex items-center justify-between p-3 rounded-md border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+                            class="flex items-center justify-between p-3 rounded-md border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                             <div class="flex items-center gap-3">
                                 <flux:avatar initials="{{ $leave->employee->initials }}" size="xs" />
                                 <div class="flex flex-col">
                                     <span class="text-sm font-medium">{{ $leave->employee->full_name }}</span>
-                                    <span class="text-xs text-zinc-500">{{ ucfirst($leave->type) }}
+                                    <span class="text-xs text-slate-500">{{ ucfirst($leave->type) }}
                                         ({{ $leave->start_time->format('d/m') }})</span>
                                 </div>
                             </div>
@@ -172,13 +172,13 @@
                                             'pending' => 'warning',
                                             'approved' => 'success',
                                             'rejected' => 'danger',
-                                            default => 'zinc'
+                                            default => 'slate'
                                         }">
                                 {{ __($leave->status) }}
                             </flux:badge>
                         </div>
                     @empty
-                        <p class="text-sm text-zinc-500 italic">
+                        <p class="text-sm text-slate-500 italic">
                             {{ __('No hay ausencias programadas para los próximos 7 días.') }}
                         </p>
                     @endforelse
@@ -187,7 +187,7 @@
         </div>
     </div>
 
-    <flux:modal name="incident-modal" class="md:w-[500px]">
+    <flux:modal name="incident-modal" class="w-full max-w-lg">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Registrar Incidente / Novedad') }}</flux:heading>

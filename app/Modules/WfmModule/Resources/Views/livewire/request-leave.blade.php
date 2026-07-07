@@ -11,15 +11,15 @@
     @if($form->type === 'quarterly')
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <flux:card class="flex flex-col items-center justify-center p-4 text-center">
-                <span class="text-xs text-zinc-500 uppercase font-bold mb-1">Saldo Disponible</span>
+                <span class="text-xs text-slate-500 uppercase font-bold mb-1">Saldo Disponible</span>
                 <span class="text-3xl font-black text-primary-600">{{ round($availableMinutes / 60, 1) }}h</span>
-                <span class="text-[10px] text-zinc-400">de 8.0h totales</span>
+                <span class="text-[10px] text-slate-400">de 8.0h totales</span>
             </flux:card>
 
             <flux:card class="flex flex-col items-center justify-center p-4 text-center">
-                <span class="text-xs text-zinc-500 uppercase font-bold mb-1">Uso en el Trimestre</span>
-                <span class="text-3xl font-black text-zinc-400">{{ round($usedMinutes / 60, 1) }}h</span>
-                <span class="text-[10px] text-zinc-400">Trimestre: {{ now()->startOfQuarter()->format('M') }} - {{ now()->endOfQuarter()->format('M Y') }}</span>
+                <span class="text-xs text-slate-500 uppercase font-bold mb-1">Uso en el Trimestre</span>
+                <span class="text-3xl font-black text-slate-400">{{ round($usedMinutes / 60, 1) }}h</span>
+                <span class="text-[10px] text-slate-400">Trimestre: {{ now()->startOfQuarter()->format('M') }} - {{ now()->endOfQuarter()->format('M Y') }}</span>
             </flux:card>
         </div>
     @endif
@@ -71,7 +71,7 @@
                 <flux:error name="form.reason" />
             </flux:field>
 
-            <div class="flex items-center gap-2 pt-4 border-t dark:border-zinc-700">
+            <div class="flex items-center gap-2 pt-4 border-t dark:border-slate-700">
                 <flux:button type="submit" variant="primary">Enviar Solicitud</flux:button>
                 <flux:button href="{{ route('schedules.my-schedule') }}" wire:navigate variant="subtle">Cancelar</flux:button>
             </div>

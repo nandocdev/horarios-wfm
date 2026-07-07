@@ -18,7 +18,7 @@
     </div>
 
     <flux:table>
-        <flux:table.columns>
+        <flux:table.columns class="sticky top-0 z-10 bg-white">
             <flux:table.column>{{ __('Equipo') }}</flux:table.column>
             <flux:table.column>{{ __('Turno Base') }}</flux:table.column>
             <flux:table.column>{{ __('Entrada') }}</flux:table.column>
@@ -30,14 +30,14 @@
 
         <flux:table.rows>
             @foreach($teams as $team)
-                <flux:table.row :key="$team->id">
-                    <flux:table.cell>
+                <flux:table.row :key="$team->id" class="hover:bg-slate-50">
+                    <flux:table.cell class="py-1">
                         <div class="flex flex-col">
                             <span class="font-medium">{{ $team->name }}</span>
-                            <span class="text-xs text-zinc-500">{{ $team->supervisor?->full_name }}</span>
+                            <span class="text-xs text-slate-500">{{ $team->supervisor?->full_name }}</span>
                         </div>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-1">
                         <flux:select wire:model.live="teamSchedules.{{ $team->id }}"
                             placeholder="{{ __('Seleccionar turno...') }}">
                             <flux:select.option selected readonly value="">{{ __('Sin asignar') }}</flux:select.option>
@@ -48,27 +48,27 @@
                             @endforeach
                         </flux:select>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-1">
                         <flux:input wire:model="teamStart.{{ $team->id }}" type="time" size="sm" icon="clock" />
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-1">
                         <flux:input wire:model="teamEnd.{{ $team->id }}" type="time" size="sm" icon="clock" />
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-1">
                         <flux:input wire:model="teamLunch.{{ $team->id }}" type="time" size="sm" icon="clock" />
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-1">
                         <flux:input wire:model="teamBreak.{{ $team->id }}" type="time" size="sm" icon="clock" />
                     </flux:table.cell>
-                    <flux:table.cell align="end">
+                    <flux:table.cell align="end" class="py-1">
                         <div class="flex justify-end gap-2">
-                            <flux:button wire:click="assignToTeam({{ $team->id }})" variant="primary" color="emerald"
+                            <flux:button wire:click="assignToTeam({{ $team->id }})" variant="primary"
                                 size="sm" icon="check">
                                 {{ __('Asignar') }}
                             </flux:button>
                             <flux:button
                                 href="{{ route('schedules.planning.team', ['week' => $week->id, 'team' => $team->id]) }}"
-                                variant="primary" color="blue" size="sm" icon="eye" wire:navigate>
+                                variant="subtle" size="sm" icon="eye" wire:navigate>
                                 {{ __('Ver Detalle') }}
                             </flux:button>
                         </div>

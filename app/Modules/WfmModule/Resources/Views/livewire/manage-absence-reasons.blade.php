@@ -5,7 +5,7 @@
     </div>
 
     <flux:table :paginate="$reasons">
-        <flux:table.columns>
+        <flux:table.columns class="sticky top-0 z-10 bg-white">
             <flux:table.column>Código</flux:table.column>
             <flux:table.column>Nombre</flux:table.column>
             <flux:table.column>Adjunto Obligatorio</flux:table.column>
@@ -15,16 +15,16 @@
 
         <flux:table.rows>
             @foreach ($reasons as $reason)
-                <flux:table.row :key="$reason->id">
-                    <flux:table.cell class="font-mono text-xs">{{ $reason->short_code }}</flux:table.cell>
-                    <flux:table.cell>{{ $reason->name }}</flux:table.cell>
-                    <flux:table.cell>
+                <flux:table.row :key="$reason->id" class="hover:bg-slate-50">
+                    <flux:table.cell class="py-2" class="font-mono text-xs">{{ $reason->short_code }}</flux:table.cell>
+                    <flux:table.cell class="py-2">{{ $reason->name }}</flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <flux:badge :color="$reason->requires_attachment ? 'blue' : 'zinc'">{{ $reason->requires_attachment ? 'Si' : 'No' }}</flux:badge>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <flux:badge :color="$reason->is_excused ? 'green' : 'red'">{{ $reason->is_excused ? 'Si' : 'No' }}</flux:badge>
                     </flux:table.cell>
-                    <flux:table.cell align="end">
+                    <flux:table.cell class="py-2" align="end">
                         <flux:button wire:click="edit({{ $reason->id }})" variant="ghost" size="sm" icon="pencil" />
                         <flux:button wire:click="delete({{ $reason->id }})" variant="ghost" size="sm" icon="trash" color="red" wire:confirm="¿Estás seguro?" />
                     </flux:table.cell>

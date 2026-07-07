@@ -5,7 +5,7 @@
     </div>
 
     <flux:table :paginate="$states">
-        <flux:table.columns>
+        <flux:table.columns class="sticky top-0 z-10 bg-white">
             <flux:table.column>Código Externo</flux:table.column>
             <flux:table.column>Nombre Visual</flux:table.column>
             <flux:table.column>Productividad</flux:table.column>
@@ -14,18 +14,18 @@
 
         <flux:table.rows>
             @foreach ($states as $state)
-                <flux:table.row :key="$state->id">
-                    <flux:table.cell class="font-mono text-xs">{{ $state->external_code }}</flux:table.cell>
-                    <flux:table.cell>
+                <flux:table.row :key="$state->id" class="hover:bg-slate-50">
+                    <flux:table.cell class="py-2" class="font-mono text-xs">{{ $state->external_code }}</flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded-full" style="background-color: {{ $state->color_hex }}"></div>
                             {{ $state->display_name }}
                         </div>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <flux:badge :color="$state->is_productive ? 'blue' : 'zinc'">{{ $state->is_productive ? 'Productivo' : 'No Prod.' }}</flux:badge>
                     </flux:table.cell>
-                    <flux:table.cell align="end">
+                    <flux:table.cell class="py-2" align="end">
                         <flux:button wire:click="edit({{ $state->id }})" variant="ghost" size="sm" icon="pencil" />
                         <flux:button wire:click="delete({{ $state->id }})" variant="ghost" size="sm" icon="trash" color="red" wire:confirm="¿Estás seguro?" />
                     </flux:table.cell>

@@ -1,4 +1,4 @@
-<div class="max-w-3xl mx-auto space-y-8">
+<div class="max-w-4xl mx-auto space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Historial de Solicitudes</flux:heading>
@@ -11,41 +11,41 @@
     <flux:card class="p-0 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="border-b bg-zinc-50 dark:bg-zinc-900/50">
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha Solicitada</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Tipo</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Compañero</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Estado</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500 text-right">Acciones</th>
+                <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
+                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Fecha Solicitada</th>
+                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Tipo</th>
+                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Compañero</th>
+                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Estado</th>
+                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y dark:divide-zinc-800">
+            <tbody class="divide-y dark:divide-slate-800">
                 @forelse($requests as $request)
                     @php
                         $isRequester = $request->requester_id === $currentEmployeeId;
                         $peer = $isRequester ? $request->recipient : $request->requester;
                     @endphp
-                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
-                        <td class="p-4 text-sm font-medium">
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
+                        <td class="py-2 px-4 text-sm font-medium">
                             {{ $request->start_date->format('d M, Y') }}
                             @if($request->end_date && $request->end_date->gt($request->start_date))
                                 al {{ $request->end_date->format('d M, Y') }}
                             @endif
                         </td>
-                        <td class="p-4 text-sm text-zinc-500">
+                        <td class="py-2 px-4 text-sm text-slate-500">
                             @if($isRequester)
                                 <flux:badge size="sm" variant="subtle">Enviada</flux:badge>
                             @else
                                 <flux:badge size="sm" variant="subtle">Recibida</flux:badge>
                             @endif
                         </td>
-                        <td class="p-4 text-sm">
+                        <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
                                 <span class="font-bold">{{ $peer->first_name }} {{ $peer->last_name }}</span>
-                                <span class="text-xs text-zinc-500">{{ $peer->team->name ?? 'Sin Equipo' }}</span>
+                                <span class="text-xs text-slate-500">{{ $peer->team->name ?? 'Sin Equipo' }}</span>
                             </div>
                         </td>
-                        <td class="p-4">
+                        <td class="py-2 px-4">
                             @php
                                 $variant = match ($request->status) {
                                     'pending' => 'gost',
@@ -61,7 +61,7 @@
                                     'accepted' => 'green',
                                     'approved' => 'blue',
                                     'rejected' => 'red',
-                                    'cancelled' => 'yellow',
+                                    'cancelled' => 'slate',
                                 ];
 
                                 $statusLabel = match ($request->status) {
@@ -75,7 +75,7 @@
                             @endphp
                             <flux:badge size="sm" :variant="$variant" color="{{ $colors[$request->status] }}">{{ $statusLabel }}</flux:badge>
                         </td>
-                        <td class="p-4 text-right">
+                        <td class="py-2 px-4 text-right">
                             <flux:button.group>
                                 <flux:button wire:click="showDetails({{ $request->id }})" variant="filled" size="sm" icon="eye" />
 
@@ -98,7 +98,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="p-8 text-center text-zinc-500 italic">
+                        <td colspan="5" class="p-8 text-center text-slate-500 italic">
                             No se encontraron solicitudes registradas.
                         </td>
                     </tr>
@@ -106,14 +106,14 @@
             </tbody>
         </table>
         @if($requests->hasPages())
-            <div class="p-4 border-t dark:border-zinc-800">
+            <div class="p-4 border-t dark:border-slate-800">
                 {{ $requests->links() }}
             </div>
         @endif
     </flux:card>
 
     {{-- Modal de Detalles --}}
-    <flux:modal name="swap-details" class="md:w-[600px] space-y-4">
+    <flux:modal name="swap-details" class="w-full max-w-xl space-y-4">
         @if($selectedRequest)
             <div>
                 <flux:heading size="lg">Detalle de Solicitud #{{ $selectedRequest->id }}</flux:heading>
@@ -126,44 +126,44 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
-                    <span class="text-xs text-zinc-500 uppercase font-bold">Solicitante</span>
+                    <span class="text-xs text-slate-500 uppercase font-bold">Solicitante</span>
                     <p class="text-sm font-medium">{{ $selectedRequest->requester->first_name }}
                         {{ $selectedRequest->requester->last_name }}</p>
-                    <p class="text-xs text-zinc-400">{{ $selectedRequest->requester->team->name ?? 'N/A' }}</p>
+                    <p class="text-xs text-slate-400">{{ $selectedRequest->requester->team->name ?? 'N/A' }}</p>
                 </div>
                 <div class="space-y-1">
-                    <span class="text-xs text-zinc-500 uppercase font-bold">Destinatario</span>
+                    <span class="text-xs text-slate-500 uppercase font-bold">Destinatario</span>
                     <p class="text-sm font-medium">{{ $selectedRequest->recipient->first_name }}
                         {{ $selectedRequest->recipient->last_name }}</p>
-                    <p class="text-xs text-zinc-400">{{ $selectedRequest->recipient->team->name ?? 'N/A' }}</p>
+                    <p class="text-xs text-slate-400">{{ $selectedRequest->recipient->team->name ?? 'N/A' }}</p>
                 </div>
             </div>
 
             <div class="space-y-2">
-                <span class="text-xs text-zinc-500 uppercase font-bold">Comparativa de Horarios</span>
+                <span class="text-xs text-slate-500 uppercase font-bold">Comparativa de Horarios</span>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
-                        <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Turno de
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
+                        <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
                             {{ $selectedRequest->requester->first_name }}</p>
                         @if($requesterShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($requesterShift->start_time)->format('H:i') }} -
                                 {{ \Illuminate\Support\Carbon::parse($requesterShift->end_time)->format('H:i') }}</p>
-                            <p class="text-[10px] text-zinc-400">{{ $requesterShift->schedule->name }}</p>
+                            <p class="text-[10px] text-slate-400">{{ $requesterShift->schedule->name }}</p>
                         @else
-                            <p class="text-xs text-zinc-400">Sin turno</p>
+                            <p class="text-xs text-slate-400">Sin turno</p>
                         @endif
                     </div>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
-                        <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Turno de
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
+                        <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
                             {{ $selectedRequest->recipient->first_name }}</p>
                         @if($recipientShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($recipientShift->start_time)->format('H:i') }} -
                                 {{ \Illuminate\Support\Carbon::parse($recipientShift->end_time)->format('H:i') }}</p>
-                            <p class="text-[10px] text-zinc-400">{{ $recipientShift->schedule->name }}</p>
+                            <p class="text-[10px] text-slate-400">{{ $recipientShift->schedule->name }}</p>
                         @else
-                            <p class="text-xs text-zinc-400">Sin turno</p>
+                            <p class="text-xs text-slate-400">Sin turno</p>
                         @endif
                     </div>
                 </div>
@@ -171,13 +171,13 @@
 
             @if($selectedRequest->reason)
                 <div class="space-y-1">
-                    <span class="text-xs text-zinc-500 uppercase font-bold">Motivo del Cambio</span>
-                    <p class="text-sm p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md italic">"{{ $selectedRequest->reason }}"</p>
+                    <span class="text-xs text-slate-500 uppercase font-bold">Motivo del Cambio</span>
+                    <p class="text-sm p-3 bg-slate-50 dark:bg-slate-900 rounded-md italic">"{{ $selectedRequest->reason }}"</p>
                 </div>
             @endif
 
             <div class="space-y-2">
-                <span class="text-xs text-zinc-500 uppercase font-bold">Historial de Aprobación</span>
+                <span class="text-xs text-slate-500 uppercase font-bold">Historial de Aprobación</span>
                 <div class="space-y-2">
                     @forelse($selectedRequest->approvals as $approval)
                         <div class="flex items-center justify-between p-2 text-xs border-b last:border-0">
@@ -185,7 +185,7 @@
                                 <flux:icon
                                     name="{{ $approval->status === 'approved' ? 'check-circle' : ($approval->status === 'rejected' ? 'x-circle' : 'clock') }}"
                                     size="xs"
-                                    class="{{ $approval->status === 'approved' ? 'text-green-500' : ($approval->status === 'rejected' ? 'text-red-500' : 'text-zinc-400') }}" />
+                                    class="{{ $approval->status === 'approved' ? 'text-green-500' : ($approval->status === 'rejected' ? 'text-red-500' : 'text-slate-400') }}" />
                                 <span>{{ $approval->approver->first_name }} {{ $approval->approver->last_name }}</span>
                             </div>
                             <flux:badge size="xs"
@@ -194,12 +194,12 @@
                             </flux:badge>
                         </div>
                     @empty
-                        <p class="text-xs text-zinc-400 italic">Pendiente de acciones iniciales.</p>
+                        <p class="text-xs text-slate-400 italic">Pendiente de acciones iniciales.</p>
                     @endforelse
                 </div>
             </div>
 
-            <div class="flex justify-between pt-4 border-t dark:border-zinc-800">
+            <div class="flex justify-between pt-4 border-t dark:border-slate-800">
                 <div class="flex gap-2">
                     @if($selectedRequest->status === 'pending')
                         @if($selectedRequest->recipient_id === $currentEmployeeId)

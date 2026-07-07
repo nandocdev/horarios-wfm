@@ -6,9 +6,9 @@
         </div>
 
         @if($isManager)
-            <div class="flex items-center gap-4 bg-white dark:bg-zinc-800 p-2 rounded-md border border-zinc-200 dark:border-zinc-700 shadow-sm">
+            <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-2 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm">
                 <flux:field>
-                    <flux:select wire:model.live="targetTeamId" placeholder="Filtrar por equipo..." class="min-w-[200px]">
+                    <flux:select wire:model.live="targetTeamId" placeholder="Filtrar por equipo..." class="min-w-48">
                         <flux:select.option value="">Todos los equipos</flux:select.option>
                         @foreach($availableTeams as $team)
                             <flux:select.option value="{{ $team->id }}">{{ $team->name }}</flux:select.option>
@@ -17,7 +17,7 @@
                 </flux:field>
 
                 <flux:field>
-                    <flux:select wire:model.live="targetEmployeeId" placeholder="Seleccionar colaborador..." class="min-w-[250px]">
+                    <flux:select wire:model.live="targetEmployeeId" placeholder="Seleccionar colaborador..." class="min-w-64">
                         @foreach($availableEmployees as $emp)
                             <flux:select.option value="{{ $emp->id }}">{{ $emp->full_name }}</flux:select.option>
                         @endforeach
@@ -34,7 +34,7 @@
                 <flux:icon name="clock" variant="mini" />
             </div>
             <div>
-                <flux:text size="sm" class="text-zinc-500 font-medium">Tiempo Total</flux:text>
+                <flux:text size="sm" class="text-slate-500 font-medium">Tiempo Total</flux:text>
                 <flux:heading size="lg">{{ $stats['total_time'] ?? '00h 00m' }}</flux:heading>
             </div>
         </flux:card>
@@ -44,7 +44,7 @@
                 <flux:icon name="bolt" variant="mini" />
             </div>
             <div>
-                <flux:text size="sm" class="text-zinc-500 font-medium">Tiempo Productivo</flux:text>
+                <flux:text size="sm" class="text-slate-500 font-medium">Tiempo Productivo</flux:text>
                 <flux:heading size="lg">{{ $stats['productive_time'] ?? '00h 00m' }}</flux:heading>
             </div>
         </flux:card>
@@ -54,7 +54,7 @@
                 <flux:icon name="chart-pie" variant="mini" />
             </div>
             <div>
-                <flux:text size="sm" class="text-zinc-500 font-medium">Ocupación Promedio</flux:text>
+                <flux:text size="sm" class="text-slate-500 font-medium">Ocupación Promedio</flux:text>
                 <flux:heading size="lg">{{ $stats['occupancy'] ?? 0 }}%</flux:heading>
             </div>
         </flux:card>
@@ -74,11 +74,11 @@
         
         {{-- Columna Derecha: Timeline --}}
         <div class="lg:col-span-8">
-            <flux:card class="p-4 h-[800px] flex flex-col">
+            <flux:card class="p-4 h-[48rem] flex flex-col">
                 <div class="flex items-center justify-between mb-6">
                     <flux:heading>Línea de Tiempo</flux:heading>
                     <div class="flex items-center gap-2">
-                         <flux:badge color="slate" variant="pill">Hoy</flux:badge>
+                         <flux:badge color="slate" class="rounded-md">Hoy</flux:badge>
                          <flux:button icon="arrow-path" size="xs" variant="subtle" wire:click="loadStats" />
                     </div>
                 </div>

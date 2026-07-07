@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 max-w-4xl mx-auto">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl" level="1">Configuración Operativa</flux:heading>
@@ -34,7 +34,7 @@
                         @endphp
                         <div class="flex-grow">
                             <flux:text font="bold">{{ $labelName }}</flux:text>
-                            <flux:text size="xs" class="text-zinc-500 italic">
+                            <flux:text size="xs" class="text-slate-500 italic">
                                 {{ $setting['description'] }}
                             </flux:text>
                         </div>
@@ -79,7 +79,7 @@
                             @endphp
                             <div class="flex-grow">
                                 <flux:text font="bold">{{ $labelName }}</flux:text>
-                                <flux:text size="xs" class="text-zinc-500 italic">
+                                <flux:text size="xs" class="text-slate-500 italic">
                                     {{ $goal['key'] }}
                                 </flux:text>
                             </div>
@@ -142,7 +142,7 @@
     </div>
 
     {{-- Modal para agregar meta --}}
-    <flux:modal name="add-goal" class="md:w-[450px] space-y-4">
+    <flux:modal name="add-goal" class="w-full max-w-md space-y-4">
         <div>
             <flux:heading size="lg">Agregar Nueva Meta de KPI</flux:heading>
             <flux:subheading>Define un identificador único y un nombre descriptivo para la nueva meta.</flux:subheading>

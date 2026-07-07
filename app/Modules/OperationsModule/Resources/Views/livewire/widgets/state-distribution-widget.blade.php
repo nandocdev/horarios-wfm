@@ -1,5 +1,5 @@
 <flux:card>
-    <flux:heading size="lg" class="mb-6">Distribución de Estados ({{ $this->isHistorical ? 'Histórico' : 'Realtime' }})</flux:heading>
+    <flux:heading size="lg" class="mb-8">Distribución de Estados ({{ $this->isHistorical ? 'Histórico' : 'Realtime' }})</flux:heading>
 
     <div class="relative flex items-center justify-center py-2" x-data="{
             chart: null,
@@ -23,12 +23,12 @@
                                 size: '75%',
                                 labels: {
                                     show: true,
-                                    name: { show: true, offsetY: -10, fontSize: '12px', color: '#a1a1aa' },
-                                    value: { show: true, offsetY: 5, fontSize: '20px', fontWeight: 'bold', color: '#ffffff' },
+                                    name: { show: true, offsetY: -10, fontSize: '12px', color: '#64748b' },
+                                    value: { show: true, offsetY: 5, fontSize: '20px', fontWeight: 'bold', color: '#0f172a' },
                                     total: {
                                         show: true,
                                         label: 'Agentes',
-                                        color: '#a1a1aa',
+                                        color: '#64748b',
                                         formatter: function (w) {
                                             return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                                         }
@@ -50,24 +50,24 @@
         <div x-ref="chart" class="w-full min-h-[260px]"></div>
     </div>
 
-    <div class="mt-8 space-y-3">
+    <div class="mt-8 space-y-2">
         @foreach($stateDistribution as $label => $count)
             <div class="flex justify-between items-center text-sm">
                 <div class="flex items-center gap-2">
                     <div
-                        class="w-3 h-3 rounded-full @if($label === 'Ready') bg-green-500 @elseif($label === 'Talking') bg-blue-500 @elseif($label === 'AUX') bg-amber-500 @else bg-zinc-400 @endif">
+                        class="w-3 h-3 rounded-sm @if($label === 'Ready') bg-green-600 @elseif($label === 'Talking') bg-blue-600 @elseif($label === 'AUX') bg-amber-500 @else bg-slate-400 @endif">
                     </div>
-                    <span class="text-zinc-600 dark:text-zinc-400">{{ $label }}</span>
+                    <span class="text-slate-600 dark:text-slate-400">{{ $label }}</span>
                 </div>
-                <span class="font-mono font-bold">{{ $count }}</span>
+                <span class="font-mono font-semibold">{{ $count }}</span>
             </div>
         @endforeach
     </div>
 
-    <div class="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+    <div class="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800">
         <div class="flex items-start gap-2">
-            <flux:icon name="information-circle" variant="mini" class="text-zinc-400 mt-0.5" />
-            <flux:text size="xs" class="text-zinc-500 leading-relaxed italic">
+            <flux:icon name="information-circle" variant="mini" class="text-slate-400 mt-0.5" />
+            <flux:text size="xs" class="text-slate-500 leading-relaxed italic">
                 Contabiliza agentes en cargos de Operador I, II y Coordinadores.
             </flux:text>
         </div>

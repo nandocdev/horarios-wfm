@@ -16,17 +16,17 @@
             @if(!$this->isHistorical)
                 <div class="flex items-center gap-2">
                     @if($this->ctiStatus['online'])
-                        <flux:badge color="green" size="sm" class="flex items-center gap-1.5">
+                        <flux:badge color="green" size="sm" class="rounded-md flex items-center gap-1.5">
                             <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-sm bg-green-600 opacity-75"></span>
+                                <span class="relative inline-flex rounded-sm h-2 w-2 bg-green-600"></span>
                             </span>
                             CTI Online ({{ $this->ctiStatus['updated_at'] }})
                         </flux:badge>
                     @else
-                        <flux:badge color="red" size="sm" class="flex items-center gap-1.5">
+                        <flux:badge color="red" size="sm" class="rounded-md flex items-center gap-1.5">
                             <span class="relative flex h-2 w-2">
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 animate-pulse"></span>
+                                <span class="relative inline-flex rounded-sm h-2 w-2 bg-red-600 animate-pulse"></span>
                             </span>
                             CTI Offline
                         </flux:badge>
@@ -39,11 +39,11 @@
             </div>
 
             @if(!$this->isHistorical)
-                <div class="flex items-center gap-2 text-sm text-zinc-500">
+                <div class="flex items-center gap-2 text-sm text-slate-500">
                     <span class="relative flex h-2 w-2">
                         <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                            class="animate-ping absolute inline-flex h-full w-full rounded-sm bg-blue-600 opacity-75"></span>
+                        <span class="relative inline-flex rounded-sm h-2 w-2 bg-blue-600"></span>
                     </span>
                     Live
                 </div>

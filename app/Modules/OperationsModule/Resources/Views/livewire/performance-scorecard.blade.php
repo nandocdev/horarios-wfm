@@ -7,7 +7,7 @@
             </div>
             
             <flux:modal.trigger name="calculation-formulas">
-                <flux:button variant="ghost" icon="information-circle" size="sm" class="text-blue-500 hover:bg-blue-50" />
+                <flux:button variant="ghost" icon="information-circle" size="sm" class="text-blue-600 hover:bg-blue-50/50" />
             </flux:modal.trigger>
         </div>
 
@@ -20,24 +20,24 @@
             <div class="space-y-4 overflow-y-auto max-h-[70vh] pr-2">
                 <!-- Glosario de Variables -->
                 <div class="space-y-3">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Glosario de Variables</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Glosario de Variables</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div class="p-2 bg-slate-50 rounded-md border border-slate-100 flex items-center gap-2">
-                            <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-1.5 py-0.5 rounded">TP</span>
+                            <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-sm">TP</span>
                             <span class="text-[10px] text-slate-600"><strong>Tiempo Productivo:</strong> Ready + Talking + Work + Reserved</span>
                         </div>
                         <div class="p-2 bg-slate-50 rounded-md border border-slate-100 flex items-center gap-2">
-                            <span class="bg-slate-200 text-slate-700 text-[10px] font-black px-1.5 py-0.5 rounded">TC</span>
+                            <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded-sm">TC</span>
                             <span class="text-[10px] text-slate-600"><strong>Tiempo de Conexión:</strong> Tiempo total logueado en UCCX</span>
                         </div>
                         <div class="p-2 bg-slate-50 rounded-md border border-slate-100 flex items-center gap-2">
-                            <span class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-1.5 py-0.5 rounded">JP</span>
+                            <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-1.5 py-0.5 rounded-sm">JP</span>
                             <span class="text-[10px] text-slate-600"><strong>Jornada Programada:</strong> Minutos totales asignados en el horario</span>
                         </div>
-                        <div class="p-2 bg-amber-100 text-amber-700 text-[10px] font-black px-1.5 py-0.5 rounded">TT</span>
+                        <div class="p-2 bg-amber-50 text-amber-600 text-[10px] font-bold px-1.5 py-0.5 rounded-sm">TT</span>
                             <span class="text-[10px] text-slate-600"><strong>Tiempo Transcurrido:</strong> Minutos desde Inicio Programado hasta Ahora</span>
                         </div>
-                        <div class="p-2 bg-emerald-100 text-emerald-700 text-[10px] font-black px-1.5 py-0.5 rounded">IR</span>
+                        <div class="p-2 bg-green-50 text-green-600 text-[10px] font-bold px-1.5 py-0.5 rounded-sm">IR</span>
                             <span class="text-[10px] text-slate-600"><strong>Inicio Real:</strong> Primer estado activo detectado (>10s)</span>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                 <flux:separator />
 
                 <div class="space-y-3">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Eficiencia Operativa</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Eficiencia Operativa</p>
                     <div class="bg-slate-50 p-4 rounded-md border border-slate-100">
                         <p class="text-sm font-bold text-slate-800">Productividad (%)</p>
                         <p class="text-xs text-slate-500 mt-1 italic font-mono">(TP / TC) × 100</p>
@@ -57,15 +57,15 @@
                         <p class="text-xs text-amber-700 mt-1 italic font-mono">Real-time: (TP / TT) × 100 | Histórico: (TP / JP) × 100</p>
                         <p class="text-[10px] text-amber-600 mt-2">Mide el rendimiento real contra lo planificado (afectado por tardanzas y desconexiones).</p>
                     </div>
-                    <div class="bg-indigo-50 p-4 rounded-md border border-indigo-100">
-                        <p class="text-sm font-bold text-indigo-900">Adherencia (%)</p>
-                        <p class="text-xs text-indigo-700 mt-1 italic font-mono">(Minutos Adherentes / Jornada Programada) × 100</p>
-                        <p class="text-[10px] text-indigo-600 mt-2">Mide el apego estricto al cronograma: estar en el estado correcto en el momento correcto.</p>
+                    <div class="bg-blue-50 p-4 rounded-md border border-blue-200">
+                        <p class="text-sm font-bold text-blue-900">Adherencia (%)</p>
+                        <p class="text-xs text-blue-700 mt-1 italic font-mono">(Minutos Adherentes / Jornada Programada) × 100</p>
+                        <p class="text-[10px] text-blue-600 mt-2">Mide el apego estricto al cronograma: estar en el estado correcto en el momento correcto.</p>
                     </div>
                 </div>
 
                 <div class="space-y-3">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Conexión y Logout</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Conexión y Logout</p>
                     <div class="bg-slate-50 p-4 rounded-md border border-slate-100">
                         <p class="text-sm font-bold text-slate-800">Logout (Desconexión) - Real Time</p>
                         <p class="text-xs text-slate-500 mt-1 italic font-mono">(Ahora - Inicio Real) - Tiempo Conexión</p>
@@ -79,7 +79,7 @@
                 </div>
 
                 <div class="space-y-3">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Asistencia y Llamadas</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Asistencia y Llamadas</p>
                     <div class="bg-slate-50 p-4 rounded-md border border-slate-100">
                         <p class="text-sm font-bold text-slate-800">AHT (Average Handle Time)</p>
                         <p class="text-xs text-slate-500 mt-1 italic font-mono">(Talk Time + Work Time) / Llamadas Atendidas</p>
@@ -148,8 +148,8 @@
         <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
             <!-- Productividad -->
             <flux:tooltip position="top" content="Intensidad: Tiempo productivo vs Tiempo total de conexión.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Productividad</p>
+                <div class="relative overflow-hidden bg-white p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Productividad</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.productivity_percentage'), 1) }}%
                     </p>
@@ -165,8 +165,8 @@
 
             <!-- Adherencia -->
             <flux:tooltip position="top" content="Disciplina: Tiempo productivo generado dentro de su horario programado.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-green-600 h-full">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Adherencia</p>
+                <div class="relative overflow-hidden bg-white p-4 rounded-md shadow-sm border-l-4 border-green-600 h-full">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Adherencia</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.adherence_percentage'), 1) }}%
                     </p>
@@ -182,8 +182,8 @@
 
             <!-- Utilización WFM -->
             <flux:tooltip position="top" content="Rendimiento: Producción real comparada contra la jornada completa planificada.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-amber-500 h-full">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Utilización</p>
+                <div class="relative overflow-hidden bg-white p-4 rounded-md shadow-sm border-l-4 border-amber-500 h-full">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Utilización</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.utilization_percentage'), 1) }}%
                     </p>
@@ -201,8 +201,8 @@
 
             <!-- Tiempo Productivo -->
             <flux:tooltip position="top" content="Suma total de minutos en estados de atención (Ready, Talking, Work, Reserved).">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Tiempo Productivo</p>
+                <div class="relative overflow-hidden bg-white p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Tiempo Productivo</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_productive_minutes')) }}
                     </p>
@@ -212,8 +212,8 @@
 
             <!-- Conexión Total -->
             <flux:tooltip position="top" content="Tiempo total acumulado de conexión en UCCX durante el periodo.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-slate-500 h-full">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Conexión Total</p>
+                <div class="relative overflow-hidden bg-white p-4 rounded-md shadow-sm border-l-4 border-slate-500 h-full">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Conexión Total</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_connected_minutes')) }}
                     </p>
@@ -223,8 +223,8 @@
 
             <!-- Llamadas -->
             <flux:tooltip position="top" content="Cantidad total de llamadas atendidas en el periodo seleccionado.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
-                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Llamadas</p>
+                <div class="relative overflow-hidden bg-white p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Llamadas</p>
                     @php 
                         $totalCalls = collect($performanceData)->flatMap(fn($d) => array_values($d['queues']))->sum('total_calls');
                     @endphp
@@ -238,8 +238,8 @@
             @foreach($performanceData as $day)
                 <div class="bg-white rounded-md shadow-md border border-slate-100 overflow-hidden hover:shadow-md transition-opacity duration-150">
                     <!-- Titulo del Día -->
-                    <div class="bg-slate-50 dark:bg-slate-800 px-4 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
+                    <div class="bg-slate-50 px-4 py-4 border-b border-slate-200 flex justify-between items-center">
+                        <div class="flex items-center gapy-2 px-3">
                             <div class="p-2 bg-blue-100 rounded-md">
                                 @if($employeeId)
                                     <flux:icon name="calendar" class="w-5 h-5 text-blue-600" />
@@ -248,11 +248,11 @@
                                 @endif
                             </div>
                             <div>
-                                <h3 class="font-black text-slate-800 text-lg uppercase tracking-tight leading-none">
+                                <h3 class="font-bold text-slate-950 text-lg uppercase tracking-tight leading-none">
                                     {{ $employeeId ? \Carbon\Carbon::parse($day['date'])->translatedFormat('l, d F Y') : $day['employee']['full_name'] }}
                                 </h3>
                                 @if(!$employeeId)
-                                    <p class="text-[10px] font-bold text-slate-500 mt-1 uppercase">
+                                    <p class="text-[10px] font-semibold text-slate-500 mt-1 uppercase">
                                         {{ \Carbon\Carbon::parse($day['date'])->translatedFormat('l, d F Y') }}
                                     </p>
                                 @endif
@@ -262,22 +262,22 @@
                             @php
                                 $statusColor = match($day['attendance']['status']) {
                                     'on_time' => 'green',
-                                    'late' => 'yellow',
+                                    'late' => 'amber',
                                     'absent' => 'red',
                                     'exception' => 'blue',
                                     default => 'blue'
                                 };
                             @endphp
-                            <flux:badge size="sm" :color="$statusColor" inset="top bottom">
+                            <flux:badge size="sm" class="rounded-md" :color="$statusColor" inset="top bottom">
                                 {{ $day['attendance']['status'] === 'exception' ? ($day['attendance']['exception_reason'] ?? 'EXCEPCIÓN') : strtoupper($day['attendance']['status']) }}
                             </flux:badge>
-                            <div class="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-full border border-blue-100">
+                            <div class="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-md border border-blue-200">
                                 <flux:icon name="bolt" class="w-3 h-3 text-blue-500" />
                                 <span class="text-xs font-black text-blue-700">Util: {{ $day['metrics']['utilization_percentage'] }}%</span>
                             </div>
-                            <div class="flex items-center gap-2 px-3 py-1 bg-indigo-50 rounded-full border border-indigo-100">
-                                <flux:icon name="shield-check" class="w-3 h-3 text-indigo-500" />
-                                <span class="text-xs font-black text-indigo-700">Adh: {{ $day['metrics']['adherence_percentage'] }}%</span>
+                            <div class="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-md border border-blue-200">
+                                <flux:icon name="shield-check" class="w-3 h-3 text-blue-600" />
+                                <span class="text-xs font-black text-blue-700">Adh: {{ $day['metrics']['adherence_percentage'] }}%</span>
                             </div>
                         </div>
                     </div>
@@ -288,22 +288,22 @@
                             <div class="group">
                                 <div class="flex items-center gap-2 mb-3">
                                     <flux:icon name="check-circle" class="w-4 h-4 text-slate-400" />
-                                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Asistencia y Entrada</h4>
+                                    <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Asistencia y Entrada</h4>
                                 </div>
-                                <div class="bg-slate-50 rounded-md p-4 space-y-3 shadow-inner">
+                                <div class="bg-slate-50 rounded-md p-4 space-y-2 shadow-sm border border-slate-100">
                                     <div class="flex justify-between items-center">
                                         <span class="text-xs font-bold text-slate-500">Programada</span>
-                                        <span class="font-mono font-black text-slate-700 bg-white px-2 py-1 rounded shadow-sm border border-slate-100">{{ $day['attendance']['scheduled_entry'] ?: '--:--' }}</span>
+                                        <span class="font-mono font-semibold text-slate-700 bg-white px-2 py-1 rounded shadow-sm border border-slate-100">{{ $day['attendance']['scheduled_entry'] ?: '--:--' }}</span>
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <span class="text-xs font-bold text-slate-500">Real</span>
-                                        <span class="font-mono font-black {{ $day['attendance']['actual_entry'] ? 'text-indigo-600' : 'text-slate-400' }} bg-white px-2 py-1 rounded shadow-sm border border-slate-100">
+                                        <span class="font-mono font-semibold {{ $day['attendance']['actual_entry'] ? 'text-blue-600' : 'text-slate-400' }} bg-white px-2 py-1 rounded shadow-sm border border-slate-100">
                                             {{ $day['attendance']['actual_entry'] ?: 'Sin Registro' }}
                                         </span>
                                     </div>
                                     <div class="flex justify-between items-center border-t border-slate-200 pt-3">
                                         <span class="text-xs font-bold text-slate-500">Diferencia</span>
-                                        <span class="font-black text-sm {{ $day['attendance']['diff_minutes'] > 0 ? 'text-rose-500' : 'text-emerald-500' }}">
+                                        <span class="font-semibold text-sm {{ $day['attendance']['diff_minutes'] > 0 ? 'text-red-600' : 'text-green-600' }}">
                                             {{ $day['attendance']['diff_minutes'] > 0 ? '+' : '' }}{{ $day['attendance']['diff_minutes'] }} min
                                         </span>
                                     </div>
@@ -316,35 +316,35 @@
                             <div>
                                 <div class="flex items-center gap-2 mb-3">
                                     <flux:icon name="no-symbol" class="w-4 h-4 text-slate-400" />
-                                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Pausas Programadas</h4>
+                                    <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Pausas Programadas</h4>
                                 </div>
-                                <div class="grid grid-cols-1 gap-3">
+                                <div class="grid grid-cols-1 gapy-2 px-3">
                                     {{-- Almuerzo --}}
-                                    <div class="bg-orange-50/50 rounded-md p-4 border border-orange-100 shadow-sm">
+                                    <div class="bg-amber-50/50 border border-amber-200 rounded-md">
                                         <div class="flex justify-between items-start mb-3">
                                             <div>
-                                                <p class="text-[10px] font-black text-orange-600 uppercase">Almuerzo</p>
+                                                <p class="text-[10px] font-bold text-amber-600 uppercase">Almuerzo</p>
                                                 <div class="flex items-center gap-2 mt-1">
                                                     <span class="text-[10px] font-bold text-slate-400">Prog:</span>
                                                     <span class="text-xs font-mono font-bold text-slate-600">{{ $day['attendance']['lunch']['scheduled_start'] ?: '--:--' }}</span>
                                                 </div>
                                             </div>
                                             <div class="text-right">
-                                                <div class="text-lg font-black text-orange-900 leading-none">
+                                                <div class="text-lg font-bold text-amber-900 leading-none">
                                                     {{ $this->formatMinutes($day['attendance']['lunch']['actual_duration']) }}
                                                 </div>
-                                                <p class="text-[10px] font-bold text-orange-600 opacity-60">de {{ $day['attendance']['lunch']['scheduled_duration'] }}m</p>
+                                                <p class="text-[10px] font-bold text-amber-600">de {{ $day['attendance']['lunch']['scheduled_duration'] }}m</p>
                                             </div>
                                         </div>
 
-                                        <div class="flex justify-between items-center pt-2 border-t border-orange-100">
+                                        <div class="flex justify-between items-center pt-2 border-t border-amber-200">
                                             <div class="flex items-center gap-2">
                                                 <span class="text-[10px] font-bold text-slate-400">Real:</span>
-                                                <span class="text-xs font-mono font-bold text-orange-800">{{ $day['attendance']['lunch']['actual_start'] ?: '--:--' }}</span>
+                                                <span class="text-xs font-mono font-bold text-amber-600">{{ $day['attendance']['lunch']['actual_start'] ?: '--:--' }}</span>
                                             </div>
                                             <div class="flex items-center gap-1">
                                                 <span class="text-[10px] font-bold text-slate-400">Dif:</span>
-                                                <span class="text-xs font-black {{ $day['attendance']['lunch']['diff_minutes'] > 5 ? 'text-red-600' : ($day['attendance']['lunch']['diff_minutes'] > 0 ? 'text-amber-600' : 'text-emerald-600') }}">
+                                                <span class="text-xs font-semibold {{ $day['attendance']['lunch']['diff_minutes'] > 5 ? 'text-red-600' : ($day['attendance']['lunch']['diff_minutes'] > 0 ? 'text-amber-600' : 'text-emerald-600') }}">
                                                     {{ $day['attendance']['lunch']['diff_minutes'] > 0 ? '+' : '' }}{{ $day['attendance']['lunch']['diff_minutes'] }} min
                                                 </span>
                                             </div>
@@ -352,31 +352,31 @@
                                     </div>
                                     
                                     {{-- Descanso --}}
-                                    <div class="bg-teal-50/50 rounded-md p-4 border border-teal-100 shadow-sm">
+                                    <div class="bg-slate-50 border border-slate-200 rounded-md">
                                         <div class="flex justify-between items-start mb-3">
                                             <div>
-                                                <p class="text-[10px] font-black text-teal-600 uppercase">Descanso</p>
+                                                <p class="text-[10px] font-bold text-slate-500 uppercase">Descanso</p>
                                                 <div class="flex items-center gap-2 mt-1">
                                                     <span class="text-[10px] font-bold text-slate-400">Prog:</span>
                                                     <span class="text-xs font-mono font-bold text-slate-600">{{ $day['attendance']['break']['scheduled_start'] ?: '--:--' }}</span>
                                                 </div>
                                             </div>
                                             <div class="text-right">
-                                                <div class="text-lg font-black text-teal-900 leading-none">
+                                                <div class="text-lg font-bold text-slate-900 leading-none">
                                                     {{ $this->formatMinutes($day['attendance']['break']['actual_duration']) }}
                                                 </div>
-                                                <p class="text-[10px] font-bold text-teal-600 opacity-60">de {{ $day['attendance']['break']['scheduled_duration'] }}m</p>
+                                                <p class="text-[10px] font-bold text-slate-500">de {{ $day['attendance']['break']['scheduled_duration'] }}m</p>
                                             </div>
                                         </div>
 
-                                        <div class="flex justify-between items-center pt-2 border-t border-teal-100">
+                                        <div class="flex justify-between items-center pt-2 border-t border-slate-200">
                                             <div class="flex items-center gap-2">
                                                 <span class="text-[10px] font-bold text-slate-400">Real:</span>
-                                                <span class="text-xs font-mono font-bold text-teal-800">{{ $day['attendance']['break']['actual_start'] ?: '--:--' }}</span>
+                                                <span class="text-xs font-mono font-bold text-slate-600">{{ $day['attendance']['break']['actual_start'] ?: '--:--' }}</span>
                                             </div>
                                             <div class="flex items-center gap-1">
                                                 <span class="text-[10px] font-bold text-slate-400">Dif:</span>
-                                                <span class="text-xs font-black {{ $day['attendance']['break']['diff_minutes'] > 5 ? 'text-red-600' : ($day['attendance']['break']['diff_minutes'] > 0 ? 'text-amber-600' : 'text-emerald-600') }}">
+                                                <span class="text-xs font-semibold {{ $day['attendance']['break']['diff_minutes'] > 5 ? 'text-red-600' : ($day['attendance']['break']['diff_minutes'] > 0 ? 'text-amber-600' : 'text-emerald-600') }}">
                                                     {{ $day['attendance']['break']['diff_minutes'] > 0 ? '+' : '' }}{{ $day['attendance']['break']['diff_minutes'] }} min
                                                 </span>
                                             </div>
@@ -390,12 +390,12 @@
                         <div class="xl:col-span-2">
                             <div class="flex items-center gap-2 mb-3">
                                 <flux:icon name="cpu-chip" class="w-4 h-4 text-slate-400" />
-                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Estados y Auxiliares</h4>
+                                <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Estados y Auxiliares</h4>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-white p-4 rounded-md border border-slate-100 shadow-sm md:col-span-2">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    <p class="text-[10px] font-semibold text-slate-400 uppercase mb-3 flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-sm bg-blue-600"></span>
                                         Tiempo por Estado
                                     </p>
                                     <div class="grid grid-cols-2 gap-x-6 gap-y-2">
@@ -416,15 +416,15 @@
                                 </div>
 
                                 <div class="bg-white p-4 rounded-md border border-slate-100 shadow-sm">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase mb-3 flex items-center gap-2">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                    <p class="text-[10px] font-semibold text-slate-400 uppercase mb-3 flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-sm bg-amber-500"></span>
                                         Motivos de Auxiliar
                                     </p>
                                     <div class="space-y-2 max-h-[150px] overflow-y-auto pr-2 custom-scrollbar">
                                         @forelse($day['reasons'] as $reason => $data)
                                             <div class="flex justify-between text-[10px] items-center group py-1">
                                                 <div class="flex items-center gap-2 min-w-0">
-                                                    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-orange-100 text-orange-700 font-black text-[8px] shrink-0">{{ $data['count'] }}</span>
+                                                    <span class="inline-flex items-center justify-center w-4 h-4 rounded-md bg-amber-100 text-amber-700 font-bold text-[8px] shrink-0">{{ $data['count'] }}</span>
                                                     <span class="text-slate-600 font-medium group-hover:text-slate-900 transition-opacity truncate">{{ $reason ?: 'Sin Motivo' }}</span>
                                                 </div>
                                                 <span class="font-black text-slate-700 bg-slate-50 px-1 py-0.5 rounded shrink-0 ml-2">{{ $this->formatMinutes($data['minutes']) }}</span>
@@ -437,11 +437,11 @@
 
                                 <div class="bg-white p-4 rounded-md border border-slate-100 shadow-sm">
                                     <div class="flex justify-between items-center mb-3">
-                                        <p class="text-[10px] font-black text-slate-400 uppercase flex items-center gap-2">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        <p class="text-[10px] font-semibold text-slate-400 uppercase flex items-center gap-2">
+                                            <span class="w-1.5 h-1.5 rounded-sm bg-red-600"></span>
                                             Historial de Desconexiones
                                         </p>
-                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 text-rose-700 font-black text-[9px] shrink-0" title="{{ count($day['logout_details'] ?? []) }} desconexión(es)">
+                                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-red-100 text-red-700 font-bold text-[9px] shrink-0" title="{{ count($day['logout_details'] ?? []) }} desconexión(es)">
                                             {{ count($day['logout_details'] ?? []) }}
                                         </span>
                                     </div>
@@ -449,11 +449,11 @@
                                         @forelse($day['logout_details'] ?? [] as $logout)
                                             <div class="flex justify-between text-[10px] items-center group py-1 border-b border-slate-50 last:border-0">
                                                 <div class="flex items-center gap-2">
-                                                    <flux:icon name="arrow-right-start-on-rectangle" variant="mini" class="w-3 h-3 text-rose-400" />
+                                                    <flux:icon name="arrow-right-start-on-rectangle" variant="mini" class="w-3 h-3 text-red-500" />
                                                     <span class="text-slate-500 font-mono">{{ $logout['start_time'] }}</span>
                                                 </div>
                                                 <div class="flex items-center gap-2">
-                                                    <span class="font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">{{ $this->formatMinutes($logout['duration_minutes']) }}</span>
+                                                    <span class="font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">{{ $this->formatMinutes($logout['duration_minutes']) }}</span>
                                                 </div>
                                             </div>
                                         @empty
@@ -468,25 +468,25 @@
                         <div>
                             <div class="flex items-center gap-2 mb-3">
                                 <flux:icon name="phone-arrow-down-left" class="w-4 h-4 text-slate-400" />
-                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Rendimiento por Cola</h4>
+                                <h4 class="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.2em]">Rendimiento por Cola</h4>
                             </div>
                             <div class="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden">
                                 <table class="w-full text-xs">
-                                    <thead class="bg-slate-50 text-slate-400">
+                                    <thead class="sticky top-0 z-10 bg-slate-50 text-slate-500">
                                         <tr>
-                                            <th class="text-left font-black p-3 uppercase text-[9px] tracking-widest">Cola</th>
-                                            <th class="text-right font-black p-3 uppercase text-[9px] tracking-widest">Llam.</th>
-                                            <th class="text-right font-black p-3 uppercase text-[9px] tracking-widest">AHT</th>
+                                            <th class="text-left font-semibold p-2 uppercase text-[9px] tracking-widest">Cola</th>
+                                            <th class="text-right font-semibold p-2 uppercase text-[9px] tracking-widest">Llam.</th>
+                                            <th class="text-right font-semibold p-2 uppercase text-[9px] tracking-widest">AHT</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-50">
                                         @foreach($day['queues'] as $queueName => $stats)
-                                            <tr class="hover:bg-slate-50 transition-opacity">
-                                                <td class="p-3 text-slate-700 font-bold max-w-[120px] truncate" title="{{ $queueName }}">{{ $queueName }}</td>
-                                                <td class="p-3 text-right">
-                                                    <span class="font-black text-purple-600 bg-purple-50 px-2 py-1 rounded-md">{{ $stats['total_calls'] }}</span>
+                                            <tr class="hover:bg-slate-50 transition-colors duration-150">
+                                                <td class="py-2 px-3 text-slate-700 font-bold max-w-[120px] truncate" title="{{ $queueName }}">{{ $queueName }}</td>
+                                                <td class="py-2 px-3 text-right">
+                                                    <span class="font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">{{ $stats['total_calls'] }}</span>
                                                 </td>
-                                                <td class="p-3 text-right text-slate-500 font-mono">{{ round($stats['avg_handle_time']) }}s</td>
+                                                <td class="py-2 px-3 text-right text-slate-500 font-mono">{{ round($stats['avg_handle_time']) }}s</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -498,8 +498,8 @@
             @endforeach
         </div>
     @else
-        <div class="bg-white dark:bg-slate-900 rounded-md border-2 border-dashed border-slate-200 dark:border-slate-700 p-20 text-center shadow-sm">
-            <div class="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <div class="bg-white rounded-md border-2 border-dashed border-slate-200 p-20 text-center shadow-sm">
+            <div class="bg-slate-50 w-20 h-20 rounded-md border border-slate-200 flex items-center justify-center mx-auto mb-6">
                 <flux:icon name="presentation-chart-line" class="w-10 h-10 text-slate-400" />
             </div>
             <flux:heading size="lg">Sin datos de desempeño</flux:heading>

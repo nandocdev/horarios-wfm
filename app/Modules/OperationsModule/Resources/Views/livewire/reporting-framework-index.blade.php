@@ -14,18 +14,18 @@
                 </div>
                 <p class="text-sm text-slate-500 leading-relaxed">{{ $section['description'] }}</p>
                 
-                <div class="space-y-3">
+                <div class="space-y-4">
                     @foreach($section['items'] as $item)
-                        <flux:card class="hover:border-slate-300 transition-opacity group cursor-pointer" wire:navigate href="{{ route($item['route']) }}">
+                        <flux:card class="hover:border-slate-300 transition-opacity duration-150 ease-out group cursor-pointer" wire:navigate href="{{ route($item['route']) }}">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-slate-100 dark:bg-slate-800 rounded-md group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-opacity">
+                                    <div class="p-2 bg-slate-100 dark:bg-slate-800 rounded-md group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors duration-150">
                                         <flux:icon :name="$item['icon']" variant="mini" />
                                     </div>
-                                    <span class="text-sm font-bold text-slate-700 group-hover:text-slate-900">{{ $item['label'] }}</span>
+                                    <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900">{{ $item['label'] }}</span>
                                 </div>
                                 @if(isset($item['badge']))
-                                    <flux:badge size="sm" variant="subtle">{{ $item['badge'] }}</flux:badge>
+                                    <flux:badge size="sm" variant="subtle" class="rounded-md">{{ $item['badge'] }}</flux:badge>
                                 @endif
                                 <flux:icon name="chevron-right" variant="mini" class="text-slate-300 group-hover:text-slate-500" />
                             </div>
@@ -37,7 +37,7 @@
     </div>
 
     {{-- Footer Info --}}
-    <flux:card class="bg-slate-900 text-white border-none shadow-sm relative overflow-hidden">
+    <flux:card class="bg-slate-900 text-white border border-slate-800 shadow-sm rounded-md relative overflow-hidden">
         <div class="relative z-10 space-y-4">
             <flux:heading class="text-white">Capacidad de Trazabilidad Total</flux:heading>
             <p class="text-sm text-slate-300 max-w-2xl">

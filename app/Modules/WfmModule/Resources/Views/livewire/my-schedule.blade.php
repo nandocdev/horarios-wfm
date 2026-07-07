@@ -29,7 +29,7 @@
 
     @if(!$currentWeek)
         <flux:card class="flex flex-col items-center justify-center p-12 text-center">
-            <flux:icon name="calendar" class="mb-4 size-12 text-zinc-400" />
+            <flux:icon name="calendar" class="mb-4 size-12 text-slate-400" />
             <flux:heading>No hay semanas planificadas</flux:heading>
             <flux:subheading>Contacta a tu coordinador de WFM para más información.</flux:subheading>
         </flux:card>
@@ -49,24 +49,24 @@
                 @endphp
  
                 <flux:card wire:click="selectDay({{ $num }})" @class([
-                    'p-4 flex flex-col h-full cursor-pointer transition-opacity duration-200',
+                    'p-4 flex flex-col h-full cursor-pointer transition-opacity duration-150 ease-out',
                     'ring-2 ring-primary-500 shadow-md scale-[1.02] bg-primary-50/30 dark:bg-primary-900/10' => $isSelected,
-                    'hover:bg-zinc-100 dark:hover:bg-zinc-800' => !$isSelected,
-                    'bg-zinc-50 dark:bg-zinc-900/50' => !$isToday && !$assignment && !$isSelected && !$dayException,
+                    'hover:bg-slate-100 dark:hover:bg-slate-800' => !$isSelected,
+                    'bg-slate-50 dark:bg-slate-900/50' => !$isToday && !$assignment && !$isSelected && !$dayException,
                     'border-l-4 border-l-amber-500' => $dayException,
                 ])>
-                    <div class="mb-4 border-b pb-2 dark:border-zinc-700">
+                    <div class="mb-4 border-b pb-2 dark:border-slate-700">
                         <div class="flex items-center justify-between">
                             <span @class([
                                 'font-bold',
                                 'text-primary-600 dark:text-primary-400' => $isSelected,
-                                'text-zinc-800 dark:text-zinc-200' => !$isSelected,
+                                'text-slate-800 dark:text-slate-200' => !$isSelected,
                             ])>{{ $name }}</span>
                             @if($isToday)
                                 <flux:badge size="sm" variant="primary">Hoy</flux:badge>
                             @endif
                         </div>
-                        <span class="text-xs text-zinc-500">{{ $currentDate->format('d M') }}</span>
+                        <span class="text-xs text-slate-500">{{ $currentDate->format('d M') }}</span>
                     </div>
  
                     <div class="flex-grow">
@@ -77,7 +77,7 @@
                                 </flux:badge>
                             </div>
                         @elseif($assignment)
-                            <div class="flex items-center gap-2 text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                            <div class="flex items-center gap-2 text-xs font-semibold text-slate-900 dark:text-slate-100">
                                 <flux:icon name="clock" size="xs" />
                                 <span>{{ \Illuminate\Support\Carbon::parse($assignment->start_time)->format('H:i') }}</span>
                             </div>
@@ -135,34 +135,34 @@
                             @endif
 
                             @if($dayAssignment)
-                                <div class="flex items-start gap-4 p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/50">
+                                <div class="flex items-start gap-4 p-3 rounded-md bg-slate-50 dark:bg-slate-900/50">
                                     <div class="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-md text-primary-600 dark:text-primary-400">
                                         <flux:icon name="clock" size="sm" />
                                     </div>
                                     <div class="flex-grow">
                                         <div class="flex items-center justify-between">
                                             <span class="text-sm font-bold">Turno Principal</span>
-                                            <span class="text-xs text-zinc-500">
+                                            <span class="text-xs text-slate-500">
                                                 {{ \Illuminate\Support\Carbon::parse($dayAssignment->start_time)->format('H:i') }} - {{ \Illuminate\Support\Carbon::parse($dayAssignment->end_time)->format('H:i') }}
                                             </span>
                                         </div>
-                                        <p class="text-xs text-zinc-500">{{ $dayAssignment->schedule->name }}</p>
+                                        <p class="text-xs text-slate-500">{{ $dayAssignment->schedule->name }}</p>
                                     </div>
                                 </div>
 
                                 @if($dayAssignment->lunch_start_time)
-                                    <div class="flex items-start gap-4 p-3 rounded-md bg-orange-50 dark:bg-orange-900/10">
-                                        <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-md text-orange-600 dark:text-orange-400">
+                                    <div class="flex items-start gap-4 p-3 rounded-md bg-slate-100 dark:bg-slate-900/10">
+                                        <div class="p-2 bg-slate-200 dark:bg-slate-900/30 rounded-md text-slate-700 dark:text-slate-400">
                                             <flux:icon name="fire" size="sm" />
                                         </div>
                                         <div class="flex-grow">
                                             <div class="flex items-center justify-between">
                                                 <span class="text-sm font-bold">Almuerzo</span>
-                                                <span class="text-xs text-orange-600">
+                                                <span class="text-xs text-slate-700">
                                                     {{ \Illuminate\Support\Carbon::parse($dayAssignment->lunch_start_time)->format('H:i') }} - {{ \Illuminate\Support\Carbon::parse($dayAssignment->lunch_end_time)->format('H:i') }}
                                                 </span>
                                             </div>
-                                            <p class="text-xs text-orange-500">Receso programado</p>
+                                            <p class="text-xs text-slate-500">Receso programado</p>
                                         </div>
                                     </div>
                                 @endif
@@ -187,18 +187,18 @@
 
                             {{-- Actividades Adicionales (Intraday) --}}
                             @foreach($intradayActivities as $activity)
-                                <div class="flex items-start gap-4 p-3 rounded-md border border-zinc-200 dark:border-zinc-700">
+                                <div class="flex items-start gap-4 p-3 rounded-md border border-zinc-200 dark:border-slate-700">
                                     <div class="p-2 rounded-md" style="background-color: {{ $activity->activityType->color }}20; color: {{ $activity->activityType->color }}">
                                         <flux:icon name="sparkles" size="sm" />
                                     </div>
                                     <div class="flex-grow">
                                         <div class="flex items-center justify-between">
                                             <span class="text-sm font-bold">{{ $activity->activityType->name }}</span>
-                                            <span class="text-xs text-zinc-500">
+                                            <span class="text-xs text-slate-500">
                                                 {{ $activity->getRangeStart()?->format('H:i') ?? '—' }} - {{ $activity->getRangeEnd()?->format('H:i') ?? '—' }}
                                             </span>
                                         </div>
-                                        <p class="text-xs text-zinc-400">{{ $activity->activityType->is_productive ? 'Productiva' : 'No Productiva' }}</p>
+                                        <p class="text-xs text-slate-400">{{ $activity->activityType->is_productive ? 'Productiva' : 'No Productiva' }}</p>
                                     </div>
                                 </div>
                             @endforeach
@@ -221,14 +221,14 @@
                     <a href="{{ route('schedules.swap-request') }}" wire:navigate class="block">
                         <flux:card class="p-4 hover:shadow-md transition-opacity cursor-pointer group">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
+                                <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
                                     <flux:icon name="arrows-right-left" size="sm" />
                                 </div>
                                 <div class="flex-grow">
                                     <flux:heading size="sm">Cambio de Turno</flux:heading>
                                     <flux:subheading size="xs">Solicita intercambiar tu turno con un compañero</flux:subheading>
                                 </div>
-                                <flux:icon name="chevron-right" size="xs" class="text-zinc-400" />
+                                <flux:icon name="chevron-right" size="xs" class="text-slate-400" />
                             </div>
                         </flux:card>
                     </a>
@@ -236,14 +236,14 @@
                     <a href="{{ route('schedules.leave-request', ['type' => 'quarterly']) }}" wire:navigate class="block">
                         <flux:card class="p-4 hover:shadow-md transition-opacity cursor-pointer group">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
+                                <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
                                     <flux:icon name="calendar-days" size="sm" />
                                 </div>
                                 <div class="flex-grow">
                                     <flux:heading size="sm">Permiso Trimestral</flux:heading>
                                     <flux:subheading size="xs">Gestiona tu día de permiso por trimestre</flux:subheading>
                                 </div>
-                                <flux:icon name="chevron-right" size="xs" class="text-zinc-400" />
+                                <flux:icon name="chevron-right" size="xs" class="text-slate-400" />
                             </div>
                         </flux:card>
                     </a>
@@ -251,20 +251,20 @@
                     <a href="{{ route('schedules.leave-request', ['type' => 'compensatory']) }}" wire:navigate class="block">
                         <flux:card class="p-4 hover:shadow-md transition-opacity cursor-pointer group">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
+                                <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
                                     <flux:icon name="sparkles" size="sm" />
                                 </div>
                                 <div class="flex-grow">
                                     <flux:heading size="sm">Permiso Compensatorio</flux:heading>
                                     <flux:subheading size="xs">Solicita tiempo por horas extra trabajadas</flux:subheading>
                                 </div>
-                                <flux:icon name="chevron-right" size="xs" class="text-zinc-400" />
+                                <flux:icon name="chevron-right" size="xs" class="text-slate-400" />
                             </div>
                         </flux:card>
                     </a>
 
-                    <div class="mt-4 border-t pt-4 dark:border-zinc-700">
-                        <p class="text-xs text-zinc-500">Puedes ver el estado de tus solicitudes en el menú lateral.</p>
+                    <div class="mt-4 border-t pt-4 dark:border-slate-700">
+                        <p class="text-xs text-slate-500">Puedes ver el estado de tus solicitudes en el menú lateral.</p>
                     </div>
                 </div>
             </div>

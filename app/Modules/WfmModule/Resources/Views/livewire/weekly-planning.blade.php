@@ -1,4 +1,4 @@
-<div class="p-4">
+<div class="p-4 max-w-4xl mx-auto">
     <div class="flex items-center justify-between mb-8">
         <div>
             <flux:heading size="xl">{{ __('Planificación Semanal') }}</flux:heading>
@@ -12,7 +12,7 @@
     </div>
 
     <!-- Modal de Confirmación de Nueva Semana -->
-    <flux:modal wire:model="showCreateModal" class="min-w-[400px]">
+    <flux:modal wire:model="showCreateModal" class="w-full max-w-md">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Confirmar Nueva Semana') }}</flux:heading>
@@ -21,7 +21,7 @@
             </div>
 
             @if($nextWeekStart && $nextWeekEnd)
-                <div class="rounded-md bg-zinc-50 p-4 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                <div class="rounded-md bg-slate-50 p-4 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                     <div class="flex items-center gap-3">
                         <flux:icon icon="calendar-days" class="text-blue-500" />
                         <div class="flex flex-col">
@@ -47,7 +47,7 @@
     </flux:modal>
 
     <flux:table :paginate="$weeks">
-        <flux:table.columns>
+        <flux:table.columns class="sticky top-0 z-10 bg-white">
             <flux:table.column>{{ __('Semana') }}</flux:table.column>
             <flux:table.column>{{ __('Estado') }}</flux:table.column>
             <flux:table.column>{{ __('Equipos Planificados') }}</flux:table.column>
@@ -57,31 +57,31 @@
 
         <flux:table.rows>
             @foreach($weeks as $week)
-                <flux:table.row :key="$week->id">
-                    <flux:table.cell class="font-medium">
+                <flux:table.row :key="$week->id" class="hover:bg-slate-50">
+                    <flux:table.cell class="py-2 font-medium">
                         <div class="flex flex-col">
                             <span>{{ $week->week_start_date->format('d M') }} -
                                 {{ $week->week_end_date->format('d M, Y') }}</span>
-                            <span class="text-xs text-zinc-500">Semana {{ $week->week_start_date->weekOfYear }}</span>
+                            <span class="text-xs text-slate-500">Semana {{ $week->week_start_date->weekOfYear }}</span>
                         </div>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <flux:badge :color="match($week->status) {
-                                                                                                                            'draft' => 'zinc',
+                                                                                                                            'draft' => 'slate',
                                                                                                                             'published' => 'green',
                                                                                                                             'closed' => 'amber',
-                                                                                                                            default => 'zinc'
+                                                                                                                            default => 'slate'
                                                                                                                         }">
                             {{ ucfirst($week->status) }}
                         </flux:badge>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-2">
                         <div class="flex items-center gap-2">
-                            <flux:icon icon="users" size="xs" class="text-zinc-400" />
+                            <flux:icon icon="users" size="xs" class="text-slate-400" />
                             <span>{{ $week->team_assignments_count }} equipos</span>
                         </div>
                     </flux:table.cell>
-                    <flux:table.cell>
+                    <flux:table.cell class="py-2">
                         @if($week->status === 'draft')
                             @can('schedules.manage')
                                 <flux:button wire:click="publishWeek({{ $week->id }})" variant="primary" size="sm"
@@ -89,7 +89,7 @@
                                     {{ __('Publicar') }}
                                 </flux:button>
                             @else
-                                <flux:badge color="zinc" icon="clock">
+                                <flux:badge color="slate" icon="clock">
                                     {{ __('En Preparación') }}
                                 </flux:badge>
                             @endcan
@@ -99,9 +99,9 @@
                             </flux:badge>
                         @endif
                     </flux:table.cell>
-                    <flux:table.cell align="end">
+                    <flux:table.cell align="end" class="py-2">
                         <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" variant="primary"
-                            color="emerald" size="sm" icon="pencil-square" wire:navigate>
+                             size="sm" icon="pencil-square" wire:navigate>
                             {{ __('Gestionar Equipos') }}
                         </flux:button>
                     </flux:table.cell>

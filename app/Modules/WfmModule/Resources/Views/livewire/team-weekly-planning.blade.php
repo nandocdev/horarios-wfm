@@ -1,4 +1,4 @@
-<div class="p-4">
+<div class="p-4 max-w-4xl mx-auto">
     <div class="flex items-center gap-4">
         <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" icon="arrow-left"
             variant="ghost" wire:navigate />
@@ -16,7 +16,7 @@
 
     <div class="mt-8">
         <flux:table>
-            <flux:table.columns>
+            <flux:table.columns class="sticky top-0 z-10 bg-white">
                 <flux:table.column sticky>{{ __('Empleado') }}</flux:table.column>
                 @foreach($days as $dayNum => $dayName)
                     <flux:table.column align="center">{{ $dayName }}</flux:table.column>
@@ -26,13 +26,13 @@
 
             <flux:table.rows>
                 @foreach($employees as $employee)
-                    <flux:table.row :key="$employee->id">
-                        <flux:table.cell sticky class="bg-white dark:bg-zinc-900">
+                    <flux:table.row :key="$employee->id" class="hover:bg-slate-50">
+                        <flux:table.cell sticky class="py-1 bg-white dark:bg-slate-900">
                             <div class="flex items-center gap-3">
                                 <flux:avatar initials="{{ $employee->initials }}" size="xs" />
                                 <div class="flex flex-col">
                                     <span class="text-sm font-medium">{{ $employee->full_name }}</span>
-                                    <span class="text-xs text-zinc-500">{{ $employee->position?->name }}</span>
+                                    <span class="text-xs text-slate-500">{{ $employee->position?->name }}</span>
                                 </div>
                             </div>
                         </flux:table.cell>
@@ -51,22 +51,22 @@
 
                                 $assignment = $assignmentsByEmployee->get($employee->id)?->firstWhere('day_of_week', $dayNum);
                             @endphp
-                            <flux:table.cell align="center" class="{{ $dayException ? 'bg-zinc-50/50 dark:bg-zinc-800/30' : '' }}">
+                            <flux:table.cell align="center" class="py-1 {{ $dayException ? 'bg-slate-50/50 dark:bg-slate-800/30' : '' }}">
                                 @if($dayException)
-                                    <div class="flex flex-col items-center justify-center p-2 rounded-md border border-dashed border-zinc-200 dark:border-zinc-700 opacity-80" 
+                                    <div class="flex flex-col items-center justify-center p-2 rounded-md border border-dashed border-slate-200 dark:border-slate-700 opacity-80" 
                                          title="{{ $dayException->remarks }}">
-                                        <flux:badge :color="$dayException->reason?->color ?? 'zinc'" size="sm" class="font-bold uppercase text-[9px]">
+                                        <flux:badge :color="$dayException->reason?->color ?? 'slate'" size="sm" class="font-bold uppercase text-[9px]">
                                             {{ $dayException->reason?->name ?? __('EXCEPCIÓN') }}
                                         </flux:badge>
-                                        <span class="mt-1 text-[10px] text-zinc-500 font-medium italic">
+                                        <span class="mt-1 text-[10px] text-slate-500 font-medium italic">
                                             {{ __('Bloqueado') }}
                                         </span>
                                     </div>
                                 @elseif($assignment)
                                     <button wire:click="editAssignment({{ $assignment->id }})"
-                                        class="group flex flex-col items-center justify-center rounded-md border border-transparent p-2 transition-opacity hover:border-zinc-200 hover:bg-zinc-50 dark:hover:border-zinc-700 dark:hover:bg-zinc-800">
+                                        class="group flex flex-col items-center justify-center rounded-md border border-transparent p-2 transition-opacity hover:border-slate-200 hover:bg-slate-50 dark:hover:border-slate-700 dark:hover:bg-slate-800">
                                         <span
-                                            class="text-[10px] font-bold uppercase text-zinc-400">{{ $assignment->schedule?->name ?? 'OFF' }}</span>
+                                            class="text-[10px] font-bold uppercase text-slate-400">{{ $assignment->schedule?->name ?? 'OFF' }}</span>
                                         <span class="text-xs font-semibold">
                                             {{ $this->formatTime($assignment->start_time) ?? ($assignment->schedule ? $this->formatTime($assignment->schedule->start_time) : '--') }}
                                             -
@@ -74,20 +74,20 @@
                                         </span>
                                         <div class="mt-1 flex gap-1">
                                             @if($assignment->lunch_start_time)
-                                                <flux:icon icon="fire" size="xs" class="text-orange-500" />
+                                                <flux:icon icon="fire" size="xs" class="text-slate-500" />
                                             @endif
                                             @if($assignment->break_start_time)
-                                                <flux:icon icon="clock" size="xs" class="text-blue-500" />
+                                                <flux:icon icon="clock" size="xs" class="text-blue-600" />
                                             @endif
                                         </div>
                                     </button>
                                 @else
-                                    <span class="text-xs text-zinc-400">--</span>
+                                    <span class="text-xs text-slate-400">--</span>
                                 @endif
                             </flux:table.cell>
                         @endforeach
 
-                        <flux:table.cell align="end">
+                        <flux:table.cell align="end" class="py-1">
                             <flux:button
                                 href="{{ route('schedules.planning.employee', ['week' => $week->id, 'employee' => $employee->id]) }}"
                                 variant="ghost" size="sm" icon="pencil-square" wire:navigate>
@@ -105,7 +105,7 @@
     </div>
 
     <!-- Modal de Edición Individual -->
-    <flux:modal wire:model="showEditModal" class="min-w-[400px]">
+    <flux:modal wire:model="showEditModal" class="w-full max-w-md">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Editar Asignación Individual') }}</flux:heading>
@@ -146,7 +146,7 @@
     </flux:modal>
 
     <!-- Modal de Asignación Masiva -->
-    <flux:modal wire:model="showBulkAssignModal" class="min-w-[450px]">
+    <flux:modal wire:model="showBulkAssignModal" class="w-full max-w-lg">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Asignación Masiva para Equipo') }}</flux:heading>

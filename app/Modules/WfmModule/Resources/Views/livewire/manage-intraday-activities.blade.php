@@ -32,14 +32,14 @@
          ===================================================== --}}
     <div>
         <flux:heading size="lg" class="mb-4">
-            <flux:icon name="clock" class="inline-block w-5 h-5 mr-1 text-indigo-500" />
+            <flux:icon name="clock" class="inline-block w-5 h-5 mr-1 text-slate-500" />
             Periodos Aprobados
         </flux:heading>
 
         @if($periods->isEmpty())
-            <div class="rounded-md border border-dashed border-zinc-200 dark:border-zinc-700 p-8 text-center">
-                <flux:icon name="no-symbol" class="mx-auto w-10 h-10 text-zinc-300 dark:text-zinc-600 mb-3" />
-                <flux:text class="text-zinc-500">
+            <div class="rounded-md border border-dashed border-slate-200 dark:border-slate-700 p-8 text-center">
+                <flux:icon name="no-symbol" class="mx-auto w-10 h-10 text-slate-300 dark:text-slate-600 mb-3" />
+                <flux:text class="text-slate-500">
                     {{ $isWfm ? 'No hay periodos aprobados para esta fecha. Crea uno con el botón superior.' : 'No hay periodos aprobados para tu equipo en esta fecha.' }}
                 </flux:text>
             </div>
@@ -53,15 +53,15 @@
                         $isFull = $used >= $max;
                         $barColor = $isFull ? 'bg-red-500' : ($pct >= 70 ? 'bg-amber-400' : 'bg-emerald-500');
                     @endphp
-                    <div class="rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-opacity p-5 space-y-4">
+                    <div class="rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-opacity p-5 space-y-4">
 
                         {{-- Badge actividad --}}
                         <div class="flex items-start justify-between gap-2">
                             <div class="space-y-1">
-                                <flux:badge :color="$isFull ? 'red' : 'indigo'" size="sm">
+                                <flux:badge :color="$isFull ? 'red' : 'slate'" size="sm">
                                     {{ $period->activityDefinition->name }}
                                 </flux:badge>
-                                <div class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                <div class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-1">
                                     <flux:icon name="users" class="w-4 h-4" />
                                     {{ $period->team->name ?? '—' }}
                                 </div>
@@ -77,24 +77,24 @@
 
                         {{-- Horario --}}
                         <div class="flex items-center gap-2 text-sm font-medium">
-                            <flux:icon name="clock" class="w-4 h-4 text-zinc-400" />
+                            <flux:icon name="clock" class="w-4 h-4 text-slate-400" />
                             <span>{{ $period->start_time }} – {{ $period->end_time }}</span>
                         </div>
 
                         {{-- Barra de capacidad --}}
                         <div class="space-y-1">
-                            <div class="flex justify-between text-xs text-zinc-500">
+                            <div class="flex justify-between text-xs text-slate-500">
                                 <span>Slots</span>
                                 <span class="{{ $isFull ? 'text-red-500 font-semibold' : '' }}">{{ $used }} / {{ $max }}</span>
                             </div>
-                            <div class="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-2">
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
                                 <div class="{{ $barColor }} h-2 rounded-full transition-opacity duration-150" style="width: {{ $pct }}%"></div>
                             </div>
                         </div>
 
                         {{-- Notas --}}
                         @if($period->notes)
-                            <p class="text-xs text-zinc-400 italic truncate">{{ $period->notes }}</p>
+                            <p class="text-xs text-slate-400 italic truncate">{{ $period->notes }}</p>
                         @endif
 
                         {{-- Botón asignar --}}
@@ -118,12 +118,12 @@
          ===================================================== --}}
     <div>
         <flux:heading size="lg" class="mb-4">
-            <flux:icon name="queue-list" class="inline-block w-5 h-5 mr-1 text-violet-500" />
+            <flux:icon name="queue-list" class="inline-block w-5 h-5 mr-1 text-slate-500" />
             Actividades del Día
         </flux:heading>
 
         <flux:table>
-            <flux:table.columns>
+            <flux:table.columns class="sticky top-0 z-10 bg-white">
                 <flux:table.column>Empleado</flux:table.column>
                 <flux:table.column>Equipo</flux:table.column>
                 <flux:table.column>Actividad</flux:table.column>
@@ -137,41 +137,41 @@
                         $rangeStart = $act->getRangeStart();
                         $rangeEnd   = $act->getRangeEnd();
                     @endphp
-                    <flux:table.row :key="$act->id">
-                        <flux:table.cell>
+                    <flux:table.row :key="$act->id" class="hover:bg-slate-50">
+                        <flux:table.cell class="py-2">
                             <div class="flex items-center gap-2">
-                                <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                                <div class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300">
                                     {{ strtoupper(substr($act->employee->first_name ?? '?', 0, 1)) }}
                                 </div>
                                 <div>
                                     <p class="font-medium text-sm">{{ $act->employee->full_name ?? '—' }}</p>
-                                    <p class="text-xs text-zinc-400">{{ $act->employee->username ?? '' }}</p>
+                                    <p class="text-xs text-slate-400">{{ $act->employee->username ?? '' }}</p>
                                 </div>
                             </div>
                         </flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <flux:text size="sm">{{ $act->employee->team->name ?? '—' }}</flux:text>
                         </flux:table.cell>
-                        <flux:table.cell>
-                            <flux:badge size="sm" :color="$act->activityType->color ?? 'zinc'">
+                        <flux:table.cell class="py-2">
+                            <flux:badge size="sm" :color="$act->activityType->color ?? 'slate'">
                                 {{ $act->activityType->name ?? '—' }}
                             </flux:badge>
                         </flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <span class="font-mono text-sm">
                                 {{ $rangeStart?->format('H:i') ?? '—' }} – {{ $rangeEnd?->format('H:i') ?? '—' }}
                             </span>
                         </flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.cell class="py-2">
                             @if($act->approvedPeriod)
                                 <flux:badge size="sm" color="blue" icon="check-circle">
                                     Autorizado
                                 </flux:badge>
                             @else
-                                <flux:badge size="sm" color="zinc">Directo</flux:badge>
+                                <flux:badge size="sm" color="slate">Directo</flux:badge>
                             @endif
                         </flux:table.cell>
-                        <flux:table.cell align="end">
+                        <flux:table.cell align="end" class="py-2">
                             <flux:button wire:click="deleteActivity({{ $act->id }})"
                                 variant="ghost" size="sm" icon="trash"
                                 wire:confirm="¿Eliminar esta actividad?" />
@@ -179,7 +179,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="6" class="text-center py-8 text-zinc-400">
+                        <flux:table.cell colspan="6" class="text-center py-8 text-slate-400">
                             No hay actividades asignadas en esta fecha.
                         </flux:table.cell>
                     </flux:table.row>
@@ -262,21 +262,21 @@
                 <flux:legend>Selecciona operadores disponibles</flux:legend>
                 <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
                     @forelse($availableEmployees as $emp)
-                        <label class="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer">
+                        <label class="flex items-center gap-3 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">
                             <flux:checkbox
                                 wire:model="selectedEmployeeIds"
                                 value="{{ $emp->id }}"
                             />
-                            <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-bold text-indigo-700 dark:text-indigo-300 shrink-0">
+                            <div class="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-300 shrink-0">
                                 {{ strtoupper(substr($emp->first_name ?? '?', 0, 1)) }}
                             </div>
                             <div class="text-sm">
                                 <p class="font-medium">{{ $emp->first_name }} {{ $emp->last_name }}</p>
-                                <p class="text-xs text-zinc-400">{{ $emp->username }}</p>
+                                <p class="text-xs text-slate-400">{{ $emp->username }}</p>
                             </div>
                         </label>
                     @empty
-                        <p class="text-sm text-zinc-400 italic p-2">No hay operadores disponibles para este periodo.</p>
+                        <p class="text-sm text-slate-400 italic p-2">No hay operadores disponibles para este periodo.</p>
                     @endforelse
                 </div>
                 <flux:error name="selectedEmployeeIds" />

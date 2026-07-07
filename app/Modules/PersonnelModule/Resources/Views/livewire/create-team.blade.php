@@ -36,7 +36,7 @@
                 <flux:checkbox wire:model="is_active" label="Equipo habilitado para operaciones" />
             </div>
 
-            <div class="flex justify-end gap-3 pt-6 border-t border-zinc-200 dark:border-zinc-700">
+            <div class="flex justify-end gap-4 pt-8 border-t border-slate-200 dark:border-slate-700">
                 <flux:button href="{{ route('organization.teams.index') }}" variant="ghost">
                     Cancelar
                 </flux:button>

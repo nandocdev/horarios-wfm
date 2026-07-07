@@ -33,7 +33,7 @@
             <flux:input label="Ingreso hasta" type="date" wire:model.live="date_to" />
         </div>
 
-        <div class="flex justify-between items-center mt-4 gap-3 flex-wrap">
+        <div class="flex justify-between items-center mt-4 gap-4 flex-wrap">
             <div class="flex items-center gap-4">
                 <label class="inline-flex items-center gap-2 text-sm">
                     <input type="radio" value="1" wire:model.live="exportAll">
@@ -68,50 +68,50 @@
         <div class="space-y-4">
             @if($employees->count() > 0)
                 <flux:table :paginate="$employees">
-                    <flux:table.columns>
-                        <flux:table.column>
+                    <flux:table.columns class="sticky top-0 z-10 bg-white">
+                        <flux:table.column class="sticky top-0 z-10 bg-white">
                             <input type="checkbox" wire:model.live="selectAll" />
                         </flux:table.column>
-                        <flux:table.column>Número</flux:table.column>
-                        <flux:table.column>Nombre</flux:table.column>
-                        <flux:table.column>Email</flux:table.column>
-                        <flux:table.column>Departamento</flux:table.column>
-                        <flux:table.column>Cargo</flux:table.column>
-                        <flux:table.column>Estado</flux:table.column>
-                        <flux:table.column align="end">Acciones</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-white">Número</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-white">Nombre</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-white">Email</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-white">Departamento</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-white">Cargo</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-white">Estado</flux:table.column>
+                        <flux:table.column align="end" class="sticky top-0 z-10 bg-white">Acciones</flux:table.column>
                     </flux:table.columns>
 
-                    <flux:table.rows>
+                    <flux:table.rows class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
                         @forelse($employees as $employee)
-                            <flux:table.row :key="$employee->id">
-                                <flux:table.cell>
+                            <flux:table.row :key="$employee->id" class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
+                                <flux:table.cell class="py-2">
                                     <input type="checkbox" wire:model.live="selected" value="{{ $employee->id }}"
                                         @disabled($exportAll) />
                                 </flux:table.cell>
-                                <flux:table.cell>{{ $employee->employee_number }}</flux:table.cell>
-                                <flux:table.cell>
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                            <span class="text-xs font-medium text-gray-600">
+                                <flux:table.cell class="py-2">{{ $employee->employee_number }}</flux:table.cell>
+                                <flux:table.cell class="py-2">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+                                            <span class="text-xs font-medium text-slate-600">
                                                 {{ substr($employee->first_name, 0, 1) }}{{ substr($employee->last_name, 0, 1) }}
                                             </span>
                                         </div>
-                                        <flux:text class="font-medium text-gray-900">{{ $employee->full_name }}</flux:text>
+                                        <flux:text class="font-medium text-slate-900">{{ $employee->full_name }}</flux:text>
                                         @if($employee->is_manager)
                                             <flux:badge size="xs" variant="ghost">Manager</flux:badge>
                                         @endif
                                     </div>
                                 </flux:table.cell>
-                                <flux:table.cell>{{ $employee->email }}</flux:table.cell>
-                                <flux:table.cell>{{ str($employee->department?->name)->limit(25) ?? 'Sin asignar' }}
+                                <flux:table.cell class="py-2">{{ $employee->email }}</flux:table.cell>
+                                <flux:table.cell class="py-2">{{ str($employee->department?->name)->limit(25) ?? 'Sin asignar' }}
                                 </flux:table.cell>
-                                <flux:table.cell>{{ $employee->position?->name ?? 'Sin asignar' }}</flux:table.cell>
-                                <flux:table.cell>
+                                <flux:table.cell class="py-2">{{ $employee->position?->name ?? 'Sin asignar' }}</flux:table.cell>
+                                <flux:table.cell class="py-2">
                                     <flux:badge :variant="$employee->is_active ? 'success' : 'danger'">
                                         {{ $employee->is_active ? 'Activo' : 'Inactivo' }}
                                     </flux:badge>
                                 </flux:table.cell>
-                                <flux:table.cell align="end">
+                                <flux:table.cell align="end" class="py-2">
                                     <flux:button.group>
                                         @can('view', $employee)
                                             <flux:button href="{{ route('employees.show', $employee) }}" variant="ghost" size="sm"
@@ -130,9 +130,9 @@
                                 </flux:table.cell>
                             </flux:table.row>
                         @empty
-                            <flux:table.row>
+                            <flux:table.row class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
                                 <flux:table.cell colspan="8" class="text-center py-8">
-                                    <flux:text size="sm" class="text-zinc-500 italic">No se encontraron empleados con esos
+                                    <flux:text size="sm" class="text-slate-500 italic">No se encontraron empleados con esos
                                         criterios.</flux:text>
                                 </flux:table.cell>
                             </flux:table.row>
@@ -141,13 +141,13 @@
                 </flux:table>
 
                 <!-- Paginación -->
-                <div class="mt-6">
+                <div class="mt-8">
                     {{ $employees->links() }}
                 </div>
             @else
                 <div class="text-center py-12">
-                    <div class="text-gray-500">
-                        <p class="text-lg font-medium">No se encontraron empleados</p>
+                    <div class="text-slate-500">
+                        <p class="text-xl font-semibold">No se encontraron empleados</p>
                         <p class="text-sm">Intenta ajustar los filtros de búsqueda</p>
                     </div>
                 </div>

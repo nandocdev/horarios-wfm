@@ -11,7 +11,7 @@
                 <flux:subheading>{{ $employee->position?->name }} • {{ $employee->department?->name }}</flux:subheading>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-4">
                 @can('update', $employee)
                     <flux:button href="{{ route('employees.edit', $employee) }}" variant="outline" wire:navigate>
                         Editar
@@ -37,28 +37,28 @@
                     <div>
                         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Nombre completo</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->full_name }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Nombre completo</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->full_name }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Email</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->email }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Email</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->email }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Teléfono</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->phone ?? 'No especificado' }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Teléfono</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->phone ?? 'No especificado' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Fecha de nacimiento</dt>
-                                <dd class="text-sm text-gray-900">
+                                <dt class="text-sm font-medium text-slate-500">Fecha de nacimiento</dt>
+                                <dd class="text-sm text-slate-900">
                                     {{ $employee->birth_date?->format('d/m/Y') ?? 'No especificada' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Género</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->gender_label }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Género</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->gender_label }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Estado</dt>
+                                <dt class="text-sm font-medium text-slate-500">Estado</dt>
                                 <dd class="text-sm">
                                     <flux:badge :variant="$employee->is_active ? 'success' : 'danger'">
                                         {{ $employee->is_active ? 'Activo' : 'Inactivo' }}
@@ -78,28 +78,28 @@
                     <div>
                         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Posición</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->position?->name }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Posición</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->position?->name }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Departamento</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->department?->name }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Departamento</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->department?->name }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Fecha de contratación</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->hire_date?->format('d/m/Y') }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Fecha de contratación</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->hire_date?->format('d/m/Y') }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Salario</dt>
-                                <dd class="text-sm text-gray-900">${{ number_format($employee->salary ?? 0, 2) }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Salario</dt>
+                                <dd class="text-sm text-slate-900">${{ number_format($employee->salary ?? 0, 2) }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Tipo de contrato</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->contract_type_label }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Tipo de contrato</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->contract_type_label }}</dd>
                             </div>
                             <div>
-                                <dt class="text-sm font-medium text-gray-500">Jornada laboral</dt>
-                                <dd class="text-sm text-gray-900">{{ $employee->work_schedule ?? 'N/A' }}</dd>
+                                <dt class="text-sm font-medium text-slate-500">Jornada laboral</dt>
+                                <dd class="text-sm text-slate-900">{{ $employee->work_schedule ?? 'N/A' }}</dd>
                             </div>
                         </dl>
                     </div>
@@ -116,9 +116,9 @@
 
                     <div>
                         <div class="space-y-2">
-                            <div class="text-sm text-gray-900">{{ $employee->township?->name }}</div>
-                            <div class="text-sm text-gray-600">{{ $employee->address }}</div>
-                            <div class="text-sm text-gray-600">{{ $employee->township?->district?->name }},
+                            <div class="text-sm text-slate-900">{{ $employee->township?->name }}</div>
+                            <div class="text-sm text-slate-600">{{ $employee->address }}</div>
+                            <div class="text-sm text-slate-600">{{ $employee->township?->district?->name }},
                                 {{ $employee->township?->district?->province?->name }}</div>
                         </div>
                     </div>
@@ -132,15 +132,15 @@
                         </div>
 
                         <div>
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                                    <span class="text-sm font-medium text-gray-600">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center">
+                                    <span class="text-sm font-medium text-slate-600">
                                         {{ substr($employee->manager->first_name, 0, 1) }}{{ substr($employee->manager->last_name, 0, 1) }}
                                     </span>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ $employee->manager->full_name }}</div>
-                                    <div class="text-sm text-gray-600">{{ $employee->manager->position?->name }}</div>
+                                    <div class="text-sm font-medium text-slate-900">{{ $employee->manager->full_name }}</div>
+                                    <div class="text-sm text-slate-600">{{ $employee->manager->position?->name }}</div>
                                 </div>
                             </div>
                         </div>
@@ -157,15 +157,15 @@
                         <div>
                             <div class="space-y-3">
                                 @foreach($employee->subordinates as $subordinate)
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                            <span class="text-xs font-medium text-gray-600">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
+                                            <span class="text-xs font-medium text-slate-600">
                                                 {{ substr($subordinate->first_name, 0, 1) }}{{ substr($subordinate->last_name, 0, 1) }}
                                             </span>
                                         </div>
                                         <div>
-                                            <div class="text-sm font-medium text-gray-900">{{ $subordinate->full_name }}</div>
-                                            <div class="text-sm text-gray-600">{{ $subordinate->position?->name }}</div>
+                                            <div class="text-sm font-medium text-slate-900">{{ $subordinate->full_name }}</div>
+                                            <div class="text-sm text-slate-600">{{ $subordinate->position?->name }}</div>
                                         </div>
                                     </div>
                                 @endforeach

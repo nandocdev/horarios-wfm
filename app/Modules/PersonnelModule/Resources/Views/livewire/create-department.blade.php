@@ -1,11 +1,11 @@
 <div class="container mx-auto px-4 py-8 max-w-2xl">
-    <div class="bg-white rounded-md shadow-sm border border-gray-200">
-        <div class="p-4 border-b border-gray-200">
+    <div class="bg-white rounded-md shadow-sm border border-slate-200">
+        <div class="p-4 border-b border-slate-200">
             <div class="flex items-center space-x-4">
                 <flux:link href="{{ route('organization.departments.index') }}" variant="ghost">
                     ← Volver
                 </flux:link>
-                <h1 class="text-2xl font-bold text-gray-900">Crear Departamento</h1>
+                <h1 class="text-3xl font-bold text-slate-900">Crear Departamento</h1>
             </div>
         </div>
 
@@ -13,9 +13,9 @@
             <div class="grid grid-cols-1 gap-4">
                 <flux:field>
                     <label for="directorate_id"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dirección *</label>
+                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Dirección *</label>
                     <select wire:model="directorate_id" id="directorate_id" required
-                        class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        class="block w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
                         <option value="">Selecciona una dirección</option>
                         @foreach($this->directorates as $directorate)
                             <option value="{{ $directorate->id }}">{{ $directorate->name }}</option>
@@ -37,7 +37,7 @@
                 </flux:field>
             </div>
 
-            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+            <div class="flex justify-end space-x-4 pt-8 border-t border-slate-200">
                 <flux:link href="{{ route('organization.departments.index') }}" variant="ghost">
                     Cancelar
                 </flux:link>

@@ -24,25 +24,25 @@
                     
                     <div class="space-y-4">
                         <flux:field label="Nombre">
-                            <div class="text-zinc-900 dark:text-white font-medium">{{ $team->name }}</div>
+                            <div class="text-slate-900 dark:text-white font-medium">{{ $team->name }}</div>
                         </flux:field>
 
                         <flux:field label="Supervisor">
                             @if($team->supervisor)
-                                <div class="flex items-center gap-3 py-1">
+                                <div class="flex items-center gap-4 py-2">
                                     <flux:avatar initials="{{ $team->supervisor->initials }}" size="sm" />
                                     <div class="flex flex-col">
-                                        <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ $team->supervisor->full_name }}</div>
-                                        <div class="text-xs text-zinc-500">{{ $team->supervisor->employee_number }}</div>
+                                        <div class="text-sm font-medium text-slate-900 dark:text-white">{{ $team->supervisor->full_name }}</div>
+                                        <div class="text-xs text-slate-500">{{ $team->supervisor->employee_number }}</div>
                                     </div>
                                 </div>
                             @else
-                                <div class="text-zinc-400 text-sm italic py-1">Sin supervisor asignado</div>
+                                <div class="text-slate-400 text-sm italic py-2">Sin supervisor asignado</div>
                             @endif
                         </flux:field>
 
                         <flux:field label="Descripción">
-                            <div class="text-zinc-500 text-sm">{{ $team->description ?: 'Sin descripción' }}</div>
+                            <div class="text-slate-500 text-sm">{{ $team->description ?: 'Sin descripción' }}</div>
                         </flux:field>
 
                         <flux:field label="Estado">
@@ -53,14 +53,14 @@
                             @endif
                         </flux:field>
 
-                        <div class="pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
                             <div class="flex justify-between text-xs">
-                                <span class="text-zinc-400">Creado:</span>
-                                <span class="text-zinc-600 dark:text-zinc-300">{{ $team->created_at->format('d/m/Y H:i') }}</span>
+                                <span class="text-slate-400">Creado:</span>
+                                <span class="text-slate-600 dark:text-slate-300">{{ $team->created_at->format('d/m/Y H:i') }}</span>
                             </div>
                             <div class="flex justify-between text-xs">
-                                <span class="text-zinc-400">Actualizado:</span>
-                                <span class="text-zinc-600 dark:text-zinc-300">{{ $team->updated_at->format('d/m/Y H:i') }}</span>
+                                <span class="text-slate-400">Actualizado:</span>
+                                <span class="text-slate-600 dark:text-slate-300">{{ $team->updated_at->format('d/m/Y H:i') }}</span>
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
             <!-- Miembros del Equipo -->
             <div class="lg:col-span-2">
                 <flux:card>
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center justify-between mb-8">
                         <flux:heading size="lg">Miembros del Equipo ({{ $team->users->count() }})</flux:heading>
                         <div class="flex gap-2">
                             <flux:modal.trigger name="add-member-modal">
@@ -81,14 +81,14 @@
                     </div>
 
                     @if($team->users->isNotEmpty())
-                        <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                        <div class="divide-y divide-slate-100 dark:divide-slate-800">
                             @foreach($team->users as $user)
                                 <div class="py-4 flex items-center justify-between first:pt-0 last:pb-0">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-4">
                                         <flux:avatar initials="{{ $user->initials }}" size="sm" />
                                         <div>
-                                            <div class="text-sm font-medium text-zinc-900 dark:text-white">{{ $user->full_name }}</div>
-                                            <div class="text-xs text-zinc-500">{{ $user->email }}</div>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">{{ $user->full_name }}</div>
+                                            <div class="text-xs text-slate-500">{{ $user->email }}</div>
                                         </div>
                                     </div>
                                     
@@ -120,9 +120,9 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="flex flex-col items-center py-20 text-zinc-400 gap-3">
-                            <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-full">
-                                <flux:icon.users class="size-10 text-zinc-300" />
+                        <div class="flex flex-col items-center py-20 text-slate-400 gap-4">
+                            <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-full">
+                                <flux:icon.users class="size-10 text-slate-300" />
                             </div>
                             <span>No hay miembros asignados a este equipo.</span>
                             <flux:modal.trigger name="add-member-modal">

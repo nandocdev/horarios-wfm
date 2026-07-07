@@ -20,7 +20,7 @@
     <flux:card>
         <div class="space-y-4">
             <!-- Filtros -->
-            <div class="flex flex-col md:flex-row gap-3">
+            <div class="flex flex-col md:flex-row gap-4">
                 <div class="flex-1">
                     <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre o descripción..."
                         icon="magnifying-glass" clearable />
@@ -42,47 +42,47 @@
 
             <!-- Tabla -->
             <flux:table :paginate="$teams" class="overflow-visible">
-                <flux:table.columns>
-                    <flux:table.column :sortable="$sortBy === 'name'" :direction="$sortDirection" wire:click="sort('name')">Nombre</flux:table.column>
-                    <flux:table.column>Supervisor</flux:table.column>
-                    <flux:table.column>Descripción</flux:table.column>
-                    <flux:table.column>Miembros</flux:table.column>
-                    <flux:table.column :sortable="$sortBy === 'is_active'" :direction="$sortDirection" wire:click="sort('is_active')">Estado</flux:table.column>
-                    <flux:table.column align="end">Acciones</flux:table.column>
+                <flux:table.columns class="sticky top-0 z-10 bg-white">
+                    <flux:table.column :sortable="$sortBy === 'name'" :direction="$sortDirection" wire:click="sort('name')" class="sticky top-0 z-10 bg-white">Nombre</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-white">Supervisor</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-white">Descripción</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-white">Miembros</flux:table.column>
+                    <flux:table.column :sortable="$sortBy === 'is_active'" :direction="$sortDirection" wire:click="sort('is_active')" class="sticky top-0 z-10 bg-white">Estado</flux:table.column>
+                    <flux:table.column align="end" class="sticky top-0 z-10 bg-white">Acciones</flux:table.column>
                 </flux:table.columns>
 
-                <flux:table.rows>
+                <flux:table.rows class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
                     @forelse($teams as $team)
-                        <flux:table.row :key="$team->id">
-                            <flux:table.cell class="font-medium text-zinc-900 dark:text-white">
+                        <flux:table.row :key="$team->id" class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
+                            <flux:table.cell class="py-2 font-medium text-slate-900 dark:text-white">
                                 {{ $team->name }}
                             </flux:table.cell>
 
-                            <flux:table.cell>
+                            <flux:table.cell class="py-2">
                                 @if($team->supervisor)
                                     <div class="flex items-center gap-2">
                                         <flux:avatar initials="{{ $team->supervisor->initials }}" size="xs" />
                                         <div class="flex flex-col">
-                                            <span class="text-sm font-medium text-zinc-900 dark:text-white">{{ $team->supervisor->full_name }}</span>
-                                            <span class="text-xs text-zinc-500">{{ $team->supervisor->employee_number }}</span>
+                                            <span class="text-sm font-medium text-slate-900 dark:text-white">{{ $team->supervisor->full_name }}</span>
+                                            <span class="text-xs text-slate-500">{{ $team->supervisor->employee_number }}</span>
                                         </div>
                                     </div>
                                 @else
-                                    <span class="text-xs text-zinc-400 italic">No asignado</span>
+                                    <span class="text-xs text-slate-400 italic">No asignado</span>
                                 @endif
                             </flux:table.cell>
 
-                            <flux:table.cell class="text-zinc-500 max-w-xs truncate">
+                            <flux:table.cell class="py-2 text-slate-500 max-w-xs truncate">
                                 {{ $team->description ?: 'Sin descripción' }}
                             </flux:table.cell>
 
-                            <flux:table.cell>
+                            <flux:table.cell class="py-2">
                                 <flux:badge variant="subtle" size="sm" icon="users">
                                     {{ $team->users_count ?? 0 }}
                                 </flux:badge>
                             </flux:table.cell>
 
-                            <flux:table.cell>
+                            <flux:table.cell class="py-2">
                                 @if($team->is_active)
                                     <flux:badge color="green" size="sm">Activo</flux:badge>
                                 @else
@@ -90,8 +90,8 @@
                                 @endif
                             </flux:table.cell>
 
-                            <flux:table.cell>
-                                <div class="flex justify-end gap-1">
+                            <flux:table.cell class="py-2">
+                                <div class="flex justify-end gap-2">
                                     <flux:button href="{{ route('organization.teams.show', $team) }}" variant="ghost"
                                         size="sm" icon="eye" :inset="true" wire:navigate />
                                     <flux:button href="{{ route('organization.teams.transfer', $team) }}" variant="ghost"
@@ -102,15 +102,15 @@
                             </flux:table.cell>
                         </flux:table.row>
                     @empty
-                        <flux:table.row>
+                        <flux:table.row class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
                             <flux:table.cell colspan="6" class="text-center py-20">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-full">
-                                        <flux:icon.user-group class="size-10 text-zinc-300" />
+                                <div class="flex flex-col items-center gap-4">
+                                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-full">
+                                        <flux:icon.user-group class="size-10 text-slate-300" />
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-zinc-900 dark:text-white font-medium">No se encontraron equipos</span>
-                                        <span class="text-zinc-500 text-sm">Intenta ajustar los filtros de búsqueda.</span>
+                                        <span class="text-slate-900 dark:text-white font-medium">No se encontraron equipos</span>
+                                        <span class="text-slate-500 text-sm">Intenta ajustar los filtros de búsqueda.</span>
                                     </div>
                                     @if($search || $activeFilter !== null)
                                         <flux:button wire:click="$set('search', ''); $set('activeFilter', null)" variant="subtle" size="sm" class="mt-2"> Limpiar filtros </flux:button>

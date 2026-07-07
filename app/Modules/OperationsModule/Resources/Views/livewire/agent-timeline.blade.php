@@ -7,7 +7,7 @@
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Talking</div>
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-400"></span> Ready</div>
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-400"></span> Not Ready</div>
-                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Reserved</div>
+                <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-500"></span> Reserved</div>
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-300"></span> Work / Break</div>
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Logged-in</div>
                 <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-zinc-900"></span> Logout</div>
@@ -17,7 +17,7 @@
         <div class="relative h-4 bg-slate-200 rounded-full overflow-hidden shadow-inner">
             @foreach($barSegments as $segment)
                 <div 
-                    class="absolute h-full {{ $segment['color'] }} transition-all hover:brightness-90 cursor-help group"
+                    class="absolute h-full {{ $segment['color'] }} transition-opacity hover:brightness-90 cursor-help group"
                     style="left: {{ $segment['left'] }}%; width: {{ $segment['width'] }}%;"
                 >
                     <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
@@ -84,7 +84,7 @@
                             <div class="w-2 h-2 rounded-full {{ $item->isCurrent ? 'bg-blue-600 animate-pulse' : ($item->isReal ? 'bg-slate-300' : 'border border-slate-300 bg-white') }}"></div>
                         </div>
 
-                        <div class="flex-1 bg-white p-3 rounded-lg border border-slate-100 shadow-sm group-hover:border-slate-200 transition-colors">
+                        <div class="flex-1 bg-white p-3 rounded-lg border border-slate-100 shadow-sm group-hover:border-slate-200 transition-opacity">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2">
                                     <flux:badge :color="$item->color" variant="subtle" size="sm" class="font-bold uppercase tracking-wide">

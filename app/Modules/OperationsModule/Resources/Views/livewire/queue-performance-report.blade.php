@@ -24,9 +24,9 @@
             <p class="text-4xl font-black text-green-600 mt-2">{{ number_format($stats->sum('handled')) }}</p>
         </flux:card>
         <flux:card>
-            <p class="text-xs font-bold text-rose-500 uppercase tracking-widest">Abandono (Global)</p>
-            <p class="text-4xl font-black text-rose-600 mt-2">{{ number_format($stats->sum('abandoned')) }}</p>
-            <p class="text-[10px] text-rose-400 mt-2 italic">
+            <p class="text-xs font-bold text-red-600 uppercase tracking-widest">Abandono (Global)</p>
+            <p class="text-4xl font-black text-red-600 mt-2">{{ number_format($stats->sum('abandoned')) }}</p>
+            <p class="text-[10px] text-red-500 mt-2 italic">
                 {{ $stats->sum('total_offered') > 0 ? round(($stats->sum('abandoned') / $stats->sum('total_offered')) * 100, 1) : 0 }}% de abandono
             </p>
         </flux:card>
@@ -35,7 +35,7 @@
     <flux:card class="p-0 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b sticky top-0 z-10">
                     <tr>
                         <th class="p-4">Nombre de la Cola</th>
                         <th class="p-4 text-center">Ofrecidas</th>
@@ -53,12 +53,12 @@
                             $abandonPct = $s->total_offered > 0 ? ($s->abandoned / $s->total_offered) * 100 : 0;
                             $slPct = $s->total_offered > 0 ? ($s->sl_count / $s->total_offered) * 100 : 0;
                         @endphp
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        <tr class="hover:bg-slate-50 transition-opacity">
                             <td class="p-4 font-bold text-slate-700">{{ $s->queue_name }}</td>
                             <td class="p-4 text-center font-black">{{ number_format($s->total_offered) }}</td>
                             <td class="p-4 text-center text-green-600 font-semibold">{{ number_format($s->handled) }}</td>
                             <td class="p-4 text-center">
-                                <span class="{{ $abandonPct > 10 ? 'text-rose-600 font-bold' : 'text-slate-500' }}">
+                                <span class="{{ $abandonPct > 10 ? 'text-red-600 font-bold' : 'text-slate-500' }}">
                                     {{ number_format($abandonPct, 1) }}%
                                 </span>
                             </td>

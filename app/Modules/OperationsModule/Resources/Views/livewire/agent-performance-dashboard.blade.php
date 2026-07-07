@@ -359,7 +359,7 @@
                     <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
                         @php $totalCalls = $perf['summary']['total_calls'] ?: 1; @endphp
                         @foreach($perf['queueDetail'] as $queue)
-                            <tr class="hover:bg-zinc-800/20 transition-colors">
+                            <tr class="hover:bg-zinc-800/20 transition-opacity">
                                 <td class="px-4 py-3 font-medium text-zinc-200">{{ $queue['name'] }}</td>
                                 <td class="px-4 py-3 text-center font-mono text-white font-semibold">{{ $queue['total_calls'] }}</td>
                                 <td class="px-4 py-3 text-center font-mono text-blue-400">
@@ -398,7 +398,7 @@
                 </thead>
                 <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
                     @forelse($perf['deviations'] ?? [] as $dev)
-                        <tr class="hover:bg-zinc-800/20 transition-colors">
+                        <tr class="hover:bg-zinc-800/20 transition-opacity">
                             <td class="px-4 py-3 font-medium text-zinc-200">{{ $dev['label'] }}</td>
                             <td class="px-4 py-3">
                                 @if($dev['entry_status'] === 'a_tiempo')

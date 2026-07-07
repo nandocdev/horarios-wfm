@@ -236,7 +236,7 @@
 
         <div class="space-y-6">
             @foreach($performanceData as $day)
-                <div class="bg-white rounded-md shadow-md border border-slate-100 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                <div class="bg-white rounded-md shadow-md border border-slate-100 overflow-hidden hover:shadow-md transition-opacity duration-150">
                     <!-- Titulo del Día -->
                     <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                         <div class="flex items-center gap-3">
@@ -425,7 +425,7 @@
                                             <div class="flex justify-between text-[10px] items-center group py-1">
                                                 <div class="flex items-center gap-2 min-w-0">
                                                     <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-orange-100 text-orange-700 font-black text-[8px] shrink-0">{{ $data['count'] }}</span>
-                                                    <span class="text-slate-600 font-medium group-hover:text-slate-900 transition-colors truncate">{{ $reason ?: 'Sin Motivo' }}</span>
+                                                    <span class="text-slate-600 font-medium group-hover:text-slate-900 transition-opacity truncate">{{ $reason ?: 'Sin Motivo' }}</span>
                                                 </div>
                                                 <span class="font-black text-slate-700 bg-slate-50 px-1 py-0.5 rounded shrink-0 ml-2">{{ $this->formatMinutes($data['minutes']) }}</span>
                                             </div>
@@ -481,7 +481,7 @@
                                     </thead>
                                     <tbody class="divide-y divide-slate-50">
                                         @foreach($day['queues'] as $queueName => $stats)
-                                            <tr class="hover:bg-slate-50 transition-colors">
+                                            <tr class="hover:bg-slate-50 transition-opacity">
                                                 <td class="p-3 text-slate-700 font-bold max-w-[120px] truncate" title="{{ $queueName }}">{{ $queueName }}</td>
                                                 <td class="p-3 text-right">
                                                     <span class="font-black text-purple-600 bg-purple-50 px-2 py-1 rounded-lg">{{ $stats['total_calls'] }}</span>

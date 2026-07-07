@@ -37,7 +37,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         @if($view === 'summary' || $view === 'attendance')
-            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-red-500 hover:shadow-md transition-shadow">
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-red-500 hover:shadow-md transition-opacity">
                 <div class="flex justify-between items-start">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ausentismo</span>
                     <div class="flex flex-col items-end gap-1">
@@ -60,7 +60,7 @@
         @endif
 
         @if($view === 'summary' || $view === 'compliance')
-            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-blue-500 hover:shadow-md transition-opacity">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Utilización</span>
                 <div class="flex items-center gap-2">
                     <flux:icon name="bolt" size="sm" class="text-blue-500" />
@@ -69,7 +69,7 @@
                 </div>
             </flux:card>
 
-            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-green-500 hover:shadow-md transition-opacity">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Productividad</span>
                 <div class="flex items-center gap-2">
                     <flux:icon name="chart-bar" size="sm" class="text-green-500" />
@@ -79,7 +79,7 @@
             </flux:card>
         @endif
 
-        <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-indigo-500 hover:shadow-md transition-shadow">
+        <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-indigo-500 hover:shadow-md transition-opacity">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">T. Productivo</span>
             <div class="flex items-center gap-2">
                 <flux:icon name="clock" size="sm" class="text-indigo-500" />
@@ -89,7 +89,7 @@
         </flux:card>
 
         @if($view === 'summary' || $view === 'compliance')
-            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-slate-500 hover:shadow-md transition-shadow">
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-slate-500 hover:shadow-md transition-opacity">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Conexión Total</span>
                 <div class="flex items-center gap-2">
                     <flux:icon name="link" size="sm" class="text-slate-500" />
@@ -98,7 +98,7 @@
                 </div>
             </flux:card>
 
-            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-orange-500 hover:shadow-md transition-shadow">
+            <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-orange-500 hover:shadow-md transition-opacity">
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Llamadas</span>
                 <div class="flex items-center gap-2">
                     <flux:icon name="phone" size="sm" class="text-orange-500" />

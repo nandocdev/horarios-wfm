@@ -13,7 +13,7 @@
             </thead>
             <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
                 @forelse($recentIncidents as $incident)
-                    <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors">
+                    <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-opacity">
                         <td class="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
                             {{ $incident->first_name }} {{ $incident->last_name }}
                         </td>

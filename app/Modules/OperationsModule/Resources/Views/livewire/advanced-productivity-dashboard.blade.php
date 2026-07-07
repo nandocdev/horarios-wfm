@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white p-6 rounded-md shadow-sm border border-slate-200">
         <div>
             <flux:heading size="xl" level="1" class="flex items-center gap-2">
-                <flux:icon name="presentation-chart-line" variant="mini" class="text-indigo-600" />
+                <flux:icon name="presentation-chart-line" variant="mini" class="text-blue-600" />
                 Analítica de Productividad Avanzada
             </flux:heading>
             <flux:subheading>Métricas de PWI, Work Units y Capacidad Operativa (Snapshots Persistidos)</flux:subheading>
@@ -24,7 +24,7 @@
 
     {{-- Resumen de KPIs Superiores --}}
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <flux:card class="bg-indigo-600 text-white overflow-hidden relative">
+        <flux:card class="bg-blue-600 text-white overflow-hidden relative">
             <div class="absolute right-0 bottom-0 opacity-10">
                 <flux:icon name="bolt" class="w-24 h-24" />
             </div>
@@ -46,9 +46,9 @@
         </flux:card>
 
         <flux:card class="border-l-4 border-l-rose-500">
-            <p class="text-xs font-bold text-rose-500 uppercase tracking-widest">Brecha de Capacidad (Gap)</p>
-            <p class="text-4xl font-black text-rose-600 mt-2">{{ number_format($summary['total_gap'], 0) }}</p>
-            <p class="text-[10px] text-rose-400 mt-2 italic">Llamadas potenciales no realizadas</p>
+            <p class="text-xs font-bold text-red-600 uppercase tracking-widest">Brecha de Capacidad (Gap)</p>
+            <p class="text-4xl font-black text-red-600 mt-2">{{ number_format($summary['total_gap'], 0) }}</p>
+            <p class="text-[10px] text-red-500 mt-2 italic">Llamadas potenciales no realizadas</p>
         </flux:card>
     </div>
 
@@ -115,7 +115,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">
                             @forelse($metrics as $m)
-                                <tr class="hover:bg-slate-50 transition-colors">
+                                <tr class="hover:bg-slate-50 transition-opacity">
                                     <td class="p-4">
                                         <div class="flex items-center gap-3">
                                             <flux:avatar src="{{ $m->employee->avatar_url }}" size="xs" />
@@ -127,7 +127,7 @@
                                     </td>
                                     <td class="p-4 text-center">
                                         <div class="flex flex-col items-center">
-                                            <span class="font-bold {{ $m->availability_pct >= 90 ? 'text-emerald-600' : ($m->availability_pct >= 80 ? 'text-amber-600' : 'text-rose-600') }}">
+                                            <span class="font-bold {{ $m->availability_pct >= 90 ? 'text-green-600' : ($m->availability_pct >= 80 ? 'text-amber-600' : 'text-red-600') }}">
                                                 {{ number_format($m->availability_pct, 1) }}%
                                             </span>
                                             <span class="text-[9px] text-slate-400 uppercase">Disp.</span>
@@ -135,7 +135,7 @@
                                     </td>
                                     <td class="p-4 text-center">
                                         <div class="flex flex-col items-center">
-                                            <span class="font-bold {{ $m->efficiency_pct >= 85 ? 'text-emerald-600' : ($m->efficiency_pct >= 70 ? 'text-amber-600' : 'text-rose-600') }}">
+                                            <span class="font-bold {{ $m->efficiency_pct >= 85 ? 'text-green-600' : ($m->efficiency_pct >= 70 ? 'text-amber-600' : 'text-red-600') }}">
                                                 {{ number_format($m->efficiency_pct, 1) }}%
                                             </span>
                                             <span class="text-[9px] text-slate-400 uppercase">Aprovech.</span>
@@ -155,7 +155,7 @@
                                     </td>
                                     <td class="p-4 text-center">
                                         <div class="flex flex-col items-center">
-                                            <div class="px-2 py-1 rounded bg-indigo-50 border border-indigo-100">
+                                            <div class="px-2 py-1 rounded bg-blue-50 border border-blue-100">
                                                 <span class="font-black text-indigo-700">
                                                     {{ number_format($m->pwi_pct, 1) }}%
                                                 </span>
@@ -249,7 +249,7 @@
 
             {{-- Columna 3 --}}
             <div class="space-y-4">
-                <div class="p-4 bg-indigo-50 rounded-md border border-indigo-100 shadow-sm">
+                <div class="p-4 bg-blue-50 rounded-md border border-blue-100 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <flux:badge color="indigo" size="sm" inset="top bottom">PWI</flux:badge>
                         <p class="text-sm font-bold text-indigo-900">Productive Work Index</p>

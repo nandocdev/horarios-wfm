@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <flux:card class="space-y-4">
         <div>
             <flux:heading size="md">Carga de archivo CSV</flux:heading>

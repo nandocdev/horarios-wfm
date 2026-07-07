@@ -15,7 +15,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex items-center justify-center p-4">
     <div class="max-w-2xl w-full bg-slate-800/90 rounded-md p-12 text-center shadow-md border border-slate-700/50">
         <div class="mb-8 flex justify-center">
             <div class="w-24 h-24 bg-slate-700 rounded-md flex items-center justify-center shadow-md">
@@ -31,7 +31,7 @@
             {{ $message }}
         </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-slate-500">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-slate-500">
             <div class="p-4 rounded-md bg-slate-800">
                 <span class="block text-slate-300 font-semibold mb-1">Motivo</span>
                 Actualización de Sistema

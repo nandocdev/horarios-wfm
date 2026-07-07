@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <!-- Header y Controles -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -15,7 +15,7 @@
     </div>
 
     <!-- Grid de Métricas Macro (KPIs) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         
         <flux:card>
             <div class="flex items-start justify-between">
@@ -80,7 +80,7 @@
     </div>
 
     <!-- Sección Inferior: Top Performers y Heatmap (Placeholder para futuro gráfico) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         
         <!-- Top Performers -->
         <flux:card class="space-y-4">
@@ -107,7 +107,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-6 text-zinc-500 text-sm">
+                    <div class="text-center py-4 text-zinc-500 text-sm">
                         No hay datos suficientes en el período seleccionado.
                     </div>
                 @endforelse

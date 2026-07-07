@@ -3,7 +3,7 @@
 @section('title', 'Moderación de Contenido')
 
 @section('content')
-    <div class="space-y-6">
+    <div class="space-y-4">
         <div>
             <flux:heading size="xl" level="1">Moderación de Contenido</flux:heading>
             <flux:subheading>Revisa y aprueba contenido pendiente de publicación en el sistema.</flux:subheading>
@@ -15,7 +15,7 @@
             </flux:card>
         @endif
 
-        <div x-data="{ tab: 'news' }" class="space-y-6">
+        <div x-data="{ tab: 'news' }" class="space-y-4">
             <div class="flex space-x-4 border-b border-zinc-200 dark:border-zinc-700 pb-px">
                 <button type="button" 
                     @click="tab = 'news'"
@@ -67,7 +67,7 @@
                                 </flux:modal.trigger>
 
                                 <flux:modal name="reject-news-{{ $news->id }}" class="md:w-[450px]">
-                                    <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-6">
+                                    <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-4">
                                         @csrf
                                         <input type="hidden" name="action" value="reject">
                                         <input type="hidden" name="content_type" value="news">
@@ -123,7 +123,7 @@
                                 </flux:modal.trigger>
 
                                 <flux:modal name="reject-poll-{{ $poll->id }}" class="md:w-[450px]">
-                                    <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-6">
+                                    <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-4">
                                         @csrf
                                         <input type="hidden" name="action" value="reject">
                                         <input type="hidden" name="content_type" value="poll">
@@ -179,7 +179,7 @@
                                 </flux:modal.trigger>
 
                                 <flux:modal name="reject-shoutout-{{ $shoutout->id }}" class="md:w-[450px]">
-                                    <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-6">
+                                    <form method="POST" action="{{ route('communications.moderation.reject') }}" class="space-y-4">
                                         @csrf
                                         <input type="hidden" name="action" value="reject">
                                         <input type="hidden" name="content_type" value="shoutout">

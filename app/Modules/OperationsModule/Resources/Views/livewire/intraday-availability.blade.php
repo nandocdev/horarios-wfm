@@ -1,4 +1,4 @@
-<div wire:poll.{{ $refreshInterval }}s class="space-y-6">
+<div wire:poll.{{ $refreshInterval }}s class="space-y-8">
     <div class="flex items-center justify-between">
         <flux:heading size="xl" level="1">Operación en Tiempo Real</flux:heading>
         <div class="flex items-center gap-2 text-sm text-gray-500">
@@ -69,7 +69,7 @@
         </flux:card>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Breakdown de Pausas -->
         <div class="lg:col-span-1">
             <flux:card>

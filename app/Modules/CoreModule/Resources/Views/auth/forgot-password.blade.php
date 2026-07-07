@@ -1,11 +1,11 @@
 <x-layouts::auth :title="__('¿Olvidaste tu contraseña?')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4">
         <x-auth-header :title="__('¿Olvidaste tu contraseña?')" :description="__('Dinos tu correo y te enviaremos un enlace para restablecerla')" />
 
         <!-- Estado de la sesión -->
         <x-auth-session-status class="text-sm" :status="session('status')" />
 
-        <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-6">
+        <form method="POST" action="{{ route('password.email') }}" class="flex flex-col gap-4">
             @csrf
 
             <!-- Correo electrónico -->

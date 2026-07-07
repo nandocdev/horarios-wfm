@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <!-- Filtros -->
     <flux:card class="space-y-4">
         <div>
@@ -131,7 +131,7 @@
                             </flux:table.row>
                         @empty
                             <flux:table.row>
-                                <flux:table.cell colspan="8" class="text-center py-10">
+                                <flux:table.cell colspan="8" class="text-center py-8">
                                     <flux:text size="sm" class="text-zinc-500 italic">No se encontraron empleados con esos
                                         criterios.</flux:text>
                                 </flux:table.cell>

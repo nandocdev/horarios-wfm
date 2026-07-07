@@ -1,11 +1,11 @@
 <x-layouts::auth :title="__('Iniciar sesión')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4">
         <x-auth-header :title="__('Inicia sesión en tu cuenta')" :description="__('Ingresa tu correo y contraseña para acceder')" />
 
         <!-- Estado de la sesión -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
-        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
+        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-4">
             @csrf
 
             <!-- Correo electrónico -->

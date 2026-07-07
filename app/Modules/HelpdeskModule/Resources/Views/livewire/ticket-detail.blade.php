@@ -1,4 +1,4 @@
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-5xl mx-auto space-y-8">
     {{-- Header del Ticket --}}
     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>

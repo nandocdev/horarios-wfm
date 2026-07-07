@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-8">
     <div>
         <flux:heading size="xl">Solicitar Cambio de Turno</flux:heading>
         <flux:subheading>Completa los detalles para intercambiar tu turno con un compañero de otro equipo.
@@ -6,14 +6,14 @@
     </div>
 
     <flux:card>
-        <form wire:submit="submit" class="space-y-6">
+        <form wire:submit="submit" class="space-y-4">
             @if($errors->has('general'))
                 <flux:callout variant="danger">
                     {{ $errors->first('general') }}
                 </flux:callout>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <flux:field>
                     <flux:label>Fecha Inicio</flux:label>
                     <flux:input type="date" wire:model.live="requestedDate" />
@@ -55,7 +55,7 @@
             </flux:field>
 
             {{-- Cards de Horario --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 {{-- Mi Horario --}}
                 <div class="space-y-2">
                     <flux:label>Tu Horario</flux:label>

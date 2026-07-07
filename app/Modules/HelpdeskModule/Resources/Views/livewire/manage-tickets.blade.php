@@ -1,4 +1,4 @@
-<div wire:poll.5s class="space-y-6">
+<div wire:poll.5s class="space-y-8">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <flux:heading size="xl">Bandeja de Soporte (Helpdesk)</flux:heading>

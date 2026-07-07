@@ -125,7 +125,7 @@ new #[Title('Configuración de Perfil')] class extends Component {
     }
 }; ?>
 
-<section class="max-w-4xl py-6 focus:outline-none" tabindex="-1">
+<section class="max-w-4xl py-4 focus:outline-none" tabindex="-1">
     @include('core::settings.partials.heading')
 
     <flux:heading class="sr-only">{{ __('Configuración de Perfil') }}</flux:heading>

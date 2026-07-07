@@ -1,8 +1,8 @@
 <x-layouts::auth :title="__('Restablecer contraseña')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4">
         <x-auth-header :title="__('Restablecer contraseña')" :description="__('Crea una nueva contraseña para tu cuenta')" />
 
-        <form method="POST" action="{{ route('password.update') }}" class="flex flex-col gap-6">
+        <form method="POST" action="{{ route('password.update') }}" class="flex flex-col gap-4">
             @csrf
 
             <!-- Token de restablecimiento -->

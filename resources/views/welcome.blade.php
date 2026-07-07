@@ -14,8 +14,8 @@
             <div class="absolute inset-x-0 top-0 h-48 bg-slate-100 dark:bg-slate-900">
             </div>
 
-            <div class="relative mx-auto max-w-[85rem] px-4 py-8 sm:px-6 lg:px-8 sm:py-10 lg:py-12">
-                <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div class="relative mx-auto max-w-[85rem] px-4 py-8 sm:px-4 lg:px-8 sm:py-8 lg:py-12">
+                <div class="grid gap-4 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
                     <flux:card class="shadow-sm">
                         <flux:badge color="blue" size="sm" inset="top bottom" class="uppercase tracking-[0.18em]">
                             Reconocimiento destacado
@@ -48,14 +48,14 @@
         </section>
 
         <!-- Contenido Principal: Grid de 2 Columnas -->
-        <div class="mx-auto w-full max-w-[85rem] px-4 py-8 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full max-w-[85rem] px-4 py-8 sm:px-4 lg:px-8">
             <div class="grid gap-8 lg:grid-cols-3">
 
                 <!-- COLUMNA IZQUIERDA: Noticias y Slot -->
-                <div class="space-y-10 lg:col-span-2">
+                <div class="space-y-8 lg:col-span-2">
 
                     <!-- Sección de Noticias -->
-                    <section class="space-y-6">
+                    <section class="space-y-4">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                             <div>
                                 <flux:heading size="xl" level="2">Noticias Internas</flux:heading>
@@ -67,7 +67,7 @@
                             </flux:button>
                         </div>
 
-                        <div class="grid gap-6 md:grid-cols-2">
+                        <div class="grid gap-4 md:grid-cols-2">
                             @forelse ($newsItems as $item)
                                 <flux:card
                                     class="group flex flex-col overflow-hidden p-0 transition hover:-translate-y-0.5 hover:shadow-md">
@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- COLUMNA DERECHA: Sidebar -->
-                <aside class="space-y-6">
+                <aside class="space-y-4">
                     <!-- Accesos Rápidos (Adaptados a menú vertical) -->
                     <flux:card class="shadow-sm">
                         <flux:heading size="lg">Accesos rápidos</flux:heading>
@@ -160,7 +160,7 @@
         </div>
 
         <!-- Abajo: Shoutouts -->
-        <section class="mx-auto w-full max-w-[85rem] px-4 pb-16 sm:px-6 lg:px-8">
+        <section class="mx-auto w-full max-w-[85rem] px-4 pb-16 sm:px-4 lg:px-8">
             <div class="mb-6 flex items-end justify-between gap-4">
                 <div>
                     <flux:heading size="lg">Shout-outs</flux:heading>

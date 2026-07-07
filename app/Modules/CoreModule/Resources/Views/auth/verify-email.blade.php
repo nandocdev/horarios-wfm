@@ -1,5 +1,5 @@
 <x-layouts::auth :title="__('Verifica tu correo')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4">
         <x-auth-header :title="__('Verifica tu correo electrónico')" :description="__('Gracias por registrarte. Por favor verifica tu cuenta haciendo clic en el enlace que te enviamos.')" />
 
         @if (session('status') == 'verification-link-sent')

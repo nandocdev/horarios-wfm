@@ -1,6 +1,6 @@
 <div class="container mx-auto px-4 py-8 max-w-2xl">
     <div class="bg-white rounded-md shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
+        <div class="p-4 border-b border-gray-200">
             <div class="flex items-center space-x-4">
                 <flux:link href="{{ route('organization.departments.index') }}" variant="ghost">
                     ← Volver
@@ -9,8 +9,8 @@
             </div>
         </div>
 
-        <form wire:submit="save" class="p-6 space-y-6">
-            <div class="grid grid-cols-1 gap-6">
+        <form wire:submit="save" class="p-4 space-y-4">
+            <div class="grid grid-cols-1 gap-4">
                 <flux:field>
                     <label for="directorate_id"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dirección *</label>

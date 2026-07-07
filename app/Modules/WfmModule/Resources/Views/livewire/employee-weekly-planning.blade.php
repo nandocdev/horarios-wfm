@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4">
     <div class="flex items-center gap-4">
         <flux:button href="{{ route('schedules.planning.team', ['week' => $week->id, 'team' => $employee->team_id]) }}" icon="arrow-left" variant="ghost" wire:navigate />
         <div>
@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <form wire:submit="save" class="mt-8 space-y-6">
+    <form wire:submit="save" class="mt-8 space-y-4">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>{{ __('Día') }}</flux:table.column>

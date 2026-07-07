@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <flux:card>
         <flux:heading size="xl">Canales</flux:heading>
         <p class="text-sm text-slate-600">Gestiona los canales top-level del Contact Center (relacionados con colas y

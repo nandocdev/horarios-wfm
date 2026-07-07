@@ -1,11 +1,11 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div>
         <flux:heading size="xl">Gestión de Equipos</flux:heading>
         <p class="text-gray-600">Asigna empleados a equipos de trabajo</p>
     </div>
 
     <div class="bg-white rounded-md shadow">
-        <div class="p-6">
+        <div class="p-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 <flux:field>
                     <flux:label for="selectedTeamId">Seleccionar Equipo</flux:label>
@@ -38,7 +38,7 @@
             </div>
 
             @if($selectedTeamId)
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Columna Izquierda: Empleados sin asignar -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-medium text-gray-900">Empleados Disponibles</h3>

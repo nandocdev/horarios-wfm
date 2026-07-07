@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="max-w-2xl mx-auto space-y-8">
     <div class="flex items-center gap-4">
         <flux:button href="{{ route('users.index') }}" variant="ghost" icon="chevron-left" wire:navigate />
         <div>
@@ -8,8 +8,8 @@
     </div>
 
     <flux:card>
-        <form wire:submit="save" class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form wire:submit="save" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:input 
                     wire:model="form.name" 
                     :label="__('Nombre Completo')" 
@@ -24,7 +24,7 @@
                 />
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:input 
                     wire:model="form.password" 
                     type="password" 

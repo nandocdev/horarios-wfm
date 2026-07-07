@@ -155,7 +155,7 @@ new class extends Component {
     class="max-w-md md:min-w-md"
     @close="closeModal"
 >
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div class="flex flex-col items-center space-y-4">
                 <div class="p-0.5 w-auto rounded-full border border-stone-100 dark:border-stone-600 bg-white dark:bg-stone-800 shadow-sm">
                     <div class="p-2.5 rounded-full border border-stone-200 dark:border-stone-600 overflow-hidden bg-stone-100 dark:bg-stone-200 relative">
@@ -182,7 +182,7 @@ new class extends Component {
             </div>
 
             @if ($showVerificationStep)
-                <div class="space-y-6">
+                <div class="space-y-4">
                     <div class="flex flex-col items-center space-y-3 justify-center">
                         <flux:otp
                             name="code"

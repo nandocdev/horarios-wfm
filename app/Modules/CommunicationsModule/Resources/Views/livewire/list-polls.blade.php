@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Panel de Encuestas</flux:heading>
@@ -65,7 +65,7 @@
                                 </flux:modal.trigger>
 
                                 <flux:modal name="results-poll-{{ $item->id }}" class="md:w-[500px]">
-                                    <div class="space-y-6">
+                                    <div class="space-y-4">
                                         <div>
                                             <flux:heading size="lg">{{ $item->question }}</flux:heading>
                                             <flux:subheading>Resultados acumulados de la encuesta operativa.</flux:subheading>

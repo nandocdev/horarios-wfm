@@ -1,4 +1,4 @@
-<div class="flex flex-col h-full space-y-6 overflow-hidden">
+<div class="flex flex-col h-full space-y-8 overflow-hidden">
     {{-- Barra Visual del Día (Fija) --}}
     <div class="flex-none bg-slate-50 p-4 rounded-md border border-slate-100">
         <div class="flex justify-between items-center mb-4">

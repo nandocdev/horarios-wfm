@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <!-- Encabezado -->
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">

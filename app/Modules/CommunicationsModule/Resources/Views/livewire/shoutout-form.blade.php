@@ -1,11 +1,11 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div>
         <flux:heading size="xl">{{ $mode === 'edit' ? 'Editar Reconocimiento' : 'Crear Nuevo Reconocimiento' }}</flux:heading>
         <flux:subheading>Reconoce el excelente trabajo de un colaborador ante toda la organización.</flux:subheading>
     </div>
 
-    <form wire:submit="save" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-8 space-y-6">
+    <form wire:submit="save" class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div class="lg:col-span-8 space-y-4">
             <flux:card>
                 <div class="space-y-4">
                     <flux:field>
@@ -58,7 +58,7 @@
             </flux:card>
         </div>
 
-        <div class="lg:col-span-4 space-y-6">
+        <div class="lg:col-span-4 space-y-4">
             <flux:card>
                 <div class="space-y-4">
                     <flux:input type="datetime-local" wire:model="form.scheduled_at" label="Fecha de Publicación" />

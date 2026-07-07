@@ -1,6 +1,6 @@
-<div class="p-6 space-y-8 bg-slate-50 min-h-screen">
+<div class="p-4 space-y-8 bg-slate-50 min-h-screen">
     {{-- Header --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white p-6 rounded-md shadow-sm border border-slate-200">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-4 rounded-md shadow-sm border border-slate-200">
         <div>
             <flux:heading size="xl" level="1" class="flex items-center gap-2">
                 <flux:icon name="presentation-chart-line" variant="mini" class="text-blue-600" />
@@ -23,7 +23,7 @@
     </div>
 
     {{-- Resumen de KPIs Superiores --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <flux:card class="bg-blue-600 text-white overflow-hidden relative">
             <div class="absolute right-0 bottom-0 opacity-10">
                 <flux:icon name="bolt" class="w-24 h-24" />
@@ -52,9 +52,9 @@
         </flux:card>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {{-- Rankings --}}
-        <div class="space-y-6">
+        <div class="space-y-4">
             <flux:card class="space-y-4">
                 <flux:heading size="lg">Top PWI (Eficiencia)</flux:heading>
                 <div class="space-y-3">
@@ -95,7 +95,7 @@
         {{-- Tabla Detallada --}}
         <div class="lg:col-span-2">
             <flux:card class="p-0 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center">
                     <flux:heading size="lg">Desglose Detallado por Agente</flux:heading>
                     <flux:button variant="ghost" size="sm" icon="arrow-down-tray">Exportar</flux:button>
                 </div>
@@ -171,7 +171,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="p-10 text-center">
+                                    <td colspan="6" class="p-8 text-center">
                                         <div class="flex flex-col items-center">
                                             <flux:icon name="face-frown" class="w-10 h-10 text-slate-300 mb-2" />
                                             <p class="text-slate-500 italic">No hay métricas agregadas para esta fecha.</p>
@@ -188,7 +188,7 @@
     </div>
 
     {{-- Diccionario de Indicadores --}}
-    <flux:card class="space-y-6 bg-white/50">
+    <flux:card class="space-y-4 bg-white/50">
         <div>
             <flux:heading size="lg">Diccionario de Indicadores — Modelo WU/PWI</flux:heading>
             <flux:subheading>Guía técnica para la interpretación de métricas de productividad avanzada.</flux:subheading>

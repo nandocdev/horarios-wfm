@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6">
+    <div class="grid grid-cols-1 gap-4">
         <flux:card>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -116,7 +116,7 @@
             </div>
         </flux:card>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <flux:card>
                 <flux:heading size="lg" class="mb-4">{{ __('Solicitudes de Cambio (Swaps)') }}</flux:heading>
                 <div class="space-y-4">
@@ -188,7 +188,7 @@
     </div>
 
     <flux:modal name="incident-modal" class="md:w-[500px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Registrar Incidente / Novedad') }}</flux:heading>
                 <flux:subheading>{{ __('Modificar el estado del turno para el día seleccionado.') }}</flux:subheading>

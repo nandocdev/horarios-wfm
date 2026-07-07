@@ -31,11 +31,11 @@
             </div>
 
             <div class="bg-white shadow-md rounded-md overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200">
+                <div class="px-4 py-4 border-b border-gray-200">
                     <h2 class="text-xl font-semibold text-gray-900">Detalles de la Categoría</h2>
                 </div>
 
-                <div class="p-6">
+                <div class="p-4">
                     <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Nombre</dt>
@@ -80,11 +80,11 @@
 
             @if($category->news->count() > 0 || $category->polls->count() > 0 || $category->shoutouts->count() > 0)
                 <div class="mt-8 bg-white shadow-md rounded-md overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="px-4 py-4 border-b border-gray-200">
                         <h2 class="text-xl font-semibold text-gray-900">Contenido Relacionado</h2>
                     </div>
 
-                    <div class="p-6">
+                    <div class="p-4">
                         @if($category->news->count() > 0)
                             <div class="mb-6">
                                 <h3 class="text-lg font-medium text-gray-900 mb-3">Noticias ({{ $category->news->count() }})</h3>

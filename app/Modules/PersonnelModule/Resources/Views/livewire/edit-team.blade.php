@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="max-w-2xl mx-auto space-y-8">
     <div class="flex items-center gap-4">
         <flux:button icon="chevron-left" variant="ghost" href="{{ route('organization.teams.show', $team) }}" :inset="true" />
         <div>
@@ -8,8 +8,8 @@
     </div>
 
     <flux:card>
-        <form wire:submit="save" class="space-y-6">
-            <div class="grid grid-cols-1 gap-6">
+        <form wire:submit="save" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4">
                 <flux:input 
                     wire:model="name" 
                     label="Nombre *" 

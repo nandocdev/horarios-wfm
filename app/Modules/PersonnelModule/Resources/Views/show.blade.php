@@ -3,7 +3,7 @@
 @section('title', 'Detalles del Empleado')
 
 @section('content')
-    <div class="space-y-6">
+    <div class="space-y-4">
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div>
@@ -25,9 +25,9 @@
         </div>
 
         <!-- Información del empleado -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <!-- Información principal -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-4">
                 <!-- Detalles personales -->
                 <flux:card class="space-y-4">
                     <div>
@@ -107,7 +107,7 @@
             </div>
 
             <!-- Información adicional -->
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <!-- Ubicación -->
                 <flux:card class="space-y-4">
                     <div>

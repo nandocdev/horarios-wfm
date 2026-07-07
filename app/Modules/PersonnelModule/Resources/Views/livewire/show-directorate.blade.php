@@ -1,6 +1,6 @@
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-md shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
+        <div class="p-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <flux:link href="{{ route('organization.directorates.index') }}" variant="ghost">
@@ -21,8 +21,8 @@
             </div>
         </div>
 
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Información General</h3>
                     <dl class="space-y-3">

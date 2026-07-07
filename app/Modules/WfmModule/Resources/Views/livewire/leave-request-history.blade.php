@@ -1,4 +1,4 @@
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Historial de Permisos</flux:heading>
@@ -85,7 +85,7 @@
     </flux:card>
 
     {{-- Modal de Detalles de Aprobación --}}
-    <flux:modal name="leave-details" class="md:w-[500px] space-y-6">
+    <flux:modal name="leave-details" class="md:w-[500px] space-y-4">
         @if($selectedLeave)
             <div>
                 <flux:heading size="lg">Estado de Aprobación</flux:heading>

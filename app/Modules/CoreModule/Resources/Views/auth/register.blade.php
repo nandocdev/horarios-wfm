@@ -1,11 +1,11 @@
 <x-layouts::auth :title="__('Registro')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4">
         <x-auth-header :title="__('Crear una cuenta')" :description="__('Ingresa tus datos a continuación para registrarte')" />
 
         <!-- Estado de la sesión -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
-        <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
+        <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-4">
             @csrf
             <!-- Nombre -->
             <flux:input

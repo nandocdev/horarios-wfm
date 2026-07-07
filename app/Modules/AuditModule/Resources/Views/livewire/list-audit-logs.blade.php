@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl" level="1">Auditoría de Cambios</flux:heading>
@@ -11,7 +11,7 @@
     </div>
 
     <flux:card>
-        <div class="space-y-6">
+        <div class="space-y-4">
             <!-- Filtros -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                 <flux:input wire:model.debounce.250ms="search" label="Búsqueda rápida" placeholder="Entidad, acción, IP..." />
@@ -82,7 +82,7 @@
         </div>
     </flux:card>
 
-    <flux:modal wire:model="showDetailModal" class="md:min-w-[45rem] space-y-6">
+    <flux:modal wire:model="showDetailModal" class="md:min-w-[45rem] space-y-4">
         @if($selectedLog)
             <div>
                 <flux:heading size="lg">Detalle de Cambio</flux:heading>

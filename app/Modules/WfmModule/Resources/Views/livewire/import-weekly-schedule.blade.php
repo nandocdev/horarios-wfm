@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4">
     <div class="flex items-center justify-between gap-4 mb-8">
         <div class="flex items-center gap-4">
             <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" icon="arrow-left" variant="ghost" wire:navigate />
@@ -12,8 +12,8 @@
         </div>
     </div>
 
-    <div class="space-y-6">
-        <flux:card class="space-y-6">
+    <div class="space-y-4">
+        <flux:card class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Seleccionar Archivo') }}</flux:heading>
                 <flux:subheading>

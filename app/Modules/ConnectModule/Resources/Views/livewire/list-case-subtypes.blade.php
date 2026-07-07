@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <flux:card>
         <flux:heading size="xl">Tipos de consulta</flux:heading>
         <p class="text-sm text-slate-600">Administra los tipos de consulta por cola del Contact Center.</p>

@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl" level="1">Resumen de Solicitudes WFM</flux:heading>
@@ -7,10 +7,10 @@
         <flux:button icon="arrow-path" wire:click="loadData">Actualizar</flux:button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Tarjeta de Permisos -->
         <flux:card class="p-0 overflow-hidden">
-            <div class="p-6 bg-indigo-50/50 dark:bg-indigo-900/10 border-b border-zinc-200 dark:border-zinc-700">
+            <div class="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 border-b border-zinc-200 dark:border-zinc-700">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-indigo-100 dark:bg-indigo-800 rounded-md">
                         <flux:icon name="document-text" class="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
@@ -18,7 +18,7 @@
                     <flux:heading size="lg">Solicitudes de Permiso</flux:heading>
                 </div>
             </div>
-            <div class="p-6 grid grid-cols-2 gap-4">
+            <div class="p-4 grid grid-cols-2 gap-4">
                 <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-md border border-zinc-100 dark:border-zinc-700">
                     <flux:text size="xs" class="uppercase font-bold text-zinc-400">Total</flux:text>
                     <flux:text size="xl" class="font-black">{{ $leaveStats['total'] }}</flux:text>
@@ -40,7 +40,7 @@
 
         <!-- Tarjeta de Cambios de Turno -->
         <flux:card class="p-0 overflow-hidden">
-            <div class="p-6 bg-teal-50/50 dark:bg-teal-900/10 border-b border-zinc-200 dark:border-zinc-700">
+            <div class="p-4 bg-teal-50/50 dark:bg-teal-900/10 border-b border-zinc-200 dark:border-zinc-700">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-teal-100 dark:bg-teal-800 rounded-md">
                         <flux:icon name="arrows-right-left" class="w-5 h-5 text-teal-600 dark:text-teal-300" />
@@ -48,7 +48,7 @@
                     <flux:heading size="lg">Cambios de Turno</flux:heading>
                 </div>
             </div>
-            <div class="p-6 grid grid-cols-2 gap-4">
+            <div class="p-4 grid grid-cols-2 gap-4">
                 <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-md border border-zinc-100 dark:border-zinc-700">
                     <flux:text size="xs" class="uppercase font-bold text-zinc-400">Total</flux:text>
                     <flux:text size="xl" class="font-black">{{ $swapStats['total'] }}</flux:text>

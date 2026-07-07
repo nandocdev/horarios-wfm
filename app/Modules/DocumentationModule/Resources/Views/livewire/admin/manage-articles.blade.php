@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Gestión de Documentación</flux:heading>
@@ -68,7 +68,7 @@
 
     {{-- Modal de Edición/Creación --}}
     <flux:modal wire:model="showModal" class="md:w-[800px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ $editingArticle ? 'Editar Artículo' : 'Nuevo Artículo' }}</flux:heading>
                 <flux:subheading>Completa los detalles del artículo de documentación.</flux:subheading>

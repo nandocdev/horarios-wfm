@@ -1,6 +1,6 @@
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-md shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
+        <div class="p-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <flux:link href="{{ route('organization.teams.show', $team) }}" variant="ghost">
@@ -14,7 +14,7 @@
             </div>
         </div>
 
-        <div class="p-6">
+        <div class="p-4">
             <div class="mb-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Miembros Actuales ({{ $team->users->count() }})</h3>
 
@@ -72,16 +72,16 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Empleado
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Fecha Inicio
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Fecha Fin
                                     </th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Estado
                                     </th>
                                 </tr>
@@ -89,17 +89,17 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($team->members->sortByDesc('start_date') as $member)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-4 py-4 whitespace-nowrap">
                                             <div class="font-medium text-gray-900">{{ $member->employee->name }}</div>
                                             <div class="text-sm text-gray-500">{{ $member->employee->email }}</div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $member->start_date->format('d/m/Y') }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $member->end_date?->format('d/m/Y') ?? 'Activo' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-4 py-4 whitespace-nowrap">
                                             @if($member->is_active)
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                     Activo
@@ -124,13 +124,13 @@
 
     <!-- Modal para asignar empleado -->
     <flux:modal wire:model="showAssignModal" class="md:w-96">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">Asignar Empleado al Equipo</flux:heading>
                 <flux:subheading>Selecciona un empleado y la fecha de inicio de la asignación.</flux:subheading>
             </div>
 
-            <form wire:submit="assignEmployee" class="space-y-6">
+            <form wire:submit="assignEmployee" class="space-y-4">
                 <flux:field>
                     <flux:label>Empleado</flux:label>
                     <flux:select wire:model="employee_id" placeholder="Selecciona un empleado">
@@ -169,7 +169,7 @@
 
     <!-- Modal para remover empleado -->
     <flux:modal wire:model="showRemoveModal" class="md:w-96">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">Remover Empleado del Equipo</flux:heading>
                 <flux:subheading>Confirma la fecha de fin de la asignación.</flux:subheading>
@@ -183,7 +183,7 @@
                 </div>
             @endif
 
-            <form wire:submit="removeEmployee" class="space-y-6">
+            <form wire:submit="removeEmployee" class="space-y-4">
                 <flux:field>
                     <flux:label>Fecha de Fin</flux:label>
                     <flux:input wire:model="remove_end_date" type="date" />

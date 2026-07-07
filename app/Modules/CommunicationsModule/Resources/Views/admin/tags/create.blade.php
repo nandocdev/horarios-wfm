@@ -12,7 +12,7 @@
                 <h1 class="text-3xl font-bold text-gray-900">Crear Etiqueta</h1>
             </div>
 
-            <div class="bg-white shadow-md rounded-md p-6">
+            <div class="bg-white shadow-md rounded-md p-4">
                 <form method="POST" action="{{ route('communications.admin.tags.store') }}">
                     @csrf
 

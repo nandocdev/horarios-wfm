@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-8 py-8 space-y-8">
     
     {{-- Breadcrumbs de Navegación --}}
     <div class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 font-medium">
@@ -53,10 +53,10 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {{-- Bloque Principal: Documento y Auditoría (2/3) --}}
-        <div class="lg:col-span-2 space-y-6">
+        <div class="lg:col-span-2 space-y-4">
             
             {{-- Documento con Botón de Copiado Rápido --}}
-            <flux:card x-data="{ copied: false }" class="p-6 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 relative group">
+            <flux:card x-data="{ copied: false }" class="p-4 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 relative group">
                 
                 {{-- Botón interactivo de copiado rápido (Excelente UX para operadores de chat) --}}
                 <div class="absolute right-4 top-4 opacity-70 group-hover:opacity-100 transition-opacity">
@@ -84,10 +84,10 @@
             </flux:card>
 
             {{-- Historial de Versiones (Auditoría Lineal) --}}
-            <flux:card class="p-6 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700">
+            <flux:card class="p-4 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700">
                 <flux:heading size="lg" class="mb-6 text-zinc-900 dark:text-white font-bold pb-2 border-b border-zinc-50 dark:border-zinc-700">Historial y Auditoría de Cambios</flux:heading>
                 
-                <div class="relative border-l-2 border-zinc-100 dark:border-zinc-700 ml-4 space-y-6">
+                <div class="relative border-l-2 border-zinc-100 dark:border-zinc-700 ml-4 space-y-4">
                     @foreach($article->versions->sortByDesc('version') as $ver)
                         <div class="relative pl-6">
                             <span class="absolute -left-[7px] top-1.5 flex h-3 w-3 items-center justify-center rounded-full bg-indigo-50 dark:bg-zinc-850">
@@ -114,7 +114,7 @@
         </div>
 
         {{-- Barra lateral derecha: Metadatos y Clasificación (1/3) --}}
-        <div class="lg:col-span-1 space-y-6">
+        <div class="lg:col-span-1 space-y-4">
             
             {{-- Detalles técnicos --}}
             <flux:card class="p-5 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 space-y-4">

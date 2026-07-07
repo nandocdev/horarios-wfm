@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <flux:card>
         <flux:heading size="lg">Completar registro de llamada</flux:heading>
     </flux:card>

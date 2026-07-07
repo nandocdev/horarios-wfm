@@ -1,7 +1,7 @@
-<div wire:poll.10s class="space-y-6">
+<div wire:poll.10s class="space-y-8">
     {{-- Header con Estadísticas --}}
     <div
-        class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 rounded-md shadow-sm border border-zinc-200 dark:border-zinc-800">
+        class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-md shadow-sm border border-zinc-200 dark:border-zinc-800">
         <div class="space-y-1">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-md">
@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col xl:flex-row items-center gap-6">
+        <div class="flex flex-col xl:flex-row items-center gap-4">
             <div class="flex flex-wrap items-center gap-2">
                 {{-- Stat: Total --}}
                 <div
@@ -138,7 +138,7 @@
 
     {{-- Filtros y Tabla --}}
     <flux:card>
-        <div class="space-y-6">
+        <div class="space-y-4">
             {{-- Barra de herramientas superior --}}
             <div class="flex flex-col md:flex-row gap-3">
                 <div class="flex-grow flex items-center gap-4">
@@ -381,7 +381,7 @@
     </flux:card>
 
     {{-- Modal de Detalles del Agente --}}
-    <flux:modal name="agent-details-modal" class="md:w-[600px] space-y-6">
+    <flux:modal name="agent-details-modal" class="md:w-[600px] space-y-4">
         @if($selectedAgent)
             <div class="flex items-center gap-4">
                 <flux:avatar :name="$selectedAgent->first_name . ' ' . $selectedAgent->last_name" size="lg" />

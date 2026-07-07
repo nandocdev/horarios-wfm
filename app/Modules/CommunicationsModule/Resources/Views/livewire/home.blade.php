@@ -3,7 +3,7 @@
     <section class="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <div class="absolute inset-x-0 top-0 h-64 bg-slate-100 dark:bg-slate-900"></div>
 
-        <div class="relative mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+        <div class="relative mx-auto max-w-[85rem] px-4 py-8 sm:px-4 lg:px-8 lg:py-16">
             <div class="grid gap-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-center">
                 <div class="space-y-8">
                     @if($featuredShoutout)
@@ -85,9 +85,9 @@
     </section>
 
     <!-- Contenido Principal -->
-    <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-6 lg:px-8">
+    <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-4 lg:px-8">
         <div class="grid gap-12 lg:grid-cols-3">
-            <div id="noticias" class="space-y-10 lg:col-span-2">
+            <div id="noticias" class="space-y-8 lg:col-span-2">
                 <section class="space-y-8">
                     <div
                         class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-zinc-100 dark:border-zinc-800 pb-6">
@@ -111,7 +111,7 @@
                                         alt="{{ $news->title }}"
                                         class="h-full w-full object-cover transition duration-150 group-hover:scale-110">
                                     <div
-                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col justify-end p-6">
+                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col justify-end p-4">
                                         <flux:button wire:click="viewNews({{ $news->id }})" variant="primary" size="sm"
                                             class="w-full">
                                             Leer Artículo Completo
@@ -124,7 +124,7 @@
                                         </flux:badge>
                                     </div>
                                 </div>
-                                <div class="flex flex-1 flex-col p-6">
+                                <div class="flex flex-1 flex-col p-4">
                                     <flux:text class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2">
                                         {{ $news->published_at->translatedFormat('d M, Y') }}</flux:text>
 
@@ -320,8 +320,8 @@
 
     <!-- Sección de Shoutouts: Estilo Feed Social -->
     <section class="bg-zinc-50 dark:bg-zinc-900/50 border-y border-zinc-200 dark:border-zinc-800">
-        <div class="mx-auto w-full max-w-[85rem] px-4 py-16 sm:px-6 lg:px-8">
-            <div class="mb-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div class="mx-auto w-full max-w-[85rem] px-4 py-16 sm:px-4 lg:px-8">
+            <div class="mb-10 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                     <flux:heading size="xl" class="font-black italic">Shout-outs ⚡</flux:heading>
                     <flux:subheading>Reconocimientos rápidos que impulsan la cultura del equipo.</flux:subheading>
@@ -332,13 +332,13 @@
                 </flux:button>
             </div>
 
-            <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 @forelse ($shoutoutItems as $shoutout)
                     @php
                         $hasBanner = $shoutout->hasMedia('banner');
                     @endphp
                     <flux:card
-                        class="relative flex flex-col p-6 transition-opacity duration-150 hover:shadow-md hover:-translate-y-1 overflow-hidden border-none {{ $hasBanner ? 'text-white' : 'bg-white dark:bg-zinc-800' }}">
+                        class="relative flex flex-col p-4 transition-opacity duration-150 hover:shadow-md hover:-translate-y-1 overflow-hidden border-none {{ $hasBanner ? 'text-white' : 'bg-white dark:bg-zinc-800' }}">
                         
                         @if($hasBanner)
                             <img src="{{ $shoutout->getFirstMediaUrl('banner') }}" class="absolute inset-0 w-full h-full object-cover z-0">
@@ -468,12 +468,12 @@
                 <div
                     class="bg-zinc-50 dark:bg-zinc-900/50 border-l border-zinc-200 dark:border-zinc-800 flex flex-col h-full">
                     <div
-                        class="p-6 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between">
+                        class="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex items-center justify-between">
                         <flux:heading size="md" class="font-black">Conversación</flux:heading>
                         <flux:button wire:click="closeNewsModal" variant="ghost" icon="x-mark" size="xs" />
                     </div>
 
-                    <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                         @forelse($viewingNews->comments as $comment)
                             <div class="space-y-2">
                                 <div class="flex items-center gap-2">
@@ -498,7 +498,7 @@
                     </div>
 
                     @if($isAuthenticated)
-                        <div class="p-6 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                        <div class="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                             <form wire:submit="submitComment" class="space-y-3">
                                 <input type="hidden" wire:model="commentForm.news_id">
                                 <flux:textarea wire:model="commentForm.content" placeholder="Escribe tu opinión..." rows="3"
@@ -508,7 +508,7 @@
                             </form>
                         </div>
                     @else
-                        <div class="p-6 bg-zinc-100 dark:bg-zinc-800/50 text-center">
+                        <div class="p-4 bg-zinc-100 dark:bg-zinc-800/50 text-center">
                             <flux:text class="text-xs text-zinc-500 mb-4">Inicia sesión para participar.</flux:text>
                             <flux:button href="{{ route('login') }}" wire:navigate variant="outline" size="sm" class="w-full">
                                 Entrar</flux:button>
@@ -521,7 +521,7 @@
 
     <!-- Modal para Publicar Reconocimiento -->
     <flux:modal name="shoutout-create-modal" wire:model="showShoutoutModal" class="md:min-w-[35rem]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg" class="font-black italic">Publicar un Shout-out ⚡</flux:heading>
                 <flux:subheading>Reconoce el excelente desempeño o actitud de un compañero.</flux:subheading>

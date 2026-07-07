@@ -1,4 +1,4 @@
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Historial de Solicitudes</flux:heading>
@@ -113,7 +113,7 @@
     </flux:card>
 
     {{-- Modal de Detalles --}}
-    <flux:modal name="swap-details" class="md:w-[600px] space-y-6">
+    <flux:modal name="swap-details" class="md:w-[600px] space-y-4">
         @if($selectedRequest)
             <div>
                 <flux:heading size="lg">Detalle de Solicitud #{{ $selectedRequest->id }}</flux:heading>

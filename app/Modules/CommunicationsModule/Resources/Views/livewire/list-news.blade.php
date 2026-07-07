@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Panel de Noticias</flux:heading>

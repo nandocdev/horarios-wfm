@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Mi Horario Semanal</flux:heading>
@@ -92,7 +92,7 @@
         </div>
  
         {{-- Sección inferior dividida --}}
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 mt-6">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-6">
             {{-- Izquierda: Actividades Programadas --}}
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
@@ -204,7 +204,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="flex flex-col items-center justify-center py-10 text-center opacity-50">
+                        <div class="flex flex-col items-center justify-center py-8 text-center opacity-50">
                             <flux:icon name="moon" size="lg" class="mb-4" />
                             <flux:heading>Día libre</flux:heading>
                             <flux:subheading>No hay actividades programadas para este día.</flux:subheading>

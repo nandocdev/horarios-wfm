@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-8 py-8">
     <div class="mb-8">
         <flux:heading size="2xl">Documentación de Usuario</flux:heading>
         <flux:subheading>Encuentra manuales, guías y respuestas a tus preguntas sobre el sistema.</flux:subheading>
@@ -6,7 +6,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         {{-- Sidebar de Filtros --}}
-        <div class="md:col-span-1 space-y-6">
+        <div class="md:col-span-1 space-y-4">
             <flux:card class="p-4">
                 <div class="mb-4">
                     <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar..." icon="magnifying-glass" />
@@ -38,7 +38,7 @@
 
         {{-- Lista de Artículos --}}
         <div class="md:col-span-3">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @forelse($articles as $article)
                     <flux:card class="flex flex-col h-full hover:shadow-md transition-shadow">
                         <div class="flex-1">

@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-8">
-    <div class="space-y-6">
+    <div class="space-y-8">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <flux:button icon="chevron-left" variant="ghost" href="{{ route('organization.teams.index') }}" :inset="true" wire:navigate />
@@ -16,9 +16,9 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <!-- Información General -->
-            <div class="lg:col-span-1 space-y-6">
+            <div class="lg:col-span-1 space-y-4">
                 <flux:card>
                     <flux:heading size="lg" class="mb-4">Información General</flux:heading>
                     
@@ -100,7 +100,7 @@
                                         </flux:modal.trigger>
 
                                         <flux:modal name="remove-member-{{ $user->id }}" class="min-w-[22rem]">
-                                            <div class="space-y-6">
+                                            <div class="space-y-4">
                                                 <div>
                                                     <flux:heading size="lg">¿Remover miembro?</flux:heading>
                                                     <flux:subheading>Estás a punto de desvincular a <strong>{{ $user->full_name }}</strong> de este equipo. Esta acción quedará registrada en el historial.</flux:subheading>
@@ -137,7 +137,7 @@
 
     <!-- Modal Añadir Miembro -->
     <flux:modal name="add-member-modal" class="md:min-w-[30rem]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">Añadir Miembro al Equipo</flux:heading>
                 <flux:subheading>Selecciona un empleado activo que no pertenezca a otro equipo.</flux:subheading>

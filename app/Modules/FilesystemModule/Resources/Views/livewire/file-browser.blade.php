@@ -1,6 +1,6 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
     <!-- Panel Lateral: Árbol de Directorios -->
-    <aside class="lg:col-span-3 space-y-6">
+    <aside class="lg:col-span-3 space-y-8">
         <flux:card class="p-4 bg-zinc-50/50 dark:bg-zinc-900/30">
             <div class="flex items-center justify-between mb-4">
                 <flux:heading size="sm" class="uppercase tracking-wider text-zinc-500 font-bold">Explorar</flux:heading>
@@ -59,7 +59,7 @@
     </aside>
 
     <!-- Panel Principal: Explorador -->
-    <div class="lg:col-span-9 space-y-6">
+    <div class="lg:col-span-9 space-y-4">
         <div class="flex items-center justify-between">
             <div>
                 <flux:heading size="xl">Gestor de Archivos</flux:heading>
@@ -214,7 +214,7 @@
 
     <!-- Modales -->
     <flux:modal name="create-folder" class="min-w-[400px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">Nueva Carpeta</flux:heading>
                 <flux:subheading>Crea un nuevo directorio para organizar tus archivos.</flux:subheading>
@@ -233,7 +233,7 @@
 
     <!-- Modal Compartir -->
     <flux:modal name="share-modal" class="min-w-[450px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">Compartir "{{ $itemToShare['name'] ?? '' }}"</flux:heading>
                 <flux:subheading>Permite que otros usuarios vean o editen este elemento.</flux:subheading>

@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4">
     <div class="flex justify-between items-center mb-6">
         <div>
             <flux:heading size="xl">{{ __('Gestión de Excepciones de Horario') }}</flux:heading>
@@ -78,7 +78,7 @@
 
     <!-- Modal de Registro/Edición -->
     <flux:modal wire:model="showCreateModal" class="min-w-[500px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ $selectedExceptionId ? __('Editar Excepción') : __('Nueva Excepción') }}</flux:heading>
                 <flux:subheading>{{ __('Defina el periodo y motivo de la ausencia.') }}</flux:subheading>

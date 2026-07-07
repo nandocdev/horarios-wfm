@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Gestión de Usuarios</flux:heading>
@@ -12,7 +12,7 @@
         @endcan
     </div>
 
-    <flux:card class="space-y-6">
+    <flux:card class="space-y-4">
         <div class="flex flex-col md:flex-row gap-4 items-end">
             <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre o email..."
                 class="flex-1" icon="magnifying-glass" clearable />
@@ -99,7 +99,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="5" class="text-center py-10">
+                        <flux:table.cell colspan="5" class="text-center py-8">
                             <flux:text size="sm" class="text-zinc-500 italic">No se encontraron usuarios con esos criterios.
                             </flux:text>
                         </flux:table.cell>

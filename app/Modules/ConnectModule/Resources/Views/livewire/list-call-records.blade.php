@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
             <flux:heading size="xl">Tus Registros de Hoy</flux:heading>

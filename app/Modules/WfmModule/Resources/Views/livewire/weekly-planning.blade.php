@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4">
     <div class="flex items-center justify-between mb-8">
         <div>
             <flux:heading size="xl">{{ __('Planificación Semanal') }}</flux:heading>
@@ -13,7 +13,7 @@
 
     <!-- Modal de Confirmación de Nueva Semana -->
     <flux:modal wire:model="showCreateModal" class="min-w-[400px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Confirmar Nueva Semana') }}</flux:heading>
                 <flux:subheading>{{ __('Revise las fechas de planificación antes de crear la semana.') }}

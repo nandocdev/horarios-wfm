@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <flux:card>
         <flux:heading size="xl">Catálogo de colas</flux:heading>
         <p class="text-sm text-slate-600">Gestiona las colas que pueden asignarse a registros de llamada.</p>

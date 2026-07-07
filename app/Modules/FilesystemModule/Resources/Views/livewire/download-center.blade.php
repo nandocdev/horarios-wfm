@@ -3,7 +3,7 @@
     <section class="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <div class="absolute inset-x-0 top-0 h-64 bg-slate-100 dark:bg-slate-900"></div>
 
-        <div class="relative mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+        <div class="relative mx-auto max-w-[85rem] px-4 py-8 sm:px-4 lg:px-8 lg:py-16">
             <div class="space-y-4 text-center">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-black uppercase tracking-widest">
                     <flux:icon name="folder-arrow-down" class="w-4 h-4" />
@@ -24,8 +24,8 @@
     </section>
 
     <!-- Files List -->
-    <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-6 lg:px-8">
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-4 lg:px-8">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @forelse ($files as $file)
                 <flux:card class="group flex flex-col p-4 transition-opacity duration-150 hover:shadow-md hover:-translate-y-1 border-none bg-white dark:bg-zinc-800/50">
                     <div class="flex items-center justify-between mb-4">

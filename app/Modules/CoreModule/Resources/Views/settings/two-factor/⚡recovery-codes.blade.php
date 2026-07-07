@@ -46,11 +46,11 @@ new class extends Component {
 }; ?>
 
 <div
-    class="py-6 space-y-6 border shadow-sm rounded-md border-zinc-200 dark:border-white/10"
+    class="py-4 space-y-4 border shadow-sm rounded-md border-zinc-200 dark:border-white/10"
     wire:cloak
     x-data="{ showRecoveryCodes: false }"
 >
-    <div class="px-6 space-y-2">
+    <div class="px-4 space-y-2">
         <div class="flex items-center gap-2">
             <flux:icon.lock-closed variant="outline" class="size-4"/>
             <flux:heading size="lg" level="3">{{ __('2FA recovery codes') }}</flux:heading>
@@ -60,7 +60,7 @@ new class extends Component {
         </flux:text>
     </div>
 
-    <div class="px-6">
+    <div class="px-4">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <flux:button
                 x-show="!showRecoveryCodes"

@@ -1,11 +1,11 @@
-<form wire:submit="update" class="space-y-6">
+<form wire:submit="update" class="space-y-8">
     <flux:card class="space-y-4">
         <div>
             <flux:heading size="md">Información Personal</flux:heading>
         </div>
 
         <div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:input label="Número de empleado *" wire:model="employee_number" placeholder="EMP001" disabled />
                 <flux:input label="Nombre de usuario *" wire:model="username" placeholder="j.perez" />
 
@@ -51,7 +51,7 @@
         </div>
 
         <div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:select label="Provincia" wire:model.live="province_id" placeholder="Seleccionar provincia">
                     <flux:select.option value="">Seleccionar provincia</flux:select.option>
                     @foreach($selectOptions['provinces'] as $id => $name)
@@ -83,7 +83,7 @@
         </div>
 
         <div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:select label="Departamento *" wire:model="department_id" placeholder="Seleccionar departamento">
                     @foreach($selectOptions['departments'] as $id => $name)
                         <flux:select.option value="{{ $id }}">{{ $name }}</flux:select.option>

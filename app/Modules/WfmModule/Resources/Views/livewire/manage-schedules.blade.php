@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4">
     <div class="flex justify-between items-center mb-6">
         <flux:heading size="xl">Administración de Turnos</flux:heading>
         <flux:button wire:click="create" variant="primary" icon="plus">Nuevo Turno</flux:button>
@@ -55,7 +55,7 @@
     </flux:table>
 
     <flux:modal wire:model="showModal" class="w-full max-w-lg">
-        <form wire:submit="save" class="space-y-6">
+        <form wire:submit="save" class="space-y-4">
             <flux:heading size="lg">{{ $form->schedule ? 'Editar Turno' : 'Nuevo Turno' }}</flux:heading>
 
             <flux:input wire:model="form.name" label="Nombre del Turno" placeholder="Ej. Mañana 08-17" />

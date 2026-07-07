@@ -1,6 +1,6 @@
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-md shadow-sm border border-gray-200">
-        <div class="p-6 border-b border-gray-200">
+        <div class="p-4 border-b border-gray-200">
             <div class="flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-900">Posiciones</h1>
                 <flux:link href="{{ route('organization.positions.create') }}" variant="primary">
@@ -9,7 +9,7 @@
             </div>
         </div>
 
-        <div class="p-6">
+        <div class="p-4">
             <!-- Filtros -->
             <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>

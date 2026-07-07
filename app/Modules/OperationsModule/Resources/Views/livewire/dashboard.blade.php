@@ -1,4 +1,4 @@
-<div @if(!$this->isHistorical) wire:poll.{{ $refreshInterval }}s @endif class="space-y-6">
+<div @if(!$this->isHistorical) wire:poll.{{ $refreshInterval }}s @endif class="space-y-8">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <flux:heading size="xl" level="1">Dashboard Operativo</flux:heading>
@@ -59,7 +59,7 @@
     {{-- Hero KPIs Widget (Lazy) --}}
     <livewire:operations.widgets.hero-kpi-widget :selectedDate="$selectedDate" :key="'hero-'.$selectedDate" />
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="lg:col-span-2">
             {{-- Queue Stats Widget (Lazy) --}}
             <livewire:operations.widgets.queue-stats-widget :selectedDate="$selectedDate" :key="'queues-'.$selectedDate" />
@@ -74,7 +74,7 @@
     {{-- Volume Comparison Widget (Lazy) --}}
     <livewire:operations.widgets.volume-comparison-widget :key="'volume-'.$selectedDate" />
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="lg:col-span-1">
             {{-- Critical Alerts Widget (Lazy) --}}
             <livewire:operations.widgets.critical-alerts-widget :selectedDate="$selectedDate" :key="'alerts-'.$selectedDate" />

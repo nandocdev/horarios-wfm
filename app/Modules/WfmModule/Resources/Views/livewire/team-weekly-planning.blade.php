@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4">
     <div class="flex items-center gap-4">
         <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" icon="arrow-left"
             variant="ghost" wire:navigate />
@@ -106,7 +106,7 @@
 
     <!-- Modal de Edición Individual -->
     <flux:modal wire:model="showEditModal" class="min-w-[400px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Editar Asignación Individual') }}</flux:heading>
                 <flux:subheading>{{ __('Ajuste de turno, almuerzo y descanso para este día.') }}</flux:subheading>
@@ -147,7 +147,7 @@
 
     <!-- Modal de Asignación Masiva -->
     <flux:modal wire:model="showBulkAssignModal" class="min-w-[450px]">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">{{ __('Asignación Masiva para Equipo') }}</flux:heading>
                 <flux:subheading>

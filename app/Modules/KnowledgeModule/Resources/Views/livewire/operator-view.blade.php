@@ -1,6 +1,6 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-8 py-8 space-y-8">
     {{-- Encabezado Principal --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-md border border-zinc-250/60 dark:border-zinc-700">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-md border border-zinc-250/60 dark:border-zinc-700">
         <div class="space-y-1">
             <div class="flex items-center gap-2">
                 <flux:badge size="sm" color="indigo" class="font-bold">OPERACIÓN</flux:badge>
@@ -19,7 +19,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {{-- Panel Izquierdo: Selector de Colas y Filtros --}}
-        <div class="lg:col-span-1 space-y-6">
+        <div class="lg:col-span-1 space-y-4">
             {{-- Colas de Atención --}}
             <flux:card class="p-5 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-700">
@@ -76,7 +76,7 @@
         </div>
 
         {{-- Panel Derecho: Resultados de Búsqueda --}}
-        <div class="lg:col-span-3 space-y-6">
+        <div class="lg:col-span-3 space-y-4">
             {{-- Barra de búsqueda superior --}}
             <flux:card class="p-4 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div class="w-full flex-1">
@@ -118,7 +118,7 @@
 
             @if($selectedQueue && empty($search))
                 {{-- Vista Especial Agrupada para la Cola Seleccionada --}}
-                <div class="space-y-6">
+                <div class="space-y-4">
                     <div class="bg-indigo-50/80 dark:bg-zinc-800/80 p-5 rounded-md flex items-center justify-between gap-4 border border-indigo-100 dark:border-zinc-700 shadow-sm">
                         <div class="flex items-center gap-3">
                             <span class="text-3xl">📞</span>
@@ -185,7 +185,7 @@
                 {{-- Listado de Resultados General / Búsqueda --}}
                 <div class="space-y-4">
                     @forelse($articles as $article)
-                        <flux:card class="p-6 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-opacity duration-150">
+                        <flux:card class="p-4 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:shadow-md transition-opacity duration-150">
                             <div class="space-y-2.5 flex-1">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <flux:badge size="sm" color="zinc" variant="subtle" class="font-semibold text-xs">

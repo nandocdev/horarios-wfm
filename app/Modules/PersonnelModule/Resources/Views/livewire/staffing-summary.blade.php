@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl" level="1">Inventario de Staffing</flux:heading>
@@ -9,25 +9,25 @@
 
     <!-- Resumen General -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <flux:card class="flex flex-col items-center justify-center py-6">
+        <flux:card class="flex flex-col items-center justify-center py-4">
             <flux:text class="text-3xl font-black text-indigo-600">{{ $stats['total'] }}</flux:text>
             <flux:text size="sm" class="font-medium text-zinc-500 uppercase tracking-widest">Total Empleados</flux:text>
         </flux:card>
-        <flux:card class="flex flex-col items-center justify-center py-6 border-l-4 border-l-emerald-500">
+        <flux:card class="flex flex-col items-center justify-center py-4 border-l-4 border-l-emerald-500">
             <flux:text class="text-3xl font-black text-emerald-600">{{ $stats['active'] }}</flux:text>
             <flux:text size="sm" class="font-medium text-zinc-500 uppercase tracking-widest">Activos</flux:text>
         </flux:card>
-        <flux:card class="flex flex-col items-center justify-center py-6 border-l-4 border-l-rose-500">
+        <flux:card class="flex flex-col items-center justify-center py-4 border-l-4 border-l-rose-500">
             <flux:text class="text-3xl font-black text-rose-600">{{ $stats['inactive'] }}</flux:text>
             <flux:text size="sm" class="font-medium text-zinc-500 uppercase tracking-widest">Inactivos</flux:text>
         </flux:card>
-        <flux:card class="flex flex-col items-center justify-center py-6 border-l-4 border-l-amber-500">
+        <flux:card class="flex flex-col items-center justify-center py-4 border-l-4 border-l-amber-500">
             <flux:text class="text-3xl font-black text-amber-600">{{ $stats['managers'] }}</flux:text>
             <flux:text size="sm" class="font-medium text-zinc-500 uppercase tracking-widest">Líderes / Managers</flux:text>
         </flux:card>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <!-- Distribución por Equipo -->
         <flux:card>
             <flux:heading size="lg" class="mb-4">Personal por Equipo</flux:heading>

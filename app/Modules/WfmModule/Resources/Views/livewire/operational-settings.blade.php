@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl" level="1">Configuración Operativa</flux:heading>
@@ -10,13 +10,13 @@
         </flux:button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {{-- Umbrales Globales --}}
         <flux:card class="space-y-4">
             <flux:heading size="lg">Umbrales de Adherencia</flux:heading>
             <flux:separator />
 
-            <div class="space-y-6">
+            <div class="space-y-4">
                 @foreach($thresholds as $index => $setting)
                     <div class="flex items-center gap-4">
                         @php
@@ -51,7 +51,7 @@
             </div>
         </flux:card>
 
-        <div class="space-y-6">
+        <div class="space-y-4">
             {{-- Metas de KPIs --}}
             <flux:card class="space-y-4">
                 <div class="flex items-center justify-between">
@@ -64,7 +64,7 @@
                 
                 <flux:separator />
 
-                <div class="space-y-6">
+                <div class="space-y-4">
                     @foreach($kpiGoals as $index => $goal)
                         <div class="flex items-center gap-4">
                             @php
@@ -114,7 +114,7 @@
                 <flux:heading size="lg">Metas de AHT por Cola</flux:heading>
                 <flux:separator />
 
-                <div class="space-y-6 max-h-[400px] overflow-y-auto pr-2">
+                <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
                     @foreach($queues as $index => $queue)
                         <div class="flex items-center gap-4">
                             <div class="flex-grow">
@@ -132,7 +132,7 @@
                     @endforeach
 
                     @if(empty($queues))
-                        <div class="py-10 text-center">
+                        <div class="py-8 text-center">
                             <flux:text size="sm">No hay colas configuradas.</flux:text>
                         </div>
                     @endif
@@ -142,7 +142,7 @@
     </div>
 
     {{-- Modal para agregar meta --}}
-    <flux:modal name="add-goal" class="md:w-[450px] space-y-6">
+    <flux:modal name="add-goal" class="md:w-[450px] space-y-4">
         <div>
             <flux:heading size="lg">Agregar Nueva Meta de KPI</flux:heading>
             <flux:subheading>Define un identificador único y un nombre descriptivo para la nueva meta.</flux:subheading>

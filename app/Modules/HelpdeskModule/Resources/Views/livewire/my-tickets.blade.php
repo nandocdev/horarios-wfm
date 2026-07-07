@@ -1,4 +1,4 @@
-<div class="space-y-6 max-w-5xl mx-auto">
+<div class="space-y-8 max-w-5xl mx-auto">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Mis Tickets de Soporte</flux:heading>
@@ -83,20 +83,20 @@
     </flux:card>
 
     {{-- Modal de Creación --}}
-    <flux:modal name="create-ticket-modal" wire:model="showCreateModal" class="md:w-[600px] space-y-6">
+    <flux:modal name="create-ticket-modal" wire:model="showCreateModal" class="md:w-[600px] space-y-4">
         <div>
             <flux:heading size="lg">Apertura de Ticket</flux:heading>
             <flux:subheading>Proporciona los detalles de tu consulta o incidencia.</flux:subheading>
         </div>
 
-        <form wire:submit="submit" class="space-y-6">
+        <form wire:submit="submit" class="space-y-4">
             <flux:field>
                 <flux:label>Asunto / Resumen</flux:label>
                 <flux:input wire:model="subject" placeholder="Ej. Problema con el acceso a la VPN..." />
                 <flux:error name="subject" />
             </flux:field>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:field>
                     <flux:label>Categoría</flux:label>
                     <flux:select wire:model="categoryId" placeholder="Selecciona el área...">

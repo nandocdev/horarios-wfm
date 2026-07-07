@@ -1,4 +1,4 @@
-<div class="p-6 space-y-8">
+<div class="p-4 space-y-8">
 
     {{-- CABECERA --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -37,7 +37,7 @@
         </flux:heading>
 
         @if($periods->isEmpty())
-            <div class="rounded-md border border-dashed border-zinc-200 dark:border-zinc-700 p-10 text-center">
+            <div class="rounded-md border border-dashed border-zinc-200 dark:border-zinc-700 p-8 text-center">
                 <flux:icon name="no-symbol" class="mx-auto w-10 h-10 text-zinc-300 dark:text-zinc-600 mb-3" />
                 <flux:text class="text-zinc-500">
                     {{ $isWfm ? 'No hay periodos aprobados para esta fecha. Crea uno con el botón superior.' : 'No hay periodos aprobados para tu equipo en esta fecha.' }}

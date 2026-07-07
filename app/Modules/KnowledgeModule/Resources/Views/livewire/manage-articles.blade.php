@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-8 py-8 space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Gestión de Base de Conocimiento</flux:heading>

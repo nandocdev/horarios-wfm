@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="max-w-2xl mx-auto space-y-8">
     <div>
         <flux:heading size="xl">Solicitar Permiso {{ $form->type === 'quarterly' ? 'Trimestral' : 'Compensatorio' }}</flux:heading>
         @if($form->type === 'quarterly')
@@ -25,7 +25,7 @@
     @endif
 
     <flux:card>
-        <form wire:submit="submit" class="space-y-6">
+        <form wire:submit="submit" class="space-y-4">
             @if($errors->has('general'))
                 <flux:callout variant="danger">
                     {{ $errors->first('general') }}

@@ -28,7 +28,7 @@
     </header>
 
     {{-- Resumen de Métricas del Día --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <flux:card class="p-4 flex items-center gap-4">
             <div class="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-md">
                 <flux:icon name="clock" variant="mini" />
@@ -62,8 +62,8 @@
     
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {{-- Columna Izquierda: Información en Tiempo Real --}}
-        <div class="lg:col-span-4 space-y-6">
-            <flux:card class="p-6">
+        <div class="lg:col-span-4 space-y-4">
+            <flux:card class="p-4">
                 <flux:heading class="mb-6">Estado Actual</flux:heading>
                 @livewire('operations.agent-realtime-card', [
                     'employeeId' => $targetEmployee->id,
@@ -74,7 +74,7 @@
         
         {{-- Columna Derecha: Timeline --}}
         <div class="lg:col-span-8">
-            <flux:card class="p-6 h-[800px] flex flex-col">
+            <flux:card class="p-4 h-[800px] flex flex-col">
                 <div class="flex items-center justify-between mb-6">
                     <flux:heading>Línea de Tiempo</flux:heading>
                     <div class="flex items-center gap-2">

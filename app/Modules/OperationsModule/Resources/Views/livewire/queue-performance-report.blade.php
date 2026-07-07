@@ -1,5 +1,5 @@
-<div class="p-6 space-y-8 bg-slate-50 min-h-screen">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white p-6 rounded-md shadow-sm border border-slate-200">
+<div class="p-4 space-y-8 bg-slate-50 min-h-screen">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-4 rounded-md shadow-sm border border-slate-200">
         <div>
             <flux:heading size="xl" level="1" class="flex items-center gap-2">
                 <flux:icon name="phone" variant="mini" class="text-blue-600" />
@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <flux:card>
             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Ofrecidas</p>
             <p class="text-4xl font-black text-slate-800 mt-2">{{ number_format($stats->sum('total_offered')) }}</p>
@@ -79,7 +79,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="p-10 text-center text-slate-400 italic">
+                            <td colspan="8" class="p-8 text-center text-slate-400 italic">
                                 No se encontraron registros de llamadas para esta fecha.
                             </td>
                         </tr>

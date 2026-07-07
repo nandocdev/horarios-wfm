@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Gestión de Cuotas de Almacenamiento</flux:heading>
@@ -6,7 +6,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Formulario de Asignación -->
         <flux:card class="space-y-4">
             <flux:heading size="lg">Asignar Límite</flux:heading>

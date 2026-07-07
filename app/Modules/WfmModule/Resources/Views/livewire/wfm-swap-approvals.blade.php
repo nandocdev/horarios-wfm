@@ -1,4 +1,4 @@
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-8">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <flux:heading size="xl">Aprobación de Cambios de Turno (WFM)</flux:heading>
@@ -115,7 +115,7 @@
     </flux:card>
 
     {{-- Modal de Detalles --}}
-    <flux:modal name="swap-details" class="md:w-[600px] space-y-6">
+    <flux:modal name="swap-details" class="md:w-[600px] space-y-4">
         @if($selectedRequest)
             <div>
                 <flux:heading size="lg">Detalle de Solicitud #{{ $selectedRequest->id }}</flux:heading>

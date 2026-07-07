@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <!-- Header y Controles -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -27,7 +27,7 @@
         </flux:card>
     @else
         <!-- Grid de Métricas (KPIs) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <flux:card>
                 <div class="flex items-start justify-between">
@@ -148,7 +148,7 @@
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="6" class="text-center py-6 text-zinc-500">
+                            <flux:table.cell colspan="6" class="text-center py-4 text-zinc-500">
                                 No se encontraron llamadas registradas en el período seleccionado.
                             </flux:table.cell>
                         </flux:table.row>

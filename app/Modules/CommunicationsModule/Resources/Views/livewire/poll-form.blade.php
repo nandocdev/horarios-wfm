@@ -1,11 +1,11 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div>
         <flux:heading size="xl">{{ $mode === 'edit' ? 'Editar Encuesta' : 'Crear Nueva Encuesta' }}</flux:heading>
         <flux:subheading>Define la pregunta y las opciones para recolectar feedback de los empleados.</flux:subheading>
     </div>
 
-    <form wire:submit="save" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-8 space-y-6">
+    <form wire:submit="save" class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div class="lg:col-span-8 space-y-4">
             <flux:card>
                 <div class="space-y-4">
                     <flux:input 
@@ -66,7 +66,7 @@
             </flux:card>
         </div>
 
-        <div class="lg:col-span-4 space-y-6">
+        <div class="lg:col-span-4 space-y-4">
             <flux:card>
                 <div class="space-y-4">
                     <flux:input type="datetime-local" wire:model="form.scheduled_at" label="Fecha de Inicio" />

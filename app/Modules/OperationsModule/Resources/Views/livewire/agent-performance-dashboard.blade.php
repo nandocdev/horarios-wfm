@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     @if(!$this->employeeId)
         <div class="flex flex-col items-center justify-center py-20 text-center">
             <flux:icon name="user" class="w-16 h-16 text-zinc-300 dark:text-zinc-600 mb-4" />
@@ -10,7 +10,7 @@
         </div>
     @else
     {{-- Cabecera: Perfil del agente + selector de empleado para supervisores --}}
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/40 p-6 rounded-md border border-zinc-800">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/40 p-4 rounded-md border border-zinc-800">
         <div class="flex items-center gap-4">
             @if($this->employee)
                 <flux:avatar size="lg" class="bg-blue-600/20 text-blue-400 border border-blue-500/30" />
@@ -58,9 +58,9 @@
     @endphp
 
     {{-- Bloque Superior: Score Operativo del Periodo + Estado Actual / Objetivos --}}
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {{-- Tarjeta 1: Score Operativo --}}
-        <flux:card class="flex flex-col items-center justify-center p-6 text-center lg:col-span-1 border border-zinc-800">
+        <flux:card class="flex flex-col items-center justify-center p-4 text-center lg:col-span-1 border border-zinc-800">
             <flux:heading size="md" class="text-zinc-400 mb-4">Score del Periodo</flux:heading>
             <div class="relative flex items-center justify-center">
                 {{-- SVG de progreso circular --}}
@@ -144,7 +144,7 @@
     </div>
 
     {{-- Widget 2: Historial de Desempeño (Líneas) + Widget 3: Distribución Estados --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {{-- Línea temporal --}}
         <div class="lg:col-span-2">
             <flux:card>
@@ -242,7 +242,7 @@
     </div>
 
     {{-- Comparación con el Equipo & Reconocimientos --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {{-- Tabla Comparativa --}}
         <div class="lg:col-span-2">
             <flux:card>

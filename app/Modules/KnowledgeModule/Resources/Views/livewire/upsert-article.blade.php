@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+<div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-8 py-8 space-y-8">
     {{-- Barra superior de navegación --}}
     <div class="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 pb-4">
         <div>
@@ -20,8 +20,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             {{-- Columna Izquierda: Editor de Contenido (2/3) --}}
-            <div class="lg:col-span-2 space-y-6">
-                <flux:card class="p-6 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 space-y-5">
+            <div class="lg:col-span-2 space-y-4">
+                <flux:card class="p-4 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 space-y-5">
                     <flux:heading size="md" class="font-bold text-zinc-800 dark:text-zinc-200 pb-2 border-b border-zinc-50 dark:border-zinc-700">Contenido Principal</flux:heading>
 
                     <div class="space-y-4">
@@ -62,7 +62,7 @@
             </div>
 
             {{-- Columna Derecha: Parámetros y Clasificación (1/3) --}}
-            <div class="lg:col-span-1 space-y-6">
+            <div class="lg:col-span-1 space-y-4">
                 
                 {{-- Tarjeta de Estado y Publicación --}}
                 <flux:card class="p-5 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 space-y-4">

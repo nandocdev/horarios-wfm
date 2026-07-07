@@ -46,8 +46,8 @@
         {{-- Formulario --}}
         <div class="lg:col-span-2">
             <flux:card>
-                <form wire:submit="save" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form wire:submit="save" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <flux:field>
                             <flux:label>Canal de Entrada</flux:label>
                             <flux:select wire:model.live="form.channel_id" placeholder="Selecciona canal...">
@@ -69,7 +69,7 @@
                         </flux:field>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <flux:field>
                             <flux:label>Número de Teléfono</flux:label>
                             <flux:input wire:model.live.debounce.500ms="form.phone_number" icon="phone" placeholder="Ej. 22334455" />
@@ -119,7 +119,7 @@
         </div>
 
         {{-- Información Lateral / Ayuda --}}
-        <div class="space-y-6">
+        <div class="space-y-4">
             <flux:card class="bg-primary-50/50 dark:bg-primary-900/10 border-primary-200 dark:border-primary-800/50">
                 <flux:heading size="sm" class="mb-2">Información del Sistema</flux:heading>
                 <flux:text size="sm" class="mb-4">
@@ -269,7 +269,7 @@
     {{-- Modal de Detalles --}}
     <flux:modal name="record-details" class="min-w-[500px]">
         @if($selectedRecord)
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <div>
                     <flux:heading size="lg">Detalles del Registro #{{ $selectedRecord->id }}</flux:heading>
                     <flux:subheading>Información completa de la interacción seleccionada.</flux:subheading>

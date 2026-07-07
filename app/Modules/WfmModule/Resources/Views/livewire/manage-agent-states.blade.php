@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4">
     <div class="flex justify-between items-center mb-6">
         <flux:heading size="xl">Estados de Agente (Cisco Sync)</flux:heading>
         <flux:button wire:click="create" variant="primary" icon="plus">Nuevo Estado</flux:button>
@@ -35,7 +35,7 @@
     </flux:table>
 
     <flux:modal wire:model="showModal" class="w-full max-w-sm">
-        <form wire:submit="save" class="space-y-6">
+        <form wire:submit="save" class="space-y-4">
             <flux:heading size="lg">{{ $form->agentState ? 'Editar Estado' : 'Nuevo Estado' }}</flux:heading>
 
             <flux:input wire:model="form.external_code" label="Código Externo (API)" placeholder="Ej. 1, 2, 5" />

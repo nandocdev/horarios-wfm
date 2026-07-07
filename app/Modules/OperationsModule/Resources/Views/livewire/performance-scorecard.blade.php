@@ -1,5 +1,5 @@
-<div class="p-6 space-y-8">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white dark:bg-slate-900 p-6 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm">
+<div class="p-4 space-y-8">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-700 shadow-sm">
         <div class="flex items-center gap-4">
             <div>
                 <flux:heading size="xl" level="1">Desempeño {{ $employeeId ? ($employees->firstWhere('id', (int)$employeeId)?->full_name ?? 'Seleccionado') : 'Selecciona un empleado' }}</flux:heading>
@@ -11,13 +11,13 @@
             </flux:modal.trigger>
         </div>
 
-        <flux:modal name="calculation-formulas" variant="flyout" class="space-y-6">
+        <flux:modal name="calculation-formulas" variant="flyout" class="space-y-4">
             <div>
                 <flux:heading size="lg">Diccionario de Fórmulas</flux:heading>
                 <flux:subheading>Detalle técnico de los cálculos de desempeño</flux:subheading>
             </div>
 
-            <div class="space-y-6 overflow-y-auto max-h-[70vh] pr-2">
+            <div class="space-y-4 overflow-y-auto max-h-[70vh] pr-2">
                 <!-- Glosario de Variables -->
                 <div class="space-y-3">
                     <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Glosario de Variables</p>
@@ -145,10 +145,10 @@
     </div>
 
     @if(!empty($performanceData))
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
             <!-- Productividad -->
             <flux:tooltip position="top" content="Intensidad: Tiempo productivo vs Tiempo total de conexión.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-6 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
+                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Productividad</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.productivity_percentage'), 1) }}%
@@ -165,7 +165,7 @@
 
             <!-- Adherencia -->
             <flux:tooltip position="top" content="Disciplina: Tiempo productivo generado dentro de su horario programado.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-6 rounded-md shadow-sm border-l-4 border-green-600 h-full">
+                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-green-600 h-full">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Adherencia</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.adherence_percentage'), 1) }}%
@@ -182,7 +182,7 @@
 
             <!-- Utilización WFM -->
             <flux:tooltip position="top" content="Rendimiento: Producción real comparada contra la jornada completa planificada.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-6 rounded-md shadow-sm border-l-4 border-amber-500 h-full">
+                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-amber-500 h-full">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Utilización</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ number_format(collect($performanceData)->avg('metrics.utilization_percentage'), 1) }}%
@@ -201,7 +201,7 @@
 
             <!-- Tiempo Productivo -->
             <flux:tooltip position="top" content="Suma total de minutos en estados de atención (Ready, Talking, Work, Reserved).">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-6 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
+                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Tiempo Productivo</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_productive_minutes')) }}
@@ -212,7 +212,7 @@
 
             <!-- Conexión Total -->
             <flux:tooltip position="top" content="Tiempo total acumulado de conexión en UCCX durante el periodo.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-6 rounded-md shadow-sm border-l-4 border-slate-500 h-full">
+                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-slate-500 h-full">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Conexión Total</p>
                     <p class="text-3xl font-bold text-slate-900 dark:text-white mt-1">
                         {{ $this->formatMinutes(collect($performanceData)->sum('metrics.total_connected_minutes')) }}
@@ -223,7 +223,7 @@
 
             <!-- Llamadas -->
             <flux:tooltip position="top" content="Cantidad total de llamadas atendidas en el periodo seleccionado.">
-                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-6 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
+                <div class="relative overflow-hidden bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border-l-4 border-blue-600 h-full">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Llamadas</p>
                     @php 
                         $totalCalls = collect($performanceData)->flatMap(fn($d) => array_values($d['queues']))->sum('total_calls');
@@ -234,11 +234,11 @@
             </flux:tooltip>
         </div>
 
-        <div class="space-y-6">
+        <div class="space-y-4">
             @foreach($performanceData as $day)
                 <div class="bg-white rounded-md shadow-md border border-slate-100 overflow-hidden hover:shadow-md transition-opacity duration-150">
                     <!-- Titulo del Día -->
-                    <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                    <div class="bg-slate-50 dark:bg-slate-800 px-4 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                         <div class="flex items-center gap-3">
                             <div class="p-2 bg-blue-100 rounded-md">
                                 @if($employeeId)
@@ -282,7 +282,7 @@
                         </div>
                     </div>
 
-                    <div class="p-6 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8">
+                    <div class="p-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8">
                         <!-- Columna 1: Asistencia y Entrada -->
                         <div class="space-y-4">
                             <div class="group">

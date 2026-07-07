@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Roles y Permisos</flux:heading>
@@ -6,9 +6,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- Listado de Roles -->
-        <div class="lg:col-span-2 space-y-6">
+        <div class="lg:col-span-2 space-y-4">
             <flux:card>
                 <flux:table>
                     <flux:table.columns>
@@ -62,7 +62,7 @@
 
         <!-- Formulario de Creación -->
         @can('create', \App\Modules\CoreModule\Models\Role::class)
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <flux:card>
                     <flux:heading size="lg">Nuevo Rol</flux:heading>
                     <flux:subheading>Define un nuevo perfil de acceso.</flux:subheading>
@@ -87,16 +87,16 @@
 
     <!-- Modal de Permisos -->
     <flux:modal name="role-permissions" class="md:max-w-4xl">
-        <div class="space-y-6">
+        <div class="space-y-4">
             <div>
                 <flux:heading size="lg">Gestionar Permisos: <span
                         class="text-primary-600">{{ $editingRole?->name }}</span></flux:heading>
                 <flux:subheading>Asigna los permisos granulares para este perfil de usuario.</flux:subheading>
             </div>
 
-            <form wire:submit="savePermissions" class="space-y-6">
+            <form wire:submit="savePermissions" class="space-y-4">
                 <div
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[60vh] overflow-y-auto px-1 scrollbar-thin scrollbar-thumb-zinc-200">
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto px-1 scrollbar-thin scrollbar-thumb-zinc-200">
                     @foreach($available_permissions as $module => $perms)
                         <div
                             class="bg-zinc-50 dark:bg-white/5 p-4 rounded-md border border-zinc-100 dark:border-white/10 space-y-3">

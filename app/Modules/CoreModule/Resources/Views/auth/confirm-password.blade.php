@@ -1,8 +1,8 @@
 <x-layouts::auth :title="__('Confirmar contraseña')">
-    <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4">
         <x-auth-header :title="__('Confirmar contraseña')" :description="__('Esta es una zona segura de la aplicación. Confirma tu contraseña antes de continuar.')" />
 
-        <form method="POST" action="{{ route('password.confirm') }}" class="flex flex-col gap-6">
+        <form method="POST" action="{{ route('password.confirm') }}" class="flex flex-col gap-4">
             @csrf
 
             <!-- Contraseña -->

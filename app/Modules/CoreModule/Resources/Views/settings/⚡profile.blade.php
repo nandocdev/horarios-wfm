@@ -134,7 +134,7 @@ new #[Title('Configuración de Perfil')] class extends Component {
         <form wire:submit="updateProfileInformation" class="space-y-8 mt-6">
             
             <!-- Sección: Información de Cuenta (Acceso) -->
-            <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-md border border-zinc-200 dark:border-zinc-800 space-y-4">
                 <flux:heading size="lg" icon="user-circle">{{ __('Datos de Acceso') }}</flux:heading>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <flux:input wire:model="name" :label="__('Nombre Completo')" type="text" required autofocus autocomplete="name" />
@@ -160,7 +160,7 @@ new #[Title('Configuración de Perfil')] class extends Component {
 
             <!-- Sección: Información Institucional (Solo lectura) -->
             @if($hasEmployee)
-                <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-4">
+                <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-md border border-zinc-200 dark:border-zinc-800 space-y-4">
                     <flux:heading size="lg" icon="briefcase">{{ __('Información Institucional') }}</flux:heading>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <flux:input :value="$employee_number" :label="__('No. Empleado')" read-only variant="filled" icon="identification" />
@@ -175,7 +175,7 @@ new #[Title('Configuración de Perfil')] class extends Component {
                 </div>
 
                 <!-- Sección: Información de Contacto (Editable) -->
-                <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 space-y-4">
+                <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-md border border-zinc-200 dark:border-zinc-800 space-y-4">
                     <flux:heading size="lg" icon="phone">{{ __('Información de Contacto') }}</flux:heading>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <flux:input wire:model="phone" :label="__('Teléfono Fijo')" placeholder="Ej. 222-2222" icon="phone" />
@@ -184,7 +184,7 @@ new #[Title('Configuración de Perfil')] class extends Component {
                     <flux:textarea wire:model="address" :label="__('Dirección Residencial')" placeholder="Escribe tu dirección detallada aquí..." rows="3" icon="map-pin" />
                 </div>
             @else
-                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md border border-blue-200 dark:border-blue-800">
                     <flux:text color="blue" size="sm">
                         {{ __('Esta cuenta de usuario aún no está vinculada a un registro de empleado institucional.') }}
                     </flux:text>

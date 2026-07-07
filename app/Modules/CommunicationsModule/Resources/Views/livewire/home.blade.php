@@ -68,10 +68,10 @@
                         class="absolute -inset-4 rounded-md bg-slate-200 dark:bg-slate-800 opacity-20">
                     </div>
                     <flux:card
-                        class="relative overflow-hidden p-2 shadow-md border-white dark:border-zinc-800 rotate-2 hover:rotate-0 transition-transform duration-500">
+                        class="relative overflow-hidden p-2 shadow-md border-white dark:border-zinc-800 rotate-2 hover:rotate-0 transition-transform duration-150">
                         <img src="{{ ($featuredShoutout && $featuredShoutout->hasMedia('banner')) ? $featuredShoutout->getFirstMediaUrl('banner') : (($featuredShoutout && $featuredShoutout->employee->user?->avatar_url) ? $featuredShoutout->employee->user->avatar_url : asset('img/comms-hero.jpg')) }}"
                             alt="Comunicaciones"
-                            class="aspect-square w-full rounded-md object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700">
+                            class="aspect-square w-full rounded-md object-cover grayscale-[0.2] hover:grayscale-0 transition-opacity duration-150">
                         <div class="absolute inset-0 bg-black/40"></div>
                         @if($featuredShoutout)
                             <div class="absolute bottom-6 left-6 right-6 text-center">
@@ -105,13 +105,13 @@
                     <div class="grid gap-8 md:grid-cols-2">
                         @forelse ($newsItems as $news)
                             <flux:card
-                                class="group flex flex-col overflow-hidden p-0 transition-all duration-300 hover:shadow-md hover:shadow-cyan-500/10 border-none bg-zinc-50/50 dark:bg-zinc-800/30">
+                                class="group flex flex-col overflow-hidden p-0 transition-opacity duration-150 hover:shadow-md hover:shadow-cyan-500/10 border-none bg-zinc-50/50 dark:bg-zinc-800/30">
                                 <div class="relative h-56 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                                     <img src="{{ $news->getFirstMediaUrl('featured_image') ?: asset('img/news-placeholder.png') }}"
                                         alt="{{ $news->title }}"
-                                        class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
+                                        class="h-full w-full object-cover transition duration-150 group-hover:scale-110">
                                     <div
-                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col justify-end p-6">
                                         <flux:button wire:click="viewNews({{ $news->id }})" variant="primary" size="sm"
                                             class="w-full">
                                             Leer Artículo Completo
@@ -129,7 +129,7 @@
                                         {{ $news->published_at->translatedFormat('d M, Y') }}</flux:text>
 
                                     <button wire:click="viewNews({{ $news->id }})"
-                                        class="text-left group-hover:text-cyan-600 transition-colors">
+                                        class="text-left group-hover:text-cyan-600 transition-opacity">
                                         <flux:heading size="lg" class="line-clamp-2 leading-tight font-black">
                                             {{ $news->title }}</flux:heading>
                                     </button>
@@ -243,7 +243,7 @@
                         @endphp
                         @foreach ($quickLinks as $item)
                             <flux:button href="{{ Route::has($item['route']) ? route($item['route']) : '#' }}" wire:navigate
-                                class="flex flex-col items-center gap-3 p-4 h-auto rounded-md bg-white/5 hover:bg-white/10 transition-colors group border-none">
+                                class="flex flex-col items-center gap-3 p-4 h-auto rounded-md bg-white/5 hover:bg-white/10 transition-opacity group border-none">
                                 <div
                                     class="w-10 h-10 rounded-md bg-{{ $item['color'] }}-500/20 flex items-center justify-center text-{{ $item['color'] }}-400 group-hover:scale-110 transition-transform mb-1">
                                     <flux:icon name="{{ $item['icon'] }}" class="w-5 h-5" />
@@ -281,7 +281,7 @@
                                                 <span>{{ $percentage }}%</span>
                                             </div>
                                             <div class="w-full bg-zinc-100 rounded-full h-1.5 dark:bg-zinc-800 overflow-hidden">
-                                                <div class="bg-cyan-500 h-full rounded-full transition-all duration-1000"
+                                                <div class="bg-cyan-500 h-full rounded-full transition-opacity duration-1000"
                                                     style="width: {{ $percentage }}%"></div>
                                             </div>
                                         </div>
@@ -338,7 +338,7 @@
                         $hasBanner = $shoutout->hasMedia('banner');
                     @endphp
                     <flux:card
-                        class="relative flex flex-col p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-1 overflow-hidden border-none {{ $hasBanner ? 'text-white' : 'bg-white dark:bg-zinc-800' }}">
+                        class="relative flex flex-col p-6 transition-opacity duration-150 hover:shadow-md hover:-translate-y-1 overflow-hidden border-none {{ $hasBanner ? 'text-white' : 'bg-white dark:bg-zinc-800' }}">
                         
                         @if($hasBanner)
                             <img src="{{ $shoutout->getFirstMediaUrl('banner') }}" class="absolute inset-0 w-full h-full object-cover z-0">
@@ -382,7 +382,7 @@
                                         @endphp
                                         <button wire:click="toggleReaction({{ $shoutout->id }}, '{{ $type }}')"
                                             @disabled(!$isAuthenticated)
-                                            class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold transition-all {{ $userReacted ? 'bg-cyan-500 text-white' : ($hasBanner ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 hover:bg-zinc-200') }}">
+                                            class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold transition-opacity {{ $userReacted ? 'bg-cyan-500 text-white' : ($hasBanner ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 hover:bg-zinc-200') }}">
                                             {{ $emoji }} <span>{{ $count }}</span>
                                         </button>
                                     @endforeach
@@ -450,7 +450,7 @@
                             <div class="grid gap-3 sm:grid-cols-2">
                                 @foreach ($viewingNews->getMedia('attachments') as $media)
                                     <a href="{{ $media->getUrl() }}" download
-                                        class="flex items-center gap-3 p-4 rounded-md bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 transition-colors border border-zinc-100 dark:border-zinc-800 group">
+                                        class="flex items-center gap-3 p-4 rounded-md bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 transition-opacity border border-zinc-100 dark:border-zinc-800 group">
                                         <flux:icon name="paper-clip" class="w-5 h-5 text-zinc-400 group-hover:text-cyan-500" />
                                         <div class="flex-1 min-w-0">
                                             <flux:text class="text-xs font-bold truncate">{{ $media->file_name }}</flux:text>

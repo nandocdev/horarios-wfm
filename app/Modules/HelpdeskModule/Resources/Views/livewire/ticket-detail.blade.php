@@ -109,7 +109,7 @@
                             };
                         @endphp
 
-                        <div class="p-3 rounded-lg text-sm shadow-sm text-wrap {{ $bubbleClasses }}">
+                        <div class="p-3 rounded-md text-sm shadow-sm text-wrap {{ $bubbleClasses }}">
                             <flux:text>{!! nl2br(e($comment->content)) !!}</flux:text>
                         </div>
                     </div>

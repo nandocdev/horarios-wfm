@@ -2,7 +2,7 @@
     
     {{-- Breadcrumbs de Navegación --}}
     <div class="text-xs text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5 font-medium">
-        <a href="{{ route('knowledge.index') }}" wire:navigate class="hover:text-indigo-600 transition-colors">Base de Conocimiento</a>
+        <a href="{{ route('knowledge.index') }}" wire:navigate class="hover:text-indigo-600 transition-opacity">Base de Conocimiento</a>
         <span>/</span>
         <span class="text-zinc-500 dark:text-zinc-400">{{ $article->category ? $article->category->name : 'General' }}</span>
         <span>/</span>
@@ -63,7 +63,7 @@
                     <button 
                         @click="navigator.clipboard.writeText($refs.articleContent.innerText); copied = true; setTimeout(() => copied = false, 2000)" 
                         type="button"
-                        class="flex items-center gap-1 text-xs bg-zinc-50 dark:bg-zinc-700 hover:bg-indigo-50 dark:hover:bg-zinc-650 text-zinc-600 dark:text-zinc-300 border border-zinc-250 dark:border-zinc-600 px-2.5 py-1.5 rounded-lg transition-colors font-semibold"
+                        class="flex items-center gap-1 text-xs bg-zinc-50 dark:bg-zinc-700 hover:bg-indigo-50 dark:hover:bg-zinc-650 text-zinc-600 dark:text-zinc-300 border border-zinc-250 dark:border-zinc-600 px-2.5 py-1.5 rounded-md transition-opacity font-semibold"
                     >
                         <flux:icon name="document-duplicate" size="xs" class="size-3.5" />
                         <span x-text="copied ? '¡Copiado!' : 'Copiar Contenido'"></span>
@@ -71,7 +71,7 @@
                 </div>
 
                 @if($article->summary)
-                    <div class="mb-6 p-4 bg-zinc-50/70 dark:bg-zinc-900/40 rounded-lg border-l-4 border-zinc-400 text-zinc-600 dark:text-zinc-300 italic text-sm leading-relaxed">
+                    <div class="mb-6 p-4 bg-zinc-50/70 dark:bg-zinc-900/40 rounded-md border-l-4 border-zinc-400 text-zinc-600 dark:text-zinc-300 italic text-sm leading-relaxed">
                         <strong class="block not-italic text-xs text-zinc-450 dark:text-zinc-500 uppercase tracking-wider font-bold mb-1">Resumen Operativo:</strong>
                         {{ $article->summary }}
                     </div>
@@ -161,7 +161,7 @@
                 <flux:heading size="md" class="border-b border-zinc-100 dark:border-zinc-700 pb-2 text-zinc-800 dark:text-zinc-200 font-bold">Colas Asignadas</flux:heading>
                 <div class="flex flex-col gap-2">
                     @forelse($article->queues as $q)
-                        <div class="flex items-center justify-between text-xs bg-zinc-50 dark:bg-zinc-750 p-2.5 rounded-lg border border-zinc-200/50 dark:border-zinc-700/50">
+                        <div class="flex items-center justify-between text-xs bg-zinc-50 dark:bg-zinc-750 p-2.5 rounded-md border border-zinc-200/50 dark:border-zinc-700/50">
                             <span class="font-medium text-zinc-700 dark:text-zinc-300">📞 {{ $q->name }}</span>
                             <span class="text-[10px] bg-zinc-200 dark:bg-zinc-600 text-zinc-600 dark:text-zinc-200 px-1.5 py-0.5 rounded font-mono">P:{{ $q->priority }}</span>
                         </div>

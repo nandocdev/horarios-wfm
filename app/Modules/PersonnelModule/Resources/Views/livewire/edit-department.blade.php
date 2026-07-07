@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-8 max-w-2xl">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-md shadow-sm border border-gray-200">
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center space-x-4">
                 <flux:link href="{{ route('organization.departments.show', $department) }}" variant="ghost">

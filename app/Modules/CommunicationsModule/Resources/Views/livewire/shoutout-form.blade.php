@@ -36,11 +36,11 @@
                         
                         <div class="flex items-start gap-4">
                             @if($form->image)
-                                <div class="relative w-32 h-20 rounded-lg overflow-hidden border border-zinc-200">
+                                <div class="relative w-32 h-20 rounded-md overflow-hidden border border-zinc-200">
                                     <img src="{{ $form->image->temporaryUrl() }}" class="w-full h-full object-cover">
                                 </div>
                             @elseif($mode === 'edit' && $shoutout->hasMedia('banner'))
-                                <div class="relative w-32 h-20 rounded-lg overflow-hidden border border-zinc-200">
+                                <div class="relative w-32 h-20 rounded-md overflow-hidden border border-zinc-200">
                                     <img src="{{ $shoutout->getFirstMediaUrl('banner', 'thumb') }}" class="w-full h-full object-cover">
                                 </div>
                             @endif

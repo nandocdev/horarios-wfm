@@ -37,7 +37,7 @@
                         <flux:navlist.item 
                             wire:click="selectQueue(null)" 
                             :current="!$selectedQueueId"
-                            class="cursor-pointer transition-all hover:bg-zinc-55 px-3 py-2 rounded-lg text-sm"
+                            class="cursor-pointer transition-opacity hover:bg-zinc-55 px-3 py-2 rounded-md text-sm"
                         >
                             📞 Mostrar Todo
                         </flux:navlist.item>
@@ -46,7 +46,7 @@
                             <flux:navlist.item 
                                 wire:click="selectQueue({{ $q->id }})" 
                                 :current="$selectedQueueId == $q->id"
-                                class="cursor-pointer transition-all hover:bg-zinc-55 px-3 py-2 rounded-lg text-sm flex items-center justify-between group"
+                                class="cursor-pointer transition-opacity hover:bg-zinc-55 px-3 py-2 rounded-md text-sm flex items-center justify-between group"
                             >
                                 <span class="truncate flex items-center gap-1.5">
                                     📞 {{ $q->name }}
@@ -62,12 +62,12 @@
                 <flux:text weight="semibold" class="text-zinc-800 dark:text-zinc-200 text-sm block">Filtrar por Categoría</flux:text>
                 <div class="grid grid-cols-1 gap-1">
                     <button wire:click="$set('selectedCategoryId', null)" 
-                            class="text-left text-xs px-3 py-1.5 rounded transition-all {{ !$selectedCategoryId ? 'bg-zinc-100 dark:bg-zinc-700 font-bold text-zinc-900 dark:text-white' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700/50' }}">
+                            class="text-left text-xs px-3 py-1.5 rounded transition-opacity {{ !$selectedCategoryId ? 'bg-zinc-100 dark:bg-zinc-700 font-bold text-zinc-900 dark:text-white' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700/50' }}">
                         Cualquier categoría
                     </button>
                     @foreach($categories as $category)
                         <button wire:click="$set('selectedCategoryId', {{ $category->id }})" 
-                                class="text-left text-xs px-3 py-1.5 rounded transition-all flex items-center justify-between {{ $selectedCategoryId == $category->id ? 'bg-zinc-100 dark:bg-zinc-700 font-bold text-zinc-900 dark:text-white' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700/50' }}">
+                                class="text-left text-xs px-3 py-1.5 rounded transition-opacity flex items-center justify-between {{ $selectedCategoryId == $category->id ? 'bg-zinc-100 dark:bg-zinc-700 font-bold text-zinc-900 dark:text-white' : 'text-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-700/50' }}">
                             <span>{{ $category->name }}</span>
                         </button>
                     @endforeach
@@ -103,12 +103,12 @@
 
             {{-- Historial de Etiquetas Activas --}}
             @if($tags->count() > 0)
-                <div class="flex flex-wrap items-center gap-2 bg-zinc-50/50 dark:bg-zinc-800/30 p-3 rounded-lg border border-zinc-100 dark:border-zinc-700/50">
+                <div class="flex flex-wrap items-center gap-2 bg-zinc-50/50 dark:bg-zinc-800/30 p-3 rounded-md border border-zinc-100 dark:border-zinc-700/50">
                     <flux:text size="xs" class="text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider mr-1">Tags Rápidos:</flux:text>
                     @foreach($tags as $t)
                         <button 
                             wire:click="$set('selectedTag', '{{ $t->name }}')" 
-                            class="text-xs font-mono transition-all px-2.5 py-1 rounded {{ $selectedTag === $t->name ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-white dark:bg-zinc-800 border border-zinc-250 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-zinc-750' }}"
+                            class="text-xs font-mono transition-opacity px-2.5 py-1 rounded {{ $selectedTag === $t->name ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-white dark:bg-zinc-800 border border-zinc-250 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-zinc-750' }}"
                         >
                             #{{ $t->name }}
                         </button>
@@ -141,7 +141,7 @@
                                     
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         @foreach($catArticles as $article)
-                                            <flux:card class="p-5 hover:shadow-md transition-all duration-300 flex flex-col justify-between border-l-4 border-l-indigo-500 bg-white dark:bg-zinc-800 hover:-translate-y-0.5 shadow-sm">
+                                            <flux:card class="p-5 hover:shadow-md transition-opacity duration-150 flex flex-col justify-between border-l-4 border-l-indigo-500 bg-white dark:bg-zinc-800 hover:-translate-y-0.5 shadow-sm">
                                                 <div class="space-y-2">
                                                     <div class="flex items-center justify-between">
                                                         <span class="text-[10px] text-zinc-400 font-mono">v{{ $article->version }}</span>
@@ -185,7 +185,7 @@
                 {{-- Listado de Resultados General / Búsqueda --}}
                 <div class="space-y-4">
                     @forelse($articles as $article)
-                        <flux:card class="p-6 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-all duration-300">
+                        <flux:card class="p-6 bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-opacity duration-150">
                             <div class="space-y-2.5 flex-1">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <flux:badge size="sm" color="zinc" variant="subtle" class="font-semibold text-xs">
@@ -204,7 +204,7 @@
                                 </div>
 
                                 <flux:heading size="lg" class="text-zinc-900 dark:text-white font-bold">
-                                    <a href="{{ route('knowledge.show', $article->slug) }}" wire:navigate class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                    <a href="{{ route('knowledge.show', $article->slug) }}" wire:navigate class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-opacity">
                                         {{ $article->title }}
                                     </a>
                                 </flux:heading>

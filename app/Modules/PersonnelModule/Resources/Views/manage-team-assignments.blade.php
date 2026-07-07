@@ -4,7 +4,7 @@
         <p class="text-gray-600">Asigna empleados a equipos de trabajo</p>
     </div>
 
-    <div class="bg-white rounded-lg shadow">
+    <div class="bg-white rounded-md shadow">
         <div class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 <flux:field>
@@ -42,7 +42,7 @@
                     <!-- Columna Izquierda: Empleados sin asignar -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-medium text-gray-900">Empleados Disponibles</h3>
-                        <div class="border rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <div class="border rounded-md p-4 max-h-96 overflow-y-auto">
                             @if($unassignedEmployees->isEmpty())
                                 <p class="text-gray-500 text-sm">No hay empleados disponibles</p>
                             @else
@@ -72,7 +72,7 @@
                     <!-- Columna Derecha: Empleados asignados -->
                     <div class="space-y-4">
                         <h3 class="text-lg font-medium text-gray-900">Empleados en el Equipo</h3>
-                        <div class="border rounded-lg p-4 max-h-96 overflow-y-auto">
+                        <div class="border rounded-md p-4 max-h-96 overflow-y-auto">
                             @if($assignedEmployees->isEmpty())
                                 <p class="text-gray-500 text-sm">No hay empleados asignados</p>
                             @else

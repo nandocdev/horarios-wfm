@@ -14,11 +14,11 @@
     <div x-data="{ current: 0, count: {{ count($qualityCapsules) }} }" 
          x-init="setInterval(() => { current = (current + 1) % count }, 8000)" 
          class="w-full relative overflow-hidden rounded-md border border-blue-200 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/10">
-        <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${current * 100}%)`">
+        <div class="flex transition-transform duration-150 ease-in-out" :style="`transform: translateX(-${current * 100}%)`">
             @foreach($qualityCapsules as $index => $capsule)
             <div class="w-full flex-shrink-0 p-4">
                 <div class="flex items-center gap-4">
-                    <div class="flex-shrink-0 p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg">
+                    <div class="flex-shrink-0 p-2 bg-blue-100 dark:bg-blue-800/50 rounded-md">
                         <flux:icon icon="{{ $capsule['icon'] }}" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div class="flex-1">
@@ -34,7 +34,7 @@
         <div class="absolute bottom-2 right-4 flex items-center gap-1.5">
             @foreach($qualityCapsules as $index => $capsule)
                 <button @click="current = {{ $index }}" 
-                        class="h-1.5 rounded-full transition-all duration-300"
+                        class="h-1.5 rounded-full transition-opacity duration-150"
                         :class="current === {{ $index }} ? 'w-4 bg-blue-500' : 'w-1.5 bg-blue-200 dark:bg-blue-800'">
                 </button>
             @endforeach
@@ -152,7 +152,7 @@
                                 <flux:checkbox wire:key="script-step-{{ $index }}" x-model="checked" value="{{ $index }}" id="step-{{ $index }}" />
                             </div>
                             <label for="step-{{ $index }}" 
-                                   class="text-sm cursor-pointer select-none transition-colors duration-200" 
+                                   class="text-sm cursor-pointer select-none transition-opacity duration-200" 
                                    :class="checked.includes('{{ $index }}') ? 'line-through text-zinc-400 dark:text-zinc-500' : 'text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100'">
                                 {{ $step }}
                             </label>
@@ -225,7 +225,7 @@
                 </thead>
                 <tbody class="divide-y dark:divide-zinc-800">
                     @forelse($history as $record)
-                        <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                        <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
                             <td class="p-4 text-xs">
                                 <div class="flex flex-col">
                                     <span class="font-bold">{{ $record->ivr_started_at?->format('d/m/Y') ?? 'Hoy' }}</span>
@@ -299,7 +299,7 @@
 
                 <div class="space-y-1">
                     <flux:text size="xs" class="uppercase font-bold text-zinc-400">Descripción / Observaciones</flux:text>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border dark:border-zinc-800 text-sm italic">
+                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border dark:border-zinc-800 text-sm italic">
                         {{ $selectedRecord->description ?: 'No se ingresaron detalles adicionales.' }}
                     </div>
                 </div>

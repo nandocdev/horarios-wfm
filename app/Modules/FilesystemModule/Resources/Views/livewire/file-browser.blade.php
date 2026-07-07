@@ -11,13 +11,13 @@
 
             <nav class="space-y-1">
                 <button wire:click="$set('viewMode', 'my_files'); navigateTo(null)" 
-                        class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors {{ !$currentFolderId && $viewMode === 'my_files' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
+                        class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-opacity {{ !$currentFolderId && $viewMode === 'my_files' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                     <flux:icon name="home" variant="mini" />
                     Mis Archivos
                 </button>
                 
                 <button wire:click="$set('viewMode', 'shared')" 
-                        class="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors {{ $viewMode === 'shared' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
+                        class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-opacity {{ $viewMode === 'shared' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-semibold' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                     <flux:icon name="users" variant="mini" />
                     Compartidos
                 </button>
@@ -46,7 +46,7 @@
                     <span class="{{ $stats['is_full'] ? 'text-red-500' : 'text-blue-500' }}">{{ $stats['percentage'] }}%</span>
                 </div>
                 <div class="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden shadow-inner">
-                    <div class="h-full transition-all duration-500 {{ $stats['is_full'] ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' }}" style="width: {{ $stats['percentage'] }}%"></div>
+                    <div class="h-full transition-opacity duration-150 {{ $stats['is_full'] ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]' }}" style="width: {{ $stats['percentage'] }}%"></div>
                 </div>
                 @if($stats['is_full'])
                     <div class="flex items-center gap-1.5 text-[10px] text-red-500 font-bold uppercase animate-pulse">
@@ -107,13 +107,13 @@
             <!-- Breadcrumbs -->
             @if($viewMode === 'my_files')
             <div class="flex items-center gap-2 text-sm text-zinc-500 overflow-x-auto whitespace-nowrap pb-1">
-                <button wire:click="navigateTo(null)" class="hover:text-blue-500 flex items-center gap-1 transition-colors">
+                <button wire:click="navigateTo(null)" class="hover:text-blue-500 flex items-center gap-1 transition-opacity">
                     <flux:icon name="home" variant="mini" />
                     Raíz
                 </button>
                 @foreach($breadcrumbs as $crumb)
                     <flux:icon name="chevron-right" variant="mini" class="text-zinc-300 dark:text-zinc-700" />
-                    <button wire:click="navigateTo({{ $crumb['id'] }})" class="hover:text-blue-500 transition-colors">
+                    <button wire:click="navigateTo({{ $crumb['id'] }})" class="hover:text-blue-500 transition-opacity">
                         {{ $crumb['name'] }}
                     </button>
                 @endforeach
@@ -125,10 +125,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             <!-- Carpetas -->
             @foreach($folders as $folder)
-            <div class="group relative p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-800 hover:shadow-md hover:shadow-blue-500/5 transition-all cursor-pointer"
+            <div class="group relative p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-800 hover:shadow-md hover:shadow-blue-500/5 transition-opacity cursor-pointer"
                  wire:click="navigateTo({{ $folder->id }})">
                 <div class="flex items-start justify-between">
-                    <div class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
+                    <div class="p-2 rounded-md bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-opacity">
                         <flux:icon name="folder" class="w-8 h-8 text-blue-500 fill-blue-500/10" />
                     </div>
                     
@@ -150,9 +150,9 @@
 
             <!-- Archivos -->
             @foreach($files as $file)
-            <div class="group relative p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md transition-all">
+            <div class="group relative p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md transition-opacity">
                 <div class="flex items-start justify-between">
-                    <div class="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 transition-colors">
+                    <div class="p-2 rounded-md bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 transition-opacity">
                         @php
                             $icon = match(true) {
                                 str_contains($file->mime_type, 'image') => 'photo',
@@ -243,7 +243,7 @@
                 <flux:input wire:model.live.debounce.300ms="userSearch" label="Buscar usuario" placeholder="Escribe el nombre del usuario..." />
 
                 @if(!empty($this->users))
-                <div class="border border-zinc-200 dark:border-zinc-800 rounded-lg divide-y divide-zinc-100 dark:divide-zinc-800">
+                <div class="border border-zinc-200 dark:border-zinc-800 rounded-md divide-y divide-zinc-100 dark:divide-zinc-800">
                     @foreach($this->users as $user)
                     <button wire:click="$set('shareTargetUserId', {{ $user->id }})" 
                             class="w-full flex items-center justify-between p-3 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 {{ $shareTargetUserId == $user->id ? 'bg-blue-50 dark:bg-blue-900/20' : '' }}">

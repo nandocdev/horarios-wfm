@@ -27,9 +27,9 @@
     <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-6 lg:px-8">
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @forelse ($files as $file)
-                <flux:card class="group flex flex-col p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-1 border-none bg-white dark:bg-zinc-800/50">
+                <flux:card class="group flex flex-col p-4 transition-opacity duration-150 hover:shadow-md hover:-translate-y-1 border-none bg-white dark:bg-zinc-800/50">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-md bg-zinc-100 dark:bg-zinc-700 text-zinc-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                        <div class="p-3 rounded-md bg-zinc-100 dark:bg-zinc-700 text-zinc-500 group-hover:bg-blue-500 group-hover:text-white transition-opacity">
                             @php
                                 $icon = match($file->extension) {
                                     'pdf' => 'document-text',

@@ -107,9 +107,9 @@
                     <div class="space-y-4">
                         <flux:field>
                             <flux:label class="font-semibold">Colas de Atención Vinculadas (Al menos una)</flux:label>
-                            <div class="mt-1.5 space-y-2 max-h-[220px] overflow-y-auto p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-zinc-50/50 dark:bg-zinc-900/50">
+                            <div class="mt-1.5 space-y-2 max-h-[220px] overflow-y-auto p-3 border border-zinc-200 dark:border-zinc-700 rounded-md bg-zinc-50/50 dark:bg-zinc-900/50">
                                 @foreach($queues as $q)
-                                    <label class="flex items-start gap-2.5 cursor-pointer py-0.5 hover:bg-zinc-100/55 dark:hover:bg-zinc-700/30 rounded px-1 transition-colors">
+                                    <label class="flex items-start gap-2.5 cursor-pointer py-0.5 hover:bg-zinc-100/55 dark:hover:bg-zinc-700/30 rounded px-1 transition-opacity">
                                         <input type="checkbox" wire:model="form.queues" value="{{ $q->id }}" class="mt-0.5 rounded border-zinc-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                         <span class="text-xs text-zinc-700 dark:text-zinc-300 leading-tight">
                                             📞 {{ $q->name }} 

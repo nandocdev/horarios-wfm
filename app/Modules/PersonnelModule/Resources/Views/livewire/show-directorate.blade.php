@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-md shadow-sm border border-gray-200">
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -67,7 +67,7 @@
                     @if($directorate->departments->isNotEmpty())
                         <div class="space-y-2">
                             @foreach($directorate->departments as $department)
-                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md">
                                     <div>
                                         <div class="font-medium text-gray-900">{{ $department->name }}</div>
                                         <div class="text-sm text-gray-500">{{ $department->description ?: 'Sin descripción' }}

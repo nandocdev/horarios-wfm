@@ -80,7 +80,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <flux:field>
                         <flux:label>Categorías</flux:label>
-                        <div class="mt-2 space-y-2 max-h-40 overflow-y-auto p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg">
+                        <div class="mt-2 space-y-2 max-h-40 overflow-y-auto p-3 border border-zinc-200 dark:border-zinc-700 rounded-md">
                             @foreach($categories as $category)
                                 <label class="flex items-center gap-2 cursor-pointer">
                                     <input type="checkbox" wire:model="selectedCategories" value="{{ $category->id }}" class="rounded border-zinc-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">

@@ -13,7 +13,7 @@
             <h1 class="text-3xl font-bold text-gray-900">Editar Categoría</h1>
         </div>
 
-        <div class="bg-white shadow-md rounded-lg p-6">
+        <div class="bg-white shadow-md rounded-md p-6">
             <form method="POST" action="{{ route('communications.admin.categories.update', $category) }}">
                 @csrf
                 @method('PUT')

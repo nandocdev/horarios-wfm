@@ -107,7 +107,7 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-2">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Valores Anteriores (before)</span>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border overflow-auto max-h-64">
+                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border overflow-auto max-h-64">
                         @if($selectedLog->before)
                             <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLog->before, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                         @else
@@ -117,7 +117,7 @@
                 </div>
                 <div class="space-y-2">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Valores Nuevos (after)</span>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border overflow-auto max-h-64">
+                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border overflow-auto max-h-64">
                         @if($selectedLog->after)
                             <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLog->after, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                         @else

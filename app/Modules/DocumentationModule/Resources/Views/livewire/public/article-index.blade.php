@@ -51,7 +51,7 @@
                             </div>
                             
                             <flux:heading size="lg" class="mb-2 line-clamp-2">
-                                <a href="{{ route('documentation.show', $article->slug) }}" wire:navigate class="hover:text-blue-600 transition-colors">
+                                <a href="{{ route('documentation.show', $article->slug) }}" wire:navigate class="hover:text-blue-600 transition-opacity">
                                     {{ $article->title }}
                                 </a>
                             </flux:heading>

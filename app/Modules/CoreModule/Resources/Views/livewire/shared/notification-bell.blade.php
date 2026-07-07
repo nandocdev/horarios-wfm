@@ -29,7 +29,7 @@
             </div>
 
             @forelse($this->notifications as $notification)
-                <div class="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-b border-zinc-100 dark:border-zinc-700 last:border-0">
+                <div class="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-opacity border-b border-zinc-100 dark:border-zinc-700 last:border-0">
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex-1">
                             <flux:text size="sm" weight="semibold">{{ $notification->data['title'] ?? 'Notificación' }}</flux:text>

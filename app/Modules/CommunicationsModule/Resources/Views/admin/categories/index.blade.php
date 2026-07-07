@@ -7,7 +7,7 @@
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Categorías</h1>
             <a href="{{ route('communications.admin.categories.create') }}"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
                 Nueva Categoría
             </a>
         </div>
@@ -18,7 +18,7 @@
             </div>
         @endif
 
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-white shadow-md rounded-md overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>

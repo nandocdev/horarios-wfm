@@ -15,7 +15,7 @@
                 </div>
                 <div class="flex space-x-2">
                     <a href="{{ route('communications.admin.categories.edit', $category) }}"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
                         Editar
                     </a>
                     <form method="POST" action="{{ route('communications.admin.categories.destroy', $category) }}"
@@ -23,14 +23,14 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit"
-                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium">
                             Eliminar
                         </button>
                     </form>
                 </div>
             </div>
 
-            <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="bg-white shadow-md rounded-md overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h2 class="text-xl font-semibold text-gray-900">Detalles de la Categoría</h2>
                 </div>
@@ -80,7 +80,7 @@
             </div>
 
             @if($category->news->count() > 0 || $category->polls->count() > 0 || $category->shoutouts->count() > 0)
-                <div class="mt-8 bg-white shadow-md rounded-lg overflow-hidden">
+                <div class="mt-8 bg-white shadow-md rounded-md overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200">
                         <h2 class="text-xl font-semibold text-gray-900">Contenido Relacionado</h2>
                     </div>

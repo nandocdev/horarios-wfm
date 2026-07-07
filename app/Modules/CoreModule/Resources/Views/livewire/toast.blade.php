@@ -5,7 +5,7 @@
     }" @auto-hide-toast.window="setTimeout(() => remove($event.detail.id), 5000)">
     @foreach ($toasts as $toast)
         <div wire:key="{{ $toast['id'] }}" x-data="{ show: true }" x-show="show"
-            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter="transition ease-out duration-150"
             x-transition:enter-start="opacity-0 translate-x-10 scale-95"
             x-transition:enter-end="opacity-100 translate-x-0 scale-100"
             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0"
@@ -48,7 +48,7 @@
 
             {{-- Progress bar for auto-hide --}}
             <div class="absolute bottom-0 left-0 h-1 bg-zinc-100 dark:bg-zinc-800 w-full overflow-hidden">
-                <div class="h-full bg-current transition-all duration-5000 linear" @class([
+                <div class="h-full bg-current transition-opacity duration-1500 linear" @class([
                     'bg-green-500' => $toast['variant'] === 'success',
                     'bg-red-500' => $toast['variant'] === 'danger',
                     'bg-amber-500' => $toast['variant'] === 'warning',

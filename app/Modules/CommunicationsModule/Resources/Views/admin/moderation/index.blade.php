@@ -20,21 +20,21 @@
                 <button type="button" 
                     @click="tab = 'news'"
                     :class="tab === 'news' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300'"
-                    class="px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2">
+                    class="px-4 py-2 text-sm font-medium border-b-2 transition-opacity flex items-center gap-2">
                     <flux:icon name="newspaper" class="w-4 h-4" />
                     Noticias ({{ $pendingNews->total() }})
                 </button>
                 <button type="button" 
                     @click="tab = 'polls'"
                     :class="tab === 'polls' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300'"
-                    class="px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2">
+                    class="px-4 py-2 text-sm font-medium border-b-2 transition-opacity flex items-center gap-2">
                     <flux:icon name="presentation-chart-line" class="w-4 h-4" />
                     Encuestas ({{ $pendingPolls->total() }})
                 </button>
                 <button type="button" 
                     @click="tab = 'shoutouts'"
                     :class="tab === 'shoutouts' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300'"
-                    class="px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2">
+                    class="px-4 py-2 text-sm font-medium border-b-2 transition-opacity flex items-center gap-2">
                     <flux:icon name="sparkles" class="w-4 h-4" />
                     Reconocimientos ({{ $pendingShoutouts->total() }})
                 </button>

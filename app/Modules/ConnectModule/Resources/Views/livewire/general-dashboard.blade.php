@@ -23,7 +23,7 @@
                     <flux:text class="text-zinc-500 font-medium text-sm">Volumen Inbound</flux:text>
                     <flux:heading size="xl" class="mt-2">{{ $this->metrics['total_volume'] }}</flux:heading>
                 </div>
-                <div class="p-2 bg-slate-50 text-slate-600 rounded-lg">
+                <div class="p-2 bg-slate-50 text-slate-600 rounded-md">
                     <flux:icon.inbox-arrow-down class="w-5 h-5" />
                 </div>
             </div>
@@ -38,7 +38,7 @@
                     <flux:text class="text-zinc-500 font-medium text-sm">Service Level (SLA)</flux:text>
                     <flux:heading size="xl" class="mt-2">{{ $this->metrics['sla'] }}%</flux:heading>
                 </div>
-                <div class="p-2 {{ $this->metrics['sla'] >= 80 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600' }} rounded-lg">
+                <div class="p-2 {{ $this->metrics['sla'] >= 80 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600' }} rounded-md">
                     <flux:icon.chart-bar class="w-5 h-5" />
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     <flux:text class="text-zinc-500 font-medium text-sm">Tasa de Abandono</flux:text>
                     <flux:heading size="xl" class="mt-2">{{ $this->metrics['abandon_rate'] }}%</flux:heading>
                 </div>
-                <div class="p-2 {{ $this->metrics['abandon_rate'] <= 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600' }} rounded-lg">
+                <div class="p-2 {{ $this->metrics['abandon_rate'] <= 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600' }} rounded-md">
                     <flux:icon.phone-x-mark class="w-5 h-5" />
                 </div>
             </div>
@@ -68,7 +68,7 @@
                     <flux:text class="text-zinc-500 font-medium text-sm">Llamadas Atendidas</flux:text>
                     <flux:heading size="xl" class="mt-2">{{ $this->metrics['total_handled'] }}</flux:heading>
                 </div>
-                <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                <div class="p-2 bg-blue-50 text-blue-600 rounded-md">
                     <flux:icon.phone class="w-5 h-5" />
                 </div>
             </div>
@@ -91,7 +91,7 @@
 
             <div class="space-y-4 mt-4">
                 @forelse($this->topPerformers as $index => $performer)
-                    <div class="flex items-center justify-between p-3 rounded-lg {{ $index === 0 ? 'bg-amber-50 border border-amber-100' : 'bg-white border border-zinc-100' }}">
+                    <div class="flex items-center justify-between p-3 rounded-md {{ $index === 0 ? 'bg-amber-50 border border-amber-100' : 'bg-white border border-zinc-100' }}">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm {{ $index === 0 ? 'bg-amber-200 text-amber-800' : 'bg-zinc-100 text-zinc-600' }}">
                                 {{ $index + 1 }}

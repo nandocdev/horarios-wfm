@@ -4,12 +4,12 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-md shadow-md p-6">
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Ubicaciones Geográficas de Panamá</h1>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($provinces as $province)
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="border border-gray-200 rounded-md p-4 hover:shadow-md transition-shadow">
                         <h2 class="text-lg font-semibold text-gray-700 mb-3">{{ $province->name }}</h2>
 
                         @if($province->districts->count() > 0)
@@ -35,7 +35,7 @@
                 @endforeach
             </div>
 
-            <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+            <div class="mt-8 p-4 bg-blue-50 rounded-md">
                 <h3 class="text-sm font-medium text-blue-800 mb-2">Estadísticas</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>

@@ -35,7 +35,7 @@
                 @foreach($this->leftEmployees as $employee)
                     <div wire:key="left-{{ $employee['id'] }}" wire:click="toggleSelection('left', {{ $employee['id'] }})"
                         @class([
-                            'flex items-center gap-3 p-3 cursor-pointer transition-colors',
+                            'flex items-center gap-3 p-3 cursor-pointer transition-opacity',
                             'bg-blue-50/50 dark:bg-blue-900/20' => in_array($employee['id'], $this->leftSelected),
                             'hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => !in_array($employee['id'], $this->leftSelected),
                         ])>
@@ -97,7 +97,7 @@
                 @foreach($this->rightEmployees as $employee)
                     <div wire:key="right-{{ $employee['id'] }}" wire:click="toggleSelection('right', {{ $employee['id'] }})"
                         @class([
-                            'flex items-center gap-3 p-3 cursor-pointer transition-colors',
+                            'flex items-center gap-3 p-3 cursor-pointer transition-opacity',
                             'bg-blue-50/50 dark:bg-blue-900/20' => in_array($employee['id'], $this->rightSelected),
                             'hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => !in_array($employee['id'], $this->rightSelected),
                         ])>

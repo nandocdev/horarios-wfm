@@ -56,7 +56,7 @@
             </thead>
             <tbody class="divide-y dark:divide-zinc-800">
                 @forelse($tickets as $ticket)
-                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors {{ $ticket->priority === 'urgent' ? 'bg-red-50/20 dark:bg-red-900/5' : '' }}">
+                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity {{ $ticket->priority === 'urgent' ? 'bg-red-50/20 dark:bg-red-900/5' : '' }}">
                         <td class="p-4 align-top">
                             <div class="flex flex-col gap-1">
                                 <span class="font-bold text-sm text-zinc-900 dark:text-zinc-100">#{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>

@@ -20,7 +20,7 @@
             </thead>
             <tbody class="divide-y dark:divide-zinc-800">
                 @forelse($tickets as $ticket)
-                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
                         <td class="p-4 text-sm font-medium">
                             <div class="flex flex-col">
                                 <span class="font-bold text-primary-600">#{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>

@@ -35,7 +35,7 @@
                         <flux:text class="text-zinc-500 font-medium text-sm">Llamadas Atendidas</flux:text>
                         <flux:heading size="xl" class="mt-2">{{ $this->metrics['total_calls'] }}</flux:heading>
                     </div>
-                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-md">
                         <flux:icon.phone class="w-5 h-5" />
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                         <flux:text class="text-zinc-500 font-medium text-sm">TMO Promedio</flux:text>
                         <flux:heading size="xl" class="mt-2">{{ $this->metrics['avg_talk_time'] }}s</flux:heading>
                     </div>
-                    <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                    <div class="p-2 bg-emerald-50 text-emerald-600 rounded-md">
                         <flux:icon.clock class="w-5 h-5" />
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                         <flux:text class="text-zinc-500 font-medium text-sm">AHT (Handle Time)</flux:text>
                         <flux:heading size="xl" class="mt-2">{{ $this->metrics['avg_handle_time'] }}s</flux:heading>
                     </div>
-                    <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                    <div class="p-2 bg-indigo-50 text-indigo-600 rounded-md">
                         <flux:icon.briefcase class="w-5 h-5" />
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                         <flux:text class="text-zinc-500 font-medium text-sm">Llamadas Fallidas</flux:text>
                         <flux:heading size="xl" class="mt-2">{{ $this->metrics['abandoned'] }}</flux:heading>
                     </div>
-                    <div class="p-2 bg-red-50 text-red-600 rounded-lg">
+                    <div class="p-2 bg-red-50 text-red-600 rounded-md">
                         <flux:icon.phone-x-mark class="w-5 h-5" />
                     </div>
                 </div>

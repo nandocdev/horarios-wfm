@@ -1,5 +1,5 @@
 <div class="container mx-auto px-4 py-8">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-md shadow-sm border border-gray-200">
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
@@ -21,7 +21,7 @@
                 @if($team->users->isNotEmpty())
                     <div class="space-y-3">
                         @foreach($team->users as $employee)
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-shrink-0">
                                         <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
@@ -176,7 +176,7 @@
             </div>
 
             @if($selectedEmployeeId)
-                <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="p-4 bg-gray-50 rounded-md">
                     <p class="text-sm text-gray-600">
                         Empleado: <strong>{{ $team->users->find($selectedEmployeeId)?->name }}</strong>
                     </p>

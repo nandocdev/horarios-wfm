@@ -267,7 +267,7 @@
                                             • {{ $agent->team_name ?? 'Sin equipo' }}</span>
                                     </div>
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell class="py-2">
                                 @if(isset($agent->expected_state))
@@ -287,7 +287,7 @@
                                         @endif
                                     </div>
                                 @endif
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell class="py-2">
                                 <div class="flex flex-col gap-1">
@@ -306,7 +306,7 @@
                                         </span>
                                     @endif
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-1 flex-wrap">
@@ -331,7 +331,7 @@
                                         </flux:tooltip>
                                     @endforeach
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell align="end">
                                 <div class="flex flex-col items-end">
@@ -340,7 +340,7 @@
                                         {{ $durationFormatted }}
                                     </span>
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell align="end">
                                 <flux:button.group>
@@ -353,7 +353,7 @@
                                             wire:navigate />
                                     @endif
                                 </flux:button.group>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
                         </flux:table.row>
                     @empty
                         <flux:table.row>
@@ -366,7 +366,7 @@
                                     <flux:text class="text-sm">No se encontraron agentes que coincidan con los filtros
                                         aplicados.</flux:text>
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
                         </flux:table.row>
                     @endforelse
                 </flux:table.rows>

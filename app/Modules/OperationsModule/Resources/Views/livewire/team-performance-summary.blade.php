@@ -117,34 +117,34 @@
                     wire:click="sortBy('operator')"
                 >
                     Operador
-                </flux:table.column class="sticky top-0 z-10">
+                </flux:table.column>
 
                 @if($view === 'summary' || $view === 'attendance')
-                    <flux:table.column class="sticky top-0 z-10">Entrada (Real)</flux:table.column class="sticky top-0 z-10">
-                    <flux:table.column class="sticky top-0 z-10">Estado</flux:table.column class="sticky top-0 z-10">
+                    <flux:table.column class="sticky top-0 z-10">Entrada (Real)</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10">Estado</flux:table.column>
                 @endif
 
                 @if($view === 'summary' || $view === 'compliance')
-                    <flux:table.column class="sticky top-0 z-10">TP / TC</flux:table.column class="sticky top-0 z-10">
+                    <flux:table.column class="sticky top-0 z-10">TP / TC</flux:table.column>
                     <flux:table.column 
                         sortable 
                         :direction="$sortField === 'productivity' ? $sortDirection : null" 
                         wire:click="sortBy('productivity')"
                     >
                         Productividad
-                    </flux:table.column class="sticky top-0 z-10">
+                    </flux:table.column>
                     <flux:table.column 
                         sortable 
                         :direction="$sortField === 'utilization' ? $sortDirection : null" 
                         wire:click="sortBy('utilization')"
                     >
                         Utilización WFM
-                    </flux:table.column class="sticky top-0 z-10">
+                    </flux:table.column>
                 @endif
                 @if($view === 'summary' || $view === 'attendance')
-                    <flux:table.column class="sticky top-0 z-10">Logout</flux:table.column class="sticky top-0 z-10">
+                    <flux:table.column class="sticky top-0 z-10">Logout</flux:table.column>
                 @endif
-                <flux:table.column align="end"></flux:table.column class="sticky top-0 z-10">
+                <flux:table.column align="end"></flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
@@ -176,7 +176,7 @@
                                     <span class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Agente</span>
                                 </div>
                             </div>
-                        </flux:table.cell class="py-2">
+                        </flux:table.cell>
 
                         @if($view === 'summary' || $view === 'attendance')
                             <flux:table.cell class="py-2">
@@ -186,13 +186,13 @@
                                     <span class="text-[10px] text-slate-400">P:
                                         {{ $attendance['scheduled_entry'] ?: '--:--' }}</span>
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell class="py-2">
                                 <flux:badge size="sm" :color="$statusColor" variant="subtle" class="rounded-md">
                                     {{ $attendance['status'] === 'excepción' ? ($attendance['exception_reason'] ?? 'EXCEPCIÓN') : strtoupper($attendance['status']) }}
                                 </flux:badge>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
                         @endif
 
                         @if($view === 'summary' || $view === 'compliance')
@@ -207,13 +207,13 @@
                                         <div class="h-full bg-blue-600 rounded-md" style="width: {{ $productivity }}%"></div>
                                     </div>
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell class="py-2">
                                 <flux:badge size="sm" :color="$prodColor" variant="solid" class="rounded-md">
                                     {{ number_format($productivity, 1) }}%
                                 </flux:badge>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
 
                             <flux:table.cell class="py-2">
                                 <div class="flex items-center gap-2">
@@ -224,7 +224,7 @@
                                         {{ number_format($utilization, 1) }}%
                                     </span>
                                 </div>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
                         @endif
 
                         @if($view === 'summary' || $view === 'attendance')
@@ -233,14 +233,14 @@
                                     class="text-xs font-mono {{ $metrics['total_logout_minutes'] > 30 ? 'text-red-600 font-bold' : 'text-slate-600' }}">
                                     {{ $this->formatMinutes($metrics['total_logout_minutes']) }}
                                 </span>
-                            </flux:table.cell class="py-2">
+                            </flux:table.cell>
                         @endif
 
                         <flux:table.cell align="end">
                             <flux:button size="xs" variant="ghost" icon="chart-bar"
                                 href="{{ route('operations.performance', ['employeeId' => $row['employee']['id'], 'date' => $selectedDate]) }}"
                                 wire:navigate />
-                        </flux:table.cell class="py-2">
+                        </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
@@ -255,7 +255,7 @@
                                         seleccionados</span>
                                 </div>
                             </div>
-                        </flux:table.cell class="py-2">
+                        </flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>

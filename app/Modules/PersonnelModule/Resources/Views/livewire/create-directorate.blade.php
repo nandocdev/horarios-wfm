@@ -1,11 +1,11 @@
 <div class="container mx-auto px-4 py-8 max-w-2xl">
-    <div class="bg-white rounded-md shadow-sm border border-gray-200">
-        <div class="p-4 border-b border-gray-200">
+    <div class="bg-white rounded-md shadow-sm border border-slate-200">
+        <div class="p-4 border-b border-slate-200">
             <div class="flex items-center space-x-4">
                 <flux:link href="{{ route('organization.directorates.index') }}" variant="ghost">
                     ← Volver
                 </flux:link>
-                <h1 class="text-2xl font-bold text-gray-900">Crear Dirección</h1>
+                <h1 class="text-3xl font-bold text-slate-900">Crear Dirección</h1>
             </div>
         </div>
 
@@ -29,7 +29,7 @@
                 </flux:field>
             </div>
 
-            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+            <div class="flex justify-end space-x-4 pt-8 border-t border-slate-200">
                 <flux:link href="{{ route('organization.directorates.index') }}" variant="ghost">
                     Cancelar
                 </flux:link>

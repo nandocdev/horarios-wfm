@@ -1,4 +1,4 @@
-<form wire:submit="update" class="space-y-8">
+<form wire:submit="update" class="space-y-8 max-w-4xl mx-auto">
     <flux:card class="space-y-4">
         <div>
             <flux:heading size="md">Información Personal</flux:heading>

@@ -11,7 +11,7 @@
                 <flux:subheading>Modifica la información de {{ $employee->full_name }}</flux:subheading>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-4">
                 <flux:button href="{{ route('employees.show', $employee) }}" variant="ghost" wire:navigate>
                     Ver detalles
                 </flux:button>

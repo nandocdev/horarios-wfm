@@ -5,23 +5,23 @@
 @section('content')
     <div class="container mx-auto px-4 py-8">
         <div class="bg-white rounded-md shadow-md p-4">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">Ubicaciones Geográficas de Panamá</h1>
+            <h1 class="text-3xl font-bold text-slate-800 mb-8">Ubicaciones Geográficas de Panamá</h1>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($provinces as $province)
-                    <div class="border border-gray-200 rounded-md p-4 hover:shadow-md transition-shadow">
-                        <h2 class="text-lg font-semibold text-gray-700 mb-3">{{ $province->name }}</h2>
+                    <div class="border border-slate-200 rounded-md p-4 hover:shadow-md transition-shadow">
+                        <h2 class="text-lg font-semibold text-slate-700 mb-4">{{ $province->name }}</h2>
 
                         @if($province->districts->count() > 0)
                             <div class="space-y-2">
-                                <h3 class="text-sm font-medium text-gray-600">Distritos:</h3>
-                                <ul class="text-sm text-gray-500 space-y-1">
+                                <h3 class="text-sm font-medium text-slate-600">Distritos:</h3>
+                                <ul class="text-sm text-slate-500 space-y-1">
                                     @foreach($province->districts as $district)
                                         <li class="flex items-center">
                                             <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                                             {{ $district->name }}
                                             @if($district->townships->count() > 0)
-                                                <span class="text-xs text-gray-400 ml-1">({{ $district->townships->count() }}
+                                                <span class="text-xs text-slate-400 ml-2">({{ $district->townships->count() }}
                                                     corregimientos)</span>
                                             @endif
                                         </li>
@@ -29,7 +29,7 @@
                                 </ul>
                             </div>
                         @else
-                            <p class="text-sm text-gray-400">Sin distritos registrados</p>
+                            <p class="text-sm text-slate-400">Sin distritos registrados</p>
                         @endif
                     </div>
                 @endforeach

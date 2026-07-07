@@ -1,7 +1,7 @@
 <div class="space-y-8">
     <div>
         <flux:heading size="xl">Gestión de Equipos</flux:heading>
-        <p class="text-gray-600">Asigna empleados a equipos de trabajo</p>
+        <p class="text-slate-600">Asigna empleados a equipos de trabajo</p>
     </div>
 
     <div class="bg-white rounded-md shadow">
@@ -32,7 +32,7 @@
                             </flux:select>
                             <flux:button wire:click="updateSupervisor" variant="outline" icon="check" />
                         </div>
-                        <p class="mt-1 text-xs text-zinc-500">Al asignar un supervisor, se actualizará el reporte directo de todos los miembros del equipo.</p>
+                        <p class="mt-2 text-xs text-slate-500">Al asignar un supervisor, se actualizará el reporte directo de todos los miembros del equipo.</p>
                     </flux:field>
                 @endif
             </div>
@@ -41,10 +41,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Columna Izquierda: Empleados sin asignar -->
                     <div class="space-y-4">
-                        <h3 class="text-lg font-medium text-gray-900">Empleados Disponibles</h3>
+                        <h3 class="text-xl font-semibold text-slate-900">Empleados Disponibles</h3>
                         <div class="border rounded-md p-4 max-h-96 overflow-y-auto">
                             @if($unassignedEmployees->isEmpty())
-                                <p class="text-gray-500 text-sm">No hay empleados disponibles</p>
+                                <p class="text-slate-500 text-sm">No hay empleados disponibles</p>
                             @else
                                 @foreach($unassignedEmployees as $employee)
                                     <flux:field>
@@ -71,10 +71,10 @@
 
                     <!-- Columna Derecha: Empleados asignados -->
                     <div class="space-y-4">
-                        <h3 class="text-lg font-medium text-gray-900">Empleados en el Equipo</h3>
+                        <h3 class="text-xl font-semibold text-slate-900">Empleados en el Equipo</h3>
                         <div class="border rounded-md p-4 max-h-96 overflow-y-auto">
                             @if($assignedEmployees->isEmpty())
-                                <p class="text-gray-500 text-sm">No hay empleados asignados</p>
+                                <p class="text-slate-500 text-sm">No hay empleados asignados</p>
                             @else
                                 @foreach($assignedEmployees as $employee)
                                     <flux:field>
@@ -88,7 +88,7 @@
                 </div>
             @else
                 <div class="text-center py-12">
-                    <p class="text-gray-500">Selecciona un equipo para gestionar sus miembros</p>
+                    <p class="text-slate-500">Selecciona un equipo para gestionar sus miembros</p>
                 </div>
             @endif
         </div>

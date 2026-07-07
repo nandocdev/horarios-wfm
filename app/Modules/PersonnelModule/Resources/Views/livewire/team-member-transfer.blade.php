@@ -14,10 +14,10 @@
     <div class="grid grid-cols-1 lg:grid-cols-11 gap-4 items-center">
         <!-- Panel Izquierdo (Origen) -->
         <flux:card class="lg:col-span-5 h-[600px] flex flex-col p-0 overflow-hidden">
-            <div class="p-4 border-b border-zinc-200 dark:border-zinc-700 space-y-3">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700 space-y-3">
                 <div class="flex items-center justify-between">
                     <flux:heading size="sm">Origen</flux:heading>
-                    <flux:badge color="zinc" size="sm" inset="top bottom">{{ count($this->leftEmployees) }}</flux:badge>
+                    <flux:badge color="slate" size="sm" inset="top bottom">{{ count($this->leftEmployees) }}</flux:badge>
                 </div>
                 <flux:select wire:model.live="leftFilter">
                     <option value="all">Todos los empleados</option>
@@ -31,7 +31,7 @@
                     icon="magnifying-glass" size="sm" variant="filled" />
             </div>
 
-            <div class="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                 @foreach($this->leftEmployees as $employee)
                     <div wire:key="left-{{ $employee['id'] }}" wire:click="toggleSelection('left', {{ $employee['id'] }})"
                         @class([
@@ -52,7 +52,7 @@
                         </div>
 
                         @if($employee['team'])
-                            <flux:badge size="sm" color="zinc" variant="outline" class="hidden sm:flex">
+                            <flux:badge size="sm" color="slate" variant="outline" class="hidden sm:flex">
                                 {{ substr($employee['team'], 0, 3) }}
                             </flux:badge>
                         @endif
@@ -75,10 +75,10 @@
 
         <!-- Panel Derecho (Destino) -->
         <flux:card class="lg:col-span-5 h-[600px] flex flex-col p-0 overflow-hidden">
-            <div class="p-4 border-b border-zinc-200 dark:border-zinc-700 space-y-3">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700 space-y-3">
                 <div class="flex items-center justify-between">
                     <flux:heading size="sm">Destino</flux:heading>
-                    <flux:badge color="zinc" size="sm" inset="top bottom">{{ count($this->rightEmployees) }}
+                    <flux:badge color="slate" size="sm" inset="top bottom">{{ count($this->rightEmployees) }}
                     </flux:badge>
                 </div>
                 <flux:select wire:model.live="rightFilter">
@@ -93,7 +93,7 @@
                     icon="magnifying-glass" size="sm" variant="filled" />
             </div>
 
-            <div class="flex-1 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-800">
+            <div class="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                 @foreach($this->rightEmployees as $employee)
                     <div wire:key="right-{{ $employee['id'] }}" wire:click="toggleSelection('right', {{ $employee['id'] }})"
                         @class([
@@ -114,7 +114,7 @@
                         </div>
 
                         @if($employee['team'])
-                            <flux:badge size="sm" color="zinc" variant="outline" class="hidden sm:flex">
+                            <flux:badge size="sm" color="slate" variant="outline" class="hidden sm:flex">
                                 {{ substr($employee['team'], 0, 3) }}
                             </flux:badge>
                         @endif

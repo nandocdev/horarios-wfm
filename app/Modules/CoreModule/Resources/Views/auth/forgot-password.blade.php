@@ -27,7 +27,7 @@
             </div>
         </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <div class="space-x-2 rtl:space-x-reverse text-center text-sm text-slate-700 dark:text-slate-400">
             <span>{{ __('¿Recordaste tu contraseña?') }}</span>
             <flux:link :href="route('login')" wire:navigate>{{ __('Inicia sesión') }}</flux:link>
         </div>

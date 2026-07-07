@@ -1,8 +1,8 @@
 <section class="max-w-2xl">
     <flux:card>
-        <div class="flex items-center gap-4 mb-6">
-            <div class="p-3 bg-indigo-500/10 rounded-md">
-                <flux:icon.wrench-screwdriver class="text-indigo-500" />
+        <div class="flex items-center gap-4 mb-8">
+            <div class="p-4 bg-slate-100 rounded-md">
+                <flux:icon.wrench-screwdriver class="text-slate-900" />
             </div>
             <div>
                 <flux:heading size="xl">Modo Mantenimiento</flux:heading>
@@ -41,9 +41,9 @@
         </div>
 
         @if($enabled)
-            <div class="mt-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-md flex gap-3 items-start">
+            <div class="mt-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-md flex gap-4 items-start">
                 <flux:icon.exclamation-triangle class="text-amber-500 shrink-0" />
-                <div class="text-sm text-amber-200/80">
+                <div class="text-sm text-amber-800">
                     <p class="font-semibold text-amber-500">Advertencia</p>
                     El sistema está actualmente inaccesible para todos los agentes y supervisores sin privilegios de administrador.
                 </div>

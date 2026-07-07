@@ -131,10 +131,10 @@ new #[Title('Configuración de Perfil')] class extends Component {
     <flux:heading class="sr-only">{{ __('Configuración de Perfil') }}</flux:heading>
 
     <x-core::settings.layout :heading="__('Mi Perfil de Funcionario')" :subheading="__('Gestiona tu información personal e institucional.')">
-        <form wire:submit="updateProfileInformation" class="space-y-8 mt-6">
+        <form wire:submit="updateProfileInformation" class="space-y-8 mt-8">
             
             <!-- Sección: Información de Cuenta (Acceso) -->
-            <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-md border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-800 space-y-4">
                 <flux:heading size="lg" icon="user-circle">{{ __('Datos de Acceso') }}</flux:heading>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <flux:input wire:model="name" :label="__('Nombre Completo')" type="text" required autofocus autocomplete="name" />
@@ -142,7 +142,7 @@ new #[Title('Configuración de Perfil')] class extends Component {
                 </div>
 
                 @if ($this->hasUnverifiedEmail)
-                    <div class="bg-amber-50 dark:bg-amber-900/20 p-3 rounded border border-amber-200 dark:border-amber-800">
+                    <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-md border border-amber-200 dark:border-amber-800">
                         <flux:text size="sm" class="text-amber-800 dark:text-amber-300">
                             {{ __('Tu dirección de correo no está verificada.') }}
                             <flux:link class="ml-2" wire:click.prevent="resendVerificationNotification">
@@ -160,22 +160,22 @@ new #[Title('Configuración de Perfil')] class extends Component {
 
             <!-- Sección: Información Institucional (Solo lectura) -->
             @if($hasEmployee)
-                <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-md border border-zinc-200 dark:border-zinc-800 space-y-4">
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-800 space-y-4">
                     <flux:heading size="lg" icon="briefcase">{{ __('Información Institucional') }}</flux:heading>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <flux:input :value="$employee_number" :label="__('No. Empleado')" read-only variant="filled" icon="identification" />
                         <flux:input :value="$position_name" :label="__('Cargo Actual')" read-only variant="filled" icon="briefcase" />
                         <flux:input :value="$department_name" :label="__('Departamento')" read-only variant="filled" icon="building-office" />
                     </div>
-                    <div class="pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                    <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
                         <flux:text size="sm" variant="subtle">
-                            {{ __('Fecha de Ingreso:') }} <span class="font-medium text-zinc-900 dark:text-white">{{ $hire_date }}</span>
+                            {{ __('Fecha de Ingreso:') }} <span class="font-medium text-slate-900 dark:text-white">{{ $hire_date }}</span>
                         </flux:text>
                     </div>
                 </div>
 
                 <!-- Sección: Información de Contacto (Editable) -->
-                <div class="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-md border border-zinc-200 dark:border-zinc-800 space-y-4">
+                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-800 space-y-4">
                     <flux:heading size="lg" icon="phone">{{ __('Información de Contacto') }}</flux:heading>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <flux:input wire:model="phone" :label="__('Teléfono Fijo')" placeholder="Ej. 222-2222" icon="phone" />
@@ -192,7 +192,7 @@ new #[Title('Configuración de Perfil')] class extends Component {
             @endif
 
             <!-- Acciones -->
-            <div class="flex items-center gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+            <div class="flex items-center gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <flux:button variant="primary" type="submit" icon="check">
                     {{ __('Guardar Cambios') }}
                 </flux:button>

@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <h1 class="text-4xl font-bold text-white mb-4 tracking-tight">Mejorando tu Experiencia</h1>
+        <h1 class="text-3xl font-bold text-white mb-4 tracking-tight">Mejorando tu Experiencia</h1>
         <p class="text-slate-400 text-lg mb-8 leading-relaxed">
             {{ $message }}
         </p>

@@ -26,7 +26,7 @@
         </div>
 
         <flux:table :paginate="$users">
-            <flux:table.columns>
+            <flux:table.columns class="sticky top-0 z-10 bg-white dark:bg-slate-900">
                 <flux:table.column>Usuario</flux:table.column>
                 <flux:table.column>Estado</flux:table.column>
                 <flux:table.column>Roles</flux:table.column>
@@ -36,13 +36,13 @@
 
             <flux:table.rows>
                 @forelse($users as $user)
-                    <flux:table.row :key="$user->id">
+                    <flux:table.row :key="$user->id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <flux:table.cell>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-4">
                                 <flux:avatar size="sm" :name="$user->name" />
                                 <div class="flex flex-col">
                                     <flux:text variant="strong">{{ $user->name }}</flux:text>
-                                    <flux:text size="sm" class="text-zinc-500">{{ $user->email }}</flux:text>
+                                    <flux:text size="sm" class="text-slate-500">{{ $user->email }}</flux:text>
                                 </div>
                             </div>
                         </flux:table.cell>
@@ -54,7 +54,7 @@
                         </flux:table.cell>
 
                         <flux:table.cell>
-                            <div class="flex flex-wrap gap-1">
+                            <div class="flex flex-wrap gap-2">
                                 @foreach($user->roles as $roleItem)
                                     <flux:badge size="xs" variant="ghost" inset="top bottom">{{ $roleItem->name }}</flux:badge>
                                 @endforeach
@@ -100,7 +100,7 @@
                 @empty
                     <flux:table.row>
                         <flux:table.cell colspan="5" class="text-center py-8">
-                            <flux:text size="sm" class="text-zinc-500 italic">No se encontraron usuarios con esos criterios.
+                            <flux:text size="sm" class="text-slate-500 italic">No se encontraron usuarios con esos criterios.
                             </flux:text>
                         </flux:table.cell>
                     </flux:table.row>

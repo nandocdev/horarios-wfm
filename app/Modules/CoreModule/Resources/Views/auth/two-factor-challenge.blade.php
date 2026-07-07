@@ -37,12 +37,12 @@
                     />
                 </div>
 
-                <div class="flex flex-col gap-3 items-center justify-end">
+                <div class="flex flex-col gap-4 items-center justify-end">
                     <flux:button variant="primary" type="submit" class="w-full">
                         {{ __('Iniciar sesión') }}
                     </flux:button>
 
-                    <button type="button" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 underline cursor-pointer"
+                    <button type="button" class="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 underline cursor-pointer"
                                     x-show="! recovery"
                                     x-on:click="
                                         recovery = true;
@@ -51,7 +51,7 @@
                         {{ __('Usar un código de recuperación') }}
                     </button>
 
-                    <button type="button" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 underline cursor-pointer"
+                    <button type="button" class="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 underline cursor-pointer"
                                     x-cloak
                                     x-show="recovery"
                                     x-on:click="

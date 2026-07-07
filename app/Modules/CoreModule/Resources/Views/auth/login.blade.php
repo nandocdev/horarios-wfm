@@ -50,7 +50,7 @@
         </form>
 
         @if (Route::has('register'))
-            <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
+            <div class="space-x-2 text-sm text-center rtl:space-x-reverse text-slate-700 dark:text-slate-400">
                 <span>{{ __('¿No tienes una cuenta?') }}</span>
                 <flux:link :href="route('register')" wire:navigate>{{ __('Regístrate') }}</flux:link>
             </div>

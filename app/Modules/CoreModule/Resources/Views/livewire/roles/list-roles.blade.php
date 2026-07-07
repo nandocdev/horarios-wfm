@@ -11,7 +11,7 @@
         <div class="lg:col-span-2 space-y-4">
             <flux:card>
                 <flux:table>
-                    <flux:table.columns>
+                    <flux:table.columns class="sticky top-0 z-10 bg-white dark:bg-slate-900">
                         <flux:table.column>Nivel</flux:table.column>
                         <flux:table.column>Rol</flux:table.column>
                         <flux:table.column>Código</flux:table.column>
@@ -21,12 +21,12 @@
 
                     <flux:table.rows>
                         @forelse($roles as $role)
-                            <flux:table.row :key="$role->id">
+                            <flux:table.row :key="$role->id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                 <flux:table.cell>
                                     <flux:badge size="sm" :color="match(true) {
                                                                                                     $role->hierarchy_level <= 10 => 'red',
-                                                                                                    $role->hierarchy_level <= 30 => 'orange',
-                                                                                                    $role->hierarchy_level <= 50 => 'amber',
+                                                                                                    $role->hierarchy_level <= 30 => 'amber',
+                                                                                                    $role->hierarchy_level <= 50 => 'blue',
                                                                                                     default => 'zinc',
                                                                                                 }" variant="subtle"
                                         inset="top bottom">
@@ -34,10 +34,10 @@
                                     </flux:badge>
                                 </flux:table.cell>
                                 <flux:table.cell variant="strong">{{ $role->name }}</flux:table.cell>
-                                <flux:table.cell class="font-mono text-xs uppercase text-zinc-500">{{ $role->code }}
+                                <flux:table.cell class="font-mono text-xs uppercase text-slate-500">{{ $role->code }}
                                 </flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:text size="sm" class="text-zinc-500">{{ $role->permissions->count() }} asignados
+                                    <flux:text size="sm" class="text-slate-500">{{ $role->permissions->count() }} asignados
                                     </flux:text>
                                 </flux:table.cell>
                                 <flux:table.cell align="end">
@@ -50,7 +50,7 @@
                         @empty
                             <flux:table.row>
                                 <flux:table.cell colspan="5" class="text-center py-12">
-                                    <flux:text size="sm" class="italic text-zinc-400">No se han registrado roles
+                                    <flux:text size="sm" class="italic text-slate-400">No se han registrado roles
                                         institucionales todavía.</flux:text>
                                 </flux:table.cell>
                             </flux:table.row>
@@ -96,25 +96,25 @@
 
             <form wire:submit="savePermissions" class="space-y-4">
                 <div
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto px-1 scrollbar-thin scrollbar-thumb-zinc-200">
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto px-1 scrollbar-thin scrollbar-thumb-slate-200">
                     @foreach($available_permissions as $module => $perms)
                         <div
-                            class="bg-zinc-50 dark:bg-white/5 p-4 rounded-md border border-zinc-100 dark:border-white/10 space-y-3">
+                            class="bg-slate-50 dark:bg-white/5 p-4 rounded-md border border-slate-100 dark:border-white/10 space-y-3">
                             <flux:text
-                                class="font-bold text-zinc-900 dark:text-zinc-100 uppercase text-[10px] tracking-widest opacity-70">
+                                class="font-bold text-slate-900 dark:text-slate-100 uppercase text-[10px] tracking-widest opacity-70">
                                 Módulo: {{ $module ?: 'Sistema' }}
                             </flux:text>
                             <div class="space-y-2">
                                 @foreach($perms as $perm)
                                     <flux:checkbox wire:model="selectedPermissions" :value="$perm->name" :label="$perm->name"
-                                        size="sm" class="text-zinc-600" />
+                                        size="sm" class="text-slate-600" />
                                 @endforeach
                             </div>
                         </div>
                     @endforeach
                 </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-white/10">
+                <div class="flex justify-end gap-4 pt-4 border-t border-slate-100 dark:border-white/10">
                     <flux:button x-on:click="$flux.modal('role-permissions').close()" variant="ghost">Cancelar
                     </flux:button>
                     <flux:button type="submit" variant="primary" wire:loading.attr="disabled">

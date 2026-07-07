@@ -1,6 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -10,21 +10,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Font
-    |--------------------------------------------------------------------------
-    */
-
+    /* typography */
     --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Base — Neutral Palette (Tailwind Slate)
-    |--------------------------------------------------------------------------
-    */
-
+    /* neutral palette (slate as zinc/neutral mapping for Flux compatibility) */
     --color-zinc-50: var(--color-slate-50);
     --color-zinc-100: var(--color-slate-100);
     --color-zinc-200: var(--color-slate-200);
@@ -37,43 +26,38 @@
     --color-zinc-900: var(--color-slate-900);
     --color-zinc-950: var(--color-slate-950);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Accent — Primary #000000
-    |--------------------------------------------------------------------------
-    */
-
-    --color-accent: var(--color-neutral-900);
+    /* accent - primary #000000 */
+    --color-accent: var(--color-black);
     --color-accent-content: var(--color-neutral-950);
     --color-accent-foreground: var(--color-white);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Semantic Colors
-    |--------------------------------------------------------------------------
-    */
-
+    /* semantic colors */
     --color-success: var(--color-green-600);
     --color-warning: var(--color-amber-500);
     --color-danger: var(--color-red-600);
     --color-info: var(--color-blue-600);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Surface
-    |--------------------------------------------------------------------------
-    */
-
+    /* surface tokens */
     --color-app: var(--color-slate-50);
     --color-card: var(--color-white);
+
+    /* border radius constraint: max 6px */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 6px;
+    --radius-xl: 6px;
+    --radius-2xl: 6px;
+    --radius-3xl: 6px;
+
+    /* transition/motion defaults */
+    --transition-duration-default: 150ms;
 }
 
 @layer theme {
-
     .dark {
-
-        --color-accent: var(--color-neutral-300);
-        --color-accent-content: var(--color-neutral-200);
+        --color-accent: var(--color-white);
+        --color-accent-content: var(--color-neutral-100);
+        --color-accent-foreground: var(--color-black);
 
         --color-app: var(--color-slate-950);
         --color-card: var(--color-slate-900);

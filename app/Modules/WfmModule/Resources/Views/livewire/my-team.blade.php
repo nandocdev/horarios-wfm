@@ -122,7 +122,7 @@
                 <div class="space-y-4">
                     @forelse($recentSwaps as $swap)
                         <div
-                            class="flex items-center justify-between p-3 rounded-lg border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+                            class="flex items-center justify-between p-3 rounded-md border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
                             <div class="flex items-center gap-3">
                                 <div class="flex -space-x-2">
                                     <flux:avatar initials="{{ $swap->requester->initials }}" size="xs"
@@ -159,7 +159,7 @@
                 <div class="space-y-4">
                     @forelse($upcomingExceptions as $leave)
                         <div
-                            class="flex items-center justify-between p-3 rounded-lg border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+                            class="flex items-center justify-between p-3 rounded-md border border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
                             <div class="flex items-center gap-3">
                                 <flux:avatar initials="{{ $leave->employee->initials }}" size="xs" />
                                 <div class="flex flex-col">

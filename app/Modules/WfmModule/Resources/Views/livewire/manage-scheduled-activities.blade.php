@@ -29,7 +29,7 @@
                     {{-- Nombre --}}
                     <flux:table.cell>
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                            <div class="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
                                  style="background-color: {{ $def->activityType?->color ?? '#6366f1' }}20">
                                 <flux:icon name="calendar" class="w-4 h-4"
                                     style="color: {{ $def->activityType?->color ?? '#6366f1' }}" />

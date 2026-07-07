@@ -142,7 +142,7 @@
             <div class="space-y-2">
                 <span class="text-xs text-zinc-500 uppercase font-bold">Comparativa de Horarios</span>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border">
+                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
                         <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Turno de
                             {{ $selectedRequest->requester->first_name }}</p>
                         @if($requesterShift)
@@ -154,7 +154,7 @@
                             <p class="text-xs text-zinc-400">Sin turno</p>
                         @endif
                     </div>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border">
+                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
                         <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Turno de
                             {{ $selectedRequest->recipient->first_name }}</p>
                         @if($recipientShift)
@@ -172,7 +172,7 @@
             @if($selectedRequest->reason)
                 <div class="space-y-1">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Motivo del Cambio</span>
-                    <p class="text-sm p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg italic">"{{ $selectedRequest->reason }}"</p>
+                    <p class="text-sm p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md italic">"{{ $selectedRequest->reason }}"</p>
                 </div>
             @endif
 

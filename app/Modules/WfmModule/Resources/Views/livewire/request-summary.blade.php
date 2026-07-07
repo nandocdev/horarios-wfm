@@ -12,7 +12,7 @@
         <flux:card class="p-0 overflow-hidden">
             <div class="p-6 bg-indigo-50/50 dark:bg-indigo-900/10 border-b border-zinc-200 dark:border-zinc-700">
                 <div class="flex items-center gap-3">
-                    <div class="p-2 bg-indigo-100 dark:bg-indigo-800 rounded-lg">
+                    <div class="p-2 bg-indigo-100 dark:bg-indigo-800 rounded-md">
                         <flux:icon name="document-text" class="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
                     </div>
                     <flux:heading size="lg">Solicitudes de Permiso</flux:heading>
@@ -42,7 +42,7 @@
         <flux:card class="p-0 overflow-hidden">
             <div class="p-6 bg-teal-50/50 dark:bg-teal-900/10 border-b border-zinc-200 dark:border-zinc-700">
                 <div class="flex items-center gap-3">
-                    <div class="p-2 bg-teal-100 dark:bg-teal-800 rounded-lg">
+                    <div class="p-2 bg-teal-100 dark:bg-teal-800 rounded-md">
                         <flux:icon name="arrows-right-left" class="w-5 h-5 text-teal-600 dark:text-teal-300" />
                     </div>
                     <flux:heading size="lg">Cambios de Turno</flux:heading>

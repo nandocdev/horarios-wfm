@@ -44,8 +44,7 @@
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Estado</dt>
                             <dd class="mt-1">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                    {{ $tag->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $tag->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                     {{ $tag->is_active ? 'Activa' : 'Inactiva' }}
                                 </span>
                             </dd>

@@ -135,8 +135,8 @@
                             @endif
 
                             @if($dayAssignment)
-                                <div class="flex items-start gap-4 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900/50">
-                                    <div class="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg text-primary-600 dark:text-primary-400">
+                                <div class="flex items-start gap-4 p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/50">
+                                    <div class="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-md text-primary-600 dark:text-primary-400">
                                         <flux:icon name="clock" size="sm" />
                                     </div>
                                     <div class="flex-grow">
@@ -151,8 +151,8 @@
                                 </div>
 
                                 @if($dayAssignment->lunch_start_time)
-                                    <div class="flex items-start gap-4 p-3 rounded-lg bg-orange-50 dark:bg-orange-900/10">
-                                        <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600 dark:text-orange-400">
+                                    <div class="flex items-start gap-4 p-3 rounded-md bg-orange-50 dark:bg-orange-900/10">
+                                        <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-md text-orange-600 dark:text-orange-400">
                                             <flux:icon name="fire" size="sm" />
                                         </div>
                                         <div class="flex-grow">
@@ -168,8 +168,8 @@
                                 @endif
 
                                 @if($dayAssignment->break_start_time)
-                                    <div class="flex items-start gap-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/10">
-                                        <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                                    <div class="flex items-start gap-4 p-3 rounded-md bg-blue-50 dark:bg-blue-900/10">
+                                        <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-md text-blue-600 dark:text-blue-400">
                                             <flux:icon name="bolt" size="sm" />
                                         </div>
                                         <div class="flex-grow">
@@ -187,8 +187,8 @@
 
                             {{-- Actividades Adicionales (Intraday) --}}
                             @foreach($intradayActivities as $activity)
-                                <div class="flex items-start gap-4 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700">
-                                    <div class="p-2 rounded-lg" style="background-color: {{ $activity->activityType->color }}20; color: {{ $activity->activityType->color }}">
+                                <div class="flex items-start gap-4 p-3 rounded-md border border-zinc-200 dark:border-zinc-700">
+                                    <div class="p-2 rounded-md" style="background-color: {{ $activity->activityType->color }}20; color: {{ $activity->activityType->color }}">
                                         <flux:icon name="sparkles" size="sm" />
                                     </div>
                                     <div class="flex-grow">

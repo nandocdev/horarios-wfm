@@ -262,7 +262,7 @@
                 <flux:legend>Selecciona operadores disponibles</flux:legend>
                 <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
                     @forelse($availableEmployees as $emp)
-                        <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer">
+                        <label class="flex items-center gap-3 p-2 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer">
                             <flux:checkbox
                                 wire:model="selectedEmployeeIds"
                                 value="{{ $emp->id }}"

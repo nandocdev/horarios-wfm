@@ -22,15 +22,15 @@
                 <div class="space-y-3">
                     <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Glosario de Variables</p>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
+                        <div class="p-2 bg-slate-50 rounded-md border border-slate-100 flex items-center gap-2">
                             <span class="bg-blue-100 text-blue-700 text-[10px] font-black px-1.5 py-0.5 rounded">TP</span>
                             <span class="text-[10px] text-slate-600"><strong>Tiempo Productivo:</strong> Ready + Talking + Work + Reserved</span>
                         </div>
-                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
+                        <div class="p-2 bg-slate-50 rounded-md border border-slate-100 flex items-center gap-2">
                             <span class="bg-slate-200 text-slate-700 text-[10px] font-black px-1.5 py-0.5 rounded">TC</span>
                             <span class="text-[10px] text-slate-600"><strong>Tiempo de Conexión:</strong> Tiempo total logueado en UCCX</span>
                         </div>
-                        <div class="p-2 bg-slate-50 rounded-lg border border-slate-100 flex items-center gap-2">
+                        <div class="p-2 bg-slate-50 rounded-md border border-slate-100 flex items-center gap-2">
                             <span class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-1.5 py-0.5 rounded">JP</span>
                             <span class="text-[10px] text-slate-600"><strong>Jornada Programada:</strong> Minutos totales asignados en el horario</span>
                         </div>
@@ -240,7 +240,7 @@
                     <!-- Titulo del Día -->
                     <div class="bg-slate-50 dark:bg-slate-800 px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                         <div class="flex items-center gap-3">
-                            <div class="p-2 bg-blue-100 rounded-lg">
+                            <div class="p-2 bg-blue-100 rounded-md">
                                 @if($employeeId)
                                     <flux:icon name="calendar" class="w-5 h-5 text-blue-600" />
                                 @else
@@ -484,7 +484,7 @@
                                             <tr class="hover:bg-slate-50 transition-opacity">
                                                 <td class="p-3 text-slate-700 font-bold max-w-[120px] truncate" title="{{ $queueName }}">{{ $queueName }}</td>
                                                 <td class="p-3 text-right">
-                                                    <span class="font-black text-purple-600 bg-purple-50 px-2 py-1 rounded-lg">{{ $stats['total_calls'] }}</span>
+                                                    <span class="font-black text-purple-600 bg-purple-50 px-2 py-1 rounded-md">{{ $stats['total_calls'] }}</span>
                                                 </td>
                                                 <td class="p-3 text-right text-slate-500 font-mono">{{ round($stats['avg_handle_time']) }}s</td>
                                             </tr>

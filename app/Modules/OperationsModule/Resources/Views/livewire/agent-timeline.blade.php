@@ -84,7 +84,7 @@
                             <div class="w-2 h-2 rounded-full {{ $item->isCurrent ? 'bg-blue-600 animate-pulse' : ($item->isReal ? 'bg-slate-300' : 'border border-slate-300 bg-white') }}"></div>
                         </div>
 
-                        <div class="flex-1 bg-white p-3 rounded-lg border border-slate-100 shadow-sm group-hover:border-slate-200 transition-opacity">
+                        <div class="flex-1 bg-white p-3 rounded-md border border-slate-100 shadow-sm group-hover:border-slate-200 transition-opacity">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2">
                                     <flux:badge :color="$item->color" variant="subtle" size="sm" class="font-bold uppercase tracking-wide">

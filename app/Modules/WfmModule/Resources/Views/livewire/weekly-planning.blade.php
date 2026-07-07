@@ -21,7 +21,7 @@
             </div>
 
             @if($nextWeekStart && $nextWeekEnd)
-                <div class="rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                <div class="rounded-md bg-zinc-50 p-4 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
                     <div class="flex items-center gap-3">
                         <flux:icon icon="calendar-days" class="text-blue-500" />
                         <div class="flex flex-col">

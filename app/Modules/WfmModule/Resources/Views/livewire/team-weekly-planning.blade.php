@@ -53,7 +53,7 @@
                             @endphp
                             <flux:table.cell align="center" class="{{ $dayException ? 'bg-zinc-50/50 dark:bg-zinc-800/30' : '' }}">
                                 @if($dayException)
-                                    <div class="flex flex-col items-center justify-center p-2 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700 opacity-80" 
+                                    <div class="flex flex-col items-center justify-center p-2 rounded-md border border-dashed border-zinc-200 dark:border-zinc-700 opacity-80" 
                                          title="{{ $dayException->remarks }}">
                                         <flux:badge :color="$dayException->reason?->color ?? 'zinc'" size="sm" class="font-bold uppercase text-[9px]">
                                             {{ $dayException->reason?->name ?? __('EXCEPCIÓN') }}
@@ -64,7 +64,7 @@
                                     </div>
                                 @elseif($assignment)
                                     <button wire:click="editAssignment({{ $assignment->id }})"
-                                        class="group flex flex-col items-center justify-center rounded-lg border border-transparent p-2 transition-opacity hover:border-zinc-200 hover:bg-zinc-50 dark:hover:border-zinc-700 dark:hover:bg-zinc-800">
+                                        class="group flex flex-col items-center justify-center rounded-md border border-transparent p-2 transition-opacity hover:border-zinc-200 hover:bg-zinc-50 dark:hover:border-zinc-700 dark:hover:bg-zinc-800">
                                         <span
                                             class="text-[10px] font-bold uppercase text-zinc-400">{{ $assignment->schedule?->name ?? 'OFF' }}</span>
                                         <span class="text-xs font-semibold">

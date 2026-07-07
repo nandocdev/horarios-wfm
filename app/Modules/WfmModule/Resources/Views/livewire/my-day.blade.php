@@ -6,7 +6,7 @@
         </div>
 
         @if($isManager)
-            <div class="flex items-center gap-4 bg-white dark:bg-zinc-800 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
+            <div class="flex items-center gap-4 bg-white dark:bg-zinc-800 p-2 rounded-md border border-zinc-200 dark:border-zinc-700 shadow-sm">
                 <flux:field>
                     <flux:select wire:model.live="targetTeamId" placeholder="Filtrar por equipo..." class="min-w-[200px]">
                         <flux:select.option value="">Todos los equipos</flux:select.option>
@@ -30,7 +30,7 @@
     {{-- Resumen de Métricas del Día --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <flux:card class="p-4 flex items-center gap-4">
-            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-md">
                 <flux:icon name="clock" variant="mini" />
             </div>
             <div>
@@ -40,7 +40,7 @@
         </flux:card>
 
         <flux:card class="p-4 flex items-center gap-4">
-            <div class="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+            <div class="p-3 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-md">
                 <flux:icon name="bolt" variant="mini" />
             </div>
             <div>
@@ -50,7 +50,7 @@
         </flux:card>
 
         <flux:card class="p-4 flex items-center gap-4">
-            <div class="p-3 bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 rounded-lg">
+            <div class="p-3 bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 rounded-md">
                 <flux:icon name="chart-pie" variant="mini" />
             </div>
             <div>

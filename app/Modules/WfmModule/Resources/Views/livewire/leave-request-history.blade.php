@@ -93,7 +93,7 @@
             </div>
 
             <div class="space-y-4">
-                <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border">
+                <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-xs font-bold text-zinc-500 uppercase">Resumen</span>
                         <flux:badge size="xs" variant="{{ $selectedLeave->status === 'approved' ? 'success' : ($selectedLeave->status === 'rejected' ? 'danger' : 'warning') }}">
@@ -107,7 +107,7 @@
                 <div class="space-y-2">
                     <span class="text-xs font-bold text-zinc-500 uppercase">Visto Bueno Jefe Directo</span>
                     @forelse($selectedLeave->approvals as $approval)
-                        <div class="flex flex-col p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border gap-2">
+                        <div class="flex flex-col p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border gap-2">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <flux:icon name="{{ $approval->status === 'approved' ? 'check-circle' : ($approval->status === 'rejected' ? 'x-circle' : 'clock') }}" 
@@ -124,7 +124,7 @@
                             @endif
                         </div>
                     @empty
-                        <div class="p-4 text-center border border-dashed rounded-lg">
+                        <div class="p-4 text-center border border-dashed rounded-md">
                             <flux:icon name="clock" size="sm" class="mx-auto mb-2 text-zinc-300" />
                             <p class="text-xs text-zinc-400 italic">Esperando revisión de tu jefe inmediato.</p>
                         </div>

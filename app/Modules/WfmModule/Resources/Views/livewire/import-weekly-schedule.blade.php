@@ -46,7 +46,7 @@
                             </flux:badge>
                         </div>
                         
-                        <div class="overflow-x-auto border border-zinc-200 rounded-lg max-h-96">
+                        <div class="overflow-x-auto border border-zinc-200 rounded-md max-h-96">
                             <flux:table class="m-4">
                                 <flux:table.columns>
                                     <flux:table.column>{{ __('Usuario') }}</flux:table.column>

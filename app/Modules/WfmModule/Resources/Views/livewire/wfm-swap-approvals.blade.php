@@ -6,7 +6,7 @@
         </div>
         
         {{-- Navegación de Solicitudes (Tabs) --}}
-        <div class="flex gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg self-start md:self-auto">
+        <div class="flex gap-1 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-md self-start md:self-auto">
             <flux:button wire:click="$set('currentTab', 'pending')" 
                          variant="{{ $currentTab === 'pending' ? 'filled' : 'ghost' }}" 
                          size="sm">
@@ -142,7 +142,7 @@
             <div class="space-y-2">
                 <span class="text-xs text-zinc-500 uppercase font-bold">Comparativa de Horarios Originales</span>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border">
+                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
                         <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Turno de {{ $selectedRequest->requester->first_name }}</p>
                         @if($requesterShift)
                             <p class="text-xs font-bold">
@@ -154,7 +154,7 @@
                             <p class="text-xs text-zinc-400">Sin turno</p>
                         @endif
                     </div>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border">
+                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
                         <p class="text-[10px] text-zinc-500 font-bold mb-2 uppercase">Turno de {{ $selectedRequest->recipient->first_name }}</p>
                         @if($recipientShift)
                             <p class="text-xs font-bold">
@@ -172,14 +172,14 @@
             @if($selectedRequest->reason)
                 <div class="space-y-1">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Motivo del Cambio</span>
-                    <p class="text-sm p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg italic">"{{ $selectedRequest->reason }}"</p>
+                    <p class="text-sm p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md italic">"{{ $selectedRequest->reason }}"</p>
                 </div>
             @endif
 
             @if($selectedRequest->status === 'rejected' && $selectedRequest->rejection_reason)
                 <div class="space-y-1">
                     <span class="text-xs text-zinc-500 uppercase font-bold">Motivo del Rechazo</span>
-                    <p class="text-sm p-3 bg-red-50/50 dark:bg-red-950/20 text-red-700 dark:text-red-300 rounded-lg border border-red-100 dark:border-red-900/50">
+                    <p class="text-sm p-3 bg-red-50/50 dark:bg-red-950/20 text-red-700 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/50">
                         {{ $selectedRequest->rejection_reason }}
                     </p>
                 </div>

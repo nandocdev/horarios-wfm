@@ -442,7 +442,7 @@
                 <div class="space-y-2 max-h-[300px] overflow-y-auto pr-2">
                     @forelse($agentEvents as $event)
                         <div
-                            class="flex items-center justify-between p-2 rounded-lg border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                            class="flex items-center justify-between p-2 rounded-md border border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                             <div class="flex items-center gap-3">
                                 <div class="w-2 h-2 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
                                 <div class="flex flex-col">

@@ -11,7 +11,7 @@
 $classes = Flux::classes()
     ->add('flex relative items-center font-medium justify-center gap-2 whitespace-nowrap')
     ->add(match ($size) {
-        'base' => 'h-10 text-sm rounded-lg px-4 [&:has(>:not(span):first-child)]:ps-3 [&:has(>:not(span):last-child)]:pe-3',
+        'base' => 'h-10 text-sm rounded-md px-4 [&:has(>:not(span):first-child)]:ps-3 [&:has(>:not(span):last-child)]:pe-3',
         'sm' => 'h-8 text-sm rounded-md px-3',
         'xs' => 'h-6 text-xs rounded-md px-2',
     })
@@ -22,7 +22,7 @@ $classes = Flux::classes()
     })
     ->add('text-zinc-800 dark:text-white')
     ->add('bg-white dark:bg-zinc-700')
-    ->add('after:absolute after:-inset-px after:rounded-lg')
+    ->add('after:absolute after:-inset-px after:rounded-md')
     ->add('border border-zinc-200 border-b-zinc-300/80 dark:border-zinc-600')
     ->add([
         '[--haze:color-mix(in_oklab,_var(--color-accent-content),_transparent_97.5%)]',

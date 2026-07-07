@@ -25,10 +25,7 @@
     @php($href = isset($item['route']) ? route($item['route'], $item['params'] ?? []) : '#')
     <a href="{{ $href }}"
        wire:navigate
-       class="flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm transition-colors
-              {{ $item['is_active'] 
-                 ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-semibold' 
-                 : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-200' }}">
+       class="flex items-center justify-between gap-3 px-3 py-2 rounded-md text-sm transition-colors {{ $item['is_active'] ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-white font-semibold' : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-200' }}">
         
         <div class="flex items-center gap-3">
             @if(isset($item['icon']))

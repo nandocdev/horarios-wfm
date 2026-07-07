@@ -10,7 +10,7 @@ $classes = Flux::classes()
     ->add('border border-zinc-200 dark:border-white/10')
     ->add(match ($size) {
         default => '[:where(&)]:p-6 [:where(&)]:rounded-md',
-        'sm' => '[:where(&)]:p-4 [:where(&)]:rounded-lg',
+        'sm' => '[:where(&)]:p-4 [:where(&)]:rounded-md',
     })
     ;
 @endphp

@@ -70,7 +70,7 @@ $classes = Flux::classes()
         'end' => 'justify-end',
     })
     ->add(match ($size) { // Size...
-        'base' => 'h-10 text-sm rounded-lg' . ' ' . (
+        'base' => 'h-10 text-sm rounded-md' . ' ' . (
             $square
                 ? 'w-10'
                 // If we have an icon, we want to reduce the padding on the side that has the icon...
@@ -78,7 +78,7 @@ $classes = Flux::classes()
         ),
         'sm' => 'h-8 text-sm rounded-md' . ' ' . ($square ? 'w-8' : 'px-3'),
         'xs' => 'h-6 text-xs rounded-md' . ' ' . ($square ? 'w-6' : 'px-2'),
-        default => 'h-10 text-sm rounded-lg px-4', // Fallback for lg or others
+        default => 'h-10 text-sm rounded-md px-4', // Fallback for lg or others
     })
     ->add('inline-flex') // Buttons are inline by default but links are blocks, so inline-flex is needed here to ensure link-buttons are displayed the same as buttons...
     ->add($inset ? match ($size) { // Inset...

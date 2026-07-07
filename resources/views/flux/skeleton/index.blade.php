@@ -16,7 +16,7 @@
                 '[:where(&)]:[--flux-shimmer-color:white]',
                 'dark:[:where(&)]:[--flux-shimmer-color:var(--color-zinc-900)]',
                 'before:z-10 before:animate-[flux-shimmer_2s_infinite]',
-                'before:bg-gradient-to-r before:from-transparent before:via-[var(--flux-shimmer-color)]/50 dark:before:via-[var(--flux-shimmer-color)]/50 before:to-transparent',
+                'before: before: before:via-[var(--flux-shimmer-color)]/50 dark:before:via-[var(--flux-shimmer-color)]/50 before:',
             ],
             'pulse' => 'animate-pulse',
             default => '',

@@ -72,7 +72,7 @@ $classes = \Flux\Flux::classes()
                 el.dispatchEvent(new Event('input', { bubbles: true }));
             }
         }"
-        class="rounded-lg border border-zinc-200 dark:border-white/10 overflow-hidden"
+        class="rounded-md border border-zinc-200 dark:border-white/10 overflow-hidden"
     >
         @if($toolbar)
             <div class="flex flex-wrap items-center gap-1 p-2 bg-zinc-50 dark:bg-zinc-900/40 border-b border-zinc-200 dark:border-white/10">

@@ -16,18 +16,18 @@
 
         <flux:table :paginate="$articles">
             <flux:table.columns>
-                <flux:table.column>Título</flux:table.column>
-                <flux:table.column>Categorías</flux:table.column>
-                <flux:table.column>Estado</flux:table.column>
-                <flux:table.column>Vistas</flux:table.column>
-                <flux:table.column align="end">Acciones</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Título</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Categorías</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Estado</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Vistas</flux:table.column>
+                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
                 @forelse($articles as $article)
-                    <flux:table.row :key="$article->id">
-                        <flux:table.cell class="max-w-xs truncate font-medium">{{ $article->title }}</flux:table.cell>
-                        <flux:table.cell>
+                    <flux:table.row :key="$article->id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 py-2">
+                        <flux:table.cell class="py-2 max-w-xs truncate font-medium">{{ $article->title }}</flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <div class="flex flex-wrap gap-1">
                                 @foreach($article->categories as $cat)
                                     <flux:badge :color="$cat->color ?? 'blue'" size="xs" variant="subtle">
@@ -36,13 +36,13 @@
                                 @endforeach
                             </div>
                         </flux:table.cell>
-                        <flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <flux:badge :color="$article->is_published ? 'green' : 'slate'" size="sm" variant="subtle">
                                 {{ $article->is_published ? 'Publicado' : 'Borrador' }}
                             </flux:badge>
                         </flux:table.cell>
-                        <flux:table.cell>{{ $article->view_count }}</flux:table.cell>
-                        <flux:table.cell align="end">
+                        <flux:table.cell class="py-2">{{ $article->view_count }}</flux:table.cell>
+                        <flux:table.cell align="end" class="py-2">
                             <div class="flex justify-end gap-2">
                                 <flux:button wire:click="editArticle({{ $article->id }})" variant="ghost" icon="pencil-square" size="sm" />
                                 <flux:button wire:click="deleteArticle({{ $article->id }})" 
@@ -52,8 +52,8 @@
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
-                    <flux:table.row>
-                        <flux:table.cell colspan="5" align="center" class="py-12">
+                    <flux:table.row class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 py-2">
+                        <flux:table.cell class="py-2" colspan="5" align="center" class="py-12">
                             <flux:text>No hay artículos registrados.</flux:text>
                         </flux:table.cell>
                     </flux:table.row>
@@ -80,11 +80,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <flux:field>
                         <flux:label>Categorías</flux:label>
-                        <div class="mt-2 space-y-2 max-h-40 overflow-y-auto p-3 border border-zinc-200 dark:border-zinc-700 rounded-md">
+                        <div class="mt-2 space-y-2 max-h-40 overflow-y-auto p-3 border border-slate-200 dark:border-slate-700 rounded-md">
                             @foreach($categories as $category)
                                 <label class="flex items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" wire:model="selectedCategories" value="{{ $category->id }}" class="rounded border-zinc-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                    <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ $category->name }}</span>
+                                    <input type="checkbox" wire:model="selectedCategories" value="{{ $category->id }}" class="rounded border-slate-300 text-slate-950 shadow-sm focus:border-slate-400 focus:ring focus:ring-slate-200 focus:ring-opacity-50">
+                                    <span class="text-sm text-slate-700 dark:text-slate-300">{{ $category->name }}</span>
                                 </label>
                             @endforeach
                         </div>

@@ -39,21 +39,21 @@
             <flux:card class="p-0 overflow-hidden">
                 <flux:table>
                     <flux:table.columns>
-                        <flux:table.column>Tipo</flux:table.column>
-                        <flux:table.column>Objetivo</flux:table.column>
-                        <flux:table.column>Límite</flux:table.column>
-                        <flux:table.column>Acciones</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Tipo</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Objetivo</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Límite</flux:table.column>
+                        <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
                     </flux:table.columns>
 
                     <flux:table.rows>
                         @foreach($quotas as $quota)
-                            <flux:table.row>
-                                <flux:table.cell>
-                                    <flux:badge size="sm" :color="$quota->target_type === 'role' ? 'blue' : 'purple'">
+                            <flux:table.row class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 py-2">
+                                <flux:table.cell class="py-2">
+                                    <flux:badge size="sm" :color="$quota->target_type === 'role' ? 'blue' : 'slate'">
                                         {{ strtoupper($quota->target_type) }}
                                     </flux:badge>
                                 </flux:table.cell>
-                                <flux:table.cell>
+                                <flux:table.cell class="py-2">
                                     @php
                                         $name = $quota->target_type === 'role' 
                                             ? \App\Modules\CoreModule\Models\Role::find($quota->target_id)?->name 
@@ -61,10 +61,10 @@
                                     @endphp
                                     <span class="font-medium">{{ $name ?? 'N/A' }}</span>
                                 </flux:table.cell>
-                                <flux:table.cell>
+                                <flux:table.cell class="py-2">
                                     {{ \App\Modules\FilesystemModule\Models\StorageQuota::bytesToMb($quota->quota_limit) }} MB
                                 </flux:table.cell>
-                                <flux:table.cell>
+                                <flux:table.cell class="py-2">
                                     <flux:button variant="ghost" icon="trash" size="sm" wire:click="delete({{ $quota->id }})" />
                                 </flux:table.cell>
                             </flux:table.row>
@@ -73,12 +73,12 @@
                 </flux:table>
 
                 @if($quotas->isEmpty())
-                    <div class="p-8 text-center text-zinc-500">
+                    <div class="p-8 text-center text-slate-500">
                         No hay reglas de cuota definidas. Se aplicará el límite global de 100MB.
                     </div>
                 @endif
 
-                <div class="p-4 border-t border-zinc-200 dark:border-zinc-800">
+                <div class="p-4 border-t border-slate-200 dark:border-slate-800">
                     {{ $quotas->links() }}
                 </div>
             </flux:card>

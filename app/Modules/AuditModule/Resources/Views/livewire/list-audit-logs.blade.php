@@ -34,46 +34,46 @@
             <!-- Tabla -->
             <flux:table :paginate="$auditLogs">
                 <flux:table.columns>
-                    <flux:table.column>Fecha y Hora</flux:table.column>
-                    <flux:table.column>Entidad / Recurso</flux:table.column>
-                    <flux:table.column>Acción</flux:table.column>
-                    <flux:table.column>Usuario Responsable</flux:table.column>
-                    <flux:table.column>Dirección IP</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Fecha y Hora</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Entidad / Recurso</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acción</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Usuario Responsable</flux:table.column>
+                    <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Dirección IP</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
                     @forelse($auditLogs as $log)
-                        <flux:table.row :key="$log->id" wire:click="showDetail({{ $log->id }})" class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-                            <flux:table.cell class="font-mono text-xs">{{ $log->created_at->format('Y-m-d H:i:s') }}</flux:table.cell>
-                            <flux:table.cell>
+                        <flux:table.row :key="$log->id" wire:click="showDetail({{ $log->id }})" class="cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/30 py-2">
+                            <flux:table.cell class="py-2 font-mono text-xs">{{ $log->created_at->format('Y-m-d H:i:s') }}</flux:table.cell>
+                            <flux:table.cell class="py-2">
                                 <div class="flex flex-col">
                                     <flux:text size="sm" class="font-bold">{{ class_basename($log->entity_type) }}</flux:text>
-                                    <flux:text size="xs" class="text-zinc-400">ID: {{ $log->entity_id }}</flux:text>
+                                    <flux:text size="xs" class="text-slate-400">ID: {{ $log->entity_id }}</flux:text>
                                 </div>
                             </flux:table.cell>
-                            <flux:table.cell>
-                                <flux:badge size="sm" color="{{ match($log->action) { 'created' => 'emerald', 'updated' => 'indigo', 'deleted' => 'rose', default => 'zinc' } }}" inset="top">
+                            <flux:table.cell class="py-2">
+                                <flux:badge size="sm" color="{{ match($log->action) { 'created' => 'green', 'updated' => 'blue', 'deleted' => 'red', default => 'slate' } }}" inset="top">
                                     {{ strtoupper($log->action) }}
                                 </flux:badge>
                             </flux:table.cell>
-                            <flux:table.cell>
+                            <flux:table.cell class="py-2">
                                 <div class="flex items-center gap-2">
                                     @if($log->user)
                                         <flux:avatar :initials="$log->user->initials()" size="xs" />
                                         <flux:text size="sm">{{ $log->user->name }}</flux:text>
                                     @else
-                                        <flux:icon name="cpu-chip" class="w-4 h-4 text-zinc-400" />
-                                        <flux:text size="sm" class="text-zinc-400 italic">Sistema</flux:text>
+                                        <flux:icon name="cpu-chip" class="w-4 h-4 text-slate-400" />
+                                        <flux:text size="sm" class="text-slate-400 italic">Sistema</flux:text>
                                     @endif
                                 </div>
                             </flux:table.cell>
-                            <flux:table.cell class="text-xs text-zinc-500">{{ $log->ip_address ?? 'N/A' }}</flux:table.cell>
+                            <flux:table.cell class="py-2 text-xs text-slate-500">{{ $log->ip_address ?? 'N/A' }}</flux:table.cell>
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="5" class="text-center py-12">
-                                <flux:icon name="magnifying-glass" class="w-12 h-12 text-zinc-200 mx-auto mb-3" />
-                                <flux:text class="text-zinc-400">No se encontraron registros de auditoría</flux:text>
+                            <flux:table.cell class="py-2" colspan="5" class="text-center py-12">
+                                <flux:icon name="magnifying-glass" class="w-12 h-12 text-slate-200 mx-auto mb-3" />
+                                <flux:text class="text-slate-400">No se encontraron registros de auditoría</flux:text>
                             </flux:table.cell>
                         </flux:table.row>
                     @endforelse
@@ -92,42 +92,42 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
-                    <span class="text-xs text-zinc-500 uppercase font-bold">Acción</span>
-                    <flux:badge size="sm" color="{{ match($selectedLog->action) { 'created' => 'emerald', 'updated' => 'indigo', 'deleted' => 'rose', default => 'zinc' } }}" inset="top">
+                    <span class="text-xs text-slate-500 uppercase font-bold">Acción</span>
+                    <flux:badge size="sm" color="{{ match($selectedLog->action) { 'created' => 'green', 'updated' => 'blue', 'deleted' => 'red', default => 'slate' } }}" inset="top">
                         {{ strtoupper($selectedLog->action) }}
                     </flux:badge>
                 </div>
                 <div class="space-y-1">
-                    <span class="text-xs text-zinc-500 uppercase font-bold">Usuario</span>
+                    <span class="text-xs text-slate-500 uppercase font-bold">Usuario</span>
                     <p class="text-sm">{{ $selectedLog->user?->name ?? 'Sistema' }}</p>
-                    <p class="text-xs text-zinc-400">IP: {{ $selectedLog->ip_address ?? 'N/A' }}</p>
+                    <p class="text-xs text-slate-400">IP: {{ $selectedLog->ip_address ?? 'N/A' }}</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-2">
-                    <span class="text-xs text-zinc-500 uppercase font-bold">Valores Anteriores (before)</span>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border overflow-auto max-h-64">
+                    <span class="text-xs text-slate-500 uppercase font-bold">Valores Anteriores (before)</span>
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border overflow-auto max-h-64">
                         @if($selectedLog->before)
                             <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLog->before, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                         @else
-                            <p class="text-xs text-zinc-400 italic">Sin datos previos</p>
+                            <p class="text-xs text-slate-400 italic">Sin datos previos</p>
                         @endif
                     </div>
                 </div>
                 <div class="space-y-2">
-                    <span class="text-xs text-zinc-500 uppercase font-bold">Valores Nuevos (after)</span>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border overflow-auto max-h-64">
+                    <span class="text-xs text-slate-500 uppercase font-bold">Valores Nuevos (after)</span>
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border overflow-auto max-h-64">
                         @if($selectedLog->after)
                             <pre class="text-xs font-mono leading-relaxed">{{ json_encode($selectedLog->after, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
                         @else
-                            <p class="text-xs text-zinc-400 italic">Sin datos nuevos</p>
+                            <p class="text-xs text-slate-400 italic">Sin datos nuevos</p>
                         @endif
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end pt-4 border-t dark:border-zinc-800">
+            <div class="flex justify-end pt-4 border-t dark:border-slate-800">
                 <flux:modal.close>
                     <flux:button variant="subtle">Cerrar</flux:button>
                 </flux:modal.close>

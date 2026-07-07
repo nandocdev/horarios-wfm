@@ -40,7 +40,7 @@
         <div class="md:col-span-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @forelse($articles as $article)
-                    <flux:card class="flex flex-col h-full hover:shadow-md transition-shadow">
+                    <flux:card class="flex flex-col h-full">
                         <div class="flex-1">
                             <div class="flex gap-2 mb-2">
                                 @foreach($article->categories as $cat)
@@ -56,14 +56,14 @@
                                 </a>
                             </flux:heading>
                             
-                            <div class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-3">
+                            <div class="text-sm text-slate-500 dark:text-slate-400 line-clamp-3">
                                 {{ Str::limit(strip_tags($article->content), 120) }}
                             </div>
                         </div>
 
-                        <div class="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-700 flex items-center justify-between">
+                        <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
                             <flux:text size="xs" class="flex items-center gap-1">
-                                <flux:icon name="eye" size="xs" class="size-3" />
+                                <flux:icon name="eye" size="xs" class="size-4" />
                                 {{ $article->view_count }}
                             </flux:text>
                             
@@ -73,7 +73,7 @@
                         </div>
                     </flux:card>
                 @empty
-                    <div class="col-span-full py-12 flex flex-col items-center justify-center text-zinc-500">
+                    <div class="col-span-full py-12 flex flex-col items-center justify-center text-slate-500">
                         <flux:icon name="document-magnifying-glass" size="xl" class="mb-4 opacity-20" />
                         <flux:text>No se encontraron artículos que coincidan con tu búsqueda.</flux:text>
                     </div>

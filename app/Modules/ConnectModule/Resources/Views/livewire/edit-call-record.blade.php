@@ -4,12 +4,12 @@
     </flux:card>
 
     @if (session()->has('success'))
-        <flux:card color="green" class="border-green-200 bg-green-50 text-green-800">
+        <flux:card color="green" class="border-green-200 bg-green-50 text-green-600">
             <flux:text>{{ session('success') }}</flux:text>
         </flux:card>
     @endif
 
-    <flux:card>
+    <flux:card class="max-w-4xl">
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-2">
             <flux:select wire:model="form.channel_id" label="Canal">
                 <flux:select.option value="">Seleccionar</flux:select.option>

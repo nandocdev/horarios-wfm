@@ -1,4 +1,4 @@
-<div class="space-y-8 max-w-5xl mx-auto">
+<div class="space-y-8 max-w-4xl mx-auto">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Mis Tickets de Soporte</flux:heading>
@@ -10,24 +10,24 @@
     <flux:card class="p-0 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="border-b bg-zinc-50 dark:bg-zinc-900/50">
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">ID / Fecha</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Asunto</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Estado</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Asignado a</th>
-                    <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500 text-right">Acciones</th>
+                <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
+                    <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">ID / Fecha</th>
+                    <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Asunto</th>
+                    <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Estado</th>
+                    <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Asignado a</th>
+                    <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y dark:divide-zinc-800">
+            <tbody class="divide-y dark:divide-slate-800">
                 @forelse($tickets as $ticket)
-                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
-                        <td class="p-4 text-sm font-medium">
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
+                        <td class="p-2 text-sm font-medium">
                             <div class="flex flex-col">
                                 <span class="font-bold text-primary-600">#{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
-                                <span class="text-[10px] text-zinc-500">{{ $ticket->created_at->format('d M Y, H:i') }}</span>
+                                <span class="text-[10px] text-slate-500">{{ $ticket->created_at->format('d M Y, H:i') }}</span>
                             </div>
                         </td>
-                        <td class="p-4">
+                        <td class="p-2">
                             <div class="flex flex-col gap-1">
                                 <div class="flex items-center gap-2">
                                     <flux:badge size="sm" :color="$ticket->category->color">{{ $ticket->category->name }}</flux:badge>
@@ -35,16 +35,16 @@
                                         <flux:badge size="sm" color="red" icon="fire" class="font-bold">{{ $ticket->priority_label }}</flux:badge>
                                     @endif
                                 </div>
-                                <span class="font-medium text-sm text-zinc-900 dark:text-zinc-100">{{ $ticket->subject }}</span>
+                                <span class="font-medium text-sm text-slate-900 dark:text-slate-100">{{ $ticket->subject }}</span>
                             </div>
                         </td>
-                        <td class="p-4">
+                        <td class="p-2">
                             @php
                                 $statusColor = match($ticket->status) {
                                     'new' => 'zinc',
                                     'open' => 'blue',
                                     'in_progress' => 'amber',
-                                    'on_hold' => 'purple',
+                                    'on_hold' => 'slate',
                                     'resolved' => 'green',
                                     'closed' => 'zinc',
                                     default => 'zinc'
@@ -52,7 +52,7 @@
                             @endphp
                             <flux:badge size="sm" :color="$statusColor">{{ $ticket->status_label }}</flux:badge>
                         </td>
-                        <td class="p-4 text-sm text-zinc-500">
+                        <td class="p-2 text-sm text-slate-500">
                             @if($ticket->assignedAgent)
                                 <div class="flex items-center gap-2">
                                     <flux:avatar size="xs" :name="$ticket->assignedAgent->first_name . ' ' . $ticket->assignedAgent->last_name" />
@@ -62,13 +62,13 @@
                                 <span class="italic opacity-50">Sin asignar</span>
                             @endif
                         </td>
-                        <td class="p-4 text-right">
+                        <td class="p-2 text-right">
                             <flux:button href="{{ route('helpdesk.ticket.detail', $ticket->id) }}" wire:navigate variant="subtle" size="sm" icon="eye">Ver Detalles</flux:button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="p-12 text-center text-zinc-500 italic">
+                        <td colspan="5" class="p-2 text-center text-slate-500 italic">
                             No tienes tickets abiertos. ¡Excelente!
                         </td>
                     </tr>
@@ -76,7 +76,7 @@
             </tbody>
         </table>
         @if($tickets->hasPages())
-            <div class="p-4 border-t dark:border-zinc-800">
+            <div class="p-4 border-t dark:border-slate-800">
                 {{ $tickets->links() }}
             </div>
         @endif
@@ -125,7 +125,7 @@
                 <flux:error name="description" />
             </flux:field>
 
-            <div class="flex justify-end gap-2 pt-4 border-t dark:border-zinc-700">
+            <div class="flex justify-end gap-2 pt-4 border-t dark:border-slate-700">
                 <flux:modal.close>
                     <flux:button variant="subtle">Cancelar</flux:button>
                 </flux:modal.close>

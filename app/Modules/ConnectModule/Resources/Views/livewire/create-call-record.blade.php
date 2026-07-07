@@ -1,4 +1,4 @@
-<div class="space-y-8 max-w-5xl mx-auto">
+<div class="space-y-8 max-w-4xl mx-auto">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Nuevo Registro de Llamada</flux:heading>
@@ -19,7 +19,7 @@
             <div class="w-full flex-shrink-0 p-4">
                 <div class="flex items-center gap-4">
                     <div class="flex-shrink-0 p-2 bg-blue-100 dark:bg-blue-800/50 rounded-md">
-                        <flux:icon icon="{{ $capsule['icon'] }}" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                        <flux:icon icon="{{ $capsule['icon'] }}" class="w-8 h-8 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div class="flex-1">
                         <flux:heading size="sm" class="text-blue-800 dark:text-blue-300">{{ $capsule['title'] }}</flux:heading>
@@ -86,7 +86,7 @@
                             >
                                 <x-slot name="append">
                                     <div wire:loading wire:target="form.citizen_identifier">
-                                        <flux:icon icon="arrow-path" class="animate-spin text-zinc-400" size="sm" />
+                                        <flux:icon icon="arrow-path" class="animate-spin text-slate-400" size="sm" />
                                     </div>
                                 </x-slot>
                             </flux:input>
@@ -111,7 +111,7 @@
                         <flux:error name="form.description" />
                     </flux:field>
 
-                    <div class="flex justify-end gap-3 pt-4 border-t dark:border-zinc-800">
+                    <div class="flex justify-end gap-3 pt-4 border-t dark:border-slate-800">
                         <flux:button type="submit" variant="primary" icon="check">Guardar Registro</flux:button>
                     </div>
                 </form>
@@ -127,11 +127,11 @@
                 </flux:text>
                 <div class="space-y-2">
                     <div class="flex items-center gap-2 text-xs">
-                        <flux:icon icon="clock" size="sm" class="text-zinc-400" />
+                        <flux:icon icon="clock" size="sm" class="text-slate-400" />
                         <span>Hora Actual: {{ now()->format('H:i') }}</span>
                     </div>
                     <div class="flex items-center gap-2 text-xs">
-                        <flux:icon icon="user" size="sm" class="text-zinc-400" />
+                        <flux:icon icon="user" size="sm" class="text-slate-400" />
                         <span>Agente: {{ auth()->user()->name }}</span>
                     </div>
                 </div>
@@ -139,9 +139,9 @@
 
             {{-- Script de Llamada --}}
             @if(count($callScript) > 0)
-            <flux:card class="bg-zinc-50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800">
+            <flux:card class="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
                 <div class="flex items-center gap-2 mb-4">
-                    <flux:icon icon="clipboard-document-list" size="sm" class="text-zinc-500" />
+                    <flux:icon icon="clipboard-document-list" size="sm" class="text-slate-500" />
                     <flux:heading size="sm">Script de Atención</flux:heading>
                 </div>
                 
@@ -153,7 +153,7 @@
                             </div>
                             <label for="step-{{ $index }}" 
                                    class="text-sm cursor-pointer select-none transition-opacity duration-200" 
-                                   :class="checked.includes('{{ $index }}') ? 'line-through text-zinc-400 dark:text-zinc-500' : 'text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100'">
+                                   :class="checked.includes('{{ $index }}') ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100'">
                                 {{ $step }}
                             </label>
                         </div>
@@ -165,7 +165,7 @@
             {{-- Validación de Derechos --}}
             @if($citizenData)
                 <flux:card class="overflow-hidden p-0 border-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-200 dark:border-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-800/50">
-                    <div class="p-4 bg-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-50/50 dark:bg-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-900/10 border-b dark:border-zinc-800">
+                    <div class="p-4 bg-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-50/50 dark:bg-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-900/10 border-b dark:border-slate-800">
                         <div class="flex items-center justify-between">
                             <flux:heading size="sm">Validación de Derechos</flux:heading>
                             <flux:badge size="sm" :color="($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red'">
@@ -178,9 +178,9 @@
                         {{-- Asegurado --}}
                         @if(isset($citizenData['asegurado']))
                             <div class="space-y-1">
-                                <flux:text size="xs" class="uppercase font-bold text-zinc-400">Asegurado</flux:text>
+                                <flux:text size="xs" class="uppercase font-bold text-slate-400">Asegurado</flux:text>
                                 <flux:text size="sm" class="font-medium">{{ $citizenData['asegurado']['nombre'] ?? 'N/A' }}</flux:text>
-                                <div class="flex justify-between text-xs text-zinc-500">
+                                <div class="flex justify-between text-xs text-slate-500">
                                     <span>Cuota: {{ $citizenData['asegurado']['cuota_pagada'] ?? 'N/A' }}</span>
                                     <span>Vence: {{ $citizenData['asegurado']['valido_hasta'] ?? 'N/A' }}</span>
                                 </div>
@@ -189,17 +189,17 @@
 
                         {{-- Beneficiario (Solo si existe y es el que se está validando) --}}
                         @if(isset($citizenData['beneficiario']) && ($citizenData['beneficiario']['documento'] ?? '') === $form->citizen_identifier)
-                            <div class="pt-3 border-t dark:border-zinc-800 space-y-1">
-                                <flux:text size="xs" class="uppercase font-bold text-zinc-400">Beneficiario</flux:text>
+                            <div class="pt-3 border-t dark:border-slate-800 space-y-1">
+                                <flux:text size="xs" class="uppercase font-bold text-slate-400">Beneficiario</flux:text>
                                 <flux:text size="sm" class="font-medium text-blue-600 dark:text-blue-400">{{ $citizenData['beneficiario']['nombre'] ?? 'N/A' }}</flux:text>
-                                <flux:text size="xs" class="text-zinc-500">{{ $citizenData['beneficiario']['tipo'] ?? 'N/A' }}</flux:text>
+                                <flux:text size="xs" class="text-slate-500">{{ $citizenData['beneficiario']['tipo'] ?? 'N/A' }}</flux:text>
                             </div>
                         @endif
                     </div>
                 </flux:card>
             @elseif($isValidating)
                 <flux:card class="animate-pulse py-8 text-center space-y-2">
-                    <flux:icon icon="arrow-path" class="animate-spin text-zinc-400 mx-auto" />
+                    <flux:icon icon="arrow-path" class="animate-spin text-slate-400 mx-auto" />
                     <flux:text size="xs">Validando derechos en tiempo real...</flux:text>
                 </flux:card>
             @endif
@@ -214,49 +214,49 @@
         <flux:card class="p-0 overflow-hidden">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b bg-zinc-50 dark:bg-zinc-900/50">
-                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Fecha / Hora</th>
-                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Teléfono</th>
-                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Cola</th>
-                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Tipificación</th>
-                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500 text-right">Estado</th>
-                        <th class="p-4 text-xs font-bold uppercase tracking-wider text-zinc-500 text-right">Acciones</th>
+                    <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
+                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Fecha / Hora</th>
+                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Teléfono</th>
+                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Cola</th>
+                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Tipificación</th>
+                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Estado</th>
+                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y dark:divide-zinc-800">
+                <tbody class="divide-y dark:divide-slate-800">
                     @forelse($history as $record)
-                        <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
-                            <td class="p-4 text-xs">
+                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
+                            <td class="p-2 text-xs">
                                 <div class="flex flex-col">
                                     <span class="font-bold">{{ $record->ivr_started_at?->format('d/m/Y') ?? 'Hoy' }}</span>
-                                    <span class="text-zinc-500">{{ $record->ivr_started_at?->format('H:i:s') ?? now()->format('H:i:s') }}</span>
+                                    <span class="text-slate-500">{{ $record->ivr_started_at?->format('H:i:s') ?? now()->format('H:i:s') }}</span>
                                 </div>
                             </td>
-                            <td class="p-4 text-sm font-medium">{{ $record->phone_number }}</td>
-                            <td class="p-4 text-xs">
-                                <flux:badge size="sm" color="zinc">{{ $record->queue?->name ?? 'N/A' }}</flux:badge>
+                            <td class="p-2 text-sm font-medium">{{ $record->phone_number }}</td>
+                            <td class="p-2 text-xs">
+                                <flux:badge size="sm" color="slate">{{ $record->queue?->name ?? 'N/A' }}</flux:badge>
                             </td>
-                            <td class="p-4 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                            <td class="p-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                                 {{ $record->caseSubtype?->name ?? 'Sin tipificar' }}
                             </td>
-                            <td class="p-4 text-right">
+                            <td class="p-2 text-right">
                                 @php
                                     $statusColor = match($record->status) {
                                         'open' => 'blue',
                                         'closed' => 'green',
                                         'pending_operator' => 'amber',
-                                        default => 'zinc'
+                                        default => 'slate'
                                     };
                                 @endphp
                                 <flux:badge size="sm" :color="$statusColor">{{ $record->status }}</flux:badge>
                             </td>
-                            <td class="p-4 text-right">
+                            <td class="p-2 text-right">
                                 <flux:button wire:click="showRecordDetails({{ $record->id }})" variant="subtle" size="sm" icon="eye" />
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="p-8 text-center text-zinc-500 italic">
+                            <td colspan="5" class="p-2 text-center text-slate-500 italic">
                                 No has realizado registros recientemente.
                             </td>
                         </tr>
@@ -277,34 +277,34 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-zinc-400">Canal / Cola</flux:text>
+                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Canal / Cola</flux:text>
                         <flux:text size="sm">{{ $selectedRecord->queue?->channel?->name ?? 'N/A' }} - {{ $selectedRecord->queue?->name ?? 'N/A' }}</flux:text>
                     </div>
                     <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-zinc-400">Estado / Fecha</flux:text>
+                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Estado / Fecha</flux:text>
                         <div class="flex items-center gap-2">
-                            <flux:badge size="sm" color="zinc">{{ $selectedRecord->status }}</flux:badge>
+                            <flux:badge size="sm" color="slate">{{ $selectedRecord->status }}</flux:badge>
                             <flux:text size="sm">{{ $selectedRecord->ivr_started_at?->format('d/m/Y H:i') }}</flux:text>
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-zinc-400">Agente</flux:text>
+                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Agente</flux:text>
                         <flux:text size="sm">{{ $selectedRecord->employee?->full_name ?? $selectedRecord->raw_agent_name ?? 'N/A' }}</flux:text>
                     </div>
                     <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-zinc-400">Tipificación</flux:text>
+                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Tipificación</flux:text>
                         <flux:text size="sm">{{ $selectedRecord->caseSubtype?->name ?? 'Sin tipificar' }}</flux:text>
                     </div>
                 </div>
 
                 <div class="space-y-1">
-                    <flux:text size="xs" class="uppercase font-bold text-zinc-400">Descripción / Observaciones</flux:text>
-                    <div class="p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border dark:border-zinc-800 text-sm italic">
+                    <flux:text size="xs" class="uppercase font-bold text-slate-400">Descripción / Observaciones</flux:text>
+                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border dark:border-slate-800 text-sm italic">
                         {{ $selectedRecord->description ?: 'No se ingresaron detalles adicionales.' }}
                     </div>
                 </div>
 
-                <div class="border-t dark:border-zinc-800 pt-4">
+                <div class="border-t dark:border-slate-800 pt-4">
                     <flux:heading size="sm" class="mb-3">Tiempos de Interacción (Segundos)</flux:heading>
                     <div class="grid grid-cols-4 gap-2">
                         <div class="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800/50">
@@ -319,7 +319,7 @@
                             <flux:text size="xs" color="green">Trabajo</flux:text>
                             <div class="font-bold text-green-700 dark:text-green-400">{{ $selectedRecord->work_time ?? 0 }}s</div>
                         </div>
-                        <div class="text-center p-2 bg-zinc-50 dark:bg-zinc-900 rounded border border-zinc-100 dark:border-zinc-800">
+                        <div class="text-center p-2 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
                             <flux:text size="xs">Cola</flux:text>
                             <div class="font-bold">{{ $selectedRecord->queue_time ?? 0 }}s</div>
                         </div>

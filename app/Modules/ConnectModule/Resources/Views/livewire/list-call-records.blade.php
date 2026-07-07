@@ -38,7 +38,7 @@
     </flux:card>
 
     @if (session()->has('success'))
-        <flux:card color="green" class="border-green-200 bg-green-50 text-green-800">
+        <flux:card color="green" class="border-green-200 bg-green-50 text-green-600">
             <flux:text>{{ session('success') }}</flux:text>
         </flux:card>
     @endif
@@ -46,37 +46,37 @@
     <flux:card>
         <flux:table :paginate="$records">
             <flux:table.columns>
-                <flux:table.column>ID</flux:table.column>
-                <flux:table.column>Teléfono</flux:table.column>
-                <flux:table.column>Asegurado</flux:table.column>
-                <flux:table.column>Estado</flux:table.column>
-                <flux:table.column>Tipo</flux:table.column>
-                <flux:table.column>Subtipo</flux:table.column>
-                <flux:table.column>Atiende</flux:table.column>
-                <flux:table.column>Creado</flux:table.column>
-                <flux:table.column>Cerrado</flux:table.column>
-                <flux:table.column align="end">Acciones</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">ID</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Teléfono</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Asegurado</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Estado</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Tipo</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Subtipo</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Atiende</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Creado</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Cerrado</flux:table.column>
+                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
                 @forelse($records as $record)
-                    <flux:table.row :key="$record->id">
-                        <flux:table.cell>{{ $record->id }}</flux:table.cell>
-                        <flux:table.cell>{{ $record->phone_number }}</flux:table.cell>
-                        <flux:table.cell>{{ $record->citizen_identifier ?? '—' }}</flux:table.cell>
-                        <flux:table.cell>
+                    <flux:table.row :key="$record->id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 py-2">
+                        <flux:table.cell class="py-2">{{ $record->id }}</flux:table.cell>
+                        <flux:table.cell class="py-2">{{ $record->phone_number }}</flux:table.cell>
+                        <flux:table.cell class="py-2">{{ $record->citizen_identifier ?? '—' }}</flux:table.cell>
+                        <flux:table.cell class="py-2">
                             <flux:badge
-                                :color="['open' => 'green', 'pending_operator' => 'yellow', 'closed' => 'blue'][$record->status] ?? 'slate'"
+                                :color="['open' => 'green', 'pending_operator' => 'amber', 'closed' => 'blue'][$record->status] ?? 'slate'"
                                 size="sm">
                                 {{ ucfirst(str_replace('_', ' ', $record->status)) }}
                             </flux:badge>
                         </flux:table.cell>
-                        <flux:table.cell>{{ $record->queue?->name ?? '—' }}</flux:table.cell>
-                        <flux:table.cell>{{ $record->caseSubtype?->name ?? '—' }}</flux:table.cell>
-                        <flux:table.cell>{{ $record->employee?->full_name ?? 'Sin asignar' }}</flux:table.cell>
-                        <flux:table.cell>{{ $record->ivr_started_at?->format('Y-m-d H:i') }}</flux:table.cell>
-                        <flux:table.cell>{{ $record->closed_at?->format('Y-m-d H:i') ?? '—' }}</flux:table.cell>
-                        <flux:table.cell align="end">
+                        <flux:table.cell class="py-2">{{ $record->queue?->name ?? '—' }}</flux:table.cell>
+                        <flux:table.cell class="py-2">{{ $record->caseSubtype?->name ?? '—' }}</flux:table.cell>
+                        <flux:table.cell class="py-2">{{ $record->employee?->full_name ?? 'Sin asignar' }}</flux:table.cell>
+                        <flux:table.cell class="py-2">{{ $record->ivr_started_at?->format('Y-m-d H:i') }}</flux:table.cell>
+                        <flux:table.cell class="py-2">{{ $record->closed_at?->format('Y-m-d H:i') ?? '—' }}</flux:table.cell>
+                        <flux:table.cell align="end" class="py-2">
                             <flux:button href="{{ route('contact-center.calls.edit', $record) }}" variant="ghost" size="sm"
                                 wire:navigate>
                                 Editar
@@ -85,7 +85,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="10" align="center">
+                        <flux:table.cell class="py-2" colspan="10" align="center">
                             <flux:text>No hay registros que coincidan con el filtro.</flux:text>
                         </flux:table.cell>
                     </flux:table.row>

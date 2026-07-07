@@ -33,7 +33,7 @@
                     viewable
                 />
 
-                <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-4">
                     <flux:checkbox wire:model="form.is_active" :label="__('Usuario Activo')" />
                     <flux:checkbox wire:model="form.force_password_change" :label="__('Forzar cambio de contraseña')" />
                 </div>
@@ -43,7 +43,7 @@
 
             <div class="space-y-4">
                 <flux:heading size="md">{{ __('Roles de Sistema') }}</flux:heading>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     @foreach($available_roles as $role)
                         <flux:checkbox 
                             wire:model="form.roles" 
@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <div class="flex justify-end gap-3 pt-4">
+            <div class="flex justify-end gap-4 pt-4">
                 <flux:button href="{{ route('users.index') }}" variant="ghost" wire:navigate>
                     {{ __('Cancelar') }}
                 </flux:button>

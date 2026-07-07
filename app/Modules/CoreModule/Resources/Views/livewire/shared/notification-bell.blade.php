@@ -19,7 +19,7 @@
         </flux:button>
 
         <flux:menu class="w-80">
-            <div class="px-4 py-2 flex justify-between items-center border-b border-zinc-200 dark:border-zinc-700">
+            <div class="px-4 py-2 flex justify-between items-center border-b border-slate-200 dark:border-slate-700">
                 <flux:heading size="sm">Notificaciones</flux:heading>
                 @if($this->unreadCount > 0)
                     <flux:button variant="ghost" size="sm" wire:click="markAllAsRead">
@@ -29,7 +29,7 @@
             </div>
 
             @forelse($this->notifications as $notification)
-                <div class="px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-opacity border-b border-zinc-100 dark:border-zinc-700 last:border-0">
+                <div class="px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-opacity border-b border-slate-100 dark:border-slate-700 last:border-0">
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex-1">
                             <flux:text size="sm" weight="semibold">{{ $notification->data['title'] ?? 'Notificación' }}</flux:text>
@@ -48,7 +48,7 @@
                 </div>
             @empty
                 <div class="px-4 py-8 text-center">
-                    <flux:icon icon="bell-slash" class="mx-auto h-8 w-8 text-zinc-300 dark:text-zinc-600" />
+                    <flux:icon icon="bell-slash" class="mx-auto h-8 w-8 text-slate-300 dark:text-slate-600" />
                     <flux:text variant="subtle" class="mt-2">No tienes notificaciones pendientes</flux:text>
                 </div>
             @endforelse

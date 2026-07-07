@@ -46,7 +46,7 @@ new class extends Component {
 }; ?>
 
 <div
-    class="py-4 space-y-4 border shadow-sm rounded-md border-zinc-200 dark:border-white/10"
+    class="py-4 space-y-4 border shadow-sm rounded-md border-slate-200 dark:border-white/10"
     wire:cloak
     x-data="{ showRecoveryCodes: false }"
 >
@@ -61,7 +61,7 @@ new class extends Component {
     </div>
 
     <div class="px-4">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <flux:button
                 x-show="!showRecoveryCodes"
                 icon="eye"
@@ -105,14 +105,14 @@ new class extends Component {
             class="relative overflow-hidden"
             x-bind:aria-hidden="!showRecoveryCodes"
         >
-            <div class="mt-3 space-y-3">
+            <div class="mt-4 space-y-4">
                 @error('recoveryCodes')
                     <flux:callout variant="danger" icon="x-circle" heading="{{$message}}"/>
                 @enderror
 
                 @if (filled($recoveryCodes))
                     <div
-                        class="grid gap-1 p-4 font-mono text-sm rounded-md bg-zinc-100 dark:bg-white/5"
+                        class="grid gap-2 p-4 font-mono text-sm rounded-md bg-slate-100 dark:bg-white/5"
                         role="list"
                         aria-label="{{ __('Recovery codes') }}"
                     >

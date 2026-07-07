@@ -13,7 +13,7 @@
         </div>
         
         <div class="flex items-center gap-4">
-            <div class="size-14 rounded-2xl flex items-center justify-center shadow-inner" style="background-color: {{ ($realtime->color_hex ?? '#6b7280') . '20' }}">
+            <div class="size-14 rounded-md flex items-center justify-center shadow-inner" style="background-color: {{ ($realtime->color_hex ?? '#6b7280') . '20' }}">
                 <flux:icon icon="user-circle" class="size-8" style="color: {{ $realtime->color_hex ?? '#6b7280' }}" />
             </div>
             

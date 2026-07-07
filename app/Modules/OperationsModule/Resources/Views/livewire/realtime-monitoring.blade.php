@@ -1,10 +1,10 @@
 <div wire:poll.10s class="space-y-6">
     {{-- Header con Estadísticas --}}
     <div
-        class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-800">
+        class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white dark:bg-zinc-900 p-6 rounded-md shadow-sm border border-zinc-200 dark:border-zinc-800">
         <div class="space-y-1">
             <div class="flex items-center gap-3">
-                <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
+                <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-md">
                     <flux:icon name="presentation-chart-line" class="size-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <flux:heading size="xl" level="1" class="font-black tracking-tight">Monitoreo en Tiempo Real
@@ -27,7 +27,7 @@
                             class="uppercase font-bold text-zinc-400 tracking-widest whitespace-nowrap leading-none">
                             Hora del Servidor</flux:text>
                     </div>
-                    <div class="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-2xl">
+                    <div class="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-md">
                         <flux:icon name="clock" class="size-6 text-zinc-500" variant="micro" />
                     </div>
                 </div>
@@ -56,7 +56,7 @@
             <div class="flex flex-wrap items-center gap-2">
                 {{-- Stat: Total --}}
                 <div
-                    class="flex flex-col items-center px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 min-w-[80px]">
+                    class="flex flex-col items-center px-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 rounded-md border border-zinc-100 dark:border-zinc-800 min-w-[80px]">
                     <flux:text size="xs" class="uppercase font-bold text-zinc-400 tracking-widest">Total</flux:text>
                     <flux:text size="lg" class="font-black text-zinc-900 dark:text-zinc-100 leading-none mt-1">
                         {{ $stats['total'] }}
@@ -67,7 +67,7 @@
 
                 {{-- Stat: Listos --}}
                 <div
-                    class="flex flex-col items-center px-4 py-2 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800/20 min-w-[80px]">
+                    class="flex flex-col items-center px-4 py-2 bg-emerald-50 dark:bg-emerald-900/10 rounded-md border border-emerald-100 dark:border-emerald-800/20 min-w-[80px]">
                     <flux:text size="xs"
                         class="uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-widest">Listos
                     </flux:text>
@@ -78,7 +78,7 @@
 
                 {{-- Stat: En Llamada --}}
                 <div
-                    class="flex flex-col items-center px-4 py-2 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/20 min-w-[80px]">
+                    class="flex flex-col items-center px-4 py-2 bg-blue-50 dark:bg-blue-900/10 rounded-md border border-blue-100 dark:border-blue-800/20 min-w-[80px]">
                     <flux:text size="xs" class="uppercase font-bold text-blue-600 dark:text-blue-400 tracking-widest">
                         Hablando</flux:text>
                     <flux:text size="lg" class="font-black text-blue-700 dark:text-blue-500 leading-none mt-1">
@@ -88,7 +88,7 @@
 
                 {{-- Stat: No Listos --}}
                 <div
-                    class="flex flex-col items-center px-4 py-2 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/20 min-w-[80px]">
+                    class="flex flex-col items-center px-4 py-2 bg-amber-50 dark:bg-amber-900/10 rounded-md border border-amber-100 dark:border-amber-800/20 min-w-[80px]">
                     <flux:text size="xs" class="uppercase font-bold text-amber-600 dark:text-amber-400 tracking-widest">
                         Aux</flux:text>
                     <flux:text size="lg" class="font-black text-amber-700 dark:text-amber-500 leading-none mt-1">
@@ -98,7 +98,7 @@
 
                 {{-- Stat: Ausentes --}}
                 <div
-                    class="flex flex-col items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-800/20 min-w-[80px]">
+                    class="flex flex-col items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/10 rounded-md border border-rose-100 dark:border-rose-800/20 min-w-[80px]">
                     <flux:text size="xs" class="uppercase font-bold text-rose-600 dark:text-rose-400 tracking-widest">
                         Ausentes</flux:text>
                     <flux:text size="lg" class="font-black text-rose-700 dark:text-rose-500 leading-none mt-1">
@@ -108,7 +108,7 @@
 
                 {{-- Stat: Desconectados --}}
                 <div
-                    class="flex flex-col items-center px-4 py-2 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800/20 min-w-[80px]">
+                    class="flex flex-col items-center px-4 py-2 bg-purple-50 dark:bg-purple-900/10 rounded-md border border-purple-100 dark:border-purple-800/20 min-w-[80px]">
                     <flux:text size="xs"
                         class="uppercase font-bold text-purple-600 dark:text-purple-400 tracking-widest">Desconec
                     </flux:text>
@@ -121,7 +121,7 @@
 
                 {{-- Stat: Adherencia --}}
                 <div
-                    class="flex flex-col items-center px-4 py-2 {{ $stats['adherence_percent'] < 85 ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/20' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800/20' }} rounded-2xl border min-w-[100px]">
+                    class="flex flex-col items-center px-4 py-2 {{ $stats['adherence_percent'] < 85 ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/20' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800/20' }} rounded-md border min-w-[100px]">
                     <flux:text size="xs"
                         class="uppercase font-bold {{ $stats['adherence_percent'] < 85 ? 'text-red-600 dark:text-red-400' : 'text-indigo-600 dark:text-indigo-400' }} tracking-widest">
                         Adherencia</flux:text>

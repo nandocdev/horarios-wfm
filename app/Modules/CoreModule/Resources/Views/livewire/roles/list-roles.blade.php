@@ -99,7 +99,7 @@
                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[60vh] overflow-y-auto px-1 scrollbar-thin scrollbar-thumb-zinc-200">
                     @foreach($available_permissions as $module => $perms)
                         <div
-                            class="bg-zinc-50 dark:bg-white/5 p-4 rounded-xl border border-zinc-100 dark:border-white/10 space-y-3">
+                            class="bg-zinc-50 dark:bg-white/5 p-4 rounded-md border border-zinc-100 dark:border-white/10 space-y-3">
                             <flux:text
                                 class="font-bold text-zinc-900 dark:text-zinc-100 uppercase text-[10px] tracking-widest opacity-70">
                                 Módulo: {{ $module ?: 'Sistema' }}

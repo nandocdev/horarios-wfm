@@ -37,7 +37,7 @@
     </div>
 
     {{-- Footer Info --}}
-    <flux:card class="bg-indigo-900 text-white border-none shadow-xl relative overflow-hidden">
+    <flux:card class="bg-indigo-900 text-white border-none shadow-md relative overflow-hidden">
         <div class="absolute right-0 top-0 opacity-10">
             <flux:icon name="magnifying-glass-circle" class="w-32 h-32" />
         </div>

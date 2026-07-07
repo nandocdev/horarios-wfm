@@ -1,7 +1,7 @@
 <div class="flex w-full flex-col">
     <!-- Hero Section -->
     <section class="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-        <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-blue-500/10 to-transparent"></div>
+        <div class="absolute inset-x-0 top-0 h-64 bg-slate-100 dark:bg-slate-900"></div>
 
         <div class="relative mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
             <div class="space-y-4 text-center">
@@ -10,7 +10,7 @@
                     Recursos del Sistema
                 </div>
                 <flux:heading size="xl" class="text-4xl lg:text-5xl font-black leading-tight">
-                    Centro de <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600">Descargas</span>
+                    Centro de <span class="text-slate-900 dark:text-white">Descargas</span>
                 </flux:heading>
                 <flux:text class="text-lg max-w-2xl mx-auto text-zinc-600 dark:text-zinc-400">
                     Accede a todos los documentos, manuales y archivos compartidos de forma pública.
@@ -18,7 +18,7 @@
             </div>
 
             <div class="mt-8 max-w-xl mx-auto">
-                <flux:input wire:model.live="search" icon="magnifying-glass" placeholder="Buscar archivos..." class="shadow-lg" />
+                <flux:input wire:model.live="search" icon="magnifying-glass" placeholder="Buscar archivos..." class="shadow-md" />
             </div>
         </div>
     </section>
@@ -27,9 +27,9 @@
     <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-6 lg:px-8">
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @forelse ($files as $file)
-                <flux:card class="group flex flex-col p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-none bg-white dark:bg-zinc-800/50">
+                <flux:card class="group flex flex-col p-4 transition-all duration-300 hover:shadow-md hover:-translate-y-1 border-none bg-white dark:bg-zinc-800/50">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-2xl bg-zinc-100 dark:bg-zinc-700 text-zinc-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                        <div class="p-3 rounded-md bg-zinc-100 dark:bg-zinc-700 text-zinc-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                             @php
                                 $icon = match($file->extension) {
                                     'pdf' => 'document-text',
@@ -57,7 +57,7 @@
                     </div>
                 </flux:card>
             @empty
-                <div class="col-span-full py-20 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl">
+                <div class="col-span-full py-20 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-md">
                     <flux:icon name="document-minus" class="w-12 h-12 mx-auto text-zinc-300 mb-4" />
                     <flux:heading size="md">No se encontraron archivos</flux:heading>
                     <flux:text class="mt-1">Intenta con otro término de búsqueda o contacta al administrador.</flux:text>

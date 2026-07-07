@@ -10,7 +10,7 @@
             x-transition:enter-end="opacity-100 translate-x-0 scale-100"
             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-x-0"
             x-transition:leave-end="opacity-0 translate-x-20"
-            class="pointer-events-auto group relative flex items-start gap-3 overflow-hidden rounded-xl border border-zinc-200 bg-white/80 p-4 shadow-lg backdrop-blur-md dark:border-zinc-700 dark:bg-zinc-900/80">
+            class="pointer-events-auto group relative flex items-start gap-3 overflow-hidden rounded-md border border-zinc-200 bg-white dark:bg-zinc-900 p-4 shadow-md dark:border-zinc-700">
             {{-- Icon indicator based on variant --}}
             <div @class([
                 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full',

@@ -19,19 +19,19 @@
                 </div>
             </div>
             <div class="p-6 grid grid-cols-2 gap-4">
-                <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
+                <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-md border border-zinc-100 dark:border-zinc-700">
                     <flux:text size="xs" class="uppercase font-bold text-zinc-400">Total</flux:text>
                     <flux:text size="xl" class="font-black">{{ $leaveStats['total'] }}</flux:text>
                 </div>
-                <div class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                <div class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-md border border-amber-100 dark:border-amber-900/30">
                     <flux:text size="xs" class="uppercase font-bold text-amber-600">Pendientes</flux:text>
                     <flux:text size="xl" class="font-black text-amber-600">{{ $leaveStats['pending'] }}</flux:text>
                 </div>
-                <div class="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+                <div class="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-md border border-emerald-100 dark:border-emerald-900/30">
                     <flux:text size="xs" class="uppercase font-bold text-emerald-600">Aprobadas</flux:text>
                     <flux:text size="xl" class="font-black text-emerald-600">{{ $leaveStats['approved'] }}</flux:text>
                 </div>
-                <div class="p-4 bg-rose-50 dark:bg-rose-900/10 rounded-xl border border-rose-100 dark:border-rose-900/30">
+                <div class="p-4 bg-rose-50 dark:bg-rose-900/10 rounded-md border border-rose-100 dark:border-rose-900/30">
                     <flux:text size="xs" class="uppercase font-bold text-rose-600">Rechazadas</flux:text>
                     <flux:text size="xl" class="font-black text-rose-600">{{ $leaveStats['rejected'] }}</flux:text>
                 </div>
@@ -49,19 +49,19 @@
                 </div>
             </div>
             <div class="p-6 grid grid-cols-2 gap-4">
-                <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700">
+                <div class="p-4 bg-zinc-50 dark:bg-zinc-800 rounded-md border border-zinc-100 dark:border-zinc-700">
                     <flux:text size="xs" class="uppercase font-bold text-zinc-400">Total</flux:text>
                     <flux:text size="xl" class="font-black">{{ $swapStats['total'] }}</flux:text>
                 </div>
-                <div class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                <div class="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-md border border-amber-100 dark:border-amber-900/30">
                     <flux:text size="xs" class="uppercase font-bold text-amber-600">Pendientes</flux:text>
                     <flux:text size="xl" class="font-black text-amber-600">{{ $swapStats['pending'] }}</flux:text>
                 </div>
-                <div class="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+                <div class="p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-md border border-emerald-100 dark:border-emerald-900/30">
                     <flux:text size="xs" class="uppercase font-bold text-emerald-600">Aprobadas</flux:text>
                     <flux:text size="xl" class="font-black text-emerald-600">{{ $swapStats['approved'] }}</flux:text>
                 </div>
-                <div class="p-4 bg-rose-50 dark:bg-rose-900/10 rounded-xl border border-rose-100 dark:border-rose-900/30">
+                <div class="p-4 bg-rose-50 dark:bg-rose-900/10 rounded-md border border-rose-100 dark:border-rose-900/30">
                     <flux:text size="xs" class="uppercase font-bold text-rose-600">Rechazadas</flux:text>
                     <flux:text size="xl" class="font-black text-rose-600">{{ $swapStats['rejected'] }}</flux:text>
                 </div>

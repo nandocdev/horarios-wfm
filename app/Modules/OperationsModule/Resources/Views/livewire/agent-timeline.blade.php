@@ -1,6 +1,6 @@
 <div class="flex flex-col h-full space-y-6 overflow-hidden">
     {{-- Barra Visual del Día (Fija) --}}
-    <div class="flex-none bg-slate-50 p-4 rounded-xl border border-slate-100">
+    <div class="flex-none bg-slate-50 p-4 rounded-md border border-slate-100">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Vista Visual del Día (05:00 - 18:00)</h3>
             <div class="flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-medium text-slate-400">
@@ -21,7 +21,7 @@
                     style="left: {{ $segment['left'] }}%; width: {{ $segment['width'] }}%;"
                 >
                     <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10">
-                        <div class="bg-slate-800 text-white text-[10px] py-1 px-2 rounded shadow-lg whitespace-nowrap">
+                        <div class="bg-slate-800 text-white text-[10px] py-1 px-2 rounded shadow-md whitespace-nowrap">
                             {{ $segment['label'] }}: {{ $segment['time'] }}
                         </div>
                         <div class="w-2 h-2 bg-slate-800 rotate-45 mx-auto -mt-1"></div>

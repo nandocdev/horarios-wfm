@@ -97,7 +97,7 @@
         </div>
 
         <!-- Barra de Herramientas y Navegación -->
-        <div class="flex flex-col gap-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
+        <div class="flex flex-col gap-4 p-4 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
             <div class="flex items-center justify-between gap-4">
                 <div class="flex items-center gap-4 flex-1">
                     <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar archivos en esta carpeta..." icon="magnifying-glass" class="max-w-md" />
@@ -125,7 +125,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
             <!-- Carpetas -->
             @foreach($folders as $folder)
-            <div class="group relative p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-800 hover:shadow-xl hover:shadow-blue-500/5 transition-all cursor-pointer"
+            <div class="group relative p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-blue-300 dark:hover:border-blue-800 hover:shadow-md hover:shadow-blue-500/5 transition-all cursor-pointer"
                  wire:click="navigateTo({{ $folder->id }})">
                 <div class="flex items-start justify-between">
                     <div class="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/40 transition-colors">
@@ -150,7 +150,7 @@
 
             <!-- Archivos -->
             @foreach($files as $file)
-            <div class="group relative p-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-lg transition-all">
+            <div class="group relative p-4 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md transition-all">
                 <div class="flex items-start justify-between">
                     <div class="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 transition-colors">
                         @php
@@ -201,7 +201,7 @@
         </div>
 
         @if($folders->isEmpty() && $files->isEmpty())
-        <div class="flex flex-col items-center justify-center py-32 bg-zinc-50/50 dark:bg-zinc-900/20 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-800">
+        <div class="flex flex-col items-center justify-center py-32 bg-zinc-50/50 dark:bg-zinc-900/20 rounded-md border-2 border-dashed border-zinc-200 dark:border-zinc-800">
             <div class="relative">
                 <flux:icon name="folder-open" class="w-20 h-20 text-zinc-200 dark:text-zinc-800" />
                 <flux:icon name="magnifying-glass" variant="mini" class="absolute -bottom-1 -right-1 text-zinc-400" />

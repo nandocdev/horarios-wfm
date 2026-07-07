@@ -10,7 +10,7 @@
         </div>
     @else
     {{-- Cabecera: Perfil del agente + selector de empleado para supervisores --}}
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/40 p-6 rounded-2xl border border-zinc-800">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/40 p-6 rounded-md border border-zinc-800">
         <div class="flex items-center gap-4">
             @if($this->employee)
                 <flux:avatar size="lg" class="bg-blue-600/20 text-blue-400 border border-blue-500/30" />
@@ -310,7 +310,7 @@
                 <div class="space-y-4">
                     {{-- Medalla 1 --}}
                     @if($adherence >= 92)
-                        <div class="flex items-center gap-3 p-3 bg-green-950/20 border border-green-800/30 rounded-xl">
+                        <div class="flex items-center gap-3 p-3 bg-green-950/20 border border-green-800/30 rounded-md">
                             <flux:icon name="trophy" class="w-8 h-8 text-green-400" />
                             <div>
                                 <h4 class="text-sm font-bold text-green-200">Adherencia de Oro</h4>
@@ -321,7 +321,7 @@
                     
                     {{-- Medalla 2 --}}
                     @if(($perf['summary']['total_calls'] ?? 0) >= 40)
-                        <div class="flex items-center gap-3 p-3 bg-blue-950/20 border border-blue-800/30 rounded-xl">
+                        <div class="flex items-center gap-3 p-3 bg-blue-950/20 border border-blue-800/30 rounded-md">
                             <flux:icon name="bolt" class="w-8 h-8 text-blue-400" />
                             <div>
                                 <h4 class="text-sm font-bold text-blue-200">Alta Productividad</h4>
@@ -330,7 +330,7 @@
                         </div>
                     @endif
 
-                    <div class="flex items-center gap-3 p-3 bg-zinc-800/30 rounded-xl">
+                    <div class="flex items-center gap-3 p-3 bg-zinc-800/30 rounded-md">
                         <flux:icon name="sparkles" class="w-8 h-8 text-amber-400" />
                         <div>
                             <h4 class="text-sm font-bold text-zinc-200">Desempeño Constante</h4>

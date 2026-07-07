@@ -13,7 +13,7 @@
     @if(count($qualityCapsules) > 0)
     <div x-data="{ current: 0, count: {{ count($qualityCapsules) }} }" 
          x-init="setInterval(() => { current = (current + 1) % count }, 8000)" 
-         class="w-full relative overflow-hidden rounded-xl border border-blue-200 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/10">
+         class="w-full relative overflow-hidden rounded-md border border-blue-200 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/10">
         <div class="flex transition-transform duration-500 ease-in-out" :style="`transform: translateX(-${current * 100}%)`">
             @foreach($qualityCapsules as $index => $capsule)
             <div class="w-full flex-shrink-0 p-4">

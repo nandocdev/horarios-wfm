@@ -11,7 +11,7 @@
 
         <!-- Hero Section (Se mantiene intacto según requerimiento) -->
         <section class="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800">
-            <div class="absolute inset-x-0 top-0 h-48 bg-gradient-to-r from-cyan-800 to-cyan-500 to-transparent">
+            <div class="absolute inset-x-0 top-0 h-48 bg-slate-100 dark:bg-slate-900">
             </div>
 
             <div class="relative mx-auto max-w-[85rem] px-4 py-8 sm:px-6 lg:px-8 sm:py-10 lg:py-12">
@@ -41,7 +41,7 @@
 
                     <flux:card class="p-2 shadow-sm">
                         <img src="{{ $employeeImg }}" alt="Reconocimiento de {{ $employeeName }}"
-                            class="h-full min-h-[18rem] w-full rounded-xl object-cover">
+                            class="h-full min-h-[18rem] w-full rounded-md object-cover">
                     </flux:card>
                 </div>
             </div>

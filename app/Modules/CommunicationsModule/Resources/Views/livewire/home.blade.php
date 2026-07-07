@@ -1,7 +1,7 @@
 <div class="flex w-full flex-col">
     <!-- Hero Section: Dinamizada con el mejor Shoutout o Mensaje de Bienvenida -->
     <section class="relative overflow-hidden border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-        <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-cyan-500/10 to-transparent"></div>
+        <div class="absolute inset-x-0 top-0 h-64 bg-slate-100 dark:bg-slate-900"></div>
 
         <div class="relative mx-auto max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
             <div class="grid gap-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-center">
@@ -39,7 +39,7 @@
                         <div class="space-y-4">
                             <flux:heading size="xl" class="text-4xl lg:text-6xl font-black leading-tight">
                                 Conecta con tu <span
-                                    class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">Comunidad
+                                    class="text-slate-900 dark:text-white">Comunidad
                                     Operativa</span>
                             </flux:heading>
                             <flux:text class="text-lg max-w-2xl text-zinc-600 dark:text-zinc-400">
@@ -51,7 +51,7 @@
 
                     <div class="flex flex-wrap gap-4 pt-4">
                         <flux:button wire:click="openShoutoutModal" variant="primary" size="lg" icon="plus"
-                            class="shadow-lg shadow-cyan-500/20">
+                            class="shadow-md shadow-cyan-500/20">
                             Publicar Reconocimiento
                         </flux:button>
                         <flux:button variant="outline" size="lg" href="{{ route('filesystem.download-center') }}" icon="folder-arrow-down" wire:navigate>
@@ -65,14 +65,14 @@
 
                 <div class="hidden lg:block relative">
                     <div
-                        class="absolute -inset-4 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-3xl blur-2xl opacity-20 animate-pulse">
+                        class="absolute -inset-4 rounded-md bg-slate-200 dark:bg-slate-800 opacity-20">
                     </div>
                     <flux:card
-                        class="relative overflow-hidden p-2 shadow-2xl border-white dark:border-zinc-800 rotate-2 hover:rotate-0 transition-transform duration-500">
+                        class="relative overflow-hidden p-2 shadow-md border-white dark:border-zinc-800 rotate-2 hover:rotate-0 transition-transform duration-500">
                         <img src="{{ ($featuredShoutout && $featuredShoutout->hasMedia('banner')) ? $featuredShoutout->getFirstMediaUrl('banner') : (($featuredShoutout && $featuredShoutout->employee->user?->avatar_url) ? $featuredShoutout->employee->user->avatar_url : asset('img/comms-hero.jpg')) }}"
                             alt="Comunicaciones"
-                            class="aspect-square w-full rounded-2xl object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            class="aspect-square w-full rounded-md object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700">
+                        <div class="absolute inset-0 bg-black/40"></div>
                         @if($featuredShoutout)
                             <div class="absolute bottom-6 left-6 right-6 text-center">
                                 <flux:text class="text-white font-bold italic">#OrgulloCSS</flux:text>
@@ -105,13 +105,13 @@
                     <div class="grid gap-8 md:grid-cols-2">
                         @forelse ($newsItems as $news)
                             <flux:card
-                                class="group flex flex-col overflow-hidden p-0 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/10 border-none bg-zinc-50/50 dark:bg-zinc-800/30">
+                                class="group flex flex-col overflow-hidden p-0 transition-all duration-300 hover:shadow-md hover:shadow-cyan-500/10 border-none bg-zinc-50/50 dark:bg-zinc-800/30">
                                 <div class="relative h-56 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                                     <img src="{{ $news->getFirstMediaUrl('featured_image') ?: asset('img/news-placeholder.png') }}"
                                         alt="{{ $news->title }}"
                                         class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
                                     <div
-                                        class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                                         <flux:button wire:click="viewNews({{ $news->id }})" variant="primary" size="sm"
                                             class="w-full">
                                             Leer Artículo Completo
@@ -119,7 +119,7 @@
                                     </div>
                                     <div class="absolute top-4 left-4">
                                         <flux:badge color="cyan" size="sm"
-                                            class="backdrop-blur-md bg-white/80 dark:bg-zinc-900/80">
+                                            class="bg-white/90 dark:bg-zinc-900/90">
                                             {{ $news->categories->first()->name ?? 'General' }}
                                         </flux:badge>
                                     </div>
@@ -228,7 +228,7 @@
             <!-- COLUMNA DERECHA: Sidebar -->
             <aside class="space-y-8">
                 <!-- Accesos Rápidos Premium -->
-                <flux:card class="bg-gradient-to-br from-zinc-900 to-zinc-800 text-white border-none shadow-xl">
+                <flux:card class="bg-zinc-900 text-white border-none shadow-md">
                     <flux:heading size="lg" class="text-white">Accesos Rápidos</flux:heading>
                     <flux:subheading class="text-zinc-400 mb-6">Herramientas esenciales.</flux:subheading>
 
@@ -243,9 +243,9 @@
                         @endphp
                         @foreach ($quickLinks as $item)
                             <flux:button href="{{ Route::has($item['route']) ? route($item['route']) : '#' }}" wire:navigate
-                                class="flex flex-col items-center gap-3 p-4 h-auto rounded-2xl bg-white/5 hover:bg-white/10 transition-colors group border-none">
+                                class="flex flex-col items-center gap-3 p-4 h-auto rounded-md bg-white/5 hover:bg-white/10 transition-colors group border-none">
                                 <div
-                                    class="w-10 h-10 rounded-xl bg-{{ $item['color'] }}-500/20 flex items-center justify-center text-{{ $item['color'] }}-400 group-hover:scale-110 transition-transform mb-1">
+                                    class="w-10 h-10 rounded-md bg-{{ $item['color'] }}-500/20 flex items-center justify-center text-{{ $item['color'] }}-400 group-hover:scale-110 transition-transform mb-1">
                                     <flux:icon name="{{ $item['icon'] }}" class="w-5 h-5" />
                                 </div>
                                 <span
@@ -257,7 +257,7 @@
 
                 <!-- Encuesta Dinámica -->
                 @if($activePoll)
-                    <flux:card class="overflow-hidden relative border-none shadow-lg">
+                    <flux:card class="overflow-hidden relative border-none shadow-md">
                         <div class="absolute top-0 right-0 p-4 opacity-5">
                             <flux:icon name="presentation-chart-line" class="w-20 h-20" />
                         </div>
@@ -298,7 +298,7 @@
                                         @endforeach
                                     </flux:radio.group>
 
-                                    <flux:button type="submit" variant="primary" class="w-full shadow-lg shadow-cyan-500/20">
+                                    <flux:button type="submit" variant="primary" class="w-full shadow-md shadow-cyan-500/20">
                                         Enviar Voto
                                     </flux:button>
                                 </form>
@@ -338,11 +338,11 @@
                         $hasBanner = $shoutout->hasMedia('banner');
                     @endphp
                     <flux:card
-                        class="relative flex flex-col p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden border-none {{ $hasBanner ? 'text-white' : 'bg-white dark:bg-zinc-800' }}">
+                        class="relative flex flex-col p-6 transition-all duration-300 hover:shadow-md hover:-translate-y-1 overflow-hidden border-none {{ $hasBanner ? 'text-white' : 'bg-white dark:bg-zinc-800' }}">
                         
                         @if($hasBanner)
                             <img src="{{ $shoutout->getFirstMediaUrl('banner') }}" class="absolute inset-0 w-full h-full object-cover z-0">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10"></div>
+                            <div class="absolute inset-0 bg-black/70 z-10"></div>
                         @endif
 
                         <div class="relative z-20 flex flex-col h-full">
@@ -395,7 +395,7 @@
                     </flux:card>
                 @empty
                     <div
-                        class="col-span-full py-20 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl">
+                        class="col-span-full py-20 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-md">
                         <flux:icon name="users" class="w-12 h-12 mx-auto text-zinc-300 mb-4" />
                         <flux:heading size="md">Cultura de equipo</flux:heading>
                         <flux:text class="mt-1">Sé el primero en reconocer el buen trabajo de un compañero.</flux:text>
@@ -433,7 +433,7 @@
                     </div>
 
                     @if($viewingNews->getFirstMediaUrl('featured_image'))
-                        <div class="rounded-3xl overflow-hidden shadow-2xl">
+                        <div class="rounded-md overflow-hidden shadow-md">
                             <img src="{{ $viewingNews->getFirstMediaUrl('featured_image') }}"
                                 class="w-full object-cover max-h-[400px]" />
                         </div>
@@ -450,7 +450,7 @@
                             <div class="grid gap-3 sm:grid-cols-2">
                                 @foreach ($viewingNews->getMedia('attachments') as $media)
                                     <a href="{{ $media->getUrl() }}" download
-                                        class="flex items-center gap-3 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 transition-colors border border-zinc-100 dark:border-zinc-800 group">
+                                        class="flex items-center gap-3 p-4 rounded-md bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 transition-colors border border-zinc-100 dark:border-zinc-800 group">
                                         <flux:icon name="paper-clip" class="w-5 h-5 text-zinc-400 group-hover:text-cyan-500" />
                                         <div class="flex-1 min-w-0">
                                             <flux:text class="text-xs font-bold truncate">{{ $media->file_name }}</flux:text>
@@ -484,7 +484,7 @@
                                         {{ $comment->created_at->diffForHumans(null, true) }}</flux:text>
                                 </div>
                                 <div
-                                    class="bg-white dark:bg-zinc-800 p-3 rounded-2xl rounded-tl-none shadow-sm border border-zinc-100 dark:border-zinc-700">
+                                    class="bg-white dark:bg-zinc-800 p-3 rounded-md rounded-tl-none shadow-sm border border-zinc-100 dark:border-zinc-700">
                                     <flux:text class="text-sm leading-relaxed">{{ $comment->content }}</flux:text>
                                 </div>
                             </div>
@@ -502,8 +502,8 @@
                             <form wire:submit="submitComment" class="space-y-3">
                                 <input type="hidden" wire:model="commentForm.news_id">
                                 <flux:textarea wire:model="commentForm.content" placeholder="Escribe tu opinión..." rows="3"
-                                    variant="subtle" class="text-sm rounded-2xl" />
-                                <flux:button type="submit" variant="primary" class="w-full rounded-xl">Publicar Comentario
+                                    variant="subtle" class="text-sm rounded-md" />
+                                <flux:button type="submit" variant="primary" class="w-full rounded-md">Publicar Comentario
                                 </flux:button>
                             </form>
                         </div>
@@ -543,7 +543,7 @@
                     <flux:modal.close>
                         <flux:button variant="ghost">Cancelar</flux:button>
                     </flux:modal.close>
-                    <flux:button type="submit" variant="primary" class="px-8 shadow-lg shadow-cyan-500/20">
+                    <flux:button type="submit" variant="primary" class="px-8 shadow-md shadow-cyan-500/20">
                         Enviar Reconocimiento
                     </flux:button>
                 </div>

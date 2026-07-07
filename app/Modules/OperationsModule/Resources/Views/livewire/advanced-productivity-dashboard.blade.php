@@ -1,6 +1,6 @@
 <div class="p-6 space-y-8 bg-slate-50 min-h-screen">
     {{-- Header --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white p-6 rounded-md shadow-sm border border-slate-200">
         <div>
             <flux:heading size="xl" level="1" class="flex items-center gap-2">
                 <flux:icon name="presentation-chart-line" variant="mini" class="text-indigo-600" />
@@ -59,7 +59,7 @@
                 <flux:heading size="lg">Top PWI (Eficiencia)</flux:heading>
                 <div class="space-y-3">
                     @foreach($topPerformers as $m)
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-md">
                             <div class="flex items-center gap-3">
                                 <flux:avatar src="{{ $m->employee->avatar_url }}" size="xs" />
                                 <div class="min-w-0">
@@ -77,7 +77,7 @@
                 <flux:heading size="lg">Mayores Gaps (Oportunidad)</flux:heading>
                 <div class="space-y-3">
                     @foreach($underPerformers as $m)
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-md">
                             <div class="flex items-center gap-3">
                                 <flux:avatar src="{{ $m->employee->avatar_url }}" size="xs" />
                                 <div class="min-w-0">
@@ -199,7 +199,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             {{-- Columna 1 --}}
             <div class="space-y-4">
-                <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                <div class="p-4 bg-white rounded-md border border-slate-100 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <flux:badge color="blue" size="sm" inset="top bottom">WU</flux:badge>
                         <p class="text-sm font-bold text-slate-800">Work Units (Carga Atendida)</p>
@@ -210,7 +210,7 @@
                     </p>
                 </div>
 
-                <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                <div class="p-4 bg-white rounded-md border border-slate-100 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <flux:badge color="indigo" size="sm" inset="top bottom">AHTw</flux:badge>
                         <p class="text-sm font-bold text-slate-800">AHT Ponderado (Meta)</p>
@@ -224,7 +224,7 @@
 
             {{-- Columna 2 --}}
             <div class="space-y-4">
-                <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                <div class="p-4 bg-white rounded-md border border-slate-100 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <flux:badge color="amber" size="sm" inset="top bottom">CAP</flux:badge>
                         <p class="text-sm font-bold text-slate-800">Capacidad Teórica</p>
@@ -235,7 +235,7 @@
                     </p>
                 </div>
 
-                <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                <div class="p-4 bg-white rounded-md border border-slate-100 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <flux:badge color="rose" size="sm" inset="top bottom">GAP</flux:badge>
                         <p class="text-sm font-bold text-slate-800">Brecha Operativa (Gap)</p>
@@ -249,7 +249,7 @@
 
             {{-- Columna 3 --}}
             <div class="space-y-4">
-                <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 shadow-sm">
+                <div class="p-4 bg-indigo-50 rounded-md border border-indigo-100 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <flux:badge color="indigo" size="sm" inset="top bottom">PWI</flux:badge>
                         <p class="text-sm font-bold text-indigo-900">Productive Work Index</p>
@@ -260,7 +260,7 @@
                     </p>
                 </div>
 
-                <div class="p-4 bg-white rounded-xl border border-slate-100 shadow-sm">
+                <div class="p-4 bg-white rounded-md border border-slate-100 shadow-sm">
                     <div class="flex items-center gap-2 mb-2">
                         <flux:badge color="zinc" size="sm" inset="top bottom">EFF</flux:badge>
                         <p class="text-sm font-bold text-slate-800">Efficiency (Aprovechamiento)</p>

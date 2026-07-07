@@ -37,7 +37,7 @@
         </flux:heading>
 
         @if($periods->isEmpty())
-            <div class="rounded-xl border border-dashed border-zinc-200 dark:border-zinc-700 p-10 text-center">
+            <div class="rounded-md border border-dashed border-zinc-200 dark:border-zinc-700 p-10 text-center">
                 <flux:icon name="no-symbol" class="mx-auto w-10 h-10 text-zinc-300 dark:text-zinc-600 mb-3" />
                 <flux:text class="text-zinc-500">
                     {{ $isWfm ? 'No hay periodos aprobados para esta fecha. Crea uno con el botón superior.' : 'No hay periodos aprobados para tu equipo en esta fecha.' }}
@@ -53,7 +53,7 @@
                         $isFull = $used >= $max;
                         $barColor = $isFull ? 'bg-red-500' : ($pct >= 70 ? 'bg-amber-400' : 'bg-emerald-500');
                     @endphp
-                    <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-shadow p-5 space-y-4">
+                    <div class="rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-shadow p-5 space-y-4">
 
                         {{-- Badge actividad --}}
                         <div class="flex items-start justify-between gap-2">

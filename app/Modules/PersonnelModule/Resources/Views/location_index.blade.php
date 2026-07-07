@@ -9,7 +9,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($provinces as $province)
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow">
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         <h2 class="text-lg font-semibold text-gray-700 mb-3">{{ $province->name }}</h2>
 
                         @if($province->districts->count() > 0)

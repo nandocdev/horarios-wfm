@@ -1,6 +1,6 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
     {{-- Encabezado Principal --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-xl border border-zinc-250/60 dark:border-zinc-700">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-md border border-zinc-250/60 dark:border-zinc-700">
         <div class="space-y-1">
             <div class="flex items-center gap-2">
                 <flux:badge size="sm" color="indigo" class="font-bold">OPERACIÓN</flux:badge>
@@ -119,7 +119,7 @@
             @if($selectedQueue && empty($search))
                 {{-- Vista Especial Agrupada para la Cola Seleccionada --}}
                 <div class="space-y-6">
-                    <div class="bg-indigo-50/80 dark:bg-zinc-800/80 p-5 rounded-xl flex items-center justify-between gap-4 border border-indigo-100 dark:border-zinc-700 shadow-sm">
+                    <div class="bg-indigo-50/80 dark:bg-zinc-800/80 p-5 rounded-md flex items-center justify-between gap-4 border border-indigo-100 dark:border-zinc-700 shadow-sm">
                         <div class="flex items-center gap-3">
                             <span class="text-3xl">📞</span>
                             <div>
@@ -174,7 +174,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="py-16 flex flex-col items-center justify-center text-zinc-500 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/20">
+                        <div class="py-16 flex flex-col items-center justify-center text-zinc-500 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-md bg-zinc-50/20">
                             <flux:icon name="document-text" size="xl" class="mb-3 opacity-20" />
                             <flux:text class="font-medium text-zinc-700 dark:text-zinc-300">Sin publicaciones asociadas</flux:text>
                             <flux:text class="text-xs text-zinc-400 mt-1">No hay artículos vigentes cargados para la cola seleccionada.</flux:text>
@@ -230,7 +230,7 @@
                             </div>
                         </flux:card>
                     @empty
-                        <div class="py-20 flex flex-col items-center justify-center text-zinc-500 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-xl bg-zinc-50/20">
+                        <div class="py-20 flex flex-col items-center justify-center text-zinc-500 border-2 border-dashed border-zinc-200 dark:border-zinc-700 rounded-md bg-zinc-50/20">
                             <flux:icon name="magnifying-glass" size="xl" class="mb-3 opacity-20 text-zinc-400" />
                             <flux:text class="font-bold text-zinc-700 dark:text-zinc-300 text-lg">No se encontraron artículos</flux:text>
                             <flux:text class="text-xs text-zinc-400 mt-1">Intenta ajustando los filtros laterales o escribe otra palabra clave.</flux:text>

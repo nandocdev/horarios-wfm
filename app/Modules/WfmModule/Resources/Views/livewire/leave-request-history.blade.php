@@ -1,4 +1,4 @@
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-6">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Historial de Permisos</flux:heading>
@@ -20,7 +20,7 @@
             </thead>
             <tbody class="divide-y dark:divide-zinc-800">
                 @forelse($leaves as $leave)
-                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
                         <td class="p-4 text-sm font-medium">
                             {{ $leave->start_time->format('d M, Y') }}
                         </td>

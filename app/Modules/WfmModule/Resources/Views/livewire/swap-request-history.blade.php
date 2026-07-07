@@ -1,4 +1,4 @@
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-6">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Historial de Solicitudes</flux:heading>
@@ -25,7 +25,7 @@
                         $isRequester = $request->requester_id === $currentEmployeeId;
                         $peer = $isRequester ? $request->recipient : $request->requester;
                     @endphp
-                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
                         <td class="p-4 text-sm font-medium">
                             {{ $request->start_date->format('d M, Y') }}
                             @if($request->end_date && $request->end_date->gt($request->start_date))

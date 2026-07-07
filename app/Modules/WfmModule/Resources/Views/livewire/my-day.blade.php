@@ -50,7 +50,7 @@
         </flux:card>
 
         <flux:card class="p-4 flex items-center gap-4">
-            <div class="p-3 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg">
+            <div class="p-3 bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 rounded-lg">
                 <flux:icon name="chart-pie" variant="mini" />
             </div>
             <div>

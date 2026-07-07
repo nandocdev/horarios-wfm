@@ -42,7 +42,7 @@
                     <tbody>
                         @forelse($members as $member)
                             <tr
-                                class="border-b border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                class="border-b border-zinc-100 dark:border-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-opacity">
                                 <td class="py-3 px-4">
                                     <div class="flex items-center gap-3">
                                         <flux:avatar initials="{{ $member->initials }}" size="sm" />
@@ -63,12 +63,12 @@
                                             return $day->between($req->start_time->startOfDay(), $req->end_time->endOfDay());
                                         });
                                     @endphp
-                                    <td class="py-2 px-1 text-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                                    <td class="py-2 px-1 text-center cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-opacity"
                                         wire:click="openIncidentModal({{ $member->id }}, '{{ $day->toDateString() }}')">
                                         <div class="flex flex-col gap-1">
                                             @foreach($dayExceptions as $ex)
                                                 <div wire:click.stop="editIncident({{ $ex->id }})"
-                                                    class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto hover:brightness-95 transition-all shadow-sm"
+                                                    class="px-2 py-1 rounded text-[10px] font-bold uppercase truncate max-w-[100px] mx-auto hover:brightness-95 transition-opacity shadow-sm"
                                                     style="background-color: {{ $ex->reason?->color ?? '#ef4444' }}20; color: {{ $ex->reason?->color ?? '#ef4444' }}; border: 1px solid {{ $ex->reason?->color ?? '#ef4444' }}40;"
                                                     title="{{ $ex->reason?->name }}: {{ $ex->remarks }}">
                                                     {{ $ex->reason?->name }}

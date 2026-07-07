@@ -64,7 +64,7 @@
                                     </div>
                                 @elseif($assignment)
                                     <button wire:click="editAssignment({{ $assignment->id }})"
-                                        class="group flex flex-col items-center justify-center rounded-lg border border-transparent p-2 transition-colors hover:border-zinc-200 hover:bg-zinc-50 dark:hover:border-zinc-700 dark:hover:bg-zinc-800">
+                                        class="group flex flex-col items-center justify-center rounded-lg border border-transparent p-2 transition-opacity hover:border-zinc-200 hover:bg-zinc-50 dark:hover:border-zinc-700 dark:hover:bg-zinc-800">
                                         <span
                                             class="text-[10px] font-bold uppercase text-zinc-400">{{ $assignment->schedule?->name ?? 'OFF' }}</span>
                                         <span class="text-xs font-semibold">

@@ -49,7 +49,7 @@
                 @endphp
  
                 <flux:card wire:click="selectDay({{ $num }})" @class([
-                    'p-4 flex flex-col h-full cursor-pointer transition-all duration-200',
+                    'p-4 flex flex-col h-full cursor-pointer transition-opacity duration-200',
                     'ring-2 ring-primary-500 shadow-md scale-[1.02] bg-primary-50/30 dark:bg-primary-900/10' => $isSelected,
                     'hover:bg-zinc-100 dark:hover:bg-zinc-800' => !$isSelected,
                     'bg-zinc-50 dark:bg-zinc-900/50' => !$isToday && !$assignment && !$isSelected && !$dayException,
@@ -219,9 +219,9 @@
 
                 <div class="grid grid-cols-1 gap-4">
                     <a href="{{ route('schedules.swap-request') }}" wire:navigate class="block">
-                        <flux:card class="p-4 hover:shadow-md transition-shadow cursor-pointer group">
+                        <flux:card class="p-4 hover:shadow-md transition-opacity cursor-pointer group">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-colors">
+                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
                                     <flux:icon name="arrows-right-left" size="sm" />
                                 </div>
                                 <div class="flex-grow">
@@ -234,9 +234,9 @@
                     </a>
 
                     <a href="{{ route('schedules.leave-request', ['type' => 'quarterly']) }}" wire:navigate class="block">
-                        <flux:card class="p-4 hover:shadow-md transition-shadow cursor-pointer group">
+                        <flux:card class="p-4 hover:shadow-md transition-opacity cursor-pointer group">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-colors">
+                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
                                     <flux:icon name="calendar-days" size="sm" />
                                 </div>
                                 <div class="flex-grow">
@@ -249,9 +249,9 @@
                     </a>
 
                     <a href="{{ route('schedules.leave-request', ['type' => 'compensatory']) }}" wire:navigate class="block">
-                        <flux:card class="p-4 hover:shadow-md transition-shadow cursor-pointer group">
+                        <flux:card class="p-4 hover:shadow-md transition-opacity cursor-pointer group">
                             <div class="flex items-center gap-4">
-                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-colors">
+                                <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
                                     <flux:icon name="sparkles" size="sm" />
                                 </div>
                                 <div class="flex-grow">

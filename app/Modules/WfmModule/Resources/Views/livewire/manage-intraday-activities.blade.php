@@ -53,7 +53,7 @@
                         $isFull = $used >= $max;
                         $barColor = $isFull ? 'bg-red-500' : ($pct >= 70 ? 'bg-amber-400' : 'bg-emerald-500');
                     @endphp
-                    <div class="rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-shadow p-5 space-y-4">
+                    <div class="rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-opacity p-5 space-y-4">
 
                         {{-- Badge actividad --}}
                         <div class="flex items-start justify-between gap-2">
@@ -88,7 +88,7 @@
                                 <span class="{{ $isFull ? 'text-red-500 font-semibold' : '' }}">{{ $used }} / {{ $max }}</span>
                             </div>
                             <div class="w-full bg-zinc-100 dark:bg-zinc-800 rounded-full h-2">
-                                <div class="{{ $barColor }} h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
+                                <div class="{{ $barColor }} h-2 rounded-full transition-opacity duration-150" style="width: {{ $pct }}%"></div>
                             </div>
                         </div>
 

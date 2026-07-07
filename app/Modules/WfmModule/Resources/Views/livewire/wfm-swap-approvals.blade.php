@@ -1,4 +1,4 @@
-<div class="max-w-6xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <flux:heading size="xl">Aprobación de Cambios de Turno (WFM)</flux:heading>
@@ -34,7 +34,7 @@
             </thead>
             <tbody class="divide-y dark:divide-zinc-800">
                 @forelse($requests as $request)
-                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-colors">
+                    <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition-opacity">
                         <td class="p-4 text-sm font-medium">
                             {{ $request->start_date->format('d/m/Y') }}
                             @if($request->end_date && $request->end_date->ne($request->start_date))

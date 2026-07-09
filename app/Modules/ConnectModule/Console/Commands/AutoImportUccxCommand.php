@@ -10,7 +10,7 @@ use App\Modules\ConnectModule\Actions\ImportUccxPerformanceAction;
 use App\Modules\ConnectModule\Actions\ImportUccxTransitionsAction;
 use App\Modules\ConnectModule\Emails\ImportErrorNotification;
 use App\Modules\OperationsModule\Actions\ReconcileEmployeeAttendanceAction;
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -78,7 +78,8 @@ class AutoImportUccxCommand extends Command
                     if ($dirName === 'not_ready' && $count > 0) {
                         $this->comment('Iniciando reconciliación de asistencia post-importación...');
                         $reconcileAction = app(ReconcileEmployeeAttendanceAction::class);
-                        $employees = Employee::where('is_active', true)->get();
+                        $employeeRepo = app(EmployeeRepositoryInterface::class);
+                        $employees = $employeeRepo->findActive();
                         foreach ([now(), now()->subDay()] as $date) {
                             foreach ($employees as $employee) {
                                 $reconcileAction->execute($employee, $date);

@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Actions;
 
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Contracts\Employees\EmployeeLookupRepositoryInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 final class ImportUccxPerformanceAction
 {
-    /** @var array<string, int> */
-    private array $employeeCache = [];
+    public function __construct(
+        private readonly EmployeeLookupRepositoryInterface $employeeLookup,
+    ) {
+        $this->employeeLookup->warmup();
+    }
 
     public function execute(string $filePath): int
     {
@@ -35,7 +38,6 @@ final class ImportUccxPerformanceAction
 
         $importedCount = 0;
         $rowCount = 0;
-        $this->primeCaches();
 
         DB::beginTransaction();
         try {
@@ -76,16 +78,11 @@ final class ImportUccxPerformanceAction
         return $importedCount;
     }
 
-    private function primeCaches(): void
-    {
-        $this->employeeCache = Employee::whereNotNull('username')->pluck('id', 'username')->toArray();
-    }
-
     private function persistRecord(array $row): void
     {
         $loginId = $row['ID_de_conexión_del_agente'];
         $startTime = CarbonImmutable::parse($row['hora_de_inicio_de_llamada']);
-        $employeeId = $this->employeeCache[$loginId] ?? null;
+        $employeeId = $this->employeeLookup->resolve(loginId: $loginId);
 
         AgentCallPerformance::updateOrCreate(
             [

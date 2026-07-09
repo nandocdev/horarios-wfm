@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Actions;
 
 use App\Modules\ConnectModule\Models\AgentStateTransition;
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Contracts\Employees\EmployeeLookupRepositoryInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 final class ImportUccxTransitionsAction
 {
-    /** @var array<string, int> */
-    private array $employeeCache = [];
+    public function __construct(
+        private readonly EmployeeLookupRepositoryInterface $employeeLookup,
+    ) {
+        $this->employeeLookup->warmup();
+    }
 
     public function execute(string $filePath): int
     {
@@ -35,7 +38,6 @@ final class ImportUccxTransitionsAction
 
         $importedCount = 0;
         $rowCount = 0;
-        $this->primeCaches();
 
         DB::beginTransaction();
         try {
@@ -77,17 +79,11 @@ final class ImportUccxTransitionsAction
         return $importedCount;
     }
 
-    private function primeCaches(): void
-    {
-        // En not_ready usamos agent_login_id que debería ser el username del empleado
-        $this->employeeCache = Employee::whereNotNull('username')->pluck('id', 'username')->toArray();
-    }
-
     private function persistRecord(array $row): void
     {
         $loginId = $row['agent_login_id'];
         $transitionTime = CarbonImmutable::parse($row['transition_time']);
-        $employeeId = $this->employeeCache[$loginId] ?? null;
+        $employeeId = $this->employeeLookup->resolve(loginId: $loginId);
 
         AgentStateTransition::updateOrCreate(
             [

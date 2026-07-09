@@ -7,8 +7,7 @@ namespace App\Modules\ConnectModule\Actions;
 use App\Modules\ConnectModule\DTOs\UccxCallDataDTO;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
-use App\Modules\PersonnelModule\Models\Employee;
-use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
+use App\Shared\Contracts\Employees\EmployeeLookupRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -17,8 +16,11 @@ final class ImportUccxInboundAction
     /** @var array<string, int> */
     private array $queueCache = [];
 
-    /** @var array<string, int> */
-    private array $employeeCache = [];
+    public function __construct(
+        private readonly EmployeeLookupRepositoryInterface $employeeLookup,
+    ) {
+        $this->employeeLookup->warmup();
+    }
 
     public function execute(string $filePath): int
     {
@@ -90,54 +92,7 @@ final class ImportUccxInboundAction
     {
         $this->queueCache = CallQueue::pluck('id', 'name')->toArray();
 
-        try {
-            $finesseClient = app(CiscoFinesseClient::class);
-            $usersResponse = $finesseClient->getAllUsers();
-            $ciscoUsers = $usersResponse['User'] ?? [];
-
-            // Normalizar si la respuesta de Cisco es un solo objeto
-            if (isset($ciscoUsers['loginId'])) {
-                $ciscoUsers = [$ciscoUsers];
-            }
-
-            // Obtener todos los empleados con su username y nombres
-            $employees = Employee::whereNotNull('username')->get(['id', 'username', 'first_name', 'last_name']);
-
-            // Mapas locales para cruce rápido
-            $usernameToId = $employees->mapWithKeys(fn ($e) => [strtolower($e->username) => $e->id])->toArray();
-            $nameToId = $employees->mapWithKeys(function ($e) {
-                $fullName = strtolower(trim($e->first_name.' '.$e->last_name));
-
-                return [$fullName => $e->id];
-            })->filter(fn ($id, $name) => ! empty($name))->toArray();
-
-            foreach ($ciscoUsers as $u) {
-                $loginId = strtolower((string) ($u['loginId'] ?? $u['loginName'] ?? ''));
-                $firstName = is_array($u['firstName'] ?? '') ? '' : ($u['firstName'] ?? '');
-                $lastName = is_array($u['lastName'] ?? '') ? '' : ($u['lastName'] ?? '');
-                $ciscoName = strtolower(trim($firstName.' '.$lastName));
-
-                $empId = $usernameToId[$loginId] ?? $nameToId[$ciscoName] ?? null;
-
-                if ($empId) {
-                    $this->employeeCache[$loginId] = $empId;
-                    if ($ciscoName) {
-                        $this->employeeCache[$ciscoName] = $empId;
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('ImportUccxInboundAction: Error al obtener usuarios de Cisco para mapeo: '.$e->getMessage());
-            // Fallback: usar nombres y usernames locales
-            $employees = Employee::whereNotNull('username')->get(['id', 'username', 'first_name', 'last_name']);
-            foreach ($employees as $employee) {
-                $this->employeeCache[strtolower($employee->username)] = $employee->id;
-                $fullName = strtolower(trim($employee->first_name.' '.$employee->last_name));
-                if ($fullName) {
-                    $this->employeeCache[$fullName] = $employee->id;
-                }
-            }
-        }
+        // EmployeeLookupRepository ya precargó en el constructor (warmup)
     }
 
     private function persistRecord(UccxCallDataDTO $dto): void
@@ -154,8 +109,7 @@ final class ImportUccxInboundAction
 
         $employeeId = null;
         if ($dto->agentName) {
-            $cleanAgentName = strtolower(trim($dto->agentName));
-            $employeeId = $this->employeeCache[$cleanAgentName] ?? null;
+            $employeeId = $this->employeeLookup->resolve(loginId: null, fullName: $dto->agentName);
         }
 
         $status = $this->mapStatus($dto->contactDisposition);

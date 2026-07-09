@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Notifications\SwapRequestNotification;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -46,7 +46,7 @@ class RequestShiftSwap extends Component
 
     public function updatedRequestedDate()
     {
-        if (!$this->endDate || Carbon::parse($this->endDate)->lt(Carbon::parse($this->requestedDate))) {
+        if (! $this->endDate || Carbon::parse($this->endDate)->lt(Carbon::parse($this->requestedDate))) {
             $this->endDate = $this->requestedDate;
         }
         $this->loadAssignments();
@@ -80,6 +80,7 @@ class RequestShiftSwap extends Component
         if (! $week) {
             $this->requesterAssignment = null;
             $this->recipientAssignment = null;
+
             return;
         }
 
@@ -108,6 +109,7 @@ class RequestShiftSwap extends Component
 
         if (! $requester) {
             $this->addError('general', 'No tienes un perfil de empleado asociado.');
+
             return;
         }
 
@@ -116,17 +118,20 @@ class RequestShiftSwap extends Component
         // 1. Validar que tenga el mismo cargo
         if ($recipient->position_id !== $requester->position_id) {
             $this->addError('recipientId', "Solo puedes solicitar cambios de turno a compañeros con tu mismo cargo ({$requester->position?->name}).");
+
             return;
         }
 
         // 2. Validar que los turnos existan y sean distintos
         if (! $this->requesterAssignment || ! $this->recipientAssignment) {
             $this->addError('general', 'Ambos empleados deben tener turnos asignados ese día para realizar un intercambio (swap).');
+
             return;
         }
 
         if ($this->requesterAssignment->schedule_id === $this->recipientAssignment->schedule_id) {
             $this->addError('recipientId', 'No puedes realizar un swap con un compañero que tiene tu mismo turno.');
+
             return;
         }
 

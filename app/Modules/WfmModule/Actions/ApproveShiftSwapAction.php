@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\WorkflowsModule\Actions;
+namespace App\Modules\WfmModule\Actions;
 
-use App\Modules\WorkflowsModule\Models\ShiftSwapApproval;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Modules\WfmModule\Models\ShiftSwapApproval;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Support\Facades\DB;
 
@@ -33,7 +33,7 @@ final class ApproveShiftSwapAction
                 'shift_swap_request_id' => $request->id,
                 'approver_id' => $approverEmployeeId,
                 'status' => 'approved',
-                'comment' => 'Aprobado por WFM (Periodo: ' . $startDate->format('d/m') . ' - ' . $endDate->format('d/m') . ')',
+                'comment' => 'Aprobado por WFM (Periodo: '.$startDate->format('d/m').' - '.$endDate->format('d/m').')',
             ]);
 
             // 2. Actualizar estado de la solicitud

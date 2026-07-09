@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Mail;
 
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -25,7 +25,7 @@ class ShiftSwapApprovedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Confirmación de Cambio de Turno - ' . $this->swap->requested_date->format('d/m/Y'),
+            subject: 'Confirmación de Cambio de Turno - '.$this->swap->requested_date->format('d/m/Y'),
         );
     }
 

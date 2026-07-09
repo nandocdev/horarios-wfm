@@ -8,9 +8,10 @@ use App\Modules\AuditModule\Listeners\AuditShiftSwapApprovedListener;
 use App\Modules\AuditModule\Listeners\AuditWeeklySchedulePublishedListener;
 use App\Modules\AuditModule\Models\AuditLog;
 use App\Modules\CoreModule\Models\User;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Models\LeaveRequest;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use App\Shared\Events\LeaveRequestCreated;
 use App\Shared\Events\LeaveRequestDecision;
 use App\Shared\Events\ShiftSwapApproved;
@@ -95,7 +96,7 @@ it('AuditWeeklySchedulePublishedListener registra el log con el contenido correc
 
 it('AuditLeaveRequestCreatedListener registra el log con requestedByUserId', function () {
     $user = User::factory()->create();
-    $employee = \App\Modules\PersonnelModule\Models\Employee::factory()->create();
+    $employee = Employee::factory()->create();
     $leave = LeaveRequest::create([
         'employee_id' => $employee->id,
         'type' => 'quarterly',
@@ -120,7 +121,7 @@ it('AuditLeaveRequestCreatedListener registra el log con requestedByUserId', fun
 
 it('AuditLeaveRequestDecisionListener registra leave_request.approved con decision y reason en after', function () {
     $user = User::factory()->create();
-    $employee = \App\Modules\PersonnelModule\Models\Employee::factory()->create();
+    $employee = Employee::factory()->create();
     $leave = LeaveRequest::create([
         'employee_id' => $employee->id,
         'type' => 'quarterly',
@@ -145,7 +146,7 @@ it('AuditLeaveRequestDecisionListener registra leave_request.approved con decisi
 
 it('AuditLeaveRequestDecisionListener registra leave_request.rejected cuando el status es rejected', function () {
     $user = User::factory()->create();
-    $employee = \App\Modules\PersonnelModule\Models\Employee::factory()->create();
+    $employee = Employee::factory()->create();
     $leave = LeaveRequest::create([
         'employee_id' => $employee->id,
         'type' => 'quarterly',
@@ -168,8 +169,8 @@ it('AuditLeaveRequestDecisionListener registra leave_request.rejected cuando el 
 
 it('AuditShiftSwapApprovedListener registra shift_swap.approved con approverId', function () {
     $user = User::factory()->create();
-    $requester = \App\Modules\PersonnelModule\Models\Employee::factory()->create();
-    $recipient = \App\Modules\PersonnelModule\Models\Employee::factory()->create();
+    $requester = Employee::factory()->create();
+    $recipient = Employee::factory()->create();
     $swap = ShiftSwapRequest::create([
         'requester_id' => $requester->id,
         'recipient_id' => $recipient->id,

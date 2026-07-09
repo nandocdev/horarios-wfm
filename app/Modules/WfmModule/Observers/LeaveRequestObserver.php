@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Observers;
 
+use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\ScheduleException;
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
 use Illuminate\Support\Facades\Log;
 
 class LeaveRequestObserver

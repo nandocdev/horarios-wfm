@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Modules\WorkflowsModule\Actions\ApproveLeaveRequestAction;
-use App\Modules\WorkflowsModule\Actions\RejectLeaveRequestAction;
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
-use App\Modules\WorkflowsModule\Models\LeaveRequestApproval;
-use App\Shared\Events\LeaveRequestDecision;
+use App\Modules\WfmModule\Actions\ApproveLeaveRequestAction;
+use App\Modules\WfmModule\Actions\RejectLeaveRequestAction;
+use App\Modules\WfmModule\Models\LeaveRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 

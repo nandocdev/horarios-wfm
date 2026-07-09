@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Actions;
 
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use App\Modules\WorkflowsModule\Models\ShiftSwapApproval;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
-use App\Shared\Events\ShiftSwapApproved;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +18,7 @@ class ProcessShiftSwapAction
      */
     public function execute(int $requestId, int $approverEmployeeId): bool
     {
-        return DB::transaction(function () use ($requestId, $approverEmployeeId) {
+        return DB::transaction(function () use ($requestId) {
             // 1. Bloqueo pesimista de la solicitud
             $request = ShiftSwapRequest::where('id', $requestId)
                 ->lockForUpdate()

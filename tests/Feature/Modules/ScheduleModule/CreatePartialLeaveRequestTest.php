@@ -7,7 +7,7 @@ namespace Tests\Feature\Modules\ScheduleModule;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Livewire\RequestLeave;
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
+use App\Modules\WfmModule\Models\LeaveRequest;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 

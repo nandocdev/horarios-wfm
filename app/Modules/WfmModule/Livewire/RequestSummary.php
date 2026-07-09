@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Modules\WfmModule\Models\LeaveRequest;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 

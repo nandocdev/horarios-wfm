@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use App\Shared\DTOs\NotificationDTO;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;

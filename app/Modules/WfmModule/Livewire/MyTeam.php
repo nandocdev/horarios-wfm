@@ -7,17 +7,18 @@ namespace App\Modules\WfmModule\Livewire;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
+use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\ScheduleException;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class MyTeam extends Component {
+class MyTeam extends Component
+{
     use WithPagination;
 
     public $date;
@@ -48,7 +49,8 @@ class MyTeam extends Component {
         'remarks' => '',
     ];
 
-    public function openIncidentModal($employeeId, $date) {
+    public function openIncidentModal($employeeId, $date)
+    {
         $this->incidentForm['id'] = null;
         $this->incidentForm['employee_id'] = $employeeId;
         $this->incidentForm['date'] = $date;
@@ -62,7 +64,8 @@ class MyTeam extends Component {
         \Flux::modal('incident-modal')->show();
     }
 
-    public function editIncident($id) {
+    public function editIncident($id)
+    {
         $exception = ScheduleException::findOrFail($id);
 
         $this->incidentForm = [
@@ -80,7 +83,8 @@ class MyTeam extends Component {
         \Flux::modal('incident-modal')->show();
     }
 
-    public function saveIncident() {
+    public function saveIncident()
+    {
         $this->validate([
             'incidentForm.employee_id' => 'required',
             'incidentForm.date' => 'required|date',
@@ -95,8 +99,8 @@ class MyTeam extends Component {
             $startAt = $startAt->startOfDay();
             $endAt = $endAt->endOfDay();
         } else {
-            $startAt = Carbon::parse($this->incidentForm['date'] . ' ' . $this->incidentForm['start_time']);
-            $endAt = Carbon::parse($this->incidentForm['date'] . ' ' . $this->incidentForm['end_time']);
+            $startAt = Carbon::parse($this->incidentForm['date'].' '.$this->incidentForm['start_time']);
+            $endAt = Carbon::parse($this->incidentForm['date'].' '.$this->incidentForm['end_time']);
         }
 
         $data = [
@@ -124,7 +128,8 @@ class MyTeam extends Component {
         \Flux::toast($message);
     }
 
-    public function deleteIncident($id = null) {
+    public function deleteIncident($id = null)
+    {
         $id = $id ?: $this->incidentForm['id'];
 
         if ($id) {
@@ -138,41 +143,44 @@ class MyTeam extends Component {
         }
     }
 
-    public function mount() {
+    public function mount()
+    {
         $this->date = Carbon::now()->format('Y-m-d');
         $this->weekStart = Carbon::now()->startOfWeek();
         $this->weekEnd = Carbon::now()->endOfWeek();
 
         $user = Auth::user();
         $employee = $user->employee;
-        if (!$employee) {
+        if (! $employee) {
             abort(403, 'No tienes un perfil de empleado asociado.');
         }
 
         $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
 
         // Validar acceso al equipo seleccionado inicialmente
-        if ($this->selectedTeam && !$isPowerUser) {
+        if ($this->selectedTeam && ! $isPowerUser) {
             $managedTeamIds = $employee->getManagedTeamIds();
-            if (!in_array($this->selectedTeam, $managedTeamIds)) {
+            if (! in_array($this->selectedTeam, $managedTeamIds)) {
                 $this->selectedTeam = null;
             }
         }
 
         // Seleccionar equipo propio por defecto si es coordinador
-        if ($this->selectedTeam === null && $employee->team_id && !$isPowerUser) {
+        if ($this->selectedTeam === null && $employee->team_id && ! $isPowerUser) {
             $this->selectedTeam = $employee->team_id;
         }
 
         $this->isManager = $employee->is_manager;
     }
 
-    public function updatedDate() {
+    public function updatedDate()
+    {
         $this->weekStart = Carbon::parse($this->date)->startOfWeek();
         $this->weekEnd = Carbon::parse($this->date)->endOfWeek();
     }
 
-    public function render() {
+    public function render()
+    {
         $employee = Auth::user()->employee;
         $user = Auth::user();
         $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
@@ -203,7 +211,7 @@ class MyTeam extends Component {
             }
         } else {
             // Si no hay equipo seleccionado
-            if (!$isPowerUser) {
+            if (! $isPowerUser) {
                 // Usuarios con derechos ven a sus subordinados + miembros de sus equipos gestionados
                 $managedTeamMemberIds = Employee::whereIn('team_id', $employee->getManagedTeamIds())->pluck('id')->toArray();
                 $allVisibleIds = array_unique(array_merge($subordinateIds, $managedTeamMemberIds));
@@ -280,7 +288,8 @@ class MyTeam extends Component {
         ]);
     }
 
-    protected function getWeekDays() {
+    protected function getWeekDays()
+    {
         $days = [];
         $current = $this->weekStart->copy();
         for ($i = 0; $i < 7; $i++) {

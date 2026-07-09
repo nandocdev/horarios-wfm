@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\WorkflowsModule\Actions;
+namespace App\Modules\WfmModule\Actions;
 
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
-use App\Modules\WorkflowsModule\Models\LeaveRequestApproval;
+use App\Modules\WfmModule\Models\LeaveRequest;
+use App\Modules\WfmModule\Models\LeaveRequestApproval;
 use App\Shared\Events\LeaveRequestDecision;
 use Illuminate\Support\Facades\DB;
 

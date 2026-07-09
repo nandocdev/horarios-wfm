@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Models;
 
 use App\Modules\PersonnelModule\Models\Employee;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

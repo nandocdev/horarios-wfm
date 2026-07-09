@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\WorkflowsModule\Models;
+namespace App\Modules\WfmModule\Models;
 
 use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Model;

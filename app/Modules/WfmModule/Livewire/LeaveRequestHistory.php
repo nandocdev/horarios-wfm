@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
+use App\Modules\WfmModule\Models\LeaveRequest;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;

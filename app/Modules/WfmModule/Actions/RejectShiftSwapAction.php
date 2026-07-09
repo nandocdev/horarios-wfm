@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\WorkflowsModule\Actions;
+namespace App\Modules\WfmModule\Actions;
 
-use App\Modules\WorkflowsModule\Models\ShiftSwapApproval;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Modules\WfmModule\Models\ShiftSwapApproval;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use Illuminate\Support\Facades\DB;
 
 final class RejectShiftSwapAction

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Notifications;
 
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -29,7 +29,7 @@ class SwapRequestNotification extends Notification implements ShouldQueue
 
         $dateRange = $this->swapRequest->start_date->format('d/m/Y');
         if ($this->swapRequest->end_date && $this->swapRequest->end_date->gt($this->swapRequest->start_date)) {
-            $dateRange .= ' al ' . $this->swapRequest->end_date->format('d/m/Y');
+            $dateRange .= ' al '.$this->swapRequest->end_date->format('d/m/Y');
         }
 
         return [

@@ -20,7 +20,6 @@ return [
         App\Modules\PersonnelModule\Providers\ModuleServiceProvider::class,
         App\Modules\OperationsModule\Providers\ModuleServiceProvider::class,
         App\Modules\ConnectModule\Providers\ModuleServiceProvider::class,
-        App\Modules\WorkflowsModule\Providers\ModuleServiceProvider::class,
         App\Modules\CommunicationsModule\Providers\ModuleServiceProvider::class,
         App\Modules\AuditModule\Providers\ModuleServiceProvider::class,
         App\Modules\WfmModule\Providers\ModuleServiceProvider::class,

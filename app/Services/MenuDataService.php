@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\WorkflowsModule\Models\LeaveRequest;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Modules\WfmModule\Models\LeaveRequest;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 
 class MenuDataService
 {

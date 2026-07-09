@@ -42,14 +42,14 @@ Hay dos caminos. Elegir uno:
 
 **Opción B — fusionar WorkflowsModule dentro de WfmModule:**
 
-- [ ] 2.1.B.1 Mover modelos y acciones de WorkflowsModule a `WfmModule/Models/` y `WfmModule/Actions/`.
-- [ ] 2.1.B.2 Eliminar WorkflowsModule del manifiesto `config/modules.php`.
-- [ ] 2.1.B.3 Mover migraciones a `database/migrations/` renombrándolas para orden cronológico.
+- [x] 2.1.B.1 Mover modelos y acciones de WorkflowsModule a `WfmModule/Models/` y `WfmModule/Actions/`.
+- [x] 2.1.B.2 Eliminar WorkflowsModule del manifiesto `config/modules.php`.
+- [x] 2.1.B.3 Mover migraciones a `database/migrations/` renombrándolas para orden cronológico.
 
 ### 2.2 Mover `app/Scheduling/LeaveRequest.php` — modelo huérfano
 
-- [ ] 2.2.1 Verificar si es usado en alguna parte (`grep -r "Scheduling\\\\LeaveRequest" app/`). Si no, eliminarlo.
-- [ ] 2.2.2 Si es usado, moverlo al módulo correspondiente (WorkflowsModule o WfmModule).
+- [x] 2.2.1 Verificar si es usado en alguna parte (`grep -r "Scheduling\\\\LeaveRequest" app/`). Si no, eliminarlo.
+- [x] 2.2.2 Si es usado, moverlo al módulo correspondiente (WorkflowsModule o WfmModule).
 
 ### 2.3 Mover `app/Livewire/Actions/Logout.php` a CoreModule
 

@@ -7,7 +7,7 @@ namespace Tests\Feature\Modules\ScheduleModule;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Livewire\WfmSwapApprovals;
-use App\Modules\WorkflowsModule\Models\ShiftSwapRequest;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use Livewire\Livewire;
 
 test('wfm approver can approve an accepted shift swap request', function () {

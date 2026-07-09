@@ -23,8 +23,10 @@ use App\Modules\OperationsModule\Livewire\Widgets\QueueStatsWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\RecentIncidentsWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\StateDistributionWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\VolumeComparisonWidget;
+use App\Modules\OperationsModule\Repositories\EloquentAgentPerformanceRepository;
 use App\Modules\OperationsModule\Services\AgentPerformanceService;
 use App\Modules\OperationsModule\Services\PerformanceService;
+use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
@@ -42,6 +44,11 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->app->singleton(
             AgentPerformanceService::class
+        );
+
+        $this->app->singleton(
+            AgentPerformanceRepositoryInterface::class,
+            EloquentAgentPerformanceRepository::class
         );
     }
 

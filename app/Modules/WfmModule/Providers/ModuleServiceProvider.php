@@ -135,6 +135,11 @@ class ModuleServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(
+            ScheduleRepositoryInterface::class,
+            EloquentScheduleRepository::class
+        );
+
+        $this->app->singleton(
             GetExpectedAgentStateAction::class
         );
     }

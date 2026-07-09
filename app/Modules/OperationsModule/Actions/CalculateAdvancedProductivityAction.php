@@ -4,25 +4,24 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Actions;
 
-use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Shared\Contracts\Employees\EmployeeInterface;
+use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Carbon\CarbonInterface;
 
 final class CalculateAdvancedProductivityAction
 {
     public function __construct(
+        private readonly AgentPerformanceRepositoryInterface $performanceRepo,
         private readonly TelemetryServiceInterface $telemetryService
     ) {}
 
     public function execute(EmployeeInterface $employee, CarbonInterface $date): AgentDailyMetric
     {
         // 1. Obtener datos de llamadas
-        $calls = AgentCallPerformance::where('employee_id', $employee->getId())
-            ->whereDate('start_time', $date->toDateString())
-            ->get();
+        $calls = $this->performanceRepo->getCallRecords($employee->getId(), $date);
 
         $callsTotal = $calls->count();
         $talkSeconds = (int) $calls->sum('talk_time');

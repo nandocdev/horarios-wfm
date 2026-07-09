@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Actions;
 
-use App\Modules\ConnectModule\Models\AgentCallPerformance;
-use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\DTOs\EmployeePerformanceDTO;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Employees\EmployeeInterface;
+use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 final class GetEmployeePerformanceAction
 {
+    public function __construct(
+        private readonly AgentPerformanceRepositoryInterface $performanceRepo,
+    ) {}
+
     public function execute(EmployeeInterface $employee, Carbon $date): EmployeePerformanceDTO
     {
         // 1. Obtener Programación
@@ -69,11 +72,7 @@ final class GetEmployeePerformanceAction
 
     private function getRawCallRecords(EmployeeInterface $employee, Carbon $date): Collection
     {
-        return AgentCallPerformance::query()
-            ->where('employee_id', $employee->getId())
-            ->whereDate('start_time', $date->toDateString())
-            ->orderBy('start_time')
-            ->get();
+        return $this->performanceRepo->getCallRecords($employee->getId(), $date);
     }
 
     private function getSchedule(EmployeeInterface $employee, Carbon $date): ?WeeklyScheduleAssignment
@@ -92,11 +91,7 @@ final class GetEmployeePerformanceAction
 
     private function getTransitions(EmployeeInterface $employee, Carbon $date): Collection
     {
-        $transitions = AgentStateTransition::query()
-            ->where('employee_id', $employee->getId())
-            ->whereDate('transition_time', $date->toDateString())
-            ->orderBy('transition_time')
-            ->get()
+        $transitions = $this->performanceRepo->getStateTransitions($employee->getId(), $date)
             ->map(function ($t) {
                 $t->agent_state = trim((string) $t->agent_state);
                 $t->reason_code = $t->reason_code ? trim((string) $t->reason_code) : null;

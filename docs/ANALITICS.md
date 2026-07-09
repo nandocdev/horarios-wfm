@@ -204,10 +204,14 @@ Total: **~25 llamadas `DB::table()` migradas** a Eloquent. Se conservaron solo a
 
 Actualmente solo hay 1 repositorio y 2 interfaces.
 
-- [ ] 6.1 Crear `EmployeeRepositoryInterface` con métodos `findById`, `findByUser`, `getSubordinates`, `search`. Implementar `EloquentEmployeeRepository`.
-- [ ] 6.2 Crear `ScheduleRepositoryInterface` con métodos `getForEmployee`, `getForTeam`, `getForDateRange`. Implementar `EloquentScheduleRepository`.
-- [ ] 6.3 Crear `AgentPerformanceRepositoryInterface`. Implementar `EloquentAgentPerformanceRepository`.
-- [ ] 6.4 Una vez creados, modificar las Actions para inyectar el repositorio en lugar de usar Eloquent directamente.
+- [x] 6.1 Expandir `EmployeeRepositoryInterface` con `findByUser`, `getSubordinateIds` (CTE recursiva), `search` (ILIKE). Implementados en `EloquentEmployeeRepository`.
+- [x] 6.2 Crear `ScheduleRepositoryInterface` con `getForEmployee`, `getForEmployees`, `getForDateRange`. Implementado `EloquentScheduleRepository` en WfmModule.
+- [x] 6.3 Crear `AgentPerformanceRepositoryInterface` con `getCallRecords`, `getStateTransitions`, `getDailyMetric`, etc. Implementado `EloquentAgentPerformanceRepository` en OperationsModule.
+- [x] 6.4 Inyectar repositorios en Actions:
+  - `GetEmployeePerformanceAction` — inyecta `AgentPerformanceRepositoryInterface`
+  - `CalculateAdvancedProductivityAction` — inyecta `AgentPerformanceRepositoryInterface`
+  - 2 repositorios registrados como singletons en sus respectivos ModuleServiceProviders
+  - Las Actions de operaciones ya programaban contra interfaces desde 3.2
 
 ---
 

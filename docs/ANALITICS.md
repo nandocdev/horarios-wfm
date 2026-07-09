@@ -53,9 +53,9 @@ Hay dos caminos. Elegir uno:
 
 ### 2.3 Mover `app/Livewire/Actions/Logout.php` a CoreModule
 
-- [ ] 2.3.1 Mover a `app/Modules/CoreModule/Livewire/Actions/Logout.php`.
-- [ ] 2.3.2 Actualizar el registro en el provider de CoreModule.
-- [ ] 2.3.3 Buscar referencias a la ruta/flux original y actualizar.
+- [x] 2.3.1 Mover a `app/Modules/CoreModule/Livewire/Actions/Logout.php`.
+- [x] 2.3.2 Actualizar el registro en el provider de CoreModule.
+- [x] 2.3.3 Buscar referencias a la ruta/flux original y actualizar.
 
 ### 2.4 Mover `app/Services/MenuDataService.php` a un módulo o a Shared
 

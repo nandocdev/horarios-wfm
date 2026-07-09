@@ -6,8 +6,8 @@ namespace Database\Seeders;
 
 use App\Modules\CoreModule\Models\User;
 use App\Modules\KnowledgeModule\Models\ArticleVersion;
-use App\Modules\KnowledgeModule\Models\Category;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
+use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Models\Queue;
 use App\Modules\KnowledgeModule\Models\Tag;
 use Illuminate\Database\Seeder;
@@ -33,7 +33,7 @@ class KnowledgeBaseSeeder extends Seeder
         ];
 
         foreach ($categoriesData as $cat) {
-            Category::updateOrCreate(['id' => $cat['id']], $cat);
+            KnowledgeCategory::updateOrCreate(['id' => $cat['id']], $cat);
         }
 
         // 2. Seed Queues

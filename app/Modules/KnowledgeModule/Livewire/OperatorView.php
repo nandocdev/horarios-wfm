@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Livewire;
 
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
-use App\Modules\KnowledgeModule\Models\Category;
+use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Models\Queue;
 use App\Modules\KnowledgeModule\Models\Tag;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -56,11 +56,11 @@ class OperatorView extends Component
             ->orderBy('name')
             ->get();
 
-        $categories = Category::orderBy('id')->get();
+        $categories = KnowledgeCategory::orderBy('id')->get();
 
         $tags = Tag::whereHas('articles', function ($query) {
-                $query->published();
-            })
+            $query->published();
+        })
             ->take(15)
             ->get();
 
@@ -84,8 +84,8 @@ class OperatorView extends Component
             });
         }
 
-        if (!empty($this->search)) {
-            $searchVal = '%' . $this->search . '%';
+        if (! empty($this->search)) {
+            $searchVal = '%'.$this->search.'%';
             $query->where(function ($q) use ($searchVal) {
                 $q->where('title', 'like', $searchVal)
                     ->orWhere('summary', 'like', $searchVal)

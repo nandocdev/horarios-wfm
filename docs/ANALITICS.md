@@ -22,7 +22,7 @@ Aparece en: `CoreModule\Models\AuditLog`, `AuditModule\Models\AuditLog`, `Suppor
 
 ### 1.3 `Category` — unificar CommunicationsModule y KnowledgeModule
 
-- [ ] 1.3.1 Decidir si el concepto de categoría es compartido. Si ambas usan `categorizables` polimórfico, unificar en un solo modelo en `Shared`.
+- [x] 1.3.1 Decidir si el concepto de categoría es compartido. Si ambas usan `categorizables` polimórfico, unificar en un solo modelo en `Shared`.
 
 ---
 

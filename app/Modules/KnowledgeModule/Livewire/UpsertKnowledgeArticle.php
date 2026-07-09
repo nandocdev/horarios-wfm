@@ -7,8 +7,8 @@ namespace App\Modules\KnowledgeModule\Livewire;
 use App\Modules\KnowledgeModule\Actions\CreateArticleAction;
 use App\Modules\KnowledgeModule\Actions\UpdateArticleAction;
 use App\Modules\KnowledgeModule\Livewire\Forms\KnowledgeArticleForm;
-use App\Modules\KnowledgeModule\Models\Category;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
+use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Models\Queue;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
@@ -69,7 +69,7 @@ class UpsertKnowledgeArticle extends Component
      */
     public function render()
     {
-        $categories = Category::orderBy('name')->get();
+        $categories = KnowledgeCategory::orderBy('name')->get();
         $queues = Queue::where('is_active', true)->orderBy('name')->get();
 
         return view('knowledge::livewire.upsert-knowledge-article', [

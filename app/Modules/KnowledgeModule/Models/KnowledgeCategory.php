@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\KnowledgeModule\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -13,10 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $name
  * @property string|null $description
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
-class Category extends Model
+class KnowledgeCategory extends Model
 {
     protected $table = 'knowledge_categories';
 
@@ -33,7 +34,3 @@ class Category extends Model
         return $this->hasMany(KnowledgeArticle::class, 'category_id');
     }
 }
-/**
- * [RIESGOS]
- * - Eliminación en cascada → Configurado nullOnDelete en base de datos para no perder artículos si se elimina la categoría.
- */

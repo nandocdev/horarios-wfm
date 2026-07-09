@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\KnowledgeModule\Models\Category;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
+use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Models\Queue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -27,7 +27,7 @@ class KnowledgeModuleTest extends TestCase
 
     protected Queue $queueHigh;
 
-    protected Category $category;
+    protected KnowledgeCategory $category;
 
     /**
      * Configuración inicial del entorno de prueba.
@@ -54,7 +54,7 @@ class KnowledgeModuleTest extends TestCase
         $this->supervisor->givePermissionTo('knowledge.manage');
 
         // Crear categoría y colas base para pruebas de prioridad
-        $this->category = Category::create([
+        $this->category = KnowledgeCategory::create([
             'name' => 'Procedimientos',
             'description' => 'Categoría de prueba.',
         ]);

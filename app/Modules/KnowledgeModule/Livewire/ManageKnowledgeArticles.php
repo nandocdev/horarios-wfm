@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\KnowledgeModule\Livewire;
 
-use App\Modules\KnowledgeModule\Models\Category;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
+use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Models\Queue;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
@@ -51,7 +51,7 @@ class ManageKnowledgeArticles extends Component
     {
         $this->authorize('create', KnowledgeArticle::class);
 
-        $categories = Category::orderBy('name')->get();
+        $categories = KnowledgeCategory::orderBy('name')->get();
         $queues = Queue::where('is_active', true)->orderBy('name')->get();
 
         $articles = KnowledgeArticle::with(['category', 'queues', 'creator'])

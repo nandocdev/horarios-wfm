@@ -70,7 +70,7 @@ class KnowledgeArticle extends Model
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(KnowledgeCategory::class, 'category_id');
     }
 
     /**

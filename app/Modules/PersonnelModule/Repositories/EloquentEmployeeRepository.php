@@ -25,4 +25,42 @@ final class EloquentEmployeeRepository implements EmployeeRepositoryInterface
     {
         return Employee::where('username', $username)->first();
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findActive(): array
+    {
+        return Employee::where('is_active', true)->get()->all();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByTeam(int $teamId): array
+    {
+        return Employee::where('team_id', $teamId)->get()->all();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findActiveByTeams(array $teamIds): array
+    {
+        return Employee::where('is_active', true)
+            ->whereIn('team_id', $teamIds)
+            ->get()
+            ->all();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findActiveByPositions(array $positionIds): array
+    {
+        return Employee::where('is_active', true)
+            ->whereIn('position_id', $positionIds)
+            ->get()
+            ->all();
+    }
 }

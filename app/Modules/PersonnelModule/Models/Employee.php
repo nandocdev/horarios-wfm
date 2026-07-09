@@ -263,4 +263,14 @@ class Employee extends Model implements EmployeeInterface
     {
         return $this->employee_number;
     }
+
+    public function getTeamId(): ?int
+    {
+        return $this->team_id;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->user_id;
+    }
 }

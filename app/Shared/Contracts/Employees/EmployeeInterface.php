@@ -11,4 +11,8 @@ interface EmployeeInterface
     public function getFullName(): string;
 
     public function getEmployeeNumber(): string;
+
+    public function getTeamId(): ?int;
+
+    public function getUserId(): ?int;
 }

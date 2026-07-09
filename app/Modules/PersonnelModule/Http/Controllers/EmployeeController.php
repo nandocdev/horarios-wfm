@@ -6,6 +6,7 @@ namespace App\Modules\PersonnelModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\PersonnelModule\Actions\CreateEmployeeAction;
+use App\Modules\PersonnelModule\Actions\DeleteEmployeeAction;
 use App\Modules\PersonnelModule\Actions\UpdateEmployeeAction;
 use App\Modules\PersonnelModule\DTOs\CreateEmployeeDTO;
 use App\Modules\PersonnelModule\DTOs\UpdateEmployeeDTO;
@@ -116,11 +117,11 @@ class EmployeeController extends Controller
     /**
      * Elimina un empleado (soft delete).
      */
-    public function destroy(Employee $employee): RedirectResponse
+    public function destroy(Employee $employee, DeleteEmployeeAction $action): RedirectResponse
     {
         $this->authorize('delete', $employee);
 
-        $employee->delete();
+        $action->execute($employee);
 
         return redirect()
             ->route('employees.index')

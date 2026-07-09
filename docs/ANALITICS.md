@@ -145,8 +145,24 @@ PersonnelModule (15 modelos → 6, 25 Livewire → 7, 23 Actions → 14) y WfmMo
 
 Hay módulos que mezclan Livewire con controladores tradicionales.
 
-- [ ] 5.1.1 Para cada controlador HTTP en PersonnelModule (`EmployeeController`, `DepartmentController`, etc.), evaluar si puede convertirse a Livewire.
-- [ ] 5.1.2 Si se decide mantener los controladores, entonces crear Form Requests consistentes y mover lógica a Actions (como ya se hace en algunos).
+- [x] 5.1.1 Evaluar cada controlador HTTP y eliminar código muerto.
+  - **Eliminados (4)**:
+    - `OrganizationModule\Http\Controllers\DepartmentController` — 0 rutas, TODO stubs
+    - `OrganizationModule\Http\Controllers\DirectorateController` — 0 rutas, TODO stubs
+    - `OrganizationModule\Http\Controllers\PositionController` — 0 rutas, TODO stubs
+    - `PersonnelModule\Http\Controllers\TeamController` — 0 rutas, TODO stubs
+    - La funcionalidad ya estaba cubierta por Livewire components.
+  - **Mantenidos (11 activos)**: No se convierten a Livewire porque:
+    - `CallRecordController`, `CiscoFinesseController` — son APIs JSON para integración Cisco
+    - `AuditExportController` — descarga de archivos (respuesta binaria)
+    - `ReactionController`, `CommentController` — endpoints AJAX livianos
+    - `CategoryController`, `TagController`, `ContentModerationController` — CRUD tradicional con Form Requests + Actions (patrón correcto)
+    - `EmployeeController` — renderiza vistas Livewire en READ, usa Actions en WRITE (híbrido válido)
+    - `EmployeeExportController` — descarga CSV (invokable, single-action)
+    - `LocationController` — JSON lookup (provincias/distritos), read-only
+- [x] 5.1.2 Mover lógica restante a Actions.
+  - `EmployeeController::destroy()` → `DeleteEmployeeAction` creado
+  - El resto ya seguía el patrón `FormRequest → DTO → Action → Response`
 
 ### 5.2 Homogeneizar validación en Livewire Forms
 

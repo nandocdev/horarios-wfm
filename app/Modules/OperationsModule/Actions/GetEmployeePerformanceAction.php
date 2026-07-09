@@ -67,7 +67,7 @@ final class GetEmployeePerformanceAction
         );
     }
 
-    private function getRawCallRecords(Employee $employee, Carbon $date): Collection
+    private function getRawCallRecords(EmployeeInterface $employee, Carbon $date): Collection
     {
         return AgentCallPerformance::query()
             ->where('employee_id', $employee->getId())
@@ -76,7 +76,7 @@ final class GetEmployeePerformanceAction
             ->get();
     }
 
-    private function getSchedule(Employee $employee, Carbon $date): ?WeeklyScheduleAssignment
+    private function getSchedule(EmployeeInterface $employee, Carbon $date): ?WeeklyScheduleAssignment
     {
         $schedule = WeeklyScheduleAssignment::query()
             ->where('employee_id', $employee->getId())
@@ -90,7 +90,7 @@ final class GetEmployeePerformanceAction
         return $schedule;
     }
 
-    private function getTransitions(Employee $employee, Carbon $date): Collection
+    private function getTransitions(EmployeeInterface $employee, Carbon $date): Collection
     {
         $transitions = AgentStateTransition::query()
             ->where('employee_id', $employee->getId())
@@ -118,7 +118,7 @@ final class GetEmployeePerformanceAction
         return $transitions;
     }
 
-    private function getException(Employee $employee, Carbon $date): ?ScheduleException
+    private function getException(EmployeeInterface $employee, Carbon $date): ?ScheduleException
     {
         return ScheduleException::query()
             ->with('reason')

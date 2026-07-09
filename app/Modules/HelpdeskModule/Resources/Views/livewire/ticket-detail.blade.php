@@ -23,6 +23,34 @@
                 <span>•</span>
                 <span>Asignado a:
                     <strong>{{ $ticket->assignedAgent ? $ticket->assignedAgent->first_name . ' ' . $ticket->assignedAgent->last_name : 'Nadie' }}</strong></span>
+                @if($ticket->sla_deadline)
+                    @php
+                        $slaStatus = $ticket->sla_status;
+                        $slaColor = match($slaStatus) {
+                            'breached' => 'red',
+                            'at_risk' => 'amber',
+                            'on_track' => 'green',
+                            'compliant' => 'green',
+                            default => 'zinc'
+                        };
+                        $slaIcon = match($slaStatus) {
+                            'breached' => 'alert-circle',
+                            'at_risk' => 'clock',
+                            'on_track' => 'check',
+                            'compliant' => 'check-circle',
+                            default => 'help'
+                        };
+                        $slaLabel = match($slaStatus) {
+                            'breached' => 'SLA Vencido',
+                            'at_risk' => 'SLA en Riesgo',
+                            'on_track' => 'SLA en Tiempo',
+                            'compliant' => 'SLA Cumplido',
+                            default => 'SLA'
+                        };
+                    @endphp
+                    <span>•</span>
+                    <flux:badge size="sm" :color="$slaColor" :icon="$slaIcon">{{ $slaLabel }}: {{ $ticket->sla_deadline->format('d M, H:i') }}</flux:badge>
+                @endif
             </div>
         </div>
 

@@ -40,6 +40,17 @@
                 <flux:select.option value="low">Baja</flux:select.option>
             </flux:select>
         </flux:field>
+
+        <flux:field class="flex-1 w-full">
+            <flux:label>SLA</flux:label>
+            <flux:select wire:model.live="slaFilter" placeholder="Filtrar por SLA">
+                <flux:select.option value="">Todos</flux:select.option>
+                <flux:select.option value="breached">Vencido (Breach)</flux:select.option>
+                <flux:select.option value="at_risk">En Riesgo (>75%)</flux:select.option>
+                <flux:select.option value="on_track">En Tiempo</flux:select.option>
+                <flux:select.option value="compliant">Cumplido (Resuelto)</flux:select.option>
+            </flux:select>
+        </flux:field>
     </flux:card>
 
     {{-- Lista de Tickets --}}
@@ -47,7 +58,7 @@
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
-                    <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">SLA / ID</th>
+                    <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">SLA / ID / Prioridad</th>
                     <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500 w-1/3">Asunto y Descripción</th>
                     <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Categoría</th>
                     <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Solicitante</th>
@@ -61,6 +72,32 @@
                             <div class="flex flex-col gap-1">
                                 <span class="font-bold text-sm text-slate-900 dark:text-slate-100">#{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
                                 <span class="text-[10px] text-slate-500" title="{{ $ticket->created_at }}">{{ $ticket->created_at->diffForHumans() }}</span>
+                                
+                                @php
+                                    $slaStatus = $ticket->sla_status;
+                                    $slaColor = match($slaStatus) {
+                                        'breached' => 'red',
+                                        'at_risk' => 'amber',
+                                        'on_track' => 'green',
+                                        'compliant' => 'green',
+                                        default => 'zinc'
+                                    };
+                                    $slaIcon = match($slaStatus) {
+                                        'breached' => 'alert-circle',
+                                        'at_risk' => 'clock',
+                                        'on_track' => 'check',
+                                        'compliant' => 'check-circle',
+                                        default => 'help'
+                                    };
+                                    $slaLabel = match($slaStatus) {
+                                        'breached' => 'SLA Vencido',
+                                        'at_risk' => 'SLA en Riesgo',
+                                        'on_track' => 'SLA en Tiempo',
+                                        'compliant' => 'SLA Cumplido',
+                                        default => 'SLA Desconocido'
+                                    };
+                                @endphp
+                                <flux:badge size="sm" :color="$slaColor" :icon="$slaIcon" class="mt-1">{{ $slaLabel }}</flux:badge>
                                 
                                 @if($ticket->priority === 'high' || $ticket->priority === 'urgent')
                                     <flux:badge size="sm" color="red" icon="fire" class="mt-1">{{ $ticket->priority_label }}</flux:badge>

@@ -119,7 +119,7 @@ class HelpdeskTicket extends Model
 
         $deadlineExpr = match ($driver) {
             'pgsql' => DB::raw("helpdesk_tickets.created_at + (helpdesk_categories.sla_hours * INTERVAL '1 hour')"),
-            default => DB::raw("DATE_ADD(helpdesk_tickets.created_at, INTERVAL helpdesk_categories.sla_hours HOUR)"),
+            default => DB::raw('DATE_ADD(helpdesk_tickets.created_at, INTERVAL helpdesk_categories.sla_hours HOUR)'),
         };
 
         return $query

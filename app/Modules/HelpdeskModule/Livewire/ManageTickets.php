@@ -22,6 +22,8 @@ class ManageTickets extends Component
 
     public string $priorityFilter = '';
 
+    public string $slaFilter = '';
+
     public string $search = '';
 
     public function assignToMe(int $ticketId, AssignTicketAction $action): void
@@ -73,6 +75,10 @@ class ManageTickets extends Component
 
         if ($this->priorityFilter) {
             $query->where('priority', $this->priorityFilter);
+        }
+
+        if ($this->slaFilter) {
+            $query->whereSla($this->slaFilter);
         }
 
         switch ($this->statusFilter) {

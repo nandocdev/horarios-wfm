@@ -1,0 +1,31 @@
+{
+    "agents": [
+        "claude_code",
+        "copilot",
+        "opencode",
+        "antigravity"
+    ],
+    "cloud": true,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "packages": [
+        "spatie/laravel-medialibrary",
+        "spatie/laravel-permission"
+    ],
+    "sail": false,
+    "skills": [
+        "fortify-development",
+        "laravel-best-practices",
+        "configuring-horizon",
+        "pulse-development",
+        "fluxui-development",
+        "livewire-development",
+        "pest-testing",
+        "tailwindcss-development",
+        "echo-development",
+        "medialibrary-development",
+        "laravel-permission-development",
+        "deploying-laravel-cloud"
+    ]
+}

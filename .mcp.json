@@ -1,0 +1,12 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "wsl.exe",
+            "args": [
+                "/home/ferncastillo/.config/herd-lite/bin/php",
+                "/home/ferncastillo/Proyectos/php/horarios-wfm/artisan",
+                "boost:mcp"
+            ]
+        }
+    }
+}

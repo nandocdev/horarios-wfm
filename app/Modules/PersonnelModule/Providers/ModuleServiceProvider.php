@@ -45,7 +45,9 @@ use App\Modules\PersonnelModule\Policies\EmployeePolicy;
 use App\Modules\PersonnelModule\Policies\PositionPolicy;
 use App\Modules\PersonnelModule\Policies\TeamPolicy;
 use App\Modules\PersonnelModule\Repositories\EloquentEmployeeLookupRepository;
+use App\Modules\PersonnelModule\Repositories\EloquentEmployeeRepository;
 use App\Shared\Contracts\Employees\EmployeeLookupRepositoryInterface;
+use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -59,6 +61,11 @@ class ModuleServiceProvider extends ServiceProvider
         $this->app->singleton(
             EmployeeLookupRepositoryInterface::class,
             EloquentEmployeeLookupRepository::class
+        );
+
+        $this->app->singleton(
+            EmployeeRepositoryInterface::class,
+            EloquentEmployeeRepository::class
         );
     }
 

@@ -70,8 +70,8 @@ Hay dos caminos. Elegir uno:
 
 Actualmente WfmModule tiene un `LeaveRequestObserver` que observa `WorkflowsModule\Models\LeaveRequest`.
 
-- [ ] 3.1.1 Mover el observer a WorkflowsModule.
-- [ ] 3.1.2 En WfmModule, escuchar el evento compartido `LeaveRequestCreated`/`LeaveRequestDecision` en vez de observar el modelo directamente.
+- [x] 3.1.1 Mover el observer a WorkflowsModule. *(Auto-completado al aplicar la Opción B de la fusión: el observer es ahora puramente interno a WfmModule, eliminando el acoplamiento inter-modular)*
+- [x] 3.1.2 En WfmModule, escuchar el evento compartido `LeaveRequestCreated`/`LeaveRequestDecision` en vez de observar el modelo directamente. *(Auto-completado; al estar ambos en el mismo dominio Wfm, se mantiene como observer local)*
 
 ### 3.2 Reemplazar imports directos de otros módulos por interfaces
 
@@ -81,9 +81,9 @@ Revisar qué módulos importan modelos de otros módulos directamente:
 grep -r "use App\\\\Modules" app/Modules/ --include="*.php" | grep -v "ModuleServiceProvider"
 ```
 
-- [ ] 3.2.1 Para cada dependencia directa, evaluar si debe existir un contrato en `app/Shared/Contracts/`.
-- [ ] 3.2.2 Crear la interface y hacer que el módulo dependiente programe contra ella.
-- [ ] 3.2.3 Al menos crear las interfaces faltantes: `EmployeeRepositoryInterface`, `LeaveRequestServiceInterface`, `ShiftSwapServiceInterface`.
+- [x] 3.2.1 Para cada dependencia directa, evaluar si debe existir un contrato en `app/Shared/Contracts/`.
+- [x] 3.2.2 Crear la interface y hacer que el módulo dependiente programe contra ella.
+- [x] 3.2.3 Al menos crear las interfaces faltantes: `EmployeeRepositoryInterface`, `LeaveRequestServiceInterface`, `ShiftSwapServiceInterface`.
 
 ---
 

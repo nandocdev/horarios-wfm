@@ -6,6 +6,7 @@ namespace App\Modules\PersonnelModule\Models;
 
 use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Contracts\Employees\EmployeeInterface;
 use Database\Factories\Modules\PersonnelModule\Models\EmployeeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
-class Employee extends Model
+class Employee extends Model implements EmployeeInterface
 {
     use HasFactory, SoftDeletes;
 
@@ -246,5 +247,20 @@ class Employee extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function getId(): int|string
+    {
+        return $this->id;
+    }
+
+    public function getFullName(): string
+    {
+        return $this->full_name;
+    }
+
+    public function getEmployeeNumber(): string
+    {
+        return $this->employee_number;
     }
 }

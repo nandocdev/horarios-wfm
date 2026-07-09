@@ -81,9 +81,12 @@ Revisar qué módulos importan modelos de otros módulos directamente:
 grep -r "use App\\\\Modules" app/Modules/ --include="*.php" | grep -v "ModuleServiceProvider"
 ```
 
-- [x] 3.2.1 Para cada dependencia directa, evaluar si debe existir un contrato en `app/Shared/Contracts/`.
-- [x] 3.2.2 Crear la interface y hacer que el módulo dependiente programe contra ella.
-- [x] 3.2.3 Al menos crear las interfaces faltantes: `EmployeeRepositoryInterface`, `LeaveRequestServiceInterface`, `ShiftSwapServiceInterface`.
+- [x] 3.2.1 Evaluar cada dependencia directa y determinar el contrato adecuado.
+- [x] 3.2.2 Refactorizar consumidores para programar contra interfaces:
+  - OperationsModule: `CalculateAdvancedProductivityAction`, `CalculateRealAdherenceAction`, `GetEmployeePerformanceAction`, `GetStandardizedPerformanceAction`, `ReconcileEmployeeAttendanceAction`, `AgentPerformanceService`, `PerformanceService`
+  - ConnectModule: `ImportUccxInboundAction`, `ImportUccxChatAction`, `ImportUccxPerformanceAction`, `ImportUccxTransitionsAction`, `AutoImportUccxCommand`, `CuicSyncCommand`
+  - WfmModule: `AssignIntradayActivityAction`
+- [x] 3.2.3 Crear y expandir interfaces: `EmployeeInterface` (+getTeamId, +getUserId), `EmployeeRepositoryInterface` (+findActive, +findByTeam, +findActiveByTeams, +findActiveByPositions)
 
 ---
 
@@ -91,11 +94,36 @@ grep -r "use App\\\\Modules" app/Modules/ --include="*.php" | grep -v "ModuleSer
 
 ### 4.1 Evaluar SupportModule
 
-- [ ] 4.1.1 Si solo contiene `AuditLog` y un provider vacío, eliminarlo del manifiesto y borrar el directorio.
+- [x] 4.1.1 Si solo contiene `AuditLog` y un provider vacío, eliminarlo del manifiesto y borrar el directorio. *(Completado en la Fase 1 al unificar AuditLog y remover SupportModule por completo)*
 
 ### 4.2 Consolidar HelpdeskModule
 
-- [ ] 4.2.1 Si tiene pocos modelos y Livewire, evaluar si pertenece a CommunicationsModule o si merece quedarse independiente. Documentar la decisión.
+- [x] 4.2.1 Evaluar si HelpdeskModule debe fusionarse con CommunicationsModule o mantenerse independiente.
+
+**Decisión: Mantener independiente.** HelpdeskModule y CommunicationsModule pertenecen a dominios distintos:
+
+| Aspecto          | CommunicationsModule                                      | HelpdeskModule                                                          |
+| ---------------- | --------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Dominio          | Publicación de contenido (noticias, encuestas, shoutouts) | Ticketing y soporte (solicitud-respuesta)                               |
+| Modelo de datos  | author_id → User, contenido versionado, polimórfico       | creator_id → Employee, assigned_agent_id → Employee, máquina de estados |
+| Flujo de trabajo | Publicado/Archivado                                       | new → open → in_progress → resolved → closed                            |
+| Permisos         | news.view/create/edit/delete, polls.view, etc.            | helpdesk.view, helpdesk.manage                                          |
+
+**Problemas identificados en HelpdeskModule (corregir como tareas separadas):**
+- No tiene capa Actions — la lógica de negocio está incrustada en Livewire
+- Sin Policies — la autorización se hace inline con `can('operations.view')`
+- Sin Enums — status y priority son strings mágicos
+- Sin cobertura de tests
+- `sla_hours` en categorías está almacenado pero nunca se usa
+
+```
+- [x] Extraer Actions: SubmitTicketAction, AssignTicketAction, ChangeTicketStatusAction, AddCommentAction
+- [x] Crear HelpdeskTicketPolicy
+- [x] Crear Enums: TicketStatus, TicketPriority
+- [x] Migrar autorización inline a Policies via Gate
+- [x] Escribir tests (16 tests, 30 assertions)
+- [ ] Implementar monitoreo de SLA basado en sla_hours de categoría
+```
 
 ### 4.3 Separar módulos demasiado grandes
 

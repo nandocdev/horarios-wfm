@@ -19,7 +19,7 @@ class NotifyShiftSwapApproved implements ShouldQueue
         $request = $event->shiftSwap;
         $approver = Employee::find($event->approverId);
 
-        if (!$request || !$approver) {
+        if (! $request || ! $approver) {
             return;
         }
 
@@ -46,11 +46,11 @@ class NotifyShiftSwapApproved implements ShouldQueue
         $recipients->push($approver);
 
         // Eliminar duplicados y asegurar que tengan email
-        $recipients = $recipients->unique('id')->filter(fn($e) => !empty($e->email));
+        $recipients = $recipients->unique('id')->filter(fn ($e) => ! empty($e->email));
 
         $dateRange = $request->start_date->format('d/m/Y');
         if ($request->end_date && $request->end_date->gt($request->start_date)) {
-            $dateRange .= ' al ' . $request->end_date->format('d/m/Y');
+            $dateRange .= ' al '.$request->end_date->format('d/m/Y');
         }
 
         // 2. Enviar Notificaciones (App) y Correos

@@ -8,8 +8,6 @@ use App\Modules\CommunicationsModule\Notifications\LeaveRequestCreatedNotificati
 use App\Modules\CoreModule\Models\User;
 use App\Shared\Events\LeaveRequestCreated;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 class SendLeaveRequestCreatedNotification implements ShouldQueue
 {

@@ -128,6 +128,7 @@ class IntradayAvailability extends Component
             ->map(function ($csq) use (&$agentsTalkingByQueue) {
                 $csq->agents_talking = $agentsTalkingByQueue[$csq->csq_name] ?? 0;
                 unset($agentsTalkingByQueue[$csq->csq_name]);
+
                 return $csq;
             });
 

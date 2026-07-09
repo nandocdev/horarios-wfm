@@ -49,13 +49,13 @@ class CreateApprovedIntradayPeriodAction
             }
 
             return ApprovedIntradayPeriod::create([
-                'team_id'               => (int) $data['team_id'],
+                'team_id' => (int) $data['team_id'],
                 'activity_definition_id' => (int) $data['activity_definition_id'],
-                'date'                  => $date->toDateString(),
-                'start_time'            => $start->format('H:i'),
-                'end_time'              => $end->format('H:i'),
-                'max_slots'             => $maxSlots,
-                'notes'                 => $data['notes'] ?? null,
+                'date' => $date->toDateString(),
+                'start_time' => $start->format('H:i'),
+                'end_time' => $end->format('H:i'),
+                'max_slots' => $maxSlots,
+                'notes' => $data['notes'] ?? null,
             ]);
         });
     }

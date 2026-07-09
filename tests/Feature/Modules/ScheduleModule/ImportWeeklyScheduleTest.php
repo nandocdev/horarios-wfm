@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\ScheduleModule;
 
 use App\Modules\CoreModule\Models\User;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Livewire\ImportWeeklySchedule;
+use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -25,7 +29,7 @@ it('requires schedules.manage permission to access import component', function (
 
     // Sin permisos, debe fallar con 403
     $this->actingAs($user);
-    
+
     Livewire::test(ImportWeeklySchedule::class, ['week' => $weekly])
         ->assertForbidden();
 });
@@ -83,7 +87,7 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
     ]);
 
     // Crear un turno base que coincida con el CSV
-    $schedule = \App\Modules\WfmModule\Models\Schedule::create([
+    $schedule = Schedule::create([
         'name' => '8 Hours',
         'start_time' => '08:00:00',
         'end_time' => '16:00:00',
@@ -91,21 +95,21 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
     ]);
 
     // Crear directorate, department y position validos
-    $directorateId = \Illuminate\Support\Facades\DB::table('directorates')->insertGetId([
+    $directorateId = DB::table('directorates')->insertGetId([
         'name' => 'Test Directorate',
         'is_active' => true,
         'created_at' => now(),
         'updated_at' => now(),
     ]);
 
-    $departmentId = \Illuminate\Support\Facades\DB::table('departments')->insertGetId([
+    $departmentId = DB::table('departments')->insertGetId([
         'directorate_id' => $directorateId,
         'name' => 'Test Department',
         'created_at' => now(),
         'updated_at' => now(),
     ]);
 
-    $positionId = \Illuminate\Support\Facades\DB::table('positions')->insertGetId([
+    $positionId = DB::table('positions')->insertGetId([
         'department_id' => $departmentId,
         'name' => 'Operador Asist. Serv. Aseg. II',
         'position_code' => 'TEST_CODE',
@@ -114,11 +118,11 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
     ]);
 
     // Crear supervisor y coordinador (lideres) con la posicion
-    $supervisor = \App\Modules\PersonnelModule\Models\Employee::factory()->create(['position_id' => $positionId]);
-    $coordinator = \App\Modules\PersonnelModule\Models\Employee::factory()->create(['position_id' => $positionId]);
+    $supervisor = Employee::factory()->create(['position_id' => $positionId]);
+    $coordinator = Employee::factory()->create(['position_id' => $positionId]);
 
     // Crear equipo asignando al supervisor
-    $team = \App\Modules\PersonnelModule\Models\Team::factory()->create([
+    $team = Team::factory()->create([
         'supervisor_id' => $supervisor->id,
     ]);
 
@@ -127,7 +131,7 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
     $coordinator->update(['team_id' => $team->id]);
 
     // Definir al coordinador (parent_id de algun empleado)
-    $agent = \App\Modules\PersonnelModule\Models\Employee::factory()->create([
+    $agent = Employee::factory()->create([
         'username' => 'jdoe',
         'email' => 'jdoe@example.com',
         'team_id' => $team->id,
@@ -159,8 +163,8 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
         'weekly_schedule_id' => $weekly->id,
         'employee_id' => $agent->id,
         'day_of_week' => 1,
-        'start_time' => $today . ' 08:00:00',
-        'end_time' => $today . ' 16:00:00', // 8 horas
+        'start_time' => $today.' 08:00:00',
+        'end_time' => $today.' 16:00:00', // 8 horas
     ]);
 
     // Verificar que el supervisor (lider) recibio la replica con duracion de 9 horas (08:00 a 17:00)
@@ -168,8 +172,8 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
         'weekly_schedule_id' => $weekly->id,
         'employee_id' => $supervisor->id,
         'day_of_week' => 1,
-        'start_time' => $today . ' 08:00:00',
-        'end_time' => $today . ' 17:00:00', // 9 horas
+        'start_time' => $today.' 08:00:00',
+        'end_time' => $today.' 17:00:00', // 9 horas
     ]);
 
     // Verificar que el coordinador (lider) recibio la replica con duracion de 9 horas (08:00 a 17:00)
@@ -177,8 +181,8 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
         'weekly_schedule_id' => $weekly->id,
         'employee_id' => $coordinator->id,
         'day_of_week' => 1,
-        'start_time' => $today . ' 08:00:00',
-        'end_time' => $today . ' 17:00:00', // 9 horas
+        'start_time' => $today.' 08:00:00',
+        'end_time' => $today.' 17:00:00', // 9 horas
     ]);
 
     // Verificar que el WeeklyTeamAssignment tambien tenga una duracion de 9 horas (08:00 a 17:00)

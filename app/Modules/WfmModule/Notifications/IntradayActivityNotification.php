@@ -9,6 +9,4 @@ use App\Shared\Notifications\BaseNotification;
 /**
  * Notificación para asignación de actividades intradía (descansos, almuerzos, capacitaciones, etc).
  */
-class IntradayActivityNotification extends BaseNotification
-{
-}
+class IntradayActivityNotification extends BaseNotification {}

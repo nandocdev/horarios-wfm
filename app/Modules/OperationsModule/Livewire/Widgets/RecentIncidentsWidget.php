@@ -25,7 +25,7 @@ class RecentIncidentsWidget extends Component
             $action->execute($id);
             \Flux::toast('Incidencia justificada exitosamente.');
         } catch (\Exception $e) {
-            \Flux::toast('Error al justificar la incidencia: ' . $e->getMessage(), variant: 'danger');
+            \Flux::toast('Error al justificar la incidencia: '.$e->getMessage(), variant: 'danger');
         }
     }
 
@@ -41,7 +41,7 @@ class RecentIncidentsWidget extends Component
                 'last_name' => $incident->employee->last_name,
                 'type' => $incident->type->name,
                 'created_at' => $incident->created_at->toDateTimeString(),
-                'status' => !empty($incident->admin_comment) ? 'Justificada' : 'Pendiente',
+                'status' => ! empty($incident->admin_comment) ? 'Justificada' : 'Pendiente',
             ])
             ->toArray();
 

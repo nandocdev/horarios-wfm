@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\Operations;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\OperationsModule\Livewire\AgentPerformanceDashboard;
 use App\Modules\OperationsModule\Services\AgentPerformanceService;
+use App\Modules\PersonnelModule\Models\Employee;
 use Database\Seeders\IncidentTypeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -41,7 +41,7 @@ class AgentPerformanceDashboardTest extends TestCase
     {
         $supervisorEmployee = Employee::factory()->create(['first_name' => 'Boss']);
         $supervisorUser = User::factory()->create(['employee_id' => $supervisorEmployee->id]);
-        
+
         // Asignar permiso de visualización general
         $permission = Permission::findOrCreate('agent.performance.view', 'web');
         $supervisorUser->givePermissionTo($permission);
@@ -62,9 +62,9 @@ class AgentPerformanceDashboardTest extends TestCase
     {
         $employee = Employee::factory()->create();
         $service = resolve(AgentPerformanceService::class);
-        
+
         $result = $service->getPerformance($employee, 5);
-        
+
         $this->assertIsArray($result->summary);
         $this->assertIsArray($result->days);
         $this->assertIsArray($result->stateDistribution);

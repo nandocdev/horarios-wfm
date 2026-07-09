@@ -12,7 +12,6 @@ use App\Modules\CommunicationsModule\Livewire\CreatePoll;
 use App\Modules\CommunicationsModule\Livewire\CreateShoutout;
 use App\Modules\CommunicationsModule\Livewire\EditNews;
 use App\Modules\CommunicationsModule\Livewire\EditShoutout;
-use App\Modules\CommunicationsModule\Livewire\Home;
 use App\Modules\CommunicationsModule\Livewire\ListNews;
 use App\Modules\CommunicationsModule\Livewire\ListPolls;
 use App\Modules\CommunicationsModule\Livewire\ListShoutouts;

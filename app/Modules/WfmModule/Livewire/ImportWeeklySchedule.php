@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Actions\ImportTeamWeeklyScheduleAction;
+use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +37,7 @@ class ImportWeeklySchedule extends Component
     {
         $this->authorize('schedules.manage');
         $this->week = $week;
-        $this->availableSchedules = \App\Modules\WfmModule\Models\Schedule::where('is_active', true)
+        $this->availableSchedules = Schedule::where('is_active', true)
             ->get()
             ->map(fn ($s) => [
                 'id' => $s->id,
@@ -181,7 +182,7 @@ class ImportWeeklySchedule extends Component
                     $entradaCarbon = Carbon::parse($value);
                     $settings = DB::table('operational_settings')->pluck('value', 'key');
                     $shiftMinutes = (int) ($settings['default_shift_minutes'] ?? 28800) / 60;
-                    
+
                     $this->importedData[$index]['salida'] = $entradaCarbon->copy()->addMinutes($shiftMinutes)->format('H:i');
                 } catch (\Exception $e) {
                 }

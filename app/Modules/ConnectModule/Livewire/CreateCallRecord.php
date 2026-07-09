@@ -179,7 +179,7 @@ class CreateCallRecord extends Component
     public function qualityCapsules(): array
     {
         $queueId = (int) $this->form->queue_id;
-        
+
         $capsules = [
             'general' => [
                 ['title' => 'Empatía en la Atención', 'content' => 'Recuerda sonreír y usar un tono de voz empático en cada interacción.', 'icon' => 'heart'],
@@ -193,7 +193,7 @@ class CreateCallRecord extends Component
             2 => [
                 ['title' => 'Soporte Técnico', 'content' => 'Asegúrate de registrar el código de error exacto mencionado por el usuario.', 'icon' => 'wrench'],
                 ['title' => 'Escalamiento', 'content' => 'Si no resuelves en 5 minutos, escala el caso a nivel 2 usando el ticket.', 'icon' => 'arrow-up-circle'],
-            ]
+            ],
         ];
 
         return $capsules[$queueId] ?? $capsules['general'];
@@ -227,7 +227,7 @@ class CreateCallRecord extends Component
                 'Realizar diagnóstico de primer nivel (ping, reinicio).',
                 'Solucionar o documentar los pasos realizados en el ticket.',
                 'Brindar número de ticket al usuario.',
-            ]
+            ],
         ];
 
         return $scripts[$queueId] ?? $scripts['general'];

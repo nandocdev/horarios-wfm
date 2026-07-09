@@ -8,8 +8,6 @@ use App\Modules\CommunicationsModule\Notifications\LeaveRequestDecisionNotificat
 use App\Modules\CoreModule\Models\User;
 use App\Shared\Events\LeaveRequestDecision;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 
 class SendLeaveRequestDecisionNotification implements ShouldQueue
 {
@@ -30,7 +28,7 @@ class SendLeaveRequestDecisionNotification implements ShouldQueue
 
         // Notify the employee who created the leave request
         if (! empty($leave->employee_id)) {
-            $employeeUser = User::whereHas('employee', fn($q) => $q->where('id', $leave->employee_id))->first();
+            $employeeUser = User::whereHas('employee', fn ($q) => $q->where('id', $leave->employee_id))->first();
             if ($employeeUser) {
                 $employeeUser->notify(new LeaveRequestDecisionNotification($payload));
             }

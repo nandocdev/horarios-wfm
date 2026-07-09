@@ -6,6 +6,7 @@ namespace App\Modules\OperationsModule\Livewire;
 
 use App\Modules\OperationsModule\Services\AgentPerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -29,7 +30,7 @@ class AgentPerformanceDashboard extends Component
 
         $this->employeeId = $employee ?? $myEmployeeId;
 
-        if (!$this->employeeId) {
+        if (! $this->employeeId) {
             session()->now('warning', 'No hay un empleado asociado a tu usuario. Contacta a un administrador.');
         }
 
@@ -38,7 +39,7 @@ class AgentPerformanceDashboard extends Component
             $this->selectableEmployees = Employee::where('is_active', true)
                 ->orderBy('first_name')
                 ->get()
-                ->mapWithKeys(fn ($e) => [$e->id => $e->first_name . ' ' . $e->last_name])
+                ->mapWithKeys(fn ($e) => [$e->id => $e->first_name.' '.$e->last_name])
                 ->toArray();
         }
     }
@@ -53,7 +54,7 @@ class AgentPerformanceDashboard extends Component
     public function performance(): array
     {
         $employee = $this->employee;
-        if (!$employee) {
+        if (! $employee) {
             return [];
         }
 
@@ -68,7 +69,7 @@ class AgentPerformanceDashboard extends Component
             'deviations' => $result->deviations,
             'dailyAdherence' => array_map(fn ($d) => $d['metrics']['productivity_percentage'] ?? 0, $result->days),
             'dailyOccupancy' => array_map(fn ($d) => $d['metrics']['utilization_percentage'] ?? 0, $result->days),
-            'dailyLabels' => array_map(fn ($d) => \Carbon\Carbon::parse($d['date'])->locale('es')->isoFormat('ddd D/M'), $result->days),
+            'dailyLabels' => array_map(fn ($d) => Carbon::parse($d['date'])->locale('es')->isoFormat('ddd D/M'), $result->days),
             'dailyCalls' => array_map(fn ($d) => array_sum(array_column($d['queues'] ?? [], 'total_calls')), $result->days),
         ];
     }

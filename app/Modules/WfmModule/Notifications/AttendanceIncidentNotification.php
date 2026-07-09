@@ -9,6 +9,4 @@ use App\Shared\Notifications\BaseNotification;
 /**
  * Notificación cuando se registra una incidencia de asistencia (tardanza, ausencia, etc).
  */
-class AttendanceIncidentNotification extends BaseNotification
-{
-}
+class AttendanceIncidentNotification extends BaseNotification {}

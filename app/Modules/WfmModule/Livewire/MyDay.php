@@ -9,7 +9,6 @@ use App\Modules\PersonnelModule\Models\Team;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class MyDay extends Component
@@ -31,7 +30,7 @@ class MyDay extends Component
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             abort(403, 'No tienes un perfil de empleado asociado.');
         }
 
@@ -70,7 +69,7 @@ class MyDay extends Component
         if ($teamId) {
             $query->where('team_id', $teamId);
         } else {
-            if (!$isPowerUser) {
+            if (! $isPowerUser) {
                 $subordinateIds = $employee->getAllSubordinateIds();
                 $managedTeamIds = $employee->getManagedTeamIds();
                 $managedTeamMemberIds = Employee::whereIn('team_id', $managedTeamIds)->pluck('id')->toArray();
@@ -133,7 +132,7 @@ class MyDay extends Component
         $targetEmployee = Employee::find($this->targetEmployeeId);
 
         return view('wfm::livewire.my-day', [
-            'targetEmployee' => $targetEmployee
+            'targetEmployee' => $targetEmployee,
         ])->layout('layouts.app');
     }
 }

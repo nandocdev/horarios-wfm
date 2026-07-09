@@ -12,8 +12,8 @@ use Carbon\CarbonImmutable;
 readonly class ArticleDTO
 {
     /**
-     * @param int[] $queues
-     * @param string[] $tags
+     * @param  int[]  $queues
+     * @param  string[]  $tags
      */
     public function __construct(
         public string $title,
@@ -30,18 +30,18 @@ readonly class ArticleDTO
     /**
      * Construye el DTO a partir de un array de datos validados.
      *
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
         return new self(
             title: (string) $data['title'],
-            summary: !empty($data['summary']) ? (string) $data['summary'] : null,
+            summary: ! empty($data['summary']) ? (string) $data['summary'] : null,
             content: (string) $data['content'],
-            category_id: !empty($data['category_id']) ? (int) $data['category_id'] : null,
+            category_id: ! empty($data['category_id']) ? (int) $data['category_id'] : null,
             status: (string) ($data['status'] ?? 'draft'),
-            published_at: !empty($data['published_at']) ? CarbonImmutable::parse($data['published_at']) : null,
-            expires_at: !empty($data['expires_at']) ? CarbonImmutable::parse($data['expires_at']) : null,
+            published_at: ! empty($data['published_at']) ? CarbonImmutable::parse($data['published_at']) : null,
+            expires_at: ! empty($data['expires_at']) ? CarbonImmutable::parse($data['expires_at']) : null,
             queues: array_map('intval', (array) ($data['queues'] ?? [])),
             tags: array_filter(array_map('trim', (array) ($data['tags'] ?? []))),
         );

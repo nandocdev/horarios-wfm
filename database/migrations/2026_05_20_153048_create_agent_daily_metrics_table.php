@@ -38,7 +38,7 @@ return new class extends Migration
             $table->decimal('pwi_pct', 5, 2)->default(0);
 
             $table->jsonb('queue_distribution')->nullable(); // Metadata de distribución por cola
-            
+
             $table->timestamps();
 
             $table->unique(['employee_id', 'metric_date']);

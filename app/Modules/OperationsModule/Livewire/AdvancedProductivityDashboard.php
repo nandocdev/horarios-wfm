@@ -6,8 +6,6 @@ namespace App\Modules\OperationsModule\Livewire;
 
 use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Modules\PersonnelModule\Models\Team;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -30,7 +28,7 @@ class AdvancedProductivityDashboard extends Component
             ->where('metric_date', $this->date);
 
         if ($this->teamId) {
-            $metricsQuery->whereHas('employee', function($q) {
+            $metricsQuery->whereHas('employee', function ($q) {
                 $q->where('team_id', $this->teamId);
             });
         }
@@ -49,7 +47,7 @@ class AdvancedProductivityDashboard extends Component
 
         // Ranking de mejores PWI
         $topPerformers = $metrics->sortByDesc('pwi_pct')->take(5);
-        
+
         // Ranking de mayores Gaps (oportunidad de mejora)
         $underPerformers = $metrics->sortByDesc('capacity_gap')->take(5);
 

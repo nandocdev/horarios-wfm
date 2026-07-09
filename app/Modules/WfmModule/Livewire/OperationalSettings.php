@@ -19,6 +19,7 @@ class OperationalSettings extends Component
     public array $queues = [];
 
     public ?string $newGoalKey = '';
+
     public ?string $newGoalLabel = '';
 
     public function mount()
@@ -69,7 +70,7 @@ class OperationalSettings extends Component
             'newGoalLabel' => 'required|string|max:100',
         ]);
 
-        $key = str_starts_with($this->newGoalKey, 'goal_') ? $this->newGoalKey : 'goal_' . $this->newGoalKey;
+        $key = str_starts_with($this->newGoalKey, 'goal_') ? $this->newGoalKey : 'goal_'.$this->newGoalKey;
 
         DB::table('operational_settings')->insert([
             'key' => $key,

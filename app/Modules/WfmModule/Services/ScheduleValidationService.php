@@ -71,8 +71,8 @@ final class ScheduleValidationService
         string $endTime,
         ?int $ignoreActivityId = null
     ): bool {
-        $startTz = Carbon::parse($date . ' ' . $startTime)->toIso8601String();
-        $endTz = Carbon::parse($date . ' ' . $endTime)->toIso8601String();
+        $startTz = Carbon::parse($date.' '.$startTime)->toIso8601String();
+        $endTz = Carbon::parse($date.' '.$endTime)->toIso8601String();
 
         $query = IntradayActivity::where('employee_id', $employeeId);
 
@@ -99,13 +99,13 @@ final class ScheduleValidationService
         string $endTime,
         ?int $ignoreExceptionId = null
     ): bool {
-        $start = Carbon::parse($date . ' ' . $startTime);
-        $end = Carbon::parse($date . ' ' . $endTime);
+        $start = Carbon::parse($date.' '.$startTime);
+        $end = Carbon::parse($date.' '.$endTime);
 
         $query = ScheduleException::where('employee_id', $employeeId)
             ->where(function ($q) use ($start, $end) {
                 $q->where('start_at', '<', $end)
-                  ->where('end_at', '>', $start);
+                    ->where('end_at', '>', $start);
             });
 
         if ($ignoreExceptionId) {
@@ -125,68 +125,68 @@ final class ScheduleValidationService
         $carbonDate = Carbon::parse($date);
         $startOfDay = $carbonDate->copy()->startOfDay();
         $endOfDay = $carbonDate->copy()->endOfDay();
-        
+
         // 1. Obtener excepciones del día
         $exceptions = ScheduleException::where('start_at', '<=', $endOfDay)
             ->where('end_at', '>=', $startOfDay)
             ->with('employee')
             ->get();
-            
+
         foreach ($exceptions as $ex) {
             $employee = $ex->employee;
-            if (!$employee) {
+            if (! $employee) {
                 continue;
             }
-            
+
             // Ver si tiene turno asignado hoy
             $assignment = WeeklyScheduleAssignment::where('employee_id', $employee->id)
                 ->where('day_of_week', $carbonDate->dayOfWeekIso)
                 ->where('is_replaced', false)
                 ->whereHas('weeklySchedule', function ($q) use ($date) {
                     $q->where('week_start_date', '<=', $date)
-                      ->where('week_end_date', '>=', $date);
+                        ->where('week_end_date', '>=', $date);
                 })
                 ->with('schedule')
                 ->first();
-                
+
             if ($assignment && $assignment->schedule && $assignment->start_time && $assignment->end_time) {
                 // Verificar si hay solapamiento
                 $exStart = $ex->start_at;
                 $exEnd = $ex->end_at;
-                
-                $shiftStart = Carbon::parse($date . ' ' . $assignment->start_time);
-                $shiftEnd = Carbon::parse($date . ' ' . $assignment->end_time);
-                
+
+                $shiftStart = Carbon::parse($date.' '.$assignment->start_time);
+                $shiftEnd = Carbon::parse($date.' '.$assignment->end_time);
+
                 if ($exStart->lt($shiftEnd) && $exEnd->gt($shiftStart)) {
                     $conflicts[] = [
                         'type' => 'shift_exception_collision',
                         'employee_name' => $employee->full_name ?? $employee->name,
-                        'message' => "Conflicto en {$employee->name}: Excepción programada ({$exStart->format('H:i')}-{$exEnd->format('H:i')}) se solapa con su turno ({$assignment->start_time}-{$assignment->end_time})."
+                        'message' => "Conflicto en {$employee->name}: Excepción programada ({$exStart->format('H:i')}-{$exEnd->format('H:i')}) se solapa con su turno ({$assignment->start_time}-{$assignment->end_time}).",
                     ];
                 }
             }
-            
+
             // Ver si tiene actividades intradía que colisionen hoy
             $activities = IntradayActivity::where('employee_id', $employee->id)
                 ->whereRaw('time_range && tstzrange(?, ?)', [$startOfDay->toIso8601String(), $endOfDay->toIso8601String()])
                 ->get();
-                
+
             foreach ($activities as $act) {
                 $actStart = $act->getRangeStart();
                 $actEnd = $act->getRangeEnd();
-                
+
                 if ($actStart && $actEnd) {
                     if ($actStart->lt($ex->end_at) && $actEnd->gt($ex->start_at)) {
                         $conflicts[] = [
                             'type' => 'activity_exception_collision',
                             'employee_name' => $employee->full_name ?? $employee->name,
-                            'message' => "Conflicto en {$employee->name}: Actividad intradía ({$actStart->format('H:i')}-{$actEnd->format('H:i')}) se solapa con excepción ({$ex->start_at->format('H:i')}-{$ex->end_at->format('H:i')})."
+                            'message' => "Conflicto en {$employee->name}: Actividad intradía ({$actStart->format('H:i')}-{$actEnd->format('H:i')}) se solapa con excepción ({$ex->start_at->format('H:i')}-{$ex->end_at->format('H:i')}).",
                         ];
                     }
                 }
             }
         }
-        
+
         return $conflicts;
     }
 }

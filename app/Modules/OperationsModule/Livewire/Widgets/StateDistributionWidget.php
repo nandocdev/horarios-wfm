@@ -8,8 +8,8 @@ use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
 #[Lazy]

@@ -2,15 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Modules\CommunicationsModule\Actions\CreateCommentAction;
+use App\Modules\CommunicationsModule\DTOs\CommentDTO;
 use App\Modules\CommunicationsModule\Events\CommentCreated;
-use App\Modules\CommunicationsModule\Events\MentionCreated;
-use App\Modules\CommunicationsModule\Events\ReactionAdded;
-use App\Modules\CommunicationsModule\Events\ReactionRemoved;
 use App\Modules\CommunicationsModule\Models\Comment;
 use App\Modules\CommunicationsModule\Models\News;
-use App\Modules\CommunicationsModule\Models\Shoutout;
 use App\Modules\CoreModule\Models\User;
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Events\WeeklySchedulePublished;
 
 beforeEach(function () {
     $this->user = User::withoutEvents(fn () => User::factory()->create());
@@ -31,9 +29,9 @@ it('CommentCreated se dispara exactamente una vez al crear comentario via Create
         'status' => 'published',
     ]);
 
-    $action = app(\App\Modules\CommunicationsModule\Actions\CreateCommentAction::class);
+    $action = app(CreateCommentAction::class);
     $action->execute(
-        new \App\Modules\CommunicationsModule\DTOs\CommentDTO('Comment', null),
+        new CommentDTO('Comment', null),
         $news,
         $this->user->id,
     );
@@ -94,7 +92,7 @@ it('CommentObserver invalida cache de comentarios al crear via Eloquent', functi
 // ────────────────────────────────────────────
 
 it('WeeklySchedulePublished tiene listener registrado en el provider', function () {
-    $listeners = Event::getListeners(\App\Shared\Events\WeeklySchedulePublished::class);
+    $listeners = Event::getListeners(WeeklySchedulePublished::class);
 
     // Event::getListeners devuelve array de callables — verificamos que exista al menos uno
     expect($listeners)->not->toBeEmpty();

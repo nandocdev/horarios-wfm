@@ -8,9 +8,9 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\AssignIntradayActivityAction;
 use App\Modules\WfmModule\Actions\CreateApprovedIntradayPeriodAction;
-use App\Modules\WfmModule\Actions\UpdateApprovedIntradayPeriodAction;
 use App\Modules\WfmModule\Actions\DeleteApprovedIntradayPeriodAction;
 use App\Modules\WfmModule\Actions\DeleteIntradayActivityAction;
+use App\Modules\WfmModule\Actions\UpdateApprovedIntradayPeriodAction;
 use App\Modules\WfmModule\DTOs\IntradayActivityDTO;
 use App\Modules\WfmModule\Models\ApprovedIntradayPeriod;
 use App\Modules\WfmModule\Models\IntradayActivity;
@@ -119,30 +119,30 @@ class ManageIntradayActivities extends Component
         $this->authorize('wfm.intraday.periods.manage');
 
         $this->validate([
-            'periodTeamId'               => 'required|exists:teams,id',
+            'periodTeamId' => 'required|exists:teams,id',
             'periodActivityDefinitionId' => 'required|exists:scheduled_activity_definitions,id',
-            'periodDate'                 => 'required|date',
-            'periodStartTime'            => 'required',
-            'periodEndTime'              => 'required|after:periodStartTime',
-            'periodMaxSlots'             => 'required|integer|min:1|max:100',
+            'periodDate' => 'required|date',
+            'periodStartTime' => 'required',
+            'periodEndTime' => 'required|after:periodStartTime',
+            'periodMaxSlots' => 'required|integer|min:1|max:100',
         ], [], [
-            'periodTeamId'               => 'Equipo',
+            'periodTeamId' => 'Equipo',
             'periodActivityDefinitionId' => 'Actividad',
-            'periodDate'                 => 'Fecha',
-            'periodStartTime'            => 'Hora de inicio',
-            'periodEndTime'              => 'Hora de fin',
-            'periodMaxSlots'             => 'Nº de slots',
+            'periodDate' => 'Fecha',
+            'periodStartTime' => 'Hora de inicio',
+            'periodEndTime' => 'Hora de fin',
+            'periodMaxSlots' => 'Nº de slots',
         ]);
 
         try {
             $data = [
-                'team_id'               => $this->periodTeamId,
+                'team_id' => $this->periodTeamId,
                 'activity_definition_id' => $this->periodActivityDefinitionId,
-                'date'                  => $this->periodDate,
-                'start_time'            => $this->periodStartTime,
-                'end_time'              => $this->periodEndTime,
-                'max_slots'             => $this->periodMaxSlots,
-                'notes'                 => $this->periodNotes ?: null,
+                'date' => $this->periodDate,
+                'start_time' => $this->periodStartTime,
+                'end_time' => $this->periodEndTime,
+                'max_slots' => $this->periodMaxSlots,
+                'notes' => $this->periodNotes ?: null,
             ];
 
             if ($this->periodId) {
@@ -199,39 +199,39 @@ class ManageIntradayActivities extends Component
         $period = ApprovedIntradayPeriod::findOrFail($this->assigningPeriodId);
 
         $this->validate([
-            'selectedEmployeeIds'   => 'required|array|min:1',
-            'startTime'             => [
+            'selectedEmployeeIds' => 'required|array|min:1',
+            'startTime' => [
                 'required',
                 function ($attribute, $value, $fail) {
                     if ($value < $this->minTimeLimit || $value > $this->maxTimeLimit) {
                         $fail("La hora de inicio debe estar entre {$this->minTimeLimit} y {$this->maxTimeLimit}.");
                     }
-                }
+                },
             ],
-            'endTime'               => [
+            'endTime' => [
                 'required',
                 'after:startTime',
                 function ($attribute, $value, $fail) {
                     if ($value < $this->minTimeLimit || $value > $this->maxTimeLimit) {
                         $fail("La hora de fin debe estar entre {$this->minTimeLimit} y {$this->maxTimeLimit}.");
                     }
-                }
+                },
             ],
         ], [], [
             'selectedEmployeeIds' => 'Empleados',
-            'startTime'           => 'Hora inicio',
-            'endTime'             => 'Hora fin',
+            'startTime' => 'Hora inicio',
+            'endTime' => 'Hora fin',
         ]);
 
         try {
             $dto = IntradayActivityDTO::fromArray([
                 'activity_definition_id' => $period->activity_definition_id,
-                'employee_ids'           => array_map('intval', $this->selectedEmployeeIds),
-                'date'                   => $period->date->toDateString(),
-                'start_time'             => $this->startTime,
-                'end_time'               => $this->endTime,
-                'notes'                  => $this->assignNotes ?: null,
-                'approved_period_id'     => $period->id,
+                'employee_ids' => array_map('intval', $this->selectedEmployeeIds),
+                'date' => $period->date->toDateString(),
+                'start_time' => $this->startTime,
+                'end_time' => $this->endTime,
+                'notes' => $this->assignNotes ?: null,
+                'approved_period_id' => $period->id,
             ]);
 
             $action->execute($dto);
@@ -332,13 +332,13 @@ class ManageIntradayActivities extends Component
         }
 
         return view('wfm::livewire.manage-intraday-activities', [
-            'periods'            => $periods,
-            'activities'         => $activities,
-            'definitions'        => ScheduledActivityDefinition::where('is_active', true)->get(),
-            'teams'              => $isWfm ? Team::where('is_active', true)->orderBy('name')->get() : collect(),
+            'periods' => $periods,
+            'activities' => $activities,
+            'definitions' => ScheduledActivityDefinition::where('is_active', true)->get(),
+            'teams' => $isWfm ? Team::where('is_active', true)->orderBy('name')->get() : collect(),
             'availableEmployees' => $availableEmployees,
-            'isWfm'              => $isWfm,
-            'coordinatorTeamId'  => $coordinatorTeamId,
+            'isWfm' => $isWfm,
+            'coordinatorTeamId' => $coordinatorTeamId,
         ])->layout('layouts.app');
     }
 }

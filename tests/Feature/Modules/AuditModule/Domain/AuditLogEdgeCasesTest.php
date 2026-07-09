@@ -88,9 +88,9 @@ it('no persiste logs cuando la transaccion hace rollback', function () {
     try {
         DB::transaction(function () use ($user) {
             $user->update(['name' => 'Cambio1']);
-            throw new \RuntimeException('Fallo forzado');
+            throw new RuntimeException('Fallo forzado');
         });
-    } catch (\RuntimeException) {
+    } catch (RuntimeException) {
         // esperado
     }
 

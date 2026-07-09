@@ -178,14 +178,14 @@ class FileBrowser extends Component
                 $action->execute($upload, auth()->user(), $this->currentFolderId);
                 $successCount++;
             } catch (\Exception $e) {
-                \Flux::toast(text: "Error en {$upload->getClientOriginalName()}: " . $e->getMessage(), variant: 'danger');
+                \Flux::toast(text: "Error en {$upload->getClientOriginalName()}: ".$e->getMessage(), variant: 'danger');
             }
         }
 
         $this->uploads = [];
-        
+
         if ($successCount > 0) {
-            \Flux::toast($successCount . ' archivo(s) subido(s) correctamente.');
+            \Flux::toast($successCount.' archivo(s) subido(s) correctamente.');
         }
     }
 

@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Modules\CommunicationsModule\Models\Category;
-use Illuminate\Database\QueryException;
 use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CommunicationsModule\Models\Poll;
 use App\Modules\CommunicationsModule\Models\Shoutout;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
+use Illuminate\Database\QueryException;
 
 beforeEach(function () {
     $this->user = User::withoutEvents(fn () => User::factory()->create());

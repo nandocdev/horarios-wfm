@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('operational_settings', 'category')) {
+        if (! Schema::hasColumn('operational_settings', 'category')) {
             Schema::table('operational_settings', function (Blueprint $table) {
                 $table->string('category')->default('threshold')->after('description');
             });
@@ -53,7 +53,7 @@ return new class extends Migration
                 $goal
             );
         }
-        
+
         // Update existing ones to 'threshold' category explicitly
         DB::table('operational_settings')
             ->whereNull('category')
@@ -69,7 +69,7 @@ return new class extends Migration
         Schema::table('operational_settings', function (Blueprint $table) {
             $table->dropColumn('category');
         });
-        
+
         DB::table('operational_settings')
             ->whereIn('key', ['goal_adherence', 'goal_productivity', 'goal_utilization', 'goal_service_level'])
             ->delete();

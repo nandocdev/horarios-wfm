@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Modules\CommunicationsModule\Database\Seeders\CommunicationsPermissionSeeder;
+use App\Modules\CommunicationsModule\Models\Comment;
 use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CoreModule\Models\User;
 
 beforeEach(function () {
-    $this->seed(\App\Modules\CommunicationsModule\Database\Seeders\CommunicationsPermissionSeeder::class);
+    $this->seed(CommunicationsPermissionSeeder::class);
     $this->user = User::withoutEvents(fn () => User::factory()->create());
     $this->user->givePermissionTo('comment_on_news');
 });
@@ -143,7 +145,7 @@ it('no permite mass-assignment de user_id via payload', function () {
             'is_active' => false,
         ]);
 
-    $comment = \App\Modules\CommunicationsModule\Models\Comment::first();
+    $comment = Comment::first();
 
     expect($comment)->not->toBeNull();
     expect($comment->user_id)->toBe($this->user->id) // NO $otherUser->id

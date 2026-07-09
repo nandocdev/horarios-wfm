@@ -11,7 +11,8 @@ use Carbon\Carbon;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-class PerformanceScorecard extends Component {
+class PerformanceScorecard extends Component
+{
     #[Url]
     public string $date = '';
 
@@ -28,40 +29,47 @@ class PerformanceScorecard extends Component {
 
     public array $performanceData = [];
 
-    public function mount() {
+    public function mount()
+    {
         $this->date = $this->date ?: now()->toDateString();
         $this->authorize('viewPerformance', Employee::class);
 
         $employee = auth()->user()->employee;
-        if (!$this->employeeId && $employee) {
+        if (! $this->employeeId && $employee) {
             $this->employeeId = $employee->id;
         }
 
         $this->loadPerformance();
     }
 
-    public function updatedEmployeeId(): void {
+    public function updatedEmployeeId(): void
+    {
         $this->loadPerformance();
     }
 
-    public function updatedTeamId(): void {
+    public function updatedTeamId(): void
+    {
         $this->employeeId = null; // Reset employee when changing team
         $this->loadPerformance();
     }
 
-    public function updatedPeriodType(): void {
+    public function updatedPeriodType(): void
+    {
         $this->loadPerformance();
     }
 
-    public function updatedSearch(): void {
+    public function updatedSearch(): void
+    {
         $this->loadPerformance();
     }
 
-    public function updatedDate(): void {
+    public function updatedDate(): void
+    {
         $this->loadPerformance();
     }
 
-    public function loadPerformance() {
+    public function loadPerformance()
+    {
         $action = app(GetStandardizedPerformanceAction::class);
         $carbonDate = Carbon::parse($this->date);
         $user = auth()->user();
@@ -74,18 +82,18 @@ class PerformanceScorecard extends Component {
             $employee = Employee::find($this->employeeId);
 
             // Validar acceso al empleado solicitado
-            if (!$employee || (!$isPowerUser && !$user->can('viewPerformance', $employee))) {
+            if (! $employee || (! $isPowerUser && ! $user->can('viewPerformance', $employee))) {
                 $this->employeeId = $me?->id;
                 $employee = $me;
             }
 
-            if (!$employee) {
+            if (! $employee) {
                 return;
             }
 
             $dates = match ($this->periodType) {
-                'weekly' => collect(range(0, 6))->map(fn($i) => $carbonDate->copy()->startOfWeek()->addDays($i)),
-                'monthly' => collect(range(0, $carbonDate->daysInMonth - 1))->map(fn($i) => $carbonDate->copy()->startOfMonth()->addDays($i)),
+                'weekly' => collect(range(0, 6))->map(fn ($i) => $carbonDate->copy()->startOfWeek()->addDays($i)),
+                'monthly' => collect(range(0, $carbonDate->daysInMonth - 1))->map(fn ($i) => $carbonDate->copy()->startOfMonth()->addDays($i)),
                 default => [$carbonDate]
             };
 
@@ -102,7 +110,7 @@ class PerformanceScorecard extends Component {
                 ->whereIn('position_id', [1, 2, 5, 11, 13])
                 ->with(['team', 'position']);
 
-            if (!$isPowerUser) {
+            if (! $isPowerUser) {
                 $managedTeamIds = $me?->getManagedTeamIds() ?? [];
                 $query->whereIn('team_id', $managedTeamIds);
             }
@@ -113,8 +121,8 @@ class PerformanceScorecard extends Component {
 
             if ($this->search) {
                 $query->where(function ($q) {
-                    $q->where('first_name', 'ilike', '%' . $this->search . '%')
-                        ->orWhere('last_name', 'ilike', '%' . $this->search . '%');
+                    $q->where('first_name', 'ilike', '%'.$this->search.'%')
+                        ->orWhere('last_name', 'ilike', '%'.$this->search.'%');
                 });
             }
 
@@ -133,7 +141,8 @@ class PerformanceScorecard extends Component {
         $this->performanceData = $data;
     }
 
-    public function formatMinutes(float $minutes): string {
+    public function formatMinutes(float $minutes): string
+    {
         $seconds = (int) round($minutes * 60);
         $h = floor($seconds / 3600);
         $m = floor(($seconds % 3600) / 60);
@@ -142,7 +151,8 @@ class PerformanceScorecard extends Component {
         return sprintf('%02d:%02d:%02d', $h, $m, $s);
     }
 
-    public function render() {
+    public function render()
+    {
         $user = auth()->user();
         $employee = $user->employee;
         $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director', 'chief']);
@@ -157,7 +167,7 @@ class PerformanceScorecard extends Component {
             ->whereIn('position_id', [1, 2, 5, 11, 13])
             ->orderBy('first_name');
 
-        if (!$isPowerUser) {
+        if (! $isPowerUser) {
             $employeesQuery->whereIn('team_id', $managedTeamIds);
         }
 

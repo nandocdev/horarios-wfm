@@ -50,6 +50,7 @@ class Position extends Model
 
     /**
      * Empleados que ocupan este cargo.
+     *
      * @deprecated Usar employees() para consistencia.
      */
     public function users(): HasMany

@@ -72,7 +72,7 @@ class AuditLog extends Model
     public function scopeFilter(Builder $query, array $filters): void
     {
         $query->when($filters['search'] ?? null, fn ($q, $v) => $q->where(function ($sub) use ($v) {
-            $pattern = '%' . $v . '%';
+            $pattern = '%'.$v.'%';
             $sub->where(DB::raw('LOWER(entity_type)'), 'like', strtolower($pattern))
                 ->orWhere(DB::raw('LOWER(action)'), 'like', strtolower($pattern))
                 ->orWhere(DB::raw('LOWER(ip_address)'), 'like', strtolower($pattern));

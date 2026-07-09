@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\CommunicationsModule\Database\Seeders\CommunicationsPermissionSeeder;
 use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CommunicationsModule\Policies\ContentModerationPolicy;
 use App\Modules\CommunicationsModule\Policies\NewsPolicy;
@@ -9,7 +10,7 @@ use App\Modules\CoreModule\Models\User;
 
 beforeEach(function () {
     $this->seed(RolesAndPermissionsSeeder::class);
-    $this->seed(\App\Modules\CommunicationsModule\Database\Seeders\CommunicationsPermissionSeeder::class);
+    $this->seed(CommunicationsPermissionSeeder::class);
 
     $this->newsPolicy = app(NewsPolicy::class);
     $this->moderationPolicy = app(ContentModerationPolicy::class);
@@ -48,7 +49,7 @@ it('concede acceso segun permiso granulares en NewsPolicy', function (
         'delete' => $this->newsPolicy->delete($user, $this->news),
         'viewPending' => $this->newsPolicy->viewPending($user),
         'moderateContent' => $this->newsPolicy->moderateContent($user, $this->news),
-        default => throw new \InvalidArgumentException("Unknown ability: {$ability}"),
+        default => throw new InvalidArgumentException("Unknown ability: {$ability}"),
     };
 
     expect($result)->toBe($expected);

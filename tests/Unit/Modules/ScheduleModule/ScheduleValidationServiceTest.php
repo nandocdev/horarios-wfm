@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Modules\ScheduleModule;
 
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Services\ScheduleValidationService;
-use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->service = new ScheduleValidationService();
+    $this->service = new ScheduleValidationService;
 });
 
 test('it validates shift times correctly', function () {
@@ -79,8 +79,8 @@ test('it detects exception overlaps correctly', function () {
     ScheduleException::create([
         'employee_id' => $employee->id,
         'absence_reason_code_id' => $reason->id,
-        'start_at' => Carbon::parse($date . ' 10:00:00'),
-        'end_at' => Carbon::parse($date . ' 12:00:00'),
+        'start_at' => Carbon::parse($date.' 10:00:00'),
+        'end_at' => Carbon::parse($date.' 12:00:00'),
         'is_full_day' => false,
     ]);
 

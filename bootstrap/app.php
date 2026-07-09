@@ -8,6 +8,7 @@ use App\Modules\CoreModule\Http\Middleware\CheckMaintenanceMode;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', InjectMenuData::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+        $exceptions->render(function (PostTooLargeException $e, $request) {
             if ($request->expectsJson() || $request->header('X-Livewire')) {
                 return response()->json([
                     'message' => 'El archivo es demasiado grande para el servidor (Límite post_max_size excedido).',

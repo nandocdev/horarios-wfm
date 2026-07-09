@@ -9,6 +9,4 @@ use App\Shared\Notifications\BaseNotification;
 /**
  * Notificación cuando un horario ya publicado es modificado por un supervisor o WFM.
  */
-class ScheduleModifiedNotification extends BaseNotification
-{
-}
+class ScheduleModifiedNotification extends BaseNotification {}

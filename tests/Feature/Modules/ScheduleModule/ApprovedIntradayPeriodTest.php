@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\ScheduleModule;
 
+use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
-use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Actions\AssignIntradayActivityAction;
 use App\Modules\WfmModule\Actions\CreateApprovedIntradayPeriodAction;
 use App\Modules\WfmModule\DTOs\IntradayActivityDTO;
@@ -60,21 +60,21 @@ it('wfm can create an approved intraday period', function () {
 
     $action = app(CreateApprovedIntradayPeriodAction::class);
     $period = $action->execute([
-        'team_id'               => $team->id,
+        'team_id' => $team->id,
         'activity_definition_id' => $definition->id,
-        'date'                  => now()->toDateString(),
-        'start_time'            => '10:00',
-        'end_time'              => '10:30',
-        'max_slots'             => 3,
-        'notes'                 => 'Sesión de coaching matutina',
+        'date' => now()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '10:30',
+        'max_slots' => 3,
+        'notes' => 'Sesión de coaching matutina',
     ]);
 
     expect($period)->toBeInstanceOf(ApprovedIntradayPeriod::class);
     $this->assertDatabaseHas('approved_intraday_periods', [
-        'team_id'   => $team->id,
+        'team_id' => $team->id,
         'max_slots' => 3,
         'start_time' => '10:00',
-        'end_time'  => '10:30',
+        'end_time' => '10:30',
     ]);
 });
 
@@ -85,12 +85,12 @@ it('rejects period creation when end_time is before start_time', function () {
     ['team' => $team, 'definition' => $definition] = setupIntradayFixtures();
 
     app(CreateApprovedIntradayPeriodAction::class)->execute([
-        'team_id'               => $team->id,
+        'team_id' => $team->id,
         'activity_definition_id' => $definition->id,
-        'date'                  => now()->toDateString(),
-        'start_time'            => '11:00',
-        'end_time'              => '10:00', // Fin antes de inicio
-        'max_slots'             => 1,
+        'date' => now()->toDateString(),
+        'start_time' => '11:00',
+        'end_time' => '10:00', // Fin antes de inicio
+        'max_slots' => 1,
     ]);
 })->throws(ValidationException::class);
 
@@ -102,30 +102,30 @@ it('coordinator can assign an employee to an approved period slot', function () 
         = setupIntradayFixtures();
 
     $period = ApprovedIntradayPeriod::create([
-        'team_id'               => $team->id,
+        'team_id' => $team->id,
         'activity_definition_id' => $definition->id,
-        'date'                  => now()->toDateString(),
-        'start_time'            => '10:00',
-        'end_time'              => '10:30',
-        'max_slots'             => 5,
+        'date' => now()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '10:30',
+        'max_slots' => 5,
     ]);
 
     $dto = IntradayActivityDTO::fromArray([
         'activity_definition_id' => $definition->id,
-        'employee_ids'           => [$employee->id],
-        'date'                   => now()->toDateString(),
-        'start_time'             => '10:00',
-        'end_time'               => '10:30',
-        'notes'                  => null,
-        'approved_period_id'     => $period->id,
+        'employee_ids' => [$employee->id],
+        'date' => now()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '10:30',
+        'notes' => null,
+        'approved_period_id' => $period->id,
     ]);
 
     $created = app(AssignIntradayActivityAction::class)->execute($dto);
 
     expect($created)->toHaveCount(1);
     $this->assertDatabaseHas('intraday_activities', [
-        'employee_id'        => $employee->id,
-        'activity_type_id'   => $activityType->id,
+        'employee_id' => $employee->id,
+        'activity_type_id' => $activityType->id,
         'approved_period_id' => $period->id,
     ]);
 });
@@ -141,22 +141,22 @@ it('rejects assignment when max_slots are exceeded', function () {
     $employee2 = Employee::factory()->create(['team_id' => $team->id]);
 
     $period = ApprovedIntradayPeriod::create([
-        'team_id'               => $team->id,
+        'team_id' => $team->id,
         'activity_definition_id' => $definition->id,
-        'date'                  => now()->toDateString(),
-        'start_time'            => '10:00',
-        'end_time'              => '10:30',
-        'max_slots'             => 1, // Solo 1 slot disponible
+        'date' => now()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '10:30',
+        'max_slots' => 1, // Solo 1 slot disponible
     ]);
 
     // Intentar asignar 2 empleados a un periodo de 1 slot
     $dto = IntradayActivityDTO::fromArray([
         'activity_definition_id' => $definition->id,
-        'employee_ids'           => [$employee->id, $employee2->id],
-        'date'                   => now()->toDateString(),
-        'start_time'             => '10:00',
-        'end_time'               => '10:30',
-        'approved_period_id'     => $period->id,
+        'employee_ids' => [$employee->id, $employee2->id],
+        'date' => now()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '10:30',
+        'approved_period_id' => $period->id,
     ]);
 
     app(AssignIntradayActivityAction::class)->execute($dto);
@@ -173,21 +173,21 @@ it('rejects assignment when employee does not belong to the approved period team
     $foreignEmployee = Employee::factory()->create(['team_id' => $otherTeam->id]);
 
     $period = ApprovedIntradayPeriod::create([
-        'team_id'               => $team->id,
+        'team_id' => $team->id,
         'activity_definition_id' => $definition->id,
-        'date'                  => now()->toDateString(),
-        'start_time'            => '10:00',
-        'end_time'              => '10:30',
-        'max_slots'             => 5,
+        'date' => now()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '10:30',
+        'max_slots' => 5,
     ]);
 
     $dto = IntradayActivityDTO::fromArray([
         'activity_definition_id' => $definition->id,
-        'employee_ids'           => [$foreignEmployee->id],
-        'date'                   => now()->toDateString(),
-        'start_time'             => '10:00',
-        'end_time'               => '10:30',
-        'approved_period_id'     => $period->id,
+        'employee_ids' => [$foreignEmployee->id],
+        'date' => now()->toDateString(),
+        'start_time' => '10:00',
+        'end_time' => '10:30',
+        'approved_period_id' => $period->id,
     ]);
 
     // Solo el empleado foráneo fue rechazado, no hubo creados → ValidationException

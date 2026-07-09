@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -28,7 +29,7 @@ class Dashboard extends Component
     public function ctiStatus(): array
     {
         try {
-            $latest = \App\Modules\ConnectModule\Models\CsqRealtimeStat::latest('updated_at')->first();
+            $latest = CsqRealtimeStat::latest('updated_at')->first();
             if ($latest && $latest->updated_at && $latest->updated_at->gt(now()->subMinutes(2))) {
                 return [
                     'online' => true,

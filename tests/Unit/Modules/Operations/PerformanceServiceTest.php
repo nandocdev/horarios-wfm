@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Tests\Unit\Modules\Operations;
 
 use App\Modules\OperationsModule\Services\PerformanceService;
-use Carbon\Carbon;
-use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class PerformanceServiceTest extends TestCase
 {

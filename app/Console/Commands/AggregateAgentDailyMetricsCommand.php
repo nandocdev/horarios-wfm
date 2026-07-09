@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Modules\OperationsModule\Actions\CalculateAdvancedProductivityAction;
+use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class AggregateAgentDailyMetricsCommand extends Command
 {
@@ -23,18 +23,19 @@ class AggregateAgentDailyMetricsCommand extends Command
     {
         $endDateStr = $this->argument('date') ?? now()->subDay()->toDateString();
         $endDate = Carbon::parse($endDateStr);
-        
-        $startDate = $this->option('from') 
-            ? Carbon::parse($this->option('from')) 
+
+        $startDate = $this->option('from')
+            ? Carbon::parse($this->option('from'))
             : $endDate->copy();
 
         if ($startDate->gt($endDate)) {
-            $this->error("La fecha de inicio (--from) no puede ser posterior a la fecha final.");
+            $this->error('La fecha de inicio (--from) no puede ser posterior a la fecha final.');
+
             return self::FAILURE;
         }
 
         $currentDate = $startDate->copy();
-        
+
         while ($currentDate->lte($endDate)) {
             $this->processDate($currentDate, $calculateAction);
             $currentDate->addDay();
@@ -56,14 +57,14 @@ class AggregateAgentDailyMetricsCommand extends Command
             try {
                 $metrics = $calculateAction->execute($employee, $date);
                 $attributes = $metrics->getAttributes();
-                
-                \App\Modules\OperationsModule\Models\AgentDailyMetric::updateOrCreate(
+
+                AgentDailyMetric::updateOrCreate(
                     ['employee_id' => $employee->id, 'metric_date' => $date->toDateString()],
                     $attributes
                 );
             } catch (\Exception $e) {
                 // Loguear error pero continuar con el siguiente empleado
-                \Log::error("Error procesando métricas: Emp {$employee->id} en {$date->toDateString()}: " . $e->getMessage());
+                \Log::error("Error procesando métricas: Emp {$employee->id} en {$date->toDateString()}: ".$e->getMessage());
             }
         });
 

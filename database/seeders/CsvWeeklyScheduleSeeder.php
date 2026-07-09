@@ -12,14 +12,16 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class CsvWeeklyScheduleSeeder extends Seeder {
-    public function run(): void {
+class CsvWeeklyScheduleSeeder extends Seeder
+{
+    public function run(): void
+    {
         WeeklySchedule::truncate();
         WeeklyScheduleAssignment::truncate();
         WeeklyTeamAssignment::truncate();
 
         $csvPath = database_path('data/horario.csv');
-        if (!file_exists($csvPath)) {
+        if (! file_exists($csvPath)) {
             $this->command->error("Archivo no encontrado: {$csvPath}");
 
             return;
@@ -32,12 +34,12 @@ class CsvWeeklyScheduleSeeder extends Seeder {
         $employees = DB::table('employees')
             ->select('id', 'username', 'team_id')
             ->get()
-            ->mapWithKeys(fn($e) => [strtolower($e->username) => ['id' => $e->id, 'team_id' => $e->team_id]])
+            ->mapWithKeys(fn ($e) => [strtolower($e->username) => ['id' => $e->id, 'team_id' => $e->team_id]])
             ->toArray();
 
         // Pre-cargar turnos: hora_entrada → schedule
         $schedules = Schedule::all()
-            ->keyBy(fn($s) => Carbon::parse($s->start_time)->format('H:i'))
+            ->keyBy(fn ($s) => Carbon::parse($s->start_time)->format('H:i'))
             ->toArray();
 
         // Pre-cargar líderes por equipo: team_id → [ids de lideres]
@@ -85,7 +87,7 @@ class CsvWeeklyScheduleSeeder extends Seeder {
                 [$weekId, $iniSemana, $fecha, $username, $jornada, $entrada, $almuerzo, $descanso] = $row;
 
                 // 1. Asegurar Semana
-                if (!isset($weeks[$iniSemana])) {
+                if (! isset($weeks[$iniSemana])) {
                     $startDate = Carbon::createFromFormat('d/m/Y', $iniSemana)->startOfDay();
                     $endDate = $startDate->copy()->addDays(6)->endOfDay();
 
@@ -103,7 +105,7 @@ class CsvWeeklyScheduleSeeder extends Seeder {
                 // 2. Buscar Empleado
                 $key = strtolower($username);
                 $employee = $employees[$key] ?? null;
-                if (!$employee) {
+                if (! $employee) {
                     $skipped++;
 
                     continue;
@@ -112,7 +114,7 @@ class CsvWeeklyScheduleSeeder extends Seeder {
                 // 3. Buscar Turno por hora de entrada
                 $entradaFormateada = Carbon::parse($entrada)->format('H:i');
                 $schedule = $schedules[$entradaFormateada] ?? null;
-                if (!$schedule) {
+                if (! $schedule) {
                     $skipped++;
 
                     continue;
@@ -123,8 +125,8 @@ class CsvWeeklyScheduleSeeder extends Seeder {
                 $dayOfWeek = $fechaCarbon->dayOfWeekIso;
 
                 // 5. Acumular en el batch de asignaciones individuales
-                $assignKey = $weeks[$iniSemana] . '-' . $employee['id'] . '-' . $dayOfWeek;
-                if (!isset($processedKeys[$assignKey])) {
+                $assignKey = $weeks[$iniSemana].'-'.$employee['id'].'-'.$dayOfWeek;
+                if (! isset($processedKeys[$assignKey])) {
                     $insertData[$assignKey] = [
                         'weekly_schedule_id' => $weeks[$iniSemana],
                         'employee_id' => $employee['id'],
@@ -164,9 +166,9 @@ class CsvWeeklyScheduleSeeder extends Seeder {
 
                     // Replicar horario a los líderes del equipo que no estén en el batch actual
                     foreach ($teamLeaders[$teamId] ?? [] as $leaderId) {
-                        $leaderKey = $weeks[$iniSemana] . '-' . $leaderId . '-' . $dayOfWeek;
+                        $leaderKey = $weeks[$iniSemana].'-'.$leaderId.'-'.$dayOfWeek;
                         // Solo lo agregamos si no ha sido procesado (agentes tienen prioridad)
-                        if (!isset($processedKeys[$leaderKey])) {
+                        if (! isset($processedKeys[$leaderKey])) {
                             $insertData[$leaderKey] = array_merge($assignmentParams, [
                                 'weekly_schedule_id' => $weeks[$iniSemana],
                                 'employee_id' => $leaderId,
@@ -192,7 +194,7 @@ class CsvWeeklyScheduleSeeder extends Seeder {
             }
 
             // Flush del remanente
-            if (!empty($insertData)) {
+            if (! empty($insertData)) {
                 $data = array_values($insertData);
                 WeeklyScheduleAssignment::insert($data);
             }

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Modules\CommunicationsModule\Actions\AutoArchiveContentAction;
+use App\Modules\CommunicationsModule\Actions\PublishScheduledContentAction;
 use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CommunicationsModule\Models\Poll;
 use App\Modules\CommunicationsModule\Models\Shoutout;
@@ -80,7 +82,7 @@ it('contenido archivado via archive_at automatico (AutoArchiveContentAction)', f
         'archive_at' => now()->subDay(),
     ]);
 
-    $action = app(\App\Modules\CommunicationsModule\Actions\AutoArchiveContentAction::class);
+    $action = app(AutoArchiveContentAction::class);
     $result = $action->execute();
 
     expect($result['news'])->toBeGreaterThanOrEqual(1);
@@ -107,7 +109,7 @@ it('publishScheduledContentAction — [BUG?] busca status published no draft', f
         'published_at' => null,
     ]);
 
-    $action = app(\App\Modules\CommunicationsModule\Actions\PublishScheduledContentAction::class);
+    $action = app(PublishScheduledContentAction::class);
     $result = $action->execute();
 
     expect($result['news'])->toBeGreaterThanOrEqual(1);

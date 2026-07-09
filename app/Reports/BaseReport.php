@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Reports;
 
-use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPDFInstance;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\App;
@@ -44,30 +43,34 @@ abstract class BaseReport
     public function title(string $title): static
     {
         $this->title = $title;
+
         return $this;
     }
 
     public function orientation(string $orientation): static
     {
         $this->orientation = $orientation;
+
         return $this;
     }
 
     public function withFilters(array $filters): static
     {
         $this->filters = $filters;
+
         return $this;
     }
 
     public function withWatermark(string $text): static
     {
         $this->watermark = $text;
+
         return $this;
     }
 
     public function download(?string $filename = null): DomPDFInstance
     {
-        $filename ??= str_replace(' ', '_', $this->title) . '_' . now()->format('Ymd_His') . '.pdf';
+        $filename ??= str_replace(' ', '_', $this->title).'_'.now()->format('Ymd_His').'.pdf';
 
         return $this->build()
             ->download($filename);
@@ -75,7 +78,7 @@ abstract class BaseReport
 
     public function stream(?string $filename = null): DomPDFInstance
     {
-        $filename ??= str_replace(' ', '_', $this->title) . '_' . now()->format('Ymd_His') . '.pdf';
+        $filename ??= str_replace(' ', '_', $this->title).'_'.now()->format('Ymd_His').'.pdf';
 
         return $this->build()
             ->stream($filename);

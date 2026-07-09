@@ -17,7 +17,7 @@ class JustifyAttendanceIncidentAction
     {
         return DB::transaction(function () use ($id, $comment) {
             $incident = AttendanceIncident::findOrFail($id);
-            
+
             $incident->update([
                 'admin_comment' => $comment,
             ]);

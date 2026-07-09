@@ -22,7 +22,7 @@ final class ApplyShiftSwapToSchedule
         $request = $event->shiftSwap;
         $approverId = $event->approverId;
 
-        if (!$request) {
+        if (! $request) {
             return;
         }
 

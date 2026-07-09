@@ -9,6 +9,4 @@ use App\Shared\Notifications\BaseNotification;
 /**
  * Notificación genérica para cambios de estado en solicitudes de intercambio (Swap).
  */
-class SwapStatusChangedNotification extends BaseNotification
-{
-}
+class SwapStatusChangedNotification extends BaseNotification {}

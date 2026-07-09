@@ -54,7 +54,7 @@ class CriticalAlertsWidget extends Component
                 $criticalQueues = DB::table('csq_realtime_stats')
                     ->where('calls_waiting', '>', 5)
                     ->get()
-                    ->map(fn($csq) => [
+                    ->map(fn ($csq) => [
                         'name' => $csq->csq_name,
                         'waiting' => $csq->calls_waiting,
                         'sl' => $csq->service_level_long_term,

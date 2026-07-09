@@ -7,12 +7,12 @@ use App\Modules\CommunicationsModule\Actions\CreateNewsAction;
 use App\Modules\CommunicationsModule\Actions\ModerateContentAction;
 use App\Modules\CommunicationsModule\Actions\ProcessMentionsAction;
 use App\Modules\CommunicationsModule\Actions\ToggleReactionAction;
+use App\Modules\CommunicationsModule\Database\Seeders\CommunicationsPermissionSeeder;
 use App\Modules\CommunicationsModule\DTOs\CommentDTO;
-use App\Modules\CommunicationsModule\DTOs\ModerationDTO;
-use App\Modules\CommunicationsModule\DTOs\NewsDTO;
 // [BUG?] ReactionDTO no puede instanciarse: requiere ReactionType enum inexistente.
 // use App\Modules\CommunicationsModule\DTOs\ReactionDTO;
 // use App\Modules\CommunicationsModule\Enums\ReactionType;
+use App\Modules\CommunicationsModule\DTOs\NewsDTO;
 use App\Modules\CommunicationsModule\Events\CommentCreated;
 use App\Modules\CommunicationsModule\Models\Category;
 use App\Modules\CommunicationsModule\Models\Comment;
@@ -24,7 +24,7 @@ use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
 
 beforeEach(function () {
-    $this->seed(\App\Modules\CommunicationsModule\Database\Seeders\CommunicationsPermissionSeeder::class);
+    $this->seed(CommunicationsPermissionSeeder::class);
 
     // Crear categorias y tags base manualmente (evitar NewsSeeder que requiere DB poblada)
     Category::firstOrCreate(['slug' => 'anuncios-generales'], ['name' => 'Anuncios Generales', 'color' => '#3B82F6', 'sort_order' => 1]);
@@ -102,7 +102,7 @@ it('hace rollback si la transaccion falla a mitad de CreateNewsAction', function
 
     try {
         app(CreateNewsAction::class)->execute($dto);
-    } catch (\Throwable) {
+    } catch (Throwable) {
         // esperado — foreign key violation en categorizables
     }
 

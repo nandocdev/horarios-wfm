@@ -73,6 +73,7 @@ class Team extends Model
 
     /**
      * Empleados activos en el equipo (a través de miembros).
+     *
      * @deprecated Usar employees() si se refiere a la relación directa en la tabla employees.
      */
     public function users(): HasManyThrough

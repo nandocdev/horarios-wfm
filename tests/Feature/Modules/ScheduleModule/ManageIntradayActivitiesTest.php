@@ -138,4 +138,3 @@ test('assignActivity fails when times are outside min or max time boundaries', f
         ->call('assignActivity')
         ->assertHasErrors(['endTime']);
 });
-

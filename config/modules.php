@@ -21,7 +21,6 @@ return [
         App\Modules\OperationsModule\Providers\ModuleServiceProvider::class,
         App\Modules\ConnectModule\Providers\ModuleServiceProvider::class,
         App\Modules\WorkflowsModule\Providers\ModuleServiceProvider::class,
-        App\Modules\SupportModule\Providers\ModuleServiceProvider::class,
         App\Modules\CommunicationsModule\Providers\ModuleServiceProvider::class,
         App\Modules\AuditModule\Providers\ModuleServiceProvider::class,
         App\Modules\WfmModule\Providers\ModuleServiceProvider::class,

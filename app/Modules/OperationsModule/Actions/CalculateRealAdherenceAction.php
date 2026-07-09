@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Actions;
 
 use App\Modules\ConnectModule\Models\AgentStateTransition;
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\IntradayActivity;
+use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Acción para calcular la adherencia real e histórica cruzando cronogramas vs telemetría.
@@ -26,35 +24,35 @@ final class CalculateRealAdherenceAction
     /**
      * Calcula la adherencia para un empleado en un rango de fechas.
      */
-    public function execute(Employee $employee, CarbonInterface $startDate, ?CarbonInterface $endDate = null): array
+    public function execute(EmployeeInterface $employee, CarbonInterface $startDate, ?CarbonInterface $endDate = null): array
     {
         $endDate = $endDate ?? $startDate;
         $current = $startDate->copy();
-        
+
         $totalScheduledSeconds = 0;
         $totalAdherentSeconds = 0;
         $dailyResults = [];
 
         while ($current->lte($endDate)) {
             $result = $this->calculateForDay($employee, $current);
-            
+
             $totalScheduledSeconds += $result['scheduled_seconds'];
             $totalAdherentSeconds += $result['adherent_seconds'];
-            
+
             $dailyResults[$current->toDateString()] = $result;
-            
+
             $current = $current->addDay();
         }
 
-        $globalPercentage = $totalScheduledSeconds > 0 
-            ? round(($totalAdherentSeconds / $totalScheduledSeconds) * 100, 1) 
+        $globalPercentage = $totalScheduledSeconds > 0
+            ? round(($totalAdherentSeconds / $totalScheduledSeconds) * 100, 1)
             : 100.0;
 
         return [
             'percentage' => $globalPercentage,
             'scheduled_seconds' => $totalScheduledSeconds,
             'adherent_seconds' => $totalAdherentSeconds,
-            'days' => $dailyResults
+            'days' => $dailyResults,
         ];
     }
 
@@ -82,7 +80,7 @@ final class CalculateRealAdherenceAction
     /**
      * Lógica central de cálculo por día.
      */
-    private function calculateForDay(Employee|int $employee, CarbonInterface $date): array
+    private function calculateForDay(EmployeeInterface|int $employee, CarbonInterface $date): array
     {
         // Normalizar ID del empleado
         $employeeId = is_numeric($employee) ? (int) $employee : $employee->id;
@@ -93,7 +91,7 @@ final class CalculateRealAdherenceAction
 
         // 1. Obtener Línea de Tiempo Esperada (Planificada)
         $expectedSegments = $this->getExpectedTimeline((int) $employeeId, $date, $limitTime);
-        
+
         // 2. Obtener Línea de Tiempo Real (Telemetría)
         $realSegments = $this->getRealTimeline((int) $employeeId, $date);
 
@@ -112,7 +110,7 @@ final class CalculateRealAdherenceAction
 
                 if ($intersectStart->lt($intersectEnd)) {
                     $intersectDuration = $intersectEnd->getTimestamp() - $intersectStart->getTimestamp();
-                    
+
                     if (MetricFormulas::checkAdherence($real['state'], $expected['type'])) {
                         $totalAdherent += $intersectDuration;
                     }
@@ -135,15 +133,17 @@ final class CalculateRealAdherenceAction
         $dayInfo = $this->scheduleService->getScheduleForEmployee($employeeId, $date);
         $segments = [];
 
-        if ($dayInfo->is_off || !$dayInfo->start_time) {
+        if ($dayInfo->is_off || ! $dayInfo->start_time) {
             return [];
         }
 
         // --- A. Base Shift ---
         $shiftStart = Carbon::parse($dayInfo->start_time)->setDate($date->year, $date->month, $date->day);
         $shiftEnd = Carbon::parse($dayInfo->end_time)->setDate($date->year, $date->month, $date->day);
-        if ($shiftEnd->lt($shiftStart)) { $shiftEnd = $shiftEnd->addDay(); }
-        
+        if ($shiftEnd->lt($shiftStart)) {
+            $shiftEnd = $shiftEnd->addDay();
+        }
+
         // Truncar al límite (ahora si es hoy)
         $shiftStart = $shiftStart->min($limitTime);
         $shiftEnd = $shiftEnd->min($limitTime);
@@ -156,7 +156,7 @@ final class CalculateRealAdherenceAction
         $intradays = IntradayActivity::where('employee_id', $employeeId)
             ->whereRaw('time_range && tstzrange(?, ?)', [
                 $date->copy()->startOfDay()->toIso8601String(),
-                $date->copy()->endOfDay()->addDay()->toIso8601String() // Margen para cruce de medianoche
+                $date->copy()->endOfDay()->addDay()->toIso8601String(), // Margen para cruce de medianoche
             ])->get();
 
         foreach ($intradays as $ia) {
@@ -173,7 +173,9 @@ final class CalculateRealAdherenceAction
         if ($dayInfo->lunch_start_time) {
             $lStart = Carbon::parse($dayInfo->lunch_start_time)->setDate($date->year, $date->month, $date->day)->min($limitTime);
             $lEnd = Carbon::parse($dayInfo->lunch_end_time)->setDate($date->year, $date->month, $date->day)->min($limitTime);
-            if ($lEnd->lt($lStart)) { $lEnd = $lEnd->addDay(); }
+            if ($lEnd->lt($lStart)) {
+                $lEnd = $lEnd->addDay();
+            }
             if ($lStart->lt($lEnd)) {
                 $segments[] = ['start' => $lStart, 'end' => $lEnd, 'type' => 'INTRADAY', 'priority' => 2];
             }
@@ -196,15 +198,17 @@ final class CalculateRealAdherenceAction
      */
     private function flattenSegments(array $segments): array
     {
-        if (empty($segments)) return [];
+        if (empty($segments)) {
+            return [];
+        }
 
         // Ordenar por inicio y luego por prioridad
-        usort($segments, fn($a, $b) => $a['start'] <=> $b['start'] ?: $b['priority'] <=> $a['priority']);
+        usort($segments, fn ($a, $b) => $a['start'] <=> $b['start'] ?: $b['priority'] <=> $a['priority']);
 
         $flattened = [];
         // Esta es una simplificación. Un algoritmo robusto de "interval tree" o "time slicing" es ideal.
         // Para WFM standard: recorremos minuto a minuto o usamos una pila de estados.
-        
+
         // Vamos a usar una aproximación de "puntos de cambio":
         $points = [];
         foreach ($segments as $s) {
@@ -216,13 +220,13 @@ final class CalculateRealAdherenceAction
 
         for ($i = 0; $i < count($points) - 1; $i++) {
             $start = Carbon::createFromTimestamp($points[$i]);
-            $end = Carbon::createFromTimestamp($points[$i+1]);
-            
+            $end = Carbon::createFromTimestamp($points[$i + 1]);
+
             // Buscar el segmento de mayor prioridad que cubra este intervalo
             $best = null;
             foreach ($segments as $s) {
-                if ($s['start']->getTimestamp() <= $points[$i] && $s['end']->getTimestamp() >= $points[$i+1]) {
-                    if (!$best || $s['priority'] > $best['priority']) {
+                if ($s['start']->getTimestamp() <= $points[$i] && $s['end']->getTimestamp() >= $points[$i + 1]) {
+                    if (! $best || $s['priority'] > $best['priority']) {
                         $best = $s;
                     }
                 }
@@ -232,7 +236,7 @@ final class CalculateRealAdherenceAction
                 $flattened[] = [
                     'start' => $start,
                     'end' => $end,
-                    'type' => $best['type']
+                    'type' => $best['type'],
                 ];
             }
         }
@@ -254,7 +258,7 @@ final class CalculateRealAdherenceAction
         foreach ($transitions as $i => $t) {
             $start = Carbon::parse($t->transition_time);
             $duration = (int) $t->duration;
-            
+
             // Solo extendemos la ÚLTIMA transición si tiene duración 0 y es hoy
             if ($duration === 0 && $date->isToday() && ($i === $count - 1)) {
                 $duration = (int) $start->diffInSeconds(now());
@@ -262,8 +266,8 @@ final class CalculateRealAdherenceAction
 
             if ($duration > 0) {
                 // Definir prioridades para estados reales (Talking > Ready > Not Ready > others)
-                $state = strtoupper(trim((string)$t->agent_state));
-                $priority = match($state) {
+                $state = strtoupper(trim((string) $t->agent_state));
+                $priority = match ($state) {
                     'TALKING' => 10,
                     'RESERVED' => 9,
                     'WORK' => 8,
@@ -276,7 +280,7 @@ final class CalculateRealAdherenceAction
                     'start' => $start,
                     'end' => $start->copy()->addSeconds($duration),
                     'state' => $state,
-                    'priority' => $priority
+                    'priority' => $priority,
                 ];
             }
         }
@@ -289,7 +293,9 @@ final class CalculateRealAdherenceAction
      */
     private function flattenRealSegments(array $segments): array
     {
-        if (empty($segments)) return [];
+        if (empty($segments)) {
+            return [];
+        }
 
         $points = [];
         foreach ($segments as $s) {
@@ -302,12 +308,12 @@ final class CalculateRealAdherenceAction
         $flattened = [];
         for ($i = 0; $i < count($points) - 1; $i++) {
             $tsStart = $points[$i];
-            $tsEnd = $points[$i+1];
-            
+            $tsEnd = $points[$i + 1];
+
             $best = null;
             foreach ($segments as $s) {
                 if ($s['start']->getTimestamp() <= $tsStart && $s['end']->getTimestamp() >= $tsEnd) {
-                    if (!$best || $s['priority'] > $best['priority']) {
+                    if (! $best || $s['priority'] > $best['priority']) {
                         $best = $s;
                     }
                 }
@@ -317,7 +323,7 @@ final class CalculateRealAdherenceAction
                 $flattened[] = [
                     'start' => Carbon::createFromTimestamp($tsStart),
                     'end' => Carbon::createFromTimestamp($tsEnd),
-                    'state' => $best['state']
+                    'state' => $best['state'],
                 ];
             }
         }

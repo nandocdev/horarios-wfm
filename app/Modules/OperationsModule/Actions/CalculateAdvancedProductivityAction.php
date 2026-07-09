@@ -7,10 +7,9 @@ namespace App\Modules\OperationsModule\Actions;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\OperationsModule\Models\AgentDailyMetric;
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Carbon\CarbonInterface;
-use Illuminate\Support\Facades\DB;
 
 final class CalculateAdvancedProductivityAction
 {
@@ -18,10 +17,10 @@ final class CalculateAdvancedProductivityAction
         private readonly TelemetryServiceInterface $telemetryService
     ) {}
 
-    public function execute(Employee $employee, CarbonInterface $date): AgentDailyMetric
+    public function execute(EmployeeInterface $employee, CarbonInterface $date): AgentDailyMetric
     {
         // 1. Obtener datos de llamadas
-        $calls = AgentCallPerformance::where('employee_id', $employee->id)
+        $calls = AgentCallPerformance::where('employee_id', $employee->getId())
             ->whereDate('start_time', $date->toDateString())
             ->get();
 
@@ -44,7 +43,7 @@ final class CalculateAdvancedProductivityAction
                 $queueDist[$name] = [
                     'calls' => $count,
                     'dist' => round($dist, 4),
-                    'goal_aht' => $goalAht
+                    'goal_aht' => $goalAht,
                 ];
 
                 $weightedAHT += ($dist * $goalAht);
@@ -52,11 +51,11 @@ final class CalculateAdvancedProductivityAction
         }
 
         // 3. Obtener Tiempos de Telemetría (Capa 2)
-        $transitions = $this->telemetryService->getStateTransitions($employee->id, $date->copy()->startOfDay(), $date->copy()->endOfDay());
-        
-        $loginSeconds = (int) $transitions->sum(fn($t) => $t->metadata['duration'] ?? 0);
-        $productiveSeconds = (int) $transitions->filter(fn($t) => $t->metadata['is_productive'] ?? false)
-            ->sum(fn($t) => $t->metadata['duration'] ?? 0);
+        $transitions = $this->telemetryService->getStateTransitions($employee->getId(), $date->copy()->startOfDay(), $date->copy()->endOfDay());
+
+        $loginSeconds = (int) $transitions->sum(fn ($t) => $t->metadata['duration'] ?? 0);
+        $productiveSeconds = (int) $transitions->filter(fn ($t) => $t->metadata['is_productive'] ?? false)
+            ->sum(fn ($t) => $t->metadata['duration'] ?? 0);
 
         // 4. Capacidad Teórica (Capa 3)
         $capacityCalls = 0;
@@ -76,7 +75,7 @@ final class CalculateAdvancedProductivityAction
         // 6. KPIs Finales
         $availability = $loginSeconds > 0 ? ($productiveSeconds / $loginSeconds) * 100 : 0;
         $efficiency = $capacityCalls > 0 ? ($callsTotal / $capacityCalls) * 100 : 0;
-        
+
         // El PWI consolidado
         $pwi = ($availability / 100) * ($efficiency / 100) * 100;
 
@@ -84,7 +83,7 @@ final class CalculateAdvancedProductivityAction
         $productivityWU = $productiveMinutes > 0 ? ($workUnitsMinutes / $productiveMinutes) * 100 : 0;
 
         return new AgentDailyMetric([
-            'employee_id' => $employee->id,
+            'employee_id' => $employee->getId(),
             'metric_date' => $date->toDateString(),
             'login_seconds' => $loginSeconds,
             'productive_seconds' => $productiveSeconds,

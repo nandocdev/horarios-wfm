@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Services;
 
-use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\OperationsModule\Actions\GetEmployeePerformanceAction;
 use App\Modules\OperationsModule\DTOs\AgentPerformanceSummaryDTO;
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use App\Shared\Support\Metrics\MetricFormulas;
+use App\Shared\Contracts\Employees\EmployeeInterface;
+use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Cache;
@@ -23,9 +22,10 @@ final class AgentPerformanceService
     public function __construct(
         private readonly GetEmployeePerformanceAction $performanceAction,
         private readonly CalculateRealAdherenceAction $adherenceAction,
+        private readonly EmployeeRepositoryInterface $employeeRepo,
     ) {}
 
-    public function getPerformance(Employee $employee, int $days = 5): AgentPerformanceSummaryDTO
+    public function getPerformance(EmployeeInterface $employee, int $days = 5): AgentPerformanceSummaryDTO
     {
         $dates = $this->resolveLastWorkedDates($employee, $days);
 
@@ -35,7 +35,7 @@ final class AgentPerformanceService
         $deviationRows = [];
 
         foreach ($dates as $date) {
-            $cacheKey = "wfm:agent:{$employee->id}:kpis:{$date->toDateString()}";
+            $cacheKey = "wfm:agent:{$employee->getId()}:kpis:{$date->toDateString()}";
 
             $dayData = $date->isToday()
                 ? $this->performanceAction->execute($employee, $date)->toArray()
@@ -54,7 +54,7 @@ final class AgentPerformanceService
             }
 
             foreach ($dayData['queues'] as $queueName => $qData) {
-                if (!isset($queueAccumulator[$queueName])) {
+                if (! isset($queueAccumulator[$queueName])) {
                     $queueAccumulator[$queueName] = ['total_calls' => 0, 'weighted_aht' => 0];
                 }
                 $queueAccumulator[$queueName]['total_calls'] += $qData['total_calls'];
@@ -70,25 +70,23 @@ final class AgentPerformanceService
         // Calcular comparativa con el equipo
         $startDateStr = $dates[0]->toDateString();
         $endDateStr = end($dates)->toDateString();
-        
-        $teamEmployeeIds = Employee::where('team_id', $employee->team_id ?? 0)
-            ->where('is_active', true)
-            ->pluck('id')
-            ->toArray();
-            
+
+        $teamMembers = $this->employeeRepo->findByTeam($employee->getTeamId() ?? 0);
+        $teamEmployeeIds = array_map(fn ($e) => $e->getId(), $teamMembers);
+
         if (empty($teamEmployeeIds)) {
-            $teamEmployeeIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
-                ->where('is_active', true)
-                ->pluck('id')
-                ->toArray();
+            $teamEmployeeIds = array_map(
+                fn ($e) => $e->getId(),
+                $this->employeeRepo->findActive(),
+            );
         }
-        
+
         $teamCallsCount = DB::table('agent_call_performance')
             ->whereIn('employee_id', $teamEmployeeIds)
             ->whereBetween(DB::raw('DATE(start_time)'), [$startDateStr, $endDateStr])
             ->count();
         $teamAvgCalls = count($teamEmployeeIds) > 0 ? (int) round($teamCallsCount / count($teamEmployeeIds)) : 0;
-        
+
         $teamAhtData = DB::table('agent_call_performance')
             ->whereIn('employee_id', $teamEmployeeIds)
             ->whereBetween(DB::raw('DATE(start_time)'), [$startDateStr, $endDateStr])
@@ -112,7 +110,7 @@ final class AgentPerformanceService
                 'aht' => (int) round($teamAvgAht * 0.82) ?: 290,
                 'adherence' => 96.8,
                 'occupancy' => 88.5,
-            ]
+            ],
         ];
 
         $queueDetail = [];
@@ -135,26 +133,26 @@ final class AgentPerformanceService
         );
     }
 
-    private function resolveLastWorkedDates(Employee $employee, int $count): array
+    private function resolveLastWorkedDates(EmployeeInterface $employee, int $count): array
     {
         $dates = [];
         $cursor = Carbon::today();
 
         while (count($dates) < $count) {
-            $hasSchedule = WeeklyScheduleAssignment::where('employee_id', $employee->id)
+            $hasSchedule = WeeklyScheduleAssignment::where('employee_id', $employee->getId())
                 ->whereHas('weeklySchedule', fn ($q) => $q
                     ->where('week_start_date', '<=', $cursor->toDateString())
                     ->where('week_end_date', '>=', $cursor->toDateString()))
                 ->where('day_of_week', $cursor->dayOfWeekIso)
                 ->exists();
 
-            $hasException = ScheduleException::where('employee_id', $employee->id)
+            $hasException = ScheduleException::where('employee_id', $employee->getId())
                 ->whereDate('start_at', '<=', $cursor->toDateString())
                 ->whereDate('end_at', '>=', $cursor->toDateString())
                 ->where('is_full_day', true)
                 ->exists();
 
-            if ($hasSchedule && !$hasException) {
+            if ($hasSchedule && ! $hasException) {
                 $dates[] = $cursor->copy();
             }
 
@@ -236,7 +234,7 @@ final class AgentPerformanceService
         return $distribution;
     }
 
-    private function buildDeviationRow(Employee $employee, CarbonInterface $date, array $dayData): array
+    private function buildDeviationRow(EmployeeInterface $employee, CarbonInterface $date, array $dayData): array
     {
         $attendance = $dayData['attendance'];
 
@@ -248,7 +246,7 @@ final class AgentPerformanceService
         $earlyExit = 0;
         $scheduledEnd = $attendance['scheduled_entry'] ?? null;
 
-        $actualLogout = AgentStateTransition::where('employee_id', $employee->id)
+        $actualLogout = AgentStateTransition::where('employee_id', $employee->getId())
             ->whereDate('transition_time', $date->toDateString())
             ->where('agent_state', 'LOGOUT')
             ->orderByDesc('transition_time')

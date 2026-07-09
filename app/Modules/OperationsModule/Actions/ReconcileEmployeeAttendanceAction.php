@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Actions;
 
+use App\Modules\CoreModule\Models\User;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OperationsModule\Models\IncidentType;
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Notifications\AttendanceIncidentNotification;
+use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\DTOs\NotificationDTO;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -29,7 +30,7 @@ final class ReconcileEmployeeAttendanceAction
     /**
      * Ejecuta la reconciliación para un empleado en una fecha específica.
      */
-    public function execute(Employee $employee, CarbonInterface $date): array
+    public function execute(EmployeeInterface $employee, CarbonInterface $date): array
     {
         $carbonDate = Carbon::instance($date);
         $performance = $this->performanceAction->execute($employee, $carbonDate);
@@ -93,7 +94,7 @@ final class ReconcileEmployeeAttendanceAction
      * Registra un incidente si no existe uno previo para el mismo tipo y día.
      */
     private function recordIncident(
-        Employee $employee,
+        EmployeeInterface $employee,
         string $typeCode,
         CarbonInterface $date,
         ?string $startTime,
@@ -108,7 +109,7 @@ final class ReconcileEmployeeAttendanceAction
         }
 
         // Verificar si ya existe un incidente similar para evitar spam
-        $exists = AttendanceIncident::where('employee_id', $employee->id)
+        $exists = AttendanceIncident::where('employee_id', $employee->getId())
             ->where('incident_type_id', $type->id)
             ->whereDate('incident_date', $date->toDateString())
             ->exists();
@@ -118,7 +119,7 @@ final class ReconcileEmployeeAttendanceAction
         }
 
         $incident = AttendanceIncident::create([
-            'employee_id' => $employee->id,
+            'employee_id' => $employee->getId(),
             'incident_type_id' => $type->id,
             'incident_date' => $date->toDateString(),
             'start_time' => $startTime,
@@ -127,14 +128,15 @@ final class ReconcileEmployeeAttendanceAction
         ]);
 
         // Notificar al empleado
-        if ($employee->user) {
+        $user = User::find($employee->getUserId());
+        if ($user) {
             $dto = new NotificationDTO(
                 title: 'Incidencia de Asistencia',
                 message: "Se ha registrado una incidencia de tipo '{$type->name}' para el día {$date->format('d/m/Y')}. Motivo: {$comment}",
-                actionUrl: route('schedules.my-schedule'), // O una ruta de incidencias si existe
+                actionUrl: route('schedules.my-schedule'),
                 level: 'warning'
             );
-            $employee->user->notify(new AttendanceIncidentNotification($dto));
+            $user->notify(new AttendanceIncidentNotification($dto));
         }
 
         return $incident;

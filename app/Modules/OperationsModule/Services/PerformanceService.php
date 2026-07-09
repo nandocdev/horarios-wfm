@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Services;
 
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\DB;
 final class PerformanceService
 {
     public function __construct(
-        private readonly CalculateRealAdherenceAction $adherenceAction
+        private readonly CalculateRealAdherenceAction $adherenceAction,
+        private readonly EmployeeRepositoryInterface $employeeRepo,
     ) {}
 
     /**
@@ -90,7 +91,7 @@ final class PerformanceService
         $dateStr = $date->toDateString();
 
         // 1. Si no es hoy, cachear el resultado completo por 24 horas (86400 segundos)
-        if (!$date->isToday()) {
+        if (! $date->isToday()) {
             return Cache::remember("wfm:hero_kpis:historical:{$dateStr}", 86400, function () use ($date) {
                 return $this->resolveHeroKpisData($date);
             });
@@ -105,20 +106,20 @@ final class PerformanceService
      */
     private function resolveHeroKpisData(CarbonInterface $date): array
     {
-        $operatorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
-            ->where('is_active', true)
-            ->pluck('id')
-            ->toArray();
+        $operatorIds = array_map(
+            fn ($e) => $e->getId(),
+            $this->employeeRepo->findActiveByPositions([1, 2, 5, 11, 13]),
+        );
 
         if (empty($operatorIds)) {
             return [];
         }
 
         $current = $this->calculateMetrics($date, $operatorIds);
-        
+
         $yesterday = $date->copy()->subDay();
         $yesterdayStr = $yesterday->toDateString();
-        
+
         // Cachear las métricas de ayer por 1 hora (3600 segundos)
         $previous = Cache::remember("wfm:hero_kpis_metrics:historical:{$yesterdayStr}", 3600, function () use ($yesterday, $operatorIds) {
             return $this->calculateMetrics($yesterday, $operatorIds);
@@ -219,7 +220,7 @@ final class PerformanceService
 
         // 3. Cálculos en tiempo real
         $coverage = $totalScheduled > 0 ? ($totalConnected / $totalScheduled) * 100 : 0.0;
-        
+
         $adherenceRes = $this->adherenceAction->executeBatch($operatorIds, $now);
         $adherence = $adherenceRes['percentage'];
 
@@ -227,7 +228,7 @@ final class PerformanceService
         $serviceLevel = (float) (DB::table('csq_realtime_stats')->avg('service_level_long_term') ?? 0);
 
         // 4. Cachear ausentismo de hoy por 120 segundos para evitar sobrecarga
-        $absenteeism = Cache::remember("wfm:realtime:absenteeism", 120, function () use ($operatorIds, $now, $today) {
+        $absenteeism = Cache::remember('wfm:realtime:absenteeism', 120, function () use ($operatorIds, $now, $today) {
             $idsWithEx = ScheduleException::whereIn('employee_id', $operatorIds)
                 ->where('start_at', '<=', $now)
                 ->where('end_at', '>=', $now)
@@ -252,7 +253,7 @@ final class PerformanceService
                 ->get();
 
             $connectedFromSched = $states->whereIn('employee_id', $sched->pluck('employee_id'))->count();
-            
+
             return (float) MetricFormulas::absenteeismRate(
                 (float) MetricFormulas::absentPersonnel($totalSched, $connectedFromSched),
                 (float) $totalSched
@@ -260,7 +261,7 @@ final class PerformanceService
         });
 
         // 5. Cachear shrinkage de hoy por 120 segundos
-        $shrinkage = Cache::remember("wfm:realtime:shrinkage", 120, function () use ($operatorIds, $now) {
+        $shrinkage = Cache::remember('wfm:realtime:shrinkage', 120, function () use ($operatorIds, $now) {
             return (float) $this->calculateShrinkage($operatorIds, $now);
         });
 

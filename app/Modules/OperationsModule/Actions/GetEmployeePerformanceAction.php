@@ -7,16 +7,16 @@ namespace App\Modules\OperationsModule\Actions;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\DTOs\EmployeePerformanceDTO;
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 final class GetEmployeePerformanceAction
 {
-    public function execute(Employee $employee, Carbon $date): EmployeePerformanceDTO
+    public function execute(EmployeeInterface $employee, Carbon $date): EmployeePerformanceDTO
     {
         // 1. Obtener Programación
         $schedule = $this->getSchedule($employee, $date);
@@ -70,7 +70,7 @@ final class GetEmployeePerformanceAction
     private function getRawCallRecords(Employee $employee, Carbon $date): Collection
     {
         return AgentCallPerformance::query()
-            ->where('employee_id', $employee->id)
+            ->where('employee_id', $employee->getId())
             ->whereDate('start_time', $date->toDateString())
             ->orderBy('start_time')
             ->get();
@@ -79,7 +79,7 @@ final class GetEmployeePerformanceAction
     private function getSchedule(Employee $employee, Carbon $date): ?WeeklyScheduleAssignment
     {
         $schedule = WeeklyScheduleAssignment::query()
-            ->where('employee_id', $employee->id)
+            ->where('employee_id', $employee->getId())
             ->whereHas('weeklySchedule', function ($q) use ($date) {
                 $q->whereDate('week_start_date', '<=', $date->toDateString())
                     ->whereDate('week_end_date', '>=', $date->toDateString());
@@ -93,7 +93,7 @@ final class GetEmployeePerformanceAction
     private function getTransitions(Employee $employee, Carbon $date): Collection
     {
         $transitions = AgentStateTransition::query()
-            ->where('employee_id', $employee->id)
+            ->where('employee_id', $employee->getId())
             ->whereDate('transition_time', $date->toDateString())
             ->orderBy('transition_time')
             ->get()
@@ -122,7 +122,7 @@ final class GetEmployeePerformanceAction
     {
         return ScheduleException::query()
             ->with('reason')
-            ->where('employee_id', $employee->id)
+            ->where('employee_id', $employee->getId())
             ->where(function ($q) use ($date) {
                 $q->whereDate('start_at', '<=', $date->toDateString())
                     ->whereDate('end_at', '>=', $date->toDateString());

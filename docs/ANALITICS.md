@@ -59,8 +59,8 @@ Hay dos caminos. Elegir uno:
 
 ### 2.4 Mover `app/Services/MenuDataService.php` a un módulo o a Shared
 
-- [ ] 2.4.1 Si es usado por varios módulos, mover a `app/Shared/Services/MenuDataService.php`.
-- [ ] 2.4.2 Si solo lo usa un módulo, mover a ese módulo.
+- [x] 2.4.1 Si es usado por varios módulos, mover a `app/Shared/Services/MenuDataService.php`.
+- [x] 2.4.2 Si solo lo usa un módulo, mover a ese módulo.
 
 ---
 

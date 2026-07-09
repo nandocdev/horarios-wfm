@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Services\MenuDataService;
+use App\Shared\Services\MenuDataService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Shared\Services;
 
 use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Models\LeaveRequest;

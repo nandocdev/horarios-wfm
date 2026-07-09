@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\ScheduleModule;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\PersonnelModule\Models\Department;
-use App\Modules\PersonnelModule\Models\Directorate;
+use App\Modules\OrganizationModule\Models\Department;
+use App\Modules\OrganizationModule\Models\Directorate;
+use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
-use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Livewire\RequestShiftSwap;
 use App\Modules\WfmModule\Models\Schedule;

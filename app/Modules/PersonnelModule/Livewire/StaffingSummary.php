@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Livewire;
 
+use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
-use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Team;
 use Livewire\Component;
 

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Actions;
 
-use App\Modules\PersonnelModule\Models\Department;
+use App\Modules\OrganizationModule\Models\Department;
+use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmployeeImportBatch;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
-use App\Modules\PersonnelModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\PersonnelModule\Models\TeamMember;
 use Illuminate\Support\Arr;

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Livewire;
 
+use App\Modules\OrganizationModule\Models\Department;
+use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Actions\SyncEmployeeDataWithCiscoAction;
-use App\Modules\PersonnelModule\Models\Department;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
-use App\Modules\PersonnelModule\Models\Position;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
 use Livewire\WithPagination;

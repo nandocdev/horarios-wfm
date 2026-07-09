@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Livewire;
 
 use App\Modules\CoreModule\Models\User;
+use App\Modules\GeoModule\Models\District;
+use App\Modules\GeoModule\Models\Province;
+use App\Modules\GeoModule\Models\Township;
+use App\Modules\OrganizationModule\Models\Department;
+use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Actions\CreateEmployeeAction;
 use App\Modules\PersonnelModule\DTOs\CreateEmployeeDTO;
 use App\Modules\PersonnelModule\Http\Requests\StoreEmployeeRequest;
-use App\Modules\PersonnelModule\Models\Department;
-use App\Modules\PersonnelModule\Models\District;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
-use App\Modules\PersonnelModule\Models\Position;
-use App\Modules\PersonnelModule\Models\Province;
-use App\Modules\PersonnelModule\Models\Township;
 use Livewire\Component;
 
 /**

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Modules\PersonnelModule\Http\Controllers;
+namespace App\Modules\GeoModule\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\PersonnelModule\Models\District;
-use App\Modules\PersonnelModule\Models\Province;
+use App\Modules\GeoModule\Models\District;
+use App\Modules\GeoModule\Models\Province;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
@@ -19,7 +19,7 @@ class LocationController extends Controller
     {
         $provinces = Province::with(['districts.townships'])->get();
 
-        return view('personnel::location_index', compact('provinces'));
+        return view('geo::location_index', compact('provinces'));
     }
 
     /**

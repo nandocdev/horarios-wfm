@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\PersonnelModule\Models\District;
-use App\Modules\PersonnelModule\Models\Province;
-use App\Modules\PersonnelModule\Models\Township;
+use App\Modules\GeoModule\Models\District;
+use App\Modules\GeoModule\Models\Province;
+use App\Modules\GeoModule\Models\Township;
 
 it('muestra catalogo de ubicaciones con provincias, distritos y corregimientos', function () {
     $admin = User::factory()->create();
@@ -18,7 +18,7 @@ it('muestra catalogo de ubicaciones con provincias, distritos y corregimientos',
     $response = $this->actingAs($admin)->get('/location');
 
     $response->assertOk();
-    $response->assertViewIs('personnel::location_index');
+    $response->assertViewIs('geo::location_index');
     $response->assertViewHas('provinces');
 
     $loadedProvinces = $response->viewData('provinces');
@@ -59,7 +59,7 @@ it('devuelve corregimientos de un distrito en JSON', function () {
 
     $province = Province::create(['name' => 'Veraguas']);
     $district = District::create(['province_id' => $province->id, 'name' => 'Santiago']);
-    Township::create(['district_id' => $district->id, 'name' => 'La Peña']);
+    $township = Township::create(['district_id' => $district->id, 'name' => 'La Peña']);
 
     $response = $this->actingAs($admin)->getJson('/location/townships/'.$district->id);
 

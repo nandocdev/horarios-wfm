@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Actions;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\DTOs\IntradayActivityDTO;
 use App\Modules\WfmModule\Models\ApprovedIntradayPeriod;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
 use App\Modules\WfmModule\Notifications\IntradayActivityNotification;
+use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use App\Shared\DTOs\NotificationDTO;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +32,10 @@ use Illuminate\Validation\ValidationException;
  */
 class AssignIntradayActivityAction
 {
+    public function __construct(
+        private readonly EmployeeRepositoryInterface $employeeRepo,
+    ) {}
+
     /**
      * Ejecuta la asignación de la actividad.
      *
@@ -86,9 +91,10 @@ class AssignIntradayActivityAction
             foreach ($dto->employee_ids as $employeeId) {
                 // Validar que el empleado pertenezca al equipo del periodo aprobado
                 if ($approvedPeriod !== null) {
-                    $employee = Employee::find($employeeId);
-                    if (! $employee || (int) $employee->team_id !== (int) $approvedPeriod->team_id) {
+                    $employee = $this->employeeRepo->find($employeeId);
+                    if (! $employee || (int) $employee->getTeamId() !== (int) $approvedPeriod->team_id) {
                         $errors[] = "El empleado ID {$employeeId} no pertenece al equipo del periodo aprobado.";
+
                         continue;
                     }
                 }
@@ -101,31 +107,33 @@ class AssignIntradayActivityAction
 
                     if ($hasOverlap) {
                         $errors[] = "El empleado ID {$employeeId} ya tiene una actividad programada en este horario.";
+
                         continue;
                     }
                 }
 
                 $activity = IntradayActivity::create([
-                    'employee_id'        => $employeeId,
-                    'activity_type_id'   => $definition->activity_type_id,
+                    'employee_id' => $employeeId,
+                    'activity_type_id' => $definition->activity_type_id,
                     'approved_period_id' => $approvedPeriod?->id,
-                    'time_range'         => $tstzRange,
-                    'notes'              => $dto->notes,
+                    'time_range' => $tstzRange,
+                    'notes' => $dto->notes,
                 ]);
 
                 // Notificar al empleado
-                $employeeNotify = Employee::find($employeeId);
-                if ($employeeNotify && $employeeNotify->user) {
+                $employeeNotify = $this->employeeRepo->find($employeeId);
+                $userNotify = $employeeNotify ? User::find($employeeNotify->getUserId()) : null;
+                if ($userNotify) {
                     $startTime = Carbon::parse($dto->date.' '.$dto->start_time)->format('H:i');
                     $endTime = Carbon::parse($dto->date.' '.$dto->end_time)->format('H:i');
-                    
+
                     $dtoNotify = new NotificationDTO(
                         title: 'Nueva Actividad Asignada',
                         message: "Se te ha asignado la actividad '{$definition->name}' para hoy de {$startTime} a {$endTime}.",
                         actionUrl: route('schedules.my-schedule'),
                         level: 'info'
                     );
-                    $employeeNotify->user->notify(new IntradayActivityNotification($dtoNotify));
+                    $userNotify->notify(new IntradayActivityNotification($dtoNotify));
                 }
 
                 $createdActivities[] = $activity;

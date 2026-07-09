@@ -127,10 +127,14 @@ grep -r "use App\\\\Modules" app/Modules/ --include="*.php" | grep -v "ModuleSer
 
 ### 4.3 Separar módulos demasiado grandes
 
-PersonnelModule (15 modelos, 25 Livewire, 23 Actions) y WfmModule (12 modelos, 25 Livewire, 17 Actions) son candidatos a dividir.
+PersonnelModule (15 modelos → 6, 25 Livewire → 7, 23 Actions → 14) y WfmModule (12 modelos, 25 Livewire, 17 Actions) son candidatos a dividir.
 
-- [ ] 4.3.1 Extraer la parte de organigrama (Directorate, Department, Position) a un módulo `OrganizationModule`.
-- [ ] 4.3.2 Extraer la parte geográfica (Province, District, Township) a un módulo `GeoModule`.
+- [x] 4.3.1 Extraer organigrama (Directorate, Department, Position) a `OrganizationModule`.
+  - 3 modelos, 12 Livewire, 9 Actions, 3 Policies, 3 Observers, 6 Events, 3 DTOs, 3 Controllers movidos
+  - Employee model actualizado con imports a OrganizationModule
+- [x] 4.3.2 Extraer geografía (Province, District, Township) a `GeoModule`.
+  - 3 modelos, LocationController y vista movidos
+  - PersonnelModule reducido a 6 modelos (Employee, Team, etc.)
 - [ ] 4.3.3 Evaluar si los componentes de planificación semanal de WfmModule pueden separarse de los componentes de turnos base.
 
 ---

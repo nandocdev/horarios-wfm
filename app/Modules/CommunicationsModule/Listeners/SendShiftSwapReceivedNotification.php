@@ -7,7 +7,6 @@ namespace App\Modules\CommunicationsModule\Listeners;
 use App\Modules\CommunicationsModule\Notifications\ShiftSwapReceivedNotification;
 use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class SendShiftSwapReceivedNotification implements ShouldQueue
@@ -29,7 +28,7 @@ class SendShiftSwapReceivedNotification implements ShouldQueue
 
         // Notify the recipient (employee_id_to) via email if available
         if (! empty($swap->employee_id_to)) {
-            $email = DB::table('users')->where('id', $swap->employee_id_to)->value('email');
+            $email = User::where('id', $swap->employee_id_to)->value('email');
             if (! empty($email)) {
                 Notification::route('mail', $email)
                     ->notify(new ShiftSwapReceivedNotification($payload));

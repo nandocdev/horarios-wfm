@@ -201,8 +201,7 @@ class AgentTimeline extends Component
         }
 
         // C. Transiciones Reales (CUIC Snapshot)
-        $transitions = DB::table('agent_state_transitions')
-            ->where('employee_id', $this->employeeId)
+        $transitions = AgentStateTransition::where('employee_id', $this->employeeId)
             ->whereDate('transition_time', $now->toDateString())
             ->orderBy('transition_time', 'asc')
             ->get();

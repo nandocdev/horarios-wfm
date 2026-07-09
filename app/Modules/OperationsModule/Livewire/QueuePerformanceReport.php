@@ -20,8 +20,7 @@ class QueuePerformanceReport extends Component
 
     public function render()
     {
-        $stats = DB::table('call_records')
-            ->join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
+        $stats = CallRecord::join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
             ->whereDate('ivr_started_at', $this->date)
             ->select(
                 'call_queues.name as queue_name',

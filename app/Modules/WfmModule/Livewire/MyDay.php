@@ -8,7 +8,6 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class MyDay extends Component
@@ -92,8 +91,7 @@ class MyDay extends Component
         $date = now()->toDateString();
 
         $this->stats = Cache::remember("stats:{$employeeId}:{$date}", 60, function () use ($employeeId, $date) {
-            $transitions = DB::table('agent_state_transitions')
-                ->where('employee_id', $employeeId)
+            $transitions = AgentStateTransition::where('employee_id', $employeeId)
                 ->whereDate('transition_time', $date)
                 ->get();
 

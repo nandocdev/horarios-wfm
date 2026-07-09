@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Actions;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\OperationsModule\DTOs\StandardizedPerformanceDTO;
 use App\Modules\WfmModule\Models\IntradayActivity;
+use App\Modules\WfmModule\Models\OperationalSetting;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
@@ -15,7 +16,6 @@ use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Acción para calcular el desempeño estandarizado de un empleado.
@@ -87,8 +87,7 @@ final class GetStandardizedPerformanceAction
         $queues = $this->getCallVolumeSummary($callRecords);
 
         // Obtener metas de KPIs configuradas
-        $goals = DB::table('operational_settings')
-            ->where('category', 'kpi_goal')
+        $goals = OperationalSetting::where('category', 'kpi_goal')
             ->pluck('value', 'key')
             ->toArray();
 

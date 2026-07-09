@@ -11,6 +11,7 @@ use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
+use App\Modules\WfmModule\Models\OperationalSetting;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
@@ -18,7 +19,6 @@ use App\Shared\Support\Metrics\MetricFormulas;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -85,8 +85,7 @@ class RealtimeMonitoring extends Component
 
     private function loadOperationalSettings()
     {
-        $this->operationalSettings = DB::table('operational_settings')
-            ->pluck('value', 'key')
+        $this->operationalSettings = OperationalSetting::pluck('value', 'key')
             ->toArray();
 
         $this->queueAhtGoals = CallQueue::pluck('aht_goal', 'name')->toArray();

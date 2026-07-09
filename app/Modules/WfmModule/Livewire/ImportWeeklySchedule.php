@@ -6,10 +6,10 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Actions\ImportTeamWeeklyScheduleAction;
+use App\Modules\WfmModule\Models\OperationalSetting;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -97,7 +97,7 @@ class ImportWeeklySchedule extends Component
         }
 
         // Cargar configuraciones operativas
-        $settings = DB::table('operational_settings')->pluck('value', 'key');
+        $settings = OperationalSetting::pluck('value', 'key');
         $shiftMinutes = (int) ($settings['default_shift_minutes'] ?? 28800) / 60; // 8 horas = 480 min
         $lunchMinutes = (int) ($settings['default_lunch_minutes'] ?? 2700) / 60;   // 45 min
         $breakMinutes = (int) ($settings['default_break_minutes'] ?? 900) / 60;   // 15 min
@@ -180,7 +180,7 @@ class ImportWeeklySchedule extends Component
             if ($value) {
                 try {
                     $entradaCarbon = Carbon::parse($value);
-                    $settings = DB::table('operational_settings')->pluck('value', 'key');
+                    $settings = OperationalSetting::pluck('value', 'key');
                     $shiftMinutes = (int) ($settings['default_shift_minutes'] ?? 28800) / 60;
 
                     $this->importedData[$index]['salida'] = $entradaCarbon->copy()->addMinutes($shiftMinutes)->format('H:i');

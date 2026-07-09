@@ -8,7 +8,6 @@ use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -46,8 +45,7 @@ class IntradayAvailability extends Component
         }
 
         // 1. Obtener todos los estados de Finesse (agentes conectados)
-        $realtimeStates = DB::table('agent_realtime_states')
-            ->select('employee_id', 'external_id', 'current_state', 'reason_code', 'metadata')
+        $realtimeStates = AgentRealtimeState::select('employee_id', 'external_id', 'current_state', 'reason_code', 'metadata')
             ->where('current_state', '!=', 'LOGOUT')
             ->whereIn('employee_id', $operadorIds)
             ->get();
@@ -122,8 +120,7 @@ class IntradayAvailability extends Component
             $agentsTalkingByQueue[$queueName] = ($agentsTalkingByQueue[$queueName] ?? 0) + 1;
         }
 
-        $csqSummary = DB::table('csq_realtime_stats')
-            ->orderByDesc('calls_waiting')
+        $csqSummary = CsqRealtimeStat::orderByDesc('calls_waiting')
             ->get()
             ->map(function ($csq) use (&$agentsTalkingByQueue) {
                 $csq->agents_talking = $agentsTalkingByQueue[$csq->csq_name] ?? 0;

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Services;
 
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
+use App\Modules\ConnectModule\Models\AgentStateTransition;
+use App\Modules\ConnectModule\Models\CallRecord;
+use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\ScheduleException;
@@ -225,7 +228,7 @@ final class PerformanceService
         $adherence = $adherenceRes['percentage'];
 
         $occupancy = $this->calculateRealtimeOccupancy($operatorIds);
-        $serviceLevel = (float) (DB::table('csq_realtime_stats')->avg('service_level_long_term') ?? 0);
+        $serviceLevel = (float) (CsqRealtimeStat::avg('service_level_long_term') ?? 0);
 
         // 4. Cachear ausentismo de hoy por 120 segundos para evitar sobrecarga
         $absenteeism = Cache::remember('wfm:realtime:absenteeism', 120, function () use ($operatorIds, $now, $today) {
@@ -283,8 +286,7 @@ final class PerformanceService
         $formattedDate = $date->toDateString();
 
         // 1. Service Level
-        $callStats = DB::table('call_records')
-            ->whereNotNull('queue_id')
+        $callStats = CallRecord::whereNotNull('queue_id')
             ->whereDate('ivr_started_at', $formattedDate)
             ->select(
                 DB::raw('COUNT(*) as total'),
@@ -294,8 +296,7 @@ final class PerformanceService
         $sl = $callStats->total > 0 ? ($callStats->handled / $callStats->total) * 100 : 0.0;
 
         // 2. Ocupación (basada en duraciones de transiciones)
-        $transitions = DB::table('agent_state_transitions')
-            ->whereIn('employee_id', $operatorIds)
+        $transitions = AgentStateTransition::whereIn('employee_id', $operatorIds)
             ->whereDate('transition_time', $formattedDate)
             ->get();
 

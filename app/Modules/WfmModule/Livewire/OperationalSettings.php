@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\ConnectModule\Models\CallQueue;
-use Illuminate\Support\Facades\DB;
+use App\Modules\WfmModule\Models\OperationalSetting;
 use Livewire\Component;
 
 class OperationalSettings extends Component
@@ -30,11 +30,10 @@ class OperationalSettings extends Component
 
     public function loadSettings()
     {
-        $allSettings = DB::table('operational_settings')
-            ->orderBy('key')
+        $allSettings = OperationalSetting::orderBy('key')
             ->get()
             ->map(function ($item) {
-                $arr = (array) $item;
+                $arr = $item->toArray();
                 $category = $arr['category'] ?? 'threshold';
 
                 if ($category === 'threshold') {
@@ -72,13 +71,11 @@ class OperationalSettings extends Component
 
         $key = str_starts_with($this->newGoalKey, 'goal_') ? $this->newGoalKey : 'goal_'.$this->newGoalKey;
 
-        DB::table('operational_settings')->insert([
+        OperationalSetting::create([
             'key' => $key,
             'value' => '0',
             'description' => $this->newGoalLabel,
             'category' => 'kpi_goal',
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
         $this->reset(['newGoalKey', 'newGoalLabel']);
@@ -88,7 +85,7 @@ class OperationalSettings extends Component
 
     public function removeGoal($id)
     {
-        DB::table('operational_settings')->where('id', $id)->delete();
+        OperationalSetting::destroy($id);
         $this->loadSettings();
         \Flux::toast('Meta eliminada.');
     }
@@ -113,19 +110,16 @@ class OperationalSettings extends Component
 
         DB::transaction(function () {
             foreach ($this->thresholds as $setting) {
-                // Convertir de vuelta a segundos según la unidad mostrada
                 $valueInSeconds = $setting['unit'] === 'minutos'
                     ? (int) ($setting['display_value'] * 60)
                     : (int) $setting['display_value'];
 
-                DB::table('operational_settings')
-                    ->where('id', $setting['id'])
+                OperationalSetting::where('id', $setting['id'])
                     ->update(['value' => (string) $valueInSeconds]);
             }
 
             foreach ($this->kpiGoals as $goal) {
-                DB::table('operational_settings')
-                    ->where('id', $goal['id'])
+                OperationalSetting::where('id', $goal['id'])
                     ->update(['value' => (string) $goal['display_value']]);
             }
 

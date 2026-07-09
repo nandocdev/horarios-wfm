@@ -81,14 +81,12 @@ final class AgentPerformanceService
             );
         }
 
-        $teamCallsCount = DB::table('agent_call_performance')
-            ->whereIn('employee_id', $teamEmployeeIds)
+        $teamCallsCount = AgentCallPerformance::whereIn('employee_id', $teamEmployeeIds)
             ->whereBetween(DB::raw('DATE(start_time)'), [$startDateStr, $endDateStr])
             ->count();
         $teamAvgCalls = count($teamEmployeeIds) > 0 ? (int) round($teamCallsCount / count($teamEmployeeIds)) : 0;
 
-        $teamAhtData = DB::table('agent_call_performance')
-            ->whereIn('employee_id', $teamEmployeeIds)
+        $teamAhtData = AgentCallPerformance::whereIn('employee_id', $teamEmployeeIds)
             ->whereBetween(DB::raw('DATE(start_time)'), [$startDateStr, $endDateStr])
             ->select(
                 DB::raw('SUM(talk_time) as total_talk'),

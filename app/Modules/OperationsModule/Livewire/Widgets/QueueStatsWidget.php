@@ -42,8 +42,7 @@ class QueueStatsWidget extends Component
 
         try {
             if (! $date->isToday()) {
-                $stats = DB::table('call_records')
-                    ->join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
+                $stats = CallRecord::join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
                     ->whereDate('ivr_started_at', $this->selectedDate)
                     ->select(
                         'call_queues.name',

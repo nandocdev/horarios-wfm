@@ -48,8 +48,7 @@ class StateDistributionWidget extends Component
 
         try {
             if (! $date->isToday()) {
-                $states = DB::table('agent_state_transitions')
-                    ->whereIn('employee_id', $operatorIds)
+                $states = AgentStateTransition::whereIn('employee_id', $operatorIds)
                     ->whereDate('transition_time', $this->selectedDate)
                     ->select('agent_state', DB::raw('count(distinct employee_id) as count'))
                     ->groupBy('agent_state')

@@ -28,8 +28,7 @@ class VolumeComparisonWidget extends Component
         $endOfPreviousWeek = $startOfPreviousWeek->copy()->endOfWeek();
 
         // Data Semana Actual
-        $currentWeekData = DB::table('call_records')
-            ->whereNotNull('queue_id')
+        $currentWeekData = CallRecord::whereNotNull('queue_id')
             ->whereBetween('ivr_started_at', [$startOfCurrentWeek, $endOfCurrentWeek])
             ->select(
                 DB::raw('DATE(ivr_started_at) as date'),
@@ -41,8 +40,7 @@ class VolumeComparisonWidget extends Component
             ->keyBy('date');
 
         // Data Semana Anterior
-        $previousWeekData = DB::table('call_records')
-            ->whereNotNull('queue_id')
+        $previousWeekData = CallRecord::whereNotNull('queue_id')
             ->whereBetween('ivr_started_at', [$startOfPreviousWeek, $endOfPreviousWeek])
             ->select(
                 DB::raw('DATE(ivr_started_at) as date'),

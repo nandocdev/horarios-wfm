@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Modules\HelpdeskModule\Livewire;
 
+use App\Modules\HelpdeskModule\Actions\SubmitTicketAction;
+use App\Modules\HelpdeskModule\Enums\TicketPriority;
 use App\Modules\HelpdeskModule\Models\HelpdeskCategory;
 use App\Modules\HelpdeskModule\Models\HelpdeskTicket;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,16 +17,15 @@ class MyTickets extends Component
 {
     use WithPagination;
 
-    // Campos del formulario
-    public $subject = '';
+    public string $subject = '';
 
-    public $description = '';
+    public string $description = '';
 
-    public $categoryId = '';
+    public string $categoryId = '';
 
-    public $priority = 'medium';
+    public string $priority = 'medium';
 
-    public $showCreateModal = false;
+    public bool $showCreateModal = false;
 
     protected $rules = [
         'subject' => 'required|string|max:255',
@@ -32,13 +34,13 @@ class MyTickets extends Component
         'priority' => 'required|in:low,medium,high,urgent',
     ];
 
-    public function openCreateModal()
+    public function openCreateModal(): void
     {
         $this->reset(['subject', 'description', 'categoryId', 'priority']);
         $this->showCreateModal = true;
     }
 
-    public function submit()
+    public function submit(SubmitTicketAction $action): void
     {
         $this->validate();
 
@@ -47,14 +49,15 @@ class MyTickets extends Component
             return;
         }
 
-        HelpdeskTicket::create([
-            'subject' => $this->subject,
-            'description' => $this->description,
-            'category_id' => $this->categoryId,
-            'priority' => $this->priority,
-            'creator_id' => $employee->id,
-            'status' => 'new',
-        ]);
+        Gate::authorize('create', HelpdeskTicket::class);
+
+        $action->execute(
+            employee: $employee,
+            subject: $this->subject,
+            description: $this->description,
+            categoryId: (int) $this->categoryId,
+            priority: TicketPriority::from($this->priority),
+        );
 
         $this->showCreateModal = false;
         \Flux::toast('Ticket creado exitosamente. El equipo de soporte lo revisará pronto.', variant: 'success');
@@ -67,7 +70,7 @@ class MyTickets extends Component
         $tickets = $employee
             ? HelpdeskTicket::with(['category', 'assignedAgent'])
                 ->where('creator_id', $employee->id)
-                ->orderByRaw("CASE WHEN status IN ('resolved', 'closed') THEN 1 ELSE 0 END") // Abiertos primero
+                ->orderByRaw("CASE WHEN status IN ('resolved', 'closed') THEN 1 ELSE 0 END")
                 ->orderBy('created_at', 'desc')
                 ->paginate(10)
             : collect();

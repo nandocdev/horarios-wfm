@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace App\Modules\HelpdeskModule\Models;
 
+use App\Modules\HelpdeskModule\Enums\TicketPriority;
+use App\Modules\HelpdeskModule\Enums\TicketStatus;
 use App\Modules\PersonnelModule\Models\Employee;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HelpdeskTicket extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'subject', 'description', 'category_id', 'creator_id',
         'assigned_agent_id', 'status', 'priority', 'resolved_at', 'closed_at',
@@ -43,25 +48,15 @@ class HelpdeskTicket extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match ($this->status) {
-            'new' => 'Nuevo',
-            'open' => 'Abierto',
-            'in_progress' => 'En Progreso',
-            'on_hold' => 'En Espera',
-            'resolved' => 'Resuelto',
-            'closed' => 'Cerrado',
-            default => ucfirst($this->status)
-        };
+        $status = TicketStatus::tryFrom($this->status);
+
+        return $status?->label() ?? ucfirst($this->status);
     }
 
     public function getPriorityLabelAttribute(): string
     {
-        return match ($this->priority) {
-            'low' => 'Baja',
-            'medium' => 'Media',
-            'high' => 'Alta',
-            'urgent' => 'Urgente',
-            default => ucfirst($this->priority)
-        };
+        $priority = TicketPriority::tryFrom($this->priority);
+
+        return $priority?->label() ?? ucfirst($this->priority);
     }
 }

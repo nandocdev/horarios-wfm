@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\HelpdeskModule\Livewire;
 
+use App\Modules\HelpdeskModule\Actions\AddCommentAction;
+use App\Modules\HelpdeskModule\Actions\AssignTicketAction;
+use App\Modules\HelpdeskModule\Actions\ChangeTicketStatusAction;
+use App\Modules\HelpdeskModule\Enums\TicketStatus;
 use App\Modules\HelpdeskModule\Models\HelpdeskTicket;
-use App\Modules\HelpdeskModule\Models\HelpdeskTicketComment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class TicketDetail extends Component
@@ -17,53 +21,37 @@ class TicketDetail extends Component
 
     public bool $isInternalNote = false;
 
-    // Verificar si el usuario actual es de soporte/admin
     public bool $isSupport = false;
 
     protected $rules = [
         'newComment' => 'required|string|min:2',
     ];
 
-    public function mount(HelpdeskTicket $ticket)
+    public function mount(HelpdeskTicket $ticket): void
     {
         $this->ticket = $ticket->load(['category', 'creator.position', 'assignedAgent']);
 
-        $employee = Auth::user()->employee;
+        Gate::authorize('view', $this->ticket);
 
-        // Es soporte si tiene permisos de operaciones (WFM/Admin)
-        $this->isSupport = Auth::user()->can('operations.view');
-
-        // Validar acceso: o eres el creador, o eres soporte
-        if ($this->ticket->creator_id !== $employee?->id && ! $this->isSupport) {
-            abort(403, 'No tienes permiso para ver este ticket.');
-        }
-
-        // La auto-asignación automática ha sido desactivada por requerimiento.
-        // El agente debe tomar el ticket manualmente desde la bandeja o al responder.
+        $this->isSupport = Auth::user()->can('helpdesk.manage');
     }
 
-    public function addComment()
+    public function addComment(AddCommentAction $action): void
     {
         $this->validate();
 
         $employee = Auth::user()->employee;
-
-        HelpdeskTicketComment::create([
-            'ticket_id' => $this->ticket->id,
-            'author_id' => $employee->id,
-            'content' => $this->newComment,
-            'is_internal' => $this->isSupport ? $this->isInternalNote : false,
-        ]);
-
-        // Auto-asignación al comentar si es soporte y no estaba asignado
-        if ($this->isSupport && empty($this->ticket->assigned_agent_id)) {
-            $this->ticket->update(['assigned_agent_id' => $employee->id]);
+        if (! $employee) {
+            return;
         }
 
-        // Si soporte responde, cambiar estado a 'En Progreso' si estaba 'Abierto'
-        if ($this->isSupport && in_array($this->ticket->status, ['new', 'open']) && ! $this->isInternalNote) {
-            $this->ticket->update(['status' => 'in_progress']);
-        }
+        $action->execute(
+            ticket: $this->ticket,
+            author: $employee,
+            content: $this->newComment,
+            isSupport: $this->isSupport,
+            isInternal: $this->isInternalNote,
+        );
 
         $this->reset(['newComment', 'isInternalNote']);
         $this->ticket->refresh();
@@ -71,42 +59,31 @@ class TicketDetail extends Component
         \Flux::toast('Comentario añadido.');
     }
 
-    public function changeStatus(string $status)
+    public function changeStatus(string $status, ChangeTicketStatusAction $action): void
     {
-        if (! in_array($status, ['open', 'in_progress', 'on_hold', 'resolved', 'closed'])) {
+        Gate::authorize('update', $this->ticket);
+
+        $newStatus = TicketStatus::tryFrom($status);
+        if (! $newStatus) {
             return;
         }
 
-        $updates = ['status' => $status];
-
-        if ($status === 'resolved') {
-            $updates['resolved_at'] = now();
-        } elseif ($status === 'closed') {
-            $updates['closed_at'] = now();
-        }
-
-        $this->ticket->update($updates);
+        $action->execute($this->ticket, $newStatus);
         $this->ticket->refresh();
 
         \Flux::toast('Estado del ticket actualizado a: '.$this->ticket->status_label);
     }
 
-    public function takeTicket()
+    public function takeTicket(AssignTicketAction $action): void
     {
-        if (! $this->isSupport) {
-            return;
-        }
+        Gate::authorize('assign', $this->ticket);
 
         $employee = Auth::user()->employee;
         if (! $employee) {
             return;
         }
 
-        $this->ticket->update([
-            'assigned_agent_id' => $employee->id,
-            'status' => $this->ticket->status === 'new' ? 'open' : $this->ticket->status,
-        ]);
-
+        $action->execute($this->ticket, $employee);
         $this->ticket->refresh();
 
         \Flux::toast('Has tomado el ticket correctamente.');

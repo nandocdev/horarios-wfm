@@ -7,33 +7,32 @@ namespace App\Modules\HelpdeskModule\Providers;
 use App\Modules\HelpdeskModule\Livewire\ManageTickets;
 use App\Modules\HelpdeskModule\Livewire\MyTickets;
 use App\Modules\HelpdeskModule\Livewire\TicketDetail;
-use Illuminate\Support\ServiceProvider;
+use App\Modules\HelpdeskModule\Models\HelpdeskTicket;
+use App\Modules\HelpdeskModule\Policies\HelpdeskTicketPolicy;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
 use Livewire\Livewire;
 
-class ModuleServiceProvider extends ServiceProvider
+class ModuleServiceProvider extends AuthServiceProvider
 {
-    /**
-     * Boot the module services.
-     */
+    protected $policies = [
+        HelpdeskTicket::class => HelpdeskTicketPolicy::class,
+    ];
+
     public function boot(): void
     {
-        // Rutas
+        $this->registerPolicies();
+
         if (file_exists(__DIR__.'/../Routes/web.php')) {
             $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
         }
 
-        // Vistas
         $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'helpdesk');
 
-        // Componentes Livewire
         Livewire::component('helpdesk.my-tickets', MyTickets::class);
         Livewire::component('helpdesk.manage-tickets', ManageTickets::class);
         Livewire::component('helpdesk.ticket-detail', TicketDetail::class);
     }
 
-    /**
-     * Register the module services.
-     */
     public function register(): void
     {
         //

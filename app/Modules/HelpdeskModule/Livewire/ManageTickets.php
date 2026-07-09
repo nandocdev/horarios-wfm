@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\HelpdeskModule\Livewire;
 
+use App\Modules\HelpdeskModule\Actions\AssignTicketAction;
 use App\Modules\HelpdeskModule\Models\HelpdeskCategory;
 use App\Modules\HelpdeskModule\Models\HelpdeskTicket;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,17 +16,18 @@ class ManageTickets extends Component
 {
     use WithPagination;
 
-    // Filtros
-    public $statusFilter = 'open_unassigned'; // open_unassigned, my_assigned, all_active, closed
+    public string $statusFilter = 'open_unassigned';
 
-    public $categoryFilter = '';
+    public string $categoryFilter = '';
 
-    public $priorityFilter = '';
+    public string $priorityFilter = '';
 
-    public $search = '';
+    public string $search = '';
 
-    public function assignToMe($ticketId)
+    public function assignToMe(int $ticketId, AssignTicketAction $action): void
     {
+        Gate::authorize('assign', HelpdeskTicket::class);
+
         $employee = Auth::user()->employee;
         if (! $employee) {
             return;
@@ -32,10 +35,7 @@ class ManageTickets extends Component
 
         $ticket = HelpdeskTicket::findOrFail($ticketId);
 
-        $ticket->update([
-            'assigned_agent_id' => $employee->id,
-            'status' => $ticket->status === 'new' ? 'open' : $ticket->status,
-        ]);
+        $action->execute($ticket, $employee);
 
         \Flux::toast('Ticket asignado correctamente.', variant: 'success');
     }
@@ -54,9 +54,8 @@ class ManageTickets extends Component
                     ELSE 5
                 END ASC
             ")
-            ->orderBy('created_at', 'asc'); // Más viejos primero (SLA)
+            ->orderBy('created_at', 'asc');
 
-        // Búsqueda
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('subject', 'ilike', '%'.$this->search.'%')
@@ -68,17 +67,14 @@ class ManageTickets extends Component
             });
         }
 
-        // Filtro de Categoría
         if ($this->categoryFilter) {
             $query->where('category_id', $this->categoryFilter);
         }
 
-        // Filtro de Prioridad
         if ($this->priorityFilter) {
             $query->where('priority', $this->priorityFilter);
         }
 
-        // Filtros Rápidos (Bandejas)
         switch ($this->statusFilter) {
             case 'open_unassigned':
                 $query->whereIn('status', ['new', 'open'])->whereNull('assigned_agent_id');

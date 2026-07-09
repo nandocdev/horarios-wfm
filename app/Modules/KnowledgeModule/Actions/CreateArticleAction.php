@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Actions;
 
 use App\Modules\KnowledgeModule\DTOs\ArticleDTO;
-use App\Modules\KnowledgeModule\Models\Article;
 use App\Modules\KnowledgeModule\Models\ArticleVersion;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\Tag;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -18,22 +18,18 @@ class CreateArticleAction
 {
     /**
      * Ejecuta la creación del artículo.
-     *
-     * @param  ArticleDTO  $dto
-     * @param  int  $userId
-     * @return Article
      */
-    public function execute(ArticleDTO $dto, int $userId): Article
+    public function execute(ArticleDTO $dto, int $userId): KnowledgeArticle
     {
         return DB::transaction(function () use ($dto, $userId) {
-            $slug = Str::slug($dto->title) . '-' . uniqid();
+            $slug = Str::slug($dto->title).'-'.uniqid();
 
             $publishedAt = $dto->published_at;
             if ($dto->status === 'published' && $publishedAt === null) {
                 $publishedAt = now();
             }
 
-            $article = Article::create([
+            $article = KnowledgeArticle::create([
                 'title' => $dto->title,
                 'slug' => $slug,
                 'summary' => $dto->summary,

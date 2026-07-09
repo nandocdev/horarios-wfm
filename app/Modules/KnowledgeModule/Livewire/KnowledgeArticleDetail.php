@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\KnowledgeModule\Livewire;
 
-use App\Modules\KnowledgeModule\Models\Article;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -12,18 +12,18 @@ use Livewire\Component;
  * Componente Livewire para la lectura a detalle de una publicación de la Base de Conocimiento,
  * incluyendo histórico de versiones y etiquetas relacionadas.
  */
-class ArticleDetail extends Component
+class KnowledgeArticleDetail extends Component
 {
     use AuthorizesRequests;
 
-    public Article $article;
+    public KnowledgeArticle $article;
 
     /**
      * Inicializa el componente recuperando el artículo por slug con relaciones cargadas.
      */
     public function mount(string $slug): void
     {
-        $this->article = Article::with(['category', 'queues', 'tags', 'creator', 'versions.creator'])
+        $this->article = KnowledgeArticle::with(['category', 'queues', 'tags', 'creator', 'versions.creator'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -35,12 +35,8 @@ class ArticleDetail extends Component
      */
     public function render()
     {
-        return view('knowledge::livewire.article-detail', [
+        return view('knowledge::livewire.knowledge-article-detail', [
             'article' => $this->article,
         ])->layout('layouts.app');
     }
 }
-/**
- * [RIESGOS]
- * - Fugas de Información → Se debe proteger la ruta en la Policy para asegurar que artículos en estado "Draft" o "Review" solo sean vistos por supervisores.
- */

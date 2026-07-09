@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Policies;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\KnowledgeModule\Models\Article;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
@@ -26,7 +26,7 @@ class ArticlePolicy
     /**
      * Determina si el usuario puede ver el detalle de un artículo específico.
      */
-    public function view(User $user, Article $article): bool
+    public function view(User $user, KnowledgeArticle $article): bool
     {
         if ($article->status === 'published') {
             return $user->hasPermissionTo('knowledge.viewAny') || $user->hasPermissionTo('knowledge.manage');
@@ -46,7 +46,7 @@ class ArticlePolicy
     /**
      * Determina si el usuario puede actualizar artículos.
      */
-    public function update(User $user, Article $article): bool
+    public function update(User $user, KnowledgeArticle $article): bool
     {
         return $user->hasPermissionTo('knowledge.manage');
     }
@@ -54,7 +54,7 @@ class ArticlePolicy
     /**
      * Determina si el usuario puede eliminar artículos.
      */
-    public function delete(User $user, Article $article): bool
+    public function delete(User $user, KnowledgeArticle $article): bool
     {
         return $user->hasPermissionTo('knowledge.manage');
     }

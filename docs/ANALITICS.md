@@ -17,8 +17,8 @@ Aparece en: `CoreModule\Models\AuditLog`, `AuditModule\Models\AuditLog`, `Suppor
 
 ### 1.2 `Article` — unificar DocumentationModule y KnowledgeModule
 
-- [ ] 1.2.1 Decidir si DocumentationModule y KnowledgeModule deben convivir o fusionarse. Si son conceptos distintos (manuales internos vs base de conocimiento operativa), renombrar uno para evitar ambigüedad.
-- [ ] 1.2.2 Si se fusionan, migrar datos y eliminar el módulo redundante.
+- [x] 1.2.1 Decidir si DocumentationModule y KnowledgeModule deben convivir o fusionarse. Si son conceptos distintos (manuales internos vs base de conocimiento operativa), renombrar uno para evitar ambigüedad.
+- [x] 1.2.2 Si se fusionan, migrar datos y eliminar el módulo redundante.
 
 ### 1.3 `Category` — unificar CommunicationsModule y KnowledgeModule
 

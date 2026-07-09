@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Models;
 
 use App\Modules\CoreModule\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,14 +23,14 @@ use Illuminate\Support\Str;
  * @property int|null $category_id
  * @property string $status
  * @property int $version
- * @property \Carbon\Carbon|null $published_at
- * @property \Carbon\Carbon|null $expires_at
+ * @property Carbon|null $published_at
+ * @property Carbon|null $expires_at
  * @property int $created_by
  * @property int|null $updated_by
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
-class Article extends Model
+class KnowledgeArticle extends Model
 {
     protected $table = 'knowledge_articles';
 
@@ -59,7 +60,7 @@ class Article extends Model
 
         static::creating(function ($article) {
             if (empty($article->slug)) {
-                $article->slug = Str::slug($article->title) . '-' . uniqid();
+                $article->slug = Str::slug($article->title).'-'.uniqid();
             }
         });
     }
@@ -136,6 +137,7 @@ class Article extends Model
     public function scopePublished($query)
     {
         $now = now();
+
         return $query->where('status', 'published')
             ->where('published_at', '<=', $now)
             ->where(function ($q) use ($now) {
@@ -157,8 +159,3 @@ class Article extends Model
         );
     }
 }
-/**
- * [RIESGOS]
- * - Colisiones de Slugs → Para mitigar la colisión de slugs en títulos idénticos se añade un ID único al final del slug generado.
- * - Carga Lazy de Relaciones → Se debe asegurar el uso de eager loading en listados para evitar el problema N+1 al evaluar la prioridad calculada.
- */

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\DocumentationModule\Models\Article;
+use App\Modules\DocumentationModule\Models\WikiArticle;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -45,7 +45,7 @@ class DocumentationModuleTest extends TestCase
 
     public function test_users_can_view_a_published_article()
     {
-        $article = Article::create([
+        $article = WikiArticle::create([
             'title' => 'Test Article',
             'slug' => 'test-article',
             'content' => 'Test content',
@@ -63,7 +63,7 @@ class DocumentationModuleTest extends TestCase
 
     public function test_users_cannot_view_an_unpublished_article()
     {
-        $article = Article::create([
+        $article = WikiArticle::create([
             'title' => 'Private Article',
             'slug' => 'private-article',
             'content' => 'Private content',

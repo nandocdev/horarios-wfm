@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace App\Modules\KnowledgeModule\Livewire;
 
-use App\Modules\KnowledgeModule\Actions\CreateArticleAction;
-use App\Modules\KnowledgeModule\Actions\UpdateArticleAction;
-use App\Modules\KnowledgeModule\Livewire\Forms\ArticleForm;
-use App\Modules\KnowledgeModule\Models\Article;
 use App\Modules\KnowledgeModule\Models\Category;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\Queue;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
  * Componente Livewire administrativo para gestionar la creación, edición y flujo editorial de los artículos.
  */
-class ManageArticles extends Component
+class ManageKnowledgeArticles extends Component
 {
-    use WithPagination;
     use AuthorizesRequests;
+    use WithPagination;
 
     public string $search = '';
 
@@ -40,7 +36,7 @@ class ManageArticles extends Component
     /**
      * Elimina físicamente un artículo.
      */
-    public function deleteArticle(Article $article): void
+    public function deleteArticle(KnowledgeArticle $article): void
     {
         $this->authorize('delete', $article);
         $article->delete();
@@ -53,16 +49,16 @@ class ManageArticles extends Component
      */
     public function render()
     {
-        $this->authorize('create', Article::class);
+        $this->authorize('create', KnowledgeArticle::class);
 
         $categories = Category::orderBy('name')->get();
         $queues = Queue::where('is_active', true)->orderBy('name')->get();
 
-        $articles = Article::with(['category', 'queues', 'creator'])
+        $articles = KnowledgeArticle::with(['category', 'queues', 'creator'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('title', 'like', '%' . $this->search . '%')
-                      ->orWhere('content', 'like', '%' . $this->search . '%');
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('content', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->selectedStatus, function ($query) {
@@ -74,14 +70,10 @@ class ManageArticles extends Component
             ->orderBy('id', 'desc')
             ->paginate(10);
 
-        return view('knowledge::livewire.manage-articles', [
+        return view('knowledge::livewire.manage-knowledge-articles', [
             'articles' => $articles,
             'categories' => $categories,
             'queues' => $queues,
         ])->layout('layouts.app');
     }
 }
-/**
- * [RIESGOS]
- * - Control de Acceso → Es mandatorio proteger con Gates y Policies el método `render`, `save` y `deleteArticle` para evitar escalamiento de privilegios por parte de agentes no autorizados.
- */

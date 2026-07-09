@@ -38,7 +38,7 @@ class Queue extends Model
     public function articles(): BelongsToMany
     {
         return $this->belongsToMany(
-            Article::class,
+            KnowledgeArticle::class,
             'knowledge_article_queue',
             'queue_id',
             'article_id'

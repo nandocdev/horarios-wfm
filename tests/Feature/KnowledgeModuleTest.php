@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\KnowledgeModule\Models\Article;
 use App\Modules\KnowledgeModule\Models\Category;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\Queue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
@@ -90,7 +90,7 @@ class KnowledgeModuleTest extends TestCase
     public function test_articles_are_ordered_by_max_queue_priority(): void
     {
         // Artículo A en cola de menor prioridad (4)
-        $articleA = Article::create([
+        $articleA = KnowledgeArticle::create([
             'title' => 'Low Priority Article',
             'slug' => 'low-priority-article',
             'content' => 'Low priority content',
@@ -102,7 +102,7 @@ class KnowledgeModuleTest extends TestCase
         $articleA->queues()->sync([$this->queueLow->id]);
 
         // Artículo B en cola de mayor prioridad (10)
-        $articleB = Article::create([
+        $articleB = KnowledgeArticle::create([
             'title' => 'High Priority Article',
             'slug' => 'high-priority-article',
             'content' => 'High priority content',
@@ -134,7 +134,7 @@ class KnowledgeModuleTest extends TestCase
      */
     public function test_operator_cannot_view_unpublished_articles(): void
     {
-        $draftArticle = Article::create([
+        $draftArticle = KnowledgeArticle::create([
             'title' => 'Draft Article',
             'slug' => 'draft-article',
             'content' => 'Draft content',
@@ -195,7 +195,7 @@ class KnowledgeModuleTest extends TestCase
      */
     public function test_only_authorized_users_can_access_edit_page(): void
     {
-        $article = Article::create([
+        $article = KnowledgeArticle::create([
             'title' => 'Article to Edit',
             'slug' => 'article-to-edit',
             'content' => 'Content here',

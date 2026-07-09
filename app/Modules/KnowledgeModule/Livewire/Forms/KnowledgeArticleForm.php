@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Livewire\Forms;
 
 use App\Modules\KnowledgeModule\DTOs\ArticleDTO;
-use App\Modules\KnowledgeModule\Models\Article;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use Livewire\Form;
 
 /**
  * Formulario de Livewire para encapsular la validación y el estado de la UI al gestionar artículos.
  */
-class ArticleForm extends Form
+class KnowledgeArticleForm extends Form
 {
-    public ?Article $article = null;
+    public ?KnowledgeArticle $article = null;
 
     public string $title = '';
 
@@ -73,7 +73,7 @@ class ArticleForm extends Form
     /**
      * Carga el estado del formulario a partir de un artículo existente para edición.
      */
-    public function setArticle(Article $article): void
+    public function setArticle(KnowledgeArticle $article): void
     {
         $this->article = $article;
         $this->title = $article->title;
@@ -126,7 +126,3 @@ class ArticleForm extends Form
         $this->tagsString = '';
     }
 }
-/**
- * [RIESGOS]
- * - Manipulación de arrays de colas vacíos → Las reglas de validación exigen al menos una cola (`required|array|min:1`).
- */

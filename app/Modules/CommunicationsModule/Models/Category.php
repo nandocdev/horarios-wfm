@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CommunicationsModule\Models;
 
 use App\Modules\CoreModule\Concerns\Auditable;
-use App\Modules\DocumentationModule\Models\Article;
+use App\Modules\DocumentationModule\Models\WikiArticle;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
@@ -75,8 +75,8 @@ class Category extends Model
     /**
      * Relación polimórfica con Artículos de Documentación.
      */
-    public function articles(): MorphToMany
+    public function wikiArticles(): MorphToMany
     {
-        return $this->morphedByMany(Article::class, 'categorizable');
+        return $this->morphedByMany(WikiArticle::class, 'categorizable');
     }
 }

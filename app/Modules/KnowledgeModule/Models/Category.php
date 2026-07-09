@@ -30,7 +30,7 @@ class Category extends Model
      */
     public function articles(): HasMany
     {
-        return $this->hasMany(Article::class, 'category_id');
+        return $this->hasMany(KnowledgeArticle::class, 'category_id');
     }
 }
 /**

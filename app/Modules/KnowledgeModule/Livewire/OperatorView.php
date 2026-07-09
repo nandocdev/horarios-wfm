@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\KnowledgeModule\Livewire;
 
-use App\Modules\KnowledgeModule\Models\Article;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\Category;
 use App\Modules\KnowledgeModule\Models\Queue;
 use App\Modules\KnowledgeModule\Models\Tag;
@@ -48,7 +48,7 @@ class OperatorView extends Component
      */
     public function render()
     {
-        $this->authorize('viewAny', Article::class);
+        $this->authorize('viewAny', KnowledgeArticle::class);
 
         // Cargar catálogos
         $queues = Queue::where('is_active', true)
@@ -65,7 +65,7 @@ class OperatorView extends Component
             ->get();
 
         // Consulta de artículos
-        $query = Article::published()
+        $query = KnowledgeArticle::published()
             ->with(['category', 'queues', 'tags']);
 
         if ($this->selectedQueueId) {

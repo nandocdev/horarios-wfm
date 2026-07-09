@@ -29,7 +29,7 @@ class Tag extends Model
     public function articles(): BelongsToMany
     {
         return $this->belongsToMany(
-            Article::class,
+            KnowledgeArticle::class,
             'knowledge_article_tag',
             'tag_id',
             'article_id'

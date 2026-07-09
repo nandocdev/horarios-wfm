@@ -10,7 +10,7 @@
             <flux:subheading class="text-slate-500 dark:text-slate-400 text-sm">Resuelve dudas de pacientes con procedimientos y políticas al instante.</flux:subheading>
         </div>
         
-        @can('create', App\Modules\KnowledgeModule\Models\Article::class)
+        @can('create', App\Modules\KnowledgeModule\Models\KnowledgeArticle::class)
             <flux:button href="{{ route('knowledge.admin') }}" wire:navigate icon="cog-6-tooth" size="sm" variant="ghost">
                 Administración Editorial
             </flux:button>

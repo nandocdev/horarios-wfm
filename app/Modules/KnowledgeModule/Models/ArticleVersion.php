@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Models;
 
 use App\Modules\CoreModule\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $version
  * @property string $content
  * @property int $created_by
- * @property \Carbon\Carbon $created_at
+ * @property Carbon $created_at
  */
 class ArticleVersion extends Model
 {
@@ -42,7 +43,7 @@ class ArticleVersion extends Model
      */
     public function article(): BelongsTo
     {
-        return $this->belongsTo(Article::class, 'article_id');
+        return $this->belongsTo(KnowledgeArticle::class, 'article_id');
     }
 
     /**

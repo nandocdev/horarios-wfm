@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Actions;
 
 use App\Modules\KnowledgeModule\DTOs\ArticleDTO;
-use App\Modules\KnowledgeModule\Models\Article;
 use App\Modules\KnowledgeModule\Models\ArticleVersion;
+use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\Tag;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -18,13 +18,8 @@ class UpdateArticleAction
 {
     /**
      * Ejecuta la actualización del artículo.
-     *
-     * @param  Article  $article
-     * @param  ArticleDTO  $dto
-     * @param  int  $userId
-     * @return Article
      */
-    public function execute(Article $article, ArticleDTO $dto, int $userId): Article
+    public function execute(KnowledgeArticle $article, ArticleDTO $dto, int $userId): KnowledgeArticle
     {
         return DB::transaction(function () use ($article, $dto, $userId) {
             $contentChanged = ($article->content !== $dto->content);
@@ -40,7 +35,7 @@ class UpdateArticleAction
             }
 
             // Mantener slug estable basado en el ID original
-            $slug = Str::slug($dto->title) . '-' . $article->id;
+            $slug = Str::slug($dto->title).'-'.$article->id;
 
             $article->update([
                 'title' => $dto->title,

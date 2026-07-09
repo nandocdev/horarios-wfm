@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\DocumentationModule\Livewire\Public;
 
 use App\Modules\CommunicationsModule\Models\Category;
-use App\Modules\DocumentationModule\Models\Article;
+use App\Modules\DocumentationModule\Models\WikiArticle;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class ArticleIndex extends Component
+class WikiArticleIndex extends Component
 {
     use WithPagination;
 
@@ -20,13 +20,13 @@ class ArticleIndex extends Component
     public function render()
     {
         $categories = Category::active()
-            ->whereHas('articles', function ($query) {
+            ->whereHas('wikiArticles', function ($query) {
                 $query->published();
             })
             ->ordered()
             ->get();
 
-        $articles = Article::published()
+        $articles = WikiArticle::published()
             ->when($this->search, function ($query) {
                 $query->where('title', 'like', '%'.$this->search.'%')
                     ->orWhere('content', 'like', '%'.$this->search.'%');
@@ -39,7 +39,7 @@ class ArticleIndex extends Component
             ->ordered()
             ->paginate(12);
 
-        return view('documentation::livewire.public.article-index', [
+        return view('documentation::livewire.public.wiki-article-index', [
             'articles' => $articles,
             'categories' => $categories,
         ])->layout('layouts.app');

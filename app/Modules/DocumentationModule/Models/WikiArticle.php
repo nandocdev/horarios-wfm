@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Str;
 
-class Article extends Model
+class WikiArticle extends Model
 {
     protected $table = 'documentation_articles';
 

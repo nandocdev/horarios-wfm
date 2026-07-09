@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Modules\DocumentationModule\Livewire\Admin;
 
 use App\Modules\CommunicationsModule\Models\Category;
-use App\Modules\DocumentationModule\Models\Article;
+use App\Modules\DocumentationModule\Models\WikiArticle;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class ManageArticles extends Component
+class ManageWikiArticles extends Component
 {
     use WithPagination;
 
@@ -41,7 +41,7 @@ class ManageArticles extends Component
 
     public function render()
     {
-        $articles = Article::with(['author', 'categories'])
+        $articles = WikiArticle::with(['author', 'categories'])
             ->when($this->search, function ($query) {
                 $query->where('title', 'like', '%'.$this->search.'%');
             })
@@ -50,7 +50,7 @@ class ManageArticles extends Component
 
         $categories = Category::active()->ordered()->get();
 
-        return view('documentation::livewire.admin.manage-articles', [
+        return view('documentation::livewire.admin.manage-wiki-articles', [
             'articles' => $articles,
             'categories' => $categories,
         ]);
@@ -62,7 +62,7 @@ class ManageArticles extends Component
         $this->showModal = true;
     }
 
-    public function editArticle(Article $article)
+    public function editArticle(WikiArticle $article)
     {
         $this->editingArticle = $article;
         $this->title = $article->title;
@@ -89,7 +89,7 @@ class ManageArticles extends Component
             $article = $this->editingArticle;
         } else {
             $data['author_id'] = Auth::id();
-            $article = Article::create($data);
+            $article = WikiArticle::create($data);
         }
 
         $article->categories()->sync($this->selectedCategories);
@@ -103,7 +103,7 @@ class ManageArticles extends Component
         ]);
     }
 
-    public function deleteArticle(Article $article)
+    public function deleteArticle(WikiArticle $article)
     {
         $article->delete();
 

@@ -17,6 +17,8 @@ return [
 
     'enabled' => [
         ModuleServiceProvider::class,
+        App\Modules\OrganizationModule\Providers\ModuleServiceProvider::class,
+        App\Modules\GeoModule\Providers\ModuleServiceProvider::class,
         App\Modules\PersonnelModule\Providers\ModuleServiceProvider::class,
         App\Modules\OperationsModule\Providers\ModuleServiceProvider::class,
         App\Modules\ConnectModule\Providers\ModuleServiceProvider::class,

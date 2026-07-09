@@ -168,13 +168,13 @@ Hay módulos que mezclan Livewire con controladores tradicionales.
 
 - [x] 5.2.1 y 5.2.2 Migrar 5 componentes de `$rules` → `#[Rule]` attributes:
 
-| Componente | Módulo | Campos |
-|---|---|---|
-| `ListRoles` | CoreModule | name, code, hierarchy_level |
+| Componente           | Módulo              | Campos                                                       |
+| -------------------- | ------------------- | ------------------------------------------------------------ |
+| `ListRoles`          | CoreModule          | name, code, hierarchy_level                                  |
 | `ManageWikiArticles` | DocumentationModule | title, content, is_published, selectedCategories, sort_order |
-| `TicketDetail` | HelpdeskModule | newComment |
-| `MyTickets` | HelpdeskModule | subject, description, categoryId, priority |
-| `RequestShiftSwap` | WfmModule | requestedDate, endDate, recipientId, reason |
+| `TicketDetail`       | HelpdeskModule      | newComment                                                   |
+| `MyTickets`          | HelpdeskModule      | subject, description, categoryId, priority                   |
+| `RequestShiftSwap`   | WfmModule           | requestedDate, endDate, recipientId, reason                  |
 
 Los 18 archivos en `Livewire/Forms/` ya usaban `#[Rule]` — ahora hay consistencia total.
 
@@ -187,14 +187,14 @@ Los 18 archivos en `Livewire/Forms/` ya usaban `#[Rule]` — ahora hay consisten
   - `ImportWeeklySchedule.php` — 2 llamadas migradas
 - [x] 5.3.2 Migrar otros `DB::table()` a modelos Eloquent existentes:
 
-| Tabla | Modelo | Archivos migrados |
-|-------|--------|-------------------|
-| `agent_state_transitions` | `AgentStateTransition` | AgentTimeline, StateDistributionWidget, MyDay, PerformanceService |
-| `call_records` | `CallRecord` | QueuePerformanceReport, QueueStatsWidget, VolumeComparisonWidget, PerformanceService |
-| `agent_call_performance` | `AgentCallPerformance` | AgentPerformanceService |
-| `csq_realtime_stats` | `CsqRealtimeStat` | IntradayAvailability, PerformanceService |
-| `agent_realtime_states` | `AgentRealtimeState` | IntradayAvailability, AgentRealtimeCard |
-| `users` | `User` | SendShiftSwapApprovedNotification, SendShiftSwapReceivedNotification |
+| Tabla                     | Modelo                 | Archivos migrados                                                                    |
+| ------------------------- | ---------------------- | ------------------------------------------------------------------------------------ |
+| `agent_state_transitions` | `AgentStateTransition` | AgentTimeline, StateDistributionWidget, MyDay, PerformanceService                    |
+| `call_records`            | `CallRecord`           | QueuePerformanceReport, QueueStatsWidget, VolumeComparisonWidget, PerformanceService |
+| `agent_call_performance`  | `AgentCallPerformance` | AgentPerformanceService                                                              |
+| `csq_realtime_stats`      | `CsqRealtimeStat`      | IntradayAvailability, PerformanceService                                             |
+| `agent_realtime_states`   | `AgentRealtimeState`   | IntradayAvailability, AgentRealtimeCard                                              |
+| `users`                   | `User`                 | SendShiftSwapApprovedNotification, SendShiftSwapReceivedNotification                 |
 
 Total: **~25 llamadas `DB::table()` migradas** a Eloquent. Se conservaron solo aquellas con JOINs complejos, subqueries o agregaciones raw donde Eloquent no aporta claridad (ej: `CiscoSync`, `CriticalAlertsWidget`, `ImportTeamWeeklyScheduleAction`).
 

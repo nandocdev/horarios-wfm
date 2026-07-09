@@ -166,10 +166,17 @@ Hay módulos que mezclan Livewire con controladores tradicionales.
 
 ### 5.2 Homogeneizar validación en Livewire Forms
 
-Algunos componentes mezclan `#[Rule]` attributes con `$rules` property y validación inline.
+- [x] 5.2.1 y 5.2.2 Migrar 5 componentes de `$rules` → `#[Rule]` attributes:
 
-- [ ] 5.2.1 Migrar todos los componentes a usar `#[Rule]` attributes (Livewire 4 nativo). Es más legible y consistente.
-- [ ] 5.2.2 Eliminar `$rules` property donde exista, reemplazando por atributos.
+| Componente | Módulo | Campos |
+|---|---|---|
+| `ListRoles` | CoreModule | name, code, hierarchy_level |
+| `ManageWikiArticles` | DocumentationModule | title, content, is_published, selectedCategories, sort_order |
+| `TicketDetail` | HelpdeskModule | newComment |
+| `MyTickets` | HelpdeskModule | subject, description, categoryId, priority |
+| `RequestShiftSwap` | WfmModule | requestedDate, endDate, recipientId, reason |
+
+Los 18 archivos en `Livewire/Forms/` ya usaban `#[Rule]` — ahora hay consistencia total.
 
 ### 5.3 Eliminar `DB::table()` en crudo
 

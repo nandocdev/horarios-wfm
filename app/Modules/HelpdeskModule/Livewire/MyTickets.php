@@ -10,6 +10,7 @@ use App\Modules\HelpdeskModule\Models\HelpdeskCategory;
 use App\Modules\HelpdeskModule\Models\HelpdeskTicket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -17,22 +18,19 @@ class MyTickets extends Component
 {
     use WithPagination;
 
+    #[Rule('required|string|max:255')]
     public string $subject = '';
 
+    #[Rule('required|string|min:10')]
     public string $description = '';
 
+    #[Rule('required|exists:helpdesk_categories,id')]
     public string $categoryId = '';
 
+    #[Rule('required|in:low,medium,high,urgent')]
     public string $priority = 'medium';
 
     public bool $showCreateModal = false;
-
-    protected $rules = [
-        'subject' => 'required|string|max:255',
-        'description' => 'required|string|min:10',
-        'categoryId' => 'required|exists:helpdesk_categories,id',
-        'priority' => 'required|in:low,medium,high,urgent',
-    ];
 
     public function openCreateModal(): void
     {

@@ -7,6 +7,7 @@ namespace App\Modules\DocumentationModule\Livewire\Admin;
 use App\Modules\CommunicationsModule\Models\Category;
 use App\Modules\DocumentationModule\Models\WikiArticle;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -20,24 +21,20 @@ class ManageWikiArticles extends Component
 
     public $editingArticle = null;
 
-    // Form fields
+    #[Rule('required|string|max:255')]
     public $title = '';
 
+    #[Rule('required|string')]
     public $content = '';
 
+    #[Rule('boolean')]
     public $is_published = false;
 
+    #[Rule('array')]
     public $selectedCategories = [];
 
+    #[Rule('integer')]
     public $sort_order = 0;
-
-    protected $rules = [
-        'title' => 'required|string|max:255',
-        'content' => 'required|string',
-        'is_published' => 'boolean',
-        'selectedCategories' => 'array',
-        'sort_order' => 'integer',
-    ];
 
     public function render()
     {

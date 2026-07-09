@@ -10,27 +10,25 @@ use App\Modules\CoreModule\DTOs\RoleDTO;
 use App\Modules\CoreModule\Models\Permission;
 use App\Modules\CoreModule\Models\Role;
 use Flux\Flux;
+use Livewire\Attributes\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Title('Gestión de Roles')]
 class ListRoles extends Component
 {
+    #[Rule(['required', 'string', 'max:255'])]
     public string $name = '';
 
+    #[Rule(['required', 'string', 'max:50', 'alpha_dash'])]
     public string $code = '';
 
+    #[Rule(['required', 'integer', 'min:1', 'max:100'])]
     public int $hierarchy_level = 10;
 
     public ?Role $editingRole = null;
 
     public array $selectedPermissions = [];
-
-    protected $rules = [
-        'name' => ['required', 'string', 'max:255'],
-        'code' => ['required', 'string', 'max:50', 'alpha_dash'],
-        'hierarchy_level' => ['required', 'integer', 'min:1', 'max:100'],
-    ];
 
     /**
      * Muestra el modal para editar permisos de un rol.

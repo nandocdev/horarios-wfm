@@ -12,29 +12,27 @@ use App\Modules\WfmModule\Notifications\SwapRequestNotification;
 use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Rule;
 use Livewire\Component;
 
 class RequestShiftSwap extends Component
 {
+    #[Rule('required|date|after:today')]
     public $requestedDate;
 
+    #[Rule('nullable|date|after_or_equal:requestedDate')]
     public $endDate;
 
+    #[Rule('required|exists:employees,id')]
     public $recipientId;
 
+    #[Rule('nullable|string|max:255')]
     public $reason;
 
     // Propiedades para mostrar los horarios en la vista
     public $requesterAssignment = null;
 
     public $recipientAssignment = null;
-
-    protected $rules = [
-        'requestedDate' => 'required|date|after:today',
-        'endDate' => 'nullable|date|after_or_equal:requestedDate',
-        'recipientId' => 'required|exists:employees,id',
-        'reason' => 'nullable|string|max:255',
-    ];
 
     public function mount()
     {

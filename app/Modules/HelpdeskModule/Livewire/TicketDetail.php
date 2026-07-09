@@ -11,21 +11,19 @@ use App\Modules\HelpdeskModule\Enums\TicketStatus;
 use App\Modules\HelpdeskModule\Models\HelpdeskTicket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Rule;
 use Livewire\Component;
 
 class TicketDetail extends Component
 {
     public HelpdeskTicket $ticket;
 
+    #[Rule('required|string|min:2')]
     public string $newComment = '';
 
     public bool $isInternalNote = false;
 
     public bool $isSupport = false;
-
-    protected $rules = [
-        'newComment' => 'required|string|min:2',
-    ];
 
     public function mount(HelpdeskTicket $ticket): void
     {

@@ -152,7 +152,7 @@ class MenuHelper
                 'submenu' => [
                     ['label' => __('Explorador de Archivos'), 'route' => 'filesystem.index', 'pattern' => 'filesystem*', 'icon' => 'folder-open'],
                     ['label' => __('Centro de Descargas'), 'route' => 'filesystem.download-center', 'pattern' => 'descargas*', 'icon' => 'folder-arrow-down'],
-                    ['label' => __('Cuotas de Almacenamiento'), 'route' => 'filesystem.quotas', 'pattern' => 'filesystem/quotas*', 'icon' => 'hard-drive'],
+                    ['label' => __('Cuotas de Almacenamiento'), 'route' => 'filesystem.quotas', 'pattern' => 'filesystem/quotas*', 'icon' => 'server'],
                 ],
             ],
 

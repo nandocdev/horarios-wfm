@@ -135,9 +135,10 @@ class Dashboard extends Component
             ? LeaveRequest::where('status', 'pending')->count()
             : LeaveRequest::whereIn('employee_id', $employeeIds)->where('status', 'pending')->count();
 
+        $nowIso = $now->toIso8601String();
         $intradayActive = $scopeAll
-            ? IntradayActivity::whereRaw('time_range @> ?', [$now->toIso8601String()])->count()
-            : IntradayActivity::whereIn('employee_id', $employeeIds)->whereRaw('time_range @> ?', [$now->toIso8601String()])->count();
+            ? IntradayActivity::whereRaw('time_range @> ?::timestamptz', [$nowIso])->count()
+            : IntradayActivity::whereIn('employee_id', $employeeIds)->whereRaw('time_range @> ?::timestamptz', [$nowIso])->count();
 
         $intradayToday = $scopeAll
             ? IntradayActivity::whereDate('created_at', $today)->count()
@@ -159,8 +160,8 @@ class Dashboard extends Component
         // ── Incidencias ──
         $incidentQuery = $scopeAll ? AttendanceIncident::query() : AttendanceIncident::whereIn('employee_id', $employeeIds);
         $incidents = [
-            ['label' => 'Tardanzas', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('incidentType', fn ($q) => $q->where('code', 'LATE'))->count()],
-            ['label' => 'Ausencias', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('incidentType', fn ($q) => $q->where('code', 'ABSENT'))->count()],
+            ['label' => 'Tardanzas', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn ($q) => $q->where('code', 'LATE'))->count()],
+            ['label' => 'Ausencias', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn ($q) => $q->where('code', 'ABSENT'))->count()],
             ['label' => 'Incapacidades', 'value' => $exceptionsToday],
             ['label' => 'Vacaciones', 'value' => $leavesApproved],
             ['label' => 'Cambios turno', 'value' => (clone $statesQuery)->where('current_state', 'SWAP')->count()],

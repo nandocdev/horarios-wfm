@@ -34,13 +34,23 @@
         @if($authUser)
             <flux:sidebar.nav>
                 @foreach(\App\Helpers\MenuHelper::getFooterItems($authUser) as $item)
-                    <flux:sidebar.item 
-                        :icon="$item['icon']" 
-                        :href="isset($item['route']) ? route($item['route']) : '#'"
-                        :current="$item['is_active']" 
-                        wire:navigate>
-                        {{ $item['label'] }}
-                    </flux:sidebar.item>
+                    @if(($item['route'] ?? '') === 'logout')
+                        <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            @csrf
+                            <flux:sidebar.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                                class="w-full cursor-pointer">
+                                {{ __('Cerrar Sesión') }}
+                            </flux:sidebar.item>
+                        </form>
+                    @else
+                        <flux:sidebar.item 
+                            :icon="$item['icon']" 
+                            :href="isset($item['route']) ? route($item['route']) : '#'"
+                            :current="$item['is_active']" 
+                            wire:navigate>
+                            {{ $item['label'] }}
+                        </flux:sidebar.item>
+                    @endif
                 @endforeach
 
                 <livewire:core.shared.notification-bell />

@@ -16,3 +16,14 @@ test('authenticated users can visit the dashboard', function () {
     $response = $this->get(route('dashboard'));
     $response->assertOk();
 });
+
+test('authenticated users see the operator dashboard sections', function () {
+    $user = User::factory()->create(['name' => 'Fernando López']);
+    $this->actingAs($user);
+
+    $response = $this->get(route('dashboard'));
+    $response->assertOk()
+        ->assertSee('Score Operativo')
+        ->assertSee('Mi Productividad Hoy')
+        ->assertSee('Mi Jornada');
+});

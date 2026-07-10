@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth as AuthFacade;
 use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Support\Str;
+use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
 class MenuHelper
 {
@@ -257,7 +258,7 @@ class MenuHelper
             if (isset($item['permission'])) {
                 try {
                     $can = $user->hasPermissionTo($item['permission']);
-                } catch (\Spatie\Permission\Exceptions\PermissionDoesNotExist) {
+                } catch (PermissionDoesNotExist) {
                     $can = false;
                 }
                 if (! $can) {

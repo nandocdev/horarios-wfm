@@ -20,14 +20,16 @@ class MySchedule extends Component
 
     public $selectedDay;
 
-    public function mount()
+    public function mount(?int $week = null, ?int $day = null)
     {
-        $this->currentWeek = WeeklySchedule::where('week_start_date', '<=', Carbon::now()->toDateString())
-            ->where('week_end_date', '>=', Carbon::now()->toDateString())
-            ->first() ?? WeeklySchedule::orderBy('week_start_date', 'desc')->first();
+        $this->currentWeek = $week
+            ? WeeklySchedule::find($week)
+            : WeeklySchedule::where('week_start_date', '<=', Carbon::now()->toDateString())
+                ->where('week_end_date', '>=', Carbon::now()->toDateString())
+                ->first() ?? WeeklySchedule::orderBy('week_start_date', 'desc')->first();
 
         $this->selectedWeekId = $this->currentWeek?->id;
-        $this->selectedDay = Carbon::now()->dayOfWeekIso;
+        $this->selectedDay = $day ?? Carbon::now()->dayOfWeekIso;
     }
 
     public function selectWeek($weekId)

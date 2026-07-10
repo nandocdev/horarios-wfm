@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->prefix('schedules')->name('schedules.')->group(function () {
     // Autogestión (Operador)
-    Route::get('/my-schedule', MySchedule::class)->name('my-schedule');
+    Route::get('/my-schedule/{week?}/{day?}', MySchedule::class)->name('my-schedule');
     Route::get('/my-day', MyDay::class)->name('my-day');
     Route::get('/my-metrics', MyMetrics::class)->name('my-metrics');
     Route::get('/my-team', MyTeam::class)->name('my-team');

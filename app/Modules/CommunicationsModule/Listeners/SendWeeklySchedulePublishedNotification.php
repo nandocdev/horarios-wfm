@@ -36,7 +36,7 @@ class SendWeeklySchedulePublishedNotification implements ShouldQueue
             'weekly_schedule_id' => $weekly->id ?? null,
             'published_by' => $event->publishedByUserId,
             'week_period' => $weekly->week_start_date->format('d/m/Y').' al '.$weekly->week_end_date->format('d/m/Y'),
-            'action_url' => url("/schedules/my-schedule?week={$weekly->id}"),
+            'action_url' => route('schedules.my-schedule', ['week' => $weekly->id]),
             'title' => 'Nuevo Horario Publicado',
             'message' => "Se ha publicado el horario oficial para la semana del {$weekly->week_start_date->format('d/m/Y')}.",
             'level' => 'success',

@@ -91,7 +91,7 @@ class ListPositions extends Component
             ->withCount('users')
             ->paginate($this->perPage);
 
-        return view('personnel::livewire.list-positions', [
+        return view('organization::livewire.list-positions', [
             'positions' => $positions,
         ]);
     }

@@ -78,7 +78,7 @@ class ListDepartments extends Component
     {
         $departments = $this->getDepartmentsQuery()->paginate($this->perPage);
 
-        return view('personnel::livewire.list-departments', [
+        return view('organization::livewire.list-departments', [
             'departments' => $departments,
         ]);
     }

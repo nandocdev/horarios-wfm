@@ -78,6 +78,6 @@ class CreateDepartment extends Component
 
     public function render()
     {
-        return view('personnel::livewire.create-department');
+        return view('organization::livewire.create-department');
     }
 }

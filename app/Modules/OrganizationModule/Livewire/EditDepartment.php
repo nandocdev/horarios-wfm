@@ -87,7 +87,7 @@ class EditDepartment extends Component
 
     public function render()
     {
-        return view('personnel::livewire.edit-department')
+        return view('organization::livewire.edit-department')
             ->layout('layouts.app');
     }
 }

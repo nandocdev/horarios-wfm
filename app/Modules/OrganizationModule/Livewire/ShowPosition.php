@@ -42,7 +42,7 @@ class ShowPosition extends Component
 
     public function render()
     {
-        return view('personnel::livewire.show-position')
+        return view('organization::livewire.show-position')
             ->layout('layouts.app');
     }
 }

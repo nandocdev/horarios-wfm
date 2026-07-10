@@ -86,6 +86,6 @@ class CreatePosition extends Component
 
     public function render()
     {
-        return view('personnel::livewire.create-position');
+        return view('organization::livewire.create-position');
     }
 }

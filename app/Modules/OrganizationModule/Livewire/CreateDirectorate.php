@@ -69,6 +69,6 @@ class CreateDirectorate extends Component
 
     public function render()
     {
-        return view('personnel::livewire.create-directorate');
+        return view('organization::livewire.create-directorate');
     }
 }

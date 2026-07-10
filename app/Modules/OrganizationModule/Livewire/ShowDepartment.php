@@ -42,7 +42,7 @@ class ShowDepartment extends Component
 
     public function render()
     {
-        return view('personnel::livewire.show-department')
+        return view('organization::livewire.show-department')
             ->layout('layouts.app');
     }
 }

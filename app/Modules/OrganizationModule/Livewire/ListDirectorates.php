@@ -68,7 +68,7 @@ class ListDirectorates extends Component
     {
         $directorates = $this->getDirectoratesQuery()->paginate($this->perPage);
 
-        return view('personnel::livewire.list-directorates', [
+        return view('organization::livewire.list-directorates', [
             'directorates' => $directorates,
         ]);
     }

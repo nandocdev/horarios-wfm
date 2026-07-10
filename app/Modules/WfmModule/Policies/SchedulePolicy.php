@@ -38,7 +38,7 @@ class SchedulePolicy
 
     public function monitorRealtime(User $user): bool
     {
-        return $user->hasPermissionTo('realtime.view')
+        return $user->hasPermissionTo('wfm.realtime.view')
             || $user->hasPermissionTo('schedules.manage')
             || ($user->employee?->hasCoordinatorRights() ?? false);
     }

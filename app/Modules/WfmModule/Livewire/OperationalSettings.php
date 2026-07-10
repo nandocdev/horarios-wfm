@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\WfmModule\Models\OperationalSetting;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class OperationalSettings extends Component
@@ -104,9 +105,7 @@ class OperationalSettings extends Component
 
     public function save()
     {
-        if (! auth()->user()->hasAnyRole(['admin', 'wfm', 'super-admin'])) {
-            abort(403, 'No tienes permisos suficientes para modificar la configuración operativa global.');
-        }
+        Gate::authorize('update', OperationalSetting::class);
 
         DB::transaction(function () {
             foreach ($this->thresholds as $setting) {

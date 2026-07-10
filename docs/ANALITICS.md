@@ -243,8 +243,12 @@ Actualmente solo hay 1 repositorio y 2 interfaces.
 
 ### 7.3 Prioridad media — Livewire components
 
-- [ ] 7.3.1 Los componentes de approvals y swaps deben tener tests de integración (ya existen algunos en `tests/Feature/Modules/ScheduleModule/`).
-- [ ] 7.3.2 Extender cobertura a los componentes de creación/edición de empleados, turnos, y dashboards.
+- [x] 7.3.1 Tests de integración para approvals (ManagerApprovals: 6 tests, 14 assertions).
+  - Ya existían tests para WfmSwapApprovals, SwapRequestHistory, CreateShiftSwapRequest, RequestLeave
+- [x] 7.3.2 Extender cobertura a empleados y turnos:
+  - `CreateEmployeeTest`: 4 tests (render, validation, creation, unique)
+  - `ManageSchedulesTest`: 7 tests (render, listing, create/edit/delete)
+  - Bugs corregidos durante el testeo: ScheduleForm CarbonImmutable, CreateEmployee metadata faltante
 
 ---
 
@@ -252,7 +256,9 @@ Actualmente solo hay 1 repositorio y 2 interfaces.
 
 ### 8.1 Migrar autorización inline a Policies
 
-- [ ] 8.1.1 En `OperationalSettings::save()`, reemplazar `abort(403)` por `Gate::authorize()` con una Policy existente o crear una nueva (`OperationalSettingPolicy`).
+- [x] 8.1.1 `OperationalSettings::save()`: reemplazar `abort(403)` por `Gate::authorize('update', OperationalSetting::class)` via `OperationalSettingPolicy`.
+  - Policy verifica permiso `wfm.settings.manage` (ya existía en seeder)
+  - Registrada en WfmModule provider
 
 ### 8.2 Unificar sistema de permisos
 

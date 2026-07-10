@@ -23,6 +23,7 @@ use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ActivityType;
 use App\Modules\WfmModule\Models\AgentState;
 use App\Modules\WfmModule\Models\LeaveRequest;
+use App\Modules\WfmModule\Models\OperationalSetting;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
 use App\Modules\WfmModule\Models\WeeklySchedule;
@@ -31,6 +32,7 @@ use App\Modules\WfmModule\Observers\LeaveRequestObserver;
 use App\Modules\WfmModule\Policies\AbsenceReasonCodePolicy;
 use App\Modules\WfmModule\Policies\ActivityTypePolicy;
 use App\Modules\WfmModule\Policies\AgentStatePolicy;
+use App\Modules\WfmModule\Policies\OperationalSettingPolicy;
 use App\Modules\WfmModule\Policies\ScheduledActivityDefinitionPolicy;
 use App\Modules\WfmModule\Policies\SchedulePolicy;
 use App\Modules\WfmModule\Policies\WeeklyScheduleAssignmentPolicy;
@@ -51,6 +53,7 @@ use Livewire\Livewire;
 class ModuleServiceProvider extends ServiceProvider
 {
     protected array $policies = [
+        OperationalSetting::class => OperationalSettingPolicy::class,
         Schedule::class => SchedulePolicy::class,
         ActivityType::class => ActivityTypePolicy::class,
         AbsenceReasonCode::class => AbsenceReasonCodePolicy::class,

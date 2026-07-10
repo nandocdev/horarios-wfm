@@ -282,9 +282,14 @@ Actualmente solo hay 1 repositorio y 2 interfaces.
 
 ## 9. Migración de datos y limpieza
 
-- [ ] 9.1 Si hay tablas duplicadas para modelos unificados, crear migraciones que consoliden los datos y dropeen las tablas sobrantes.
-- [ ] 9.2 Renombrar migraciones que estén fuera de orden cronológico.
-- [ ] 9.3 Documentar en `config/modules.php` el propósito de cada módulo.
+- [x] 9.1 Verificar tablas duplicadas: No hay tablas duplicadas reales.
+  - `audit_logs`: 1 tabla, 3 modelos apuntaban a ella (ya unificado en 1.1)
+  - `documentation_articles` vs `knowledge_articles`: dominios distintos
+  - `categories` vs `knowledge_categories` vs `helpdesk_categories`: dominios distintos
+- [x] 9.2 Renombrar migraciones con timestamp duplicado:
+  - `2026_04_23_092823` (x2) → segunda renombrada a `092824`
+  - `2026_07_07_103643` (x2) → segunda renombrada a `103644`
+- [x] 9.3 Documentar propósito de cada módulo en `config/modules.php` con comentarios.
 
 ---
 
@@ -295,4 +300,4 @@ Actualmente solo hay 1 repositorio y 2 interfaces.
 | 1 (rápido)   | 1.1, 1.2, 1.3, 2.2, 2.3, 4.1, 8.1 | Bajo — solo mover/eliminar archivos |
 | 2 (semanal)  | 2.1, 2.4, 3.1, 4.2, 5.2, 5.3, 8.2 | Medio — refactor lógica             |
 | 3 (mensual)  | 3.2, 4.3, 5.1, 6, 7.1             | Alto — cambios arquitectónicos      |
-| 4 (continuo) | 7                                 | Cobertura de pruebas                |
+| 4 (continuo) | 7, 9                              | Cobertura de pruebas + limpieza     |

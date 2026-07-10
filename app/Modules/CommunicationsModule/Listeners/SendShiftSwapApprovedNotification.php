@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CommunicationsModule\Listeners;
 
 use App\Modules\CommunicationsModule\Notifications\ShiftSwapApprovedNotification;
+use App\Modules\CoreModule\Models\User;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;

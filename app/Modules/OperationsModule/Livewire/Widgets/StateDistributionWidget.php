@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire\Widgets;
 
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
+use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;

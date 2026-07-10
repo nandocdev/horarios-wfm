@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\ConnectModule\Models\AgentRealtimeState;
+use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ScheduleException;

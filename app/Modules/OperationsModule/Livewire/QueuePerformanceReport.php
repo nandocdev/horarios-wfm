@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\ConnectModule\Models\CallRecord;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Url;
 use Livewire\Component;

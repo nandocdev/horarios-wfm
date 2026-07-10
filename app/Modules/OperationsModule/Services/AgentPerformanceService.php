@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Services;
 
+use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\OperationsModule\Actions\GetEmployeePerformanceAction;

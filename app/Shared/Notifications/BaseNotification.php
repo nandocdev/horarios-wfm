@@ -20,7 +20,13 @@ abstract class BaseNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
-        return ['database', 'broadcast'];
+        $channels = ['database', 'broadcast'];
+
+        if (config('services.webex.bot_token')) {
+            $channels[] = 'webex';
+        }
+
+        return $channels;
     }
 
     public function toDatabase($notifiable): array
@@ -37,5 +43,13 @@ abstract class BaseNotification extends Notification implements ShouldQueue
             'icon' => $this->dto->icon,
             'action_url' => $this->dto->actionUrl,
         ]);
+    }
+
+    public function toWebex($notifiable): ?string
+    {
+        $title = $this->dto->title;
+        $message = $this->dto->message;
+
+        return "*{$title}*\n\n{$message}";
     }
 }

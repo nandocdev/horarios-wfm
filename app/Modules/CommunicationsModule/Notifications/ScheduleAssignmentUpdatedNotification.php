@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace App\Modules\CommunicationsModule\Notifications;
 
+use App\Shared\Notifications\Concerns\HasWebexSupport;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ScheduleAssignmentUpdatedNotification extends Notification
 {
+    use HasWebexSupport;
+
     public function __construct(public readonly array $payload) {}
 
-    public function via($notifiable): array
+    protected function additionalVia(): array
     {
-        return ['database', 'broadcast', 'mail'];
+        return ['mail'];
     }
 
     public function toMail($notifiable): MailMessage
@@ -43,5 +46,19 @@ class ScheduleAssignmentUpdatedNotification extends Notification
     public function toBroadcast($notifiable): BroadcastMessage
     {
         return new BroadcastMessage($this->payload);
+    }
+
+    public function toWebex($notifiable): ?string
+    {
+        $week = $this->payload['week_period'] ?? 'la semana indicada';
+        $date = $this->payload['date_human'] ?? 'la fecha';
+        $start = $this->payload['start_time'] ?? '—';
+        $end = $this->payload['end_time'] ?? '—';
+
+        return "*Modificación de Horario — {$week}*\n\n"
+            ."Se ha modificado tu turno del {$date}.\n\n"
+            ."**Entrada:** {$start}\n"
+            ."**Salida:** {$end}\n\n"
+            .'Revisa la plataforma para más detalles.';
     }
 }

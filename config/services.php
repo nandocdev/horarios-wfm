@@ -37,6 +37,11 @@ return [
         ],
     ],
 
+    'webex' => [
+        'bot_token' => env('WEBEX_BOT_TOKEN'),
+        'room_id' => env('WEBEX_ROOM_ID'),
+    ],
+
     'uccx' => [
         'url_base' => env('UCCX_URL_BASE'),
         'username' => env('UCCX_USERNAME'),

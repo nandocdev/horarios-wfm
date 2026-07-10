@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\CommunicationsModule\Notifications;
 
+use App\Shared\Notifications\Concerns\HasWebexSupport;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 
 class LeaveRequestCreatedNotification extends Notification
 {
-    public function __construct(public readonly array $payload) {}
+    use HasWebexSupport;
 
-    public function via($notifiable): array
-    {
-        return ['database', 'broadcast'];
-    }
+    public function __construct(public readonly array $payload) {}
 
     public function toDatabase($notifiable): array
     {

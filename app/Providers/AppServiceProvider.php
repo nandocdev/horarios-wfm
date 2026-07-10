@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\WebexService;
 use Carbon\CarbonImmutable;
 use Flux\FluxServiceProvider;
 use Illuminate\Database\Eloquent\Model;
@@ -21,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Registro dinámico de módulos institucional (Monolito Modular)
+        $this->app->singleton(WebexService::class);
+
         foreach (config('modules.enabled', []) as $provider) {
             if (class_exists($provider)) {
                 $this->app->register($provider);

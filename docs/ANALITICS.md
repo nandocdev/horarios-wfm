@@ -262,11 +262,21 @@ Actualmente solo hay 1 repositorio y 2 interfaces.
 
 ### 8.2 Unificar sistema de permisos
 
-Algunas Policies mezclan `$user->hasPermissionTo()` con `$user->can()` y `$user->hasRole('admin')`.
+**Estrategia adoptada:** `$user->hasPermissionTo('permiso')` dentro de las policies, con `Gate::before` en AppServiceProvider para bypass admin.
 
-- [ ] 8.2.1 Decidir una estrategia única: usar `$user->can('permission.name')` que delega en `Gate::policy()`.
-- [ ] 8.2.2 Refactorizar todas las Policies para que usen el mismo patrón.
-- [ ] 8.2.3 El `Gate::before` en AppServiceProvider que da todos los permisos a admin ya existe — las verificaciones de `hasRole('admin')` inline son redundantes.
+- [x] 8.2.1 Estrategia única: `$user->hasPermissionTo()` dentro de cada policy method.
+  - El `Gate::before` en AppServiceProvider otorga acceso total a admin ANTES de que la policy se ejecute
+  - No se requiere `$user->can()` — las policies se invocan via Gate, y `Gate::before` ya filtró admin
+- [x] 8.2.2 Refactorizar todas las policies:
+  - 7 policies migradas de `hasRole`/`hasAnyRole`/`can` a `hasPermissionTo` (en 7.2.2 y 8.2)
+  - **Migradas ahora**: `WeeklySchedulePolicy`, `WeeklyScheduleAssignmentPolicy`
+  - **Excepciones documentadas** (usan `hasRole` legítimamente para lógica adicional):
+    - `CallRecordPolicy::before()` — Gate hook para bypass admin
+    - `CallRecordPolicy::update()` — ownership override con `hasAnyRole(['wfm', 'director', 'coordinator'])`
+    - `EmployeePolicy::scopeForUser()` — query scoping por jerarquía
+    - `EmployeePolicy::effectivePermissions()` — aggregated permission matrix
+    - `EmployeePolicy::viewPerformance()` — acceso especial a desempeño
+- [x] 8.2.3 `Gate::before` en AppServiceProvider ya existe — verificado. `hasRole('admin')` inline redundante eliminado de AuditLogPolicy y WfmModule policies.
 
 ---
 

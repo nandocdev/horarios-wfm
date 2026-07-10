@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Modules\PersonnelModule\Models\District;
-use App\Modules\PersonnelModule\Models\Province;
-use App\Modules\PersonnelModule\Models\Township;
+use App\Modules\GeoModule\Models\District;
+use App\Modules\GeoModule\Models\Province;
+use App\Modules\GeoModule\Models\Township;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 

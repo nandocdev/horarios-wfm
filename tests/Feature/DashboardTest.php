@@ -23,7 +23,7 @@ test('authenticated users see the operator dashboard sections', function () {
 
     $response = $this->get(route('dashboard'));
     $response->assertOk()
-        ->assertSee('Score Operativo')
-        ->assertSee('Mi Productividad Hoy')
-        ->assertSee('Mi Jornada');
+        ->assertSee('Cobertura durante el día')
+        ->assertSee('Colas')
+        ->assertSee('Alertas Operativas');
 });

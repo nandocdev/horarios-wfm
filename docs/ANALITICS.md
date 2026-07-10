@@ -230,8 +230,16 @@ Actualmente solo hay 1 repositorio y 2 interfaces.
 
 ### 7.2 Prioridad media — Políticas
 
-- [ ] 7.2.1 Escribir tests para cada Policy (son plantillas repetitivas, fáciles de cubrir con un test parametrizado).
-- [ ] 7.2.2 Verificar que `hasPermissionTo` vs `can` vs `hasRole` se usan consistentemente.
+- [x] 7.2.1 Escribir tests parametrizados para Policies (27 tests, 44 assertions).
+  - Cubre: AuditLogPolicy, HelpdeskTicketPolicy, AbsenceReasonCodePolicy, ActivityTypePolicy, AgentStatePolicy,
+    ScheduledActivityDefinitionPolicy, SchedulePolicy, UserPolicy, NewsPolicy, CommentPolicy, ReactionPolicy, MentionPolicy
+  - Verifica permisos (allow/deny), owner override, jerarquía de roles
+- [x] 7.2.2 Unificar sistema de permisos (`hasPermissionTo` como estándar).
+  - **AuditLogPolicy**: `$user->can()` → `$user->hasPermissionTo()`, eliminado `hasRole('admin')` redundante
+  - **5 WfmModule policies**: `$user->hasAnyRole(['admin', 'wfm'])` → `$user->hasPermissionTo('wfm.catalogs.*')`
+  - **SchedulePolicy**: `$user->can()` → `$user->hasPermissionTo()`
+  - **ContentModerationPolicy::moderateContent()**: `$user->hasRole(['admin', 'moderator', 'owner'])` → `$user->hasPermissionTo('communications.moderate')`
+  - Verificación completa: todas las 30 policies ahora usan `hasPermissionTo()` exclusivamente
 
 ### 7.3 Prioridad media — Livewire components
 

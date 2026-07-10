@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AbsenceReasonCode extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['name', 'short_code', 'requires_attachment', 'is_excused', 'color'];
 
     protected $casts = [

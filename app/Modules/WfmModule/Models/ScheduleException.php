@@ -6,12 +6,15 @@ namespace App\Modules\WfmModule\Models;
 
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ScheduleException extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'employee_id',
         'absence_reason_code_id',

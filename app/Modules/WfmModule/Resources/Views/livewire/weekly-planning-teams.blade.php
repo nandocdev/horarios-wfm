@@ -1,4 +1,4 @@
-<div class="p-4">
+<div class="p-6 lg:p-8 space-y-8 flex-1 flex flex-col">
     <div class="flex items-center justify-between gap-4 mb-8">
         <div class="flex items-center gap-4">
             <flux:button href="{{ route('schedules.planning') }}" icon="arrow-left" variant="ghost" wire:navigate />

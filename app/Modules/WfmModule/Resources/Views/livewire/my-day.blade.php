@@ -1,4 +1,4 @@
-<div class="p-8 space-y-8 bg-slate-50 min-h-screen">
+<div class="p-8 space-y-8 bg-slate-50 min-h-screen flex-1 flex flex-col">
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <flux:heading size="xl" level="1">Mi Jornada</flux:heading>

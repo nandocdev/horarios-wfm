@@ -1,4 +1,4 @@
-<div class="p-4 max-w-4xl mx-auto">
+<div class="p-6 lg:p-8 max-w-4xl mx-auto flex-1 flex flex-col">
     <div class="flex justify-between items-center mb-6">
         <flux:heading size="xl">Tipos de Actividad</flux:heading>
         <flux:button wire:click="create" variant="primary" icon="plus">Nuevo Tipo</flux:button>

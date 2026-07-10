@@ -1,4 +1,4 @@
-<div class="space-y-8 max-w-4xl mx-auto">
+<div class="space-y-8 max-w-4xl mx-auto flex-1 flex flex-col">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl" level="1">Configuración Operativa</flux:heading>

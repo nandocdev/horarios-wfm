@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-8">
+<div class="max-w-4xl mx-auto space-y-8 flex-1 flex flex-col">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <flux:heading size="xl">Aprobación de Cambios de Turno (WFM)</flux:heading>

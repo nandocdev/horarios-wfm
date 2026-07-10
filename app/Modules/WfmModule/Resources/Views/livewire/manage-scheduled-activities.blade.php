@@ -1,4 +1,4 @@
-<div class="p-4 space-y-8">
+<div class="p-6 lg:p-8 space-y-8 flex-1 flex flex-col">
 
     {{-- CABECERA --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

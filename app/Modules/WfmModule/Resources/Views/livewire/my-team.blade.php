@@ -1,4 +1,4 @@
-<div>
+<div class="p-6 lg:p-8 space-y-8 flex-1 flex flex-col">
     <div class="flex items-center justify-between mb-6">
         <div>
             <flux:heading size="xl" level="1">{{ __('Mi Equipo') }}</flux:heading>

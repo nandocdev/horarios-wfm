@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8 flex-1 flex flex-col">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Mi Horario Semanal</flux:heading>

@@ -1,4 +1,4 @@
-<div class="p-4">
+<div class="p-6 lg:p-8 space-y-8 flex-1 flex flex-col">
     <div class="flex justify-between items-center mb-6">
         <div>
             <flux:heading size="xl">{{ __('Gestión de Excepciones de Horario') }}</flux:heading>

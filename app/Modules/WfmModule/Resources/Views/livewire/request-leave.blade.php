@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto space-y-8">
+<div class="max-w-2xl mx-auto space-y-8 flex-1 flex flex-col">
     <div>
         <flux:heading size="xl">Solicitar Permiso {{ $form->type === 'quarterly' ? 'Trimestral' : 'Compensatorio' }}</flux:heading>
         @if($form->type === 'quarterly')

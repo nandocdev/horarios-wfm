@@ -1,4 +1,4 @@
-<div class="p-4 max-w-4xl mx-auto">
+<div class="p-6 lg:p-8 max-w-4xl mx-auto flex-1 flex flex-col">
     <div class="flex items-center justify-between mb-8">
         <div>
             <flux:heading size="xl">{{ __('Planificación Semanal') }}</flux:heading>

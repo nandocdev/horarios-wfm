@@ -1,4 +1,4 @@
-<div class="p-4 max-w-4xl mx-auto">
+<div class="p-6 lg:p-8 max-w-4xl mx-auto flex-1 flex flex-col">
     <div class="flex items-center gap-4">
         <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" icon="arrow-left"
             variant="ghost" wire:navigate />

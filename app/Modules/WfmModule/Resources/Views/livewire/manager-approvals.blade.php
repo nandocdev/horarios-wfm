@@ -1,4 +1,4 @@
-<div class="max-w-3xl mx-auto space-y-8">
+<div class="max-w-3xl mx-auto space-y-8 flex-1 flex flex-col">
     <div>
         <flux:heading size="xl">Aprobación de Permisos (Jefe Inmediato)</flux:heading>
         <flux:subheading>Gestiona las solicitudes de permiso de tu equipo de trabajo directo.</flux:subheading>

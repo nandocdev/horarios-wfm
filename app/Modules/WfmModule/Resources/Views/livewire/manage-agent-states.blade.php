@@ -1,4 +1,4 @@
-<div class="p-4">
+<div class="p-6 lg:p-8 space-y-8 flex-1 flex flex-col">
     <div class="flex justify-between items-center mb-6">
         <flux:heading size="xl">Estados de Agente (Cisco Sync)</flux:heading>
         <flux:button wire:click="create" variant="primary" icon="plus">Nuevo Estado</flux:button>

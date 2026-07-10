@@ -122,7 +122,7 @@ grep -r "use App\\\\Modules" app/Modules/ --include="*.php" | grep -v "ModuleSer
 - [x] Crear Enums: TicketStatus, TicketPriority
 - [x] Migrar autorización inline a Policies via Gate
 - [x] Escribir tests (16 tests, 30 assertions)
-- [ ] Implementar monitoreo de SLA basado en sla_hours de categoría
+- [x] Implementar monitoreo de SLA basado en sla_hours de categoría
 ```
 
 ### 4.3 Separar módulos demasiado grandes
@@ -219,9 +219,13 @@ Actualmente solo hay 1 repositorio y 2 interfaces.
 
 ### 7.1 Prioridad alta — Acciones con lógica crítica
 
-- [ ] 7.1.1 Probar `ApproveLeaveRequestAction`, `RejectLeaveRequestAction`, `ApproveShiftSwapAction` (WorkflowsModule).
-- [ ] 7.1.2 Probar `ProcessShiftSwapAction`, todas las del módulo de operaciones (`CalculateAdvancedProductivityAction`, `ReconcileEmployeeAttendanceAction`).
-- [ ] 7.1.3 Probar `ScheduleService` y `ScheduleValidationService`.
+- [x] 7.1.1 Probar `ApproveLeaveRequestAction`, `RejectLeaveRequestAction`, `ApproveShiftSwapAction`, `RejectShiftSwapAction` (WfmModule).
+  - 4 tests, 8 assertions en `LeaveRequestActionsTest` + 4 tests, 7 assertions en `ShiftSwapActionsTest`
+- [x] 7.1.2 Probar `CalculateAdvancedProductivityAction`, `ReconcileEmployeeAttendanceAction`.
+  - 4 tests, 6 assertions en `ProductivityAndReconciliationActionsTest`
+- [x] 7.1.3 Probar `ScheduleService` (getScheduleForEmployee, getBatchSchedules, exceptions).
+  - 4 tests, 14 assertions en `ScheduleServiceTest`
+  - `ScheduleValidationService` ya tenía test unitario existente
 - [ ] 7.1.4 Probar integraciones CISCO (`CiscoFinesseService`, `CuicReportService`).
 
 ### 7.2 Prioridad media — Políticas
@@ -265,6 +269,6 @@ Algunas Policies mezclan `$user->hasPermissionTo()` con `$user->can()` y `$user-
 | Fase         | Tareas                            | Impacto                             |
 | ------------ | --------------------------------- | ----------------------------------- |
 | 1 (rápido)   | 1.1, 1.2, 1.3, 2.2, 2.3, 4.1, 8.1 | Bajo — solo mover/eliminar archivos |
-| 2 (semanal)  | 2.1, 2.4, 3.1, 5.2, 5.3, 8.2      | Medio — refactor lógica             |
-| 3 (mensual)  | 3.2, 4.3, 5.1, 6                  | Alto — cambios arquitectónicos      |
+| 2 (semanal)  | 2.1, 2.4, 3.1, 4.2, 5.2, 5.3, 8.2 | Medio — refactor lógica             |
+| 3 (mensual)  | 3.2, 4.3, 5.1, 6, 7.1             | Alto — cambios arquitectónicos      |
 | 4 (continuo) | 7                                 | Cobertura de pruebas                |

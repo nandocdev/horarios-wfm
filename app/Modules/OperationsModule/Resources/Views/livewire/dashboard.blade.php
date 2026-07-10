@@ -70,20 +70,27 @@
                     $lineReq = implode(' L', $points);
                     $lineAvail = implode(' L', $points2);
                 @endphp
-                <svg viewBox="0 0 {{ $svgW }} {{ $svgH }}" class="w-full h-auto max-h-48" wire:ignore>
-                    <!-- Grid lines -->
-                    @foreach([80, 90, 100] as $pct)
-                        @php($gy = $padT + $chartH - (($pct / $maxVal) * $chartH))
-                        <line x1="{{ $padL }}" y1="{{ $gy }}" x2="{{ $svgW - $padR }}" y2="{{ $gy }}" stroke="#e2e8f0" stroke-width="1" />
-                        <text x="{{ $padL - 5 }}" y="{{ $gy + 4 }}" text-anchor="end" fill="#94a3b8" font-size="10">{{ $pct }}%</text>
-                    @endforeach
-                    <path d="{{ $areaReq }}" fill="#94a3b8" fill-opacity="0.15" />
-                    <path d="{{ $areaAvail }}" fill="#3b82f6" fill-opacity="0.15" />
-                    <path d="M{{ $lineReq }}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3" />
-                    <path d="M{{ $lineAvail }}" fill="none" stroke="#3b82f6" stroke-width="2" />
-                    @foreach($coverageSeries as $i => $p)
-                        <text x="{{ $padL + ($i * $step) }}" y="{{ $svgH - 5 }}" text-anchor="middle" fill="#94a3b8" font-size="10">{{ $p['hour'] }}</text>
-                    @endforeach
+                @php
+                    $svgGrid = '';
+                    $svgLines = '';
+                    $svgLabels = '';
+                    foreach ([80, 90, 100] as $pct) {
+                        $gy = $padT + $chartH - (($pct / $maxVal) * $chartH);
+                        $svgGrid .= '<line x1="'.$padL.'" y1="'.$gy.'" x2="'.($svgW - $padR).'" y2="'.$gy.'" stroke="#e2e8f0" stroke-width="1" />';
+                        $svgGrid .= '<text x="'.($padL - 5).'" y="'.($gy + 4).'" text-anchor="end" fill="#94a3b8" font-size="10">'.$pct.'%</text>';
+                    }
+                    $svgLines .= '<path d="'.$areaReq.'" fill="#94a3b8" fill-opacity="0.15" />';
+                    $svgLines .= '<path d="'.$areaAvail.'" fill="#3b82f6" fill-opacity="0.15" />';
+                    $svgLines .= '<path d="M'.$lineReq.'" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3" />';
+                    $svgLines .= '<path d="M'.$lineAvail.'" fill="none" stroke="#3b82f6" stroke-width="2" />';
+                    foreach ($coverageSeries as $i => $p) {
+                        $svgLabels .= '<text x="'.($padL + ($i * $step)).'" y="'.($svgH - 5).'" text-anchor="middle" fill="#94a3b8" font-size="10">'.$p['hour'].'</text>';
+                    }
+                @endphp
+                <svg viewBox="0 0 {{ $svgW }} {{ $svgH }}" class="w-full h-auto max-h-48">
+                    {!! $svgGrid !!}
+                    {!! $svgLines !!}
+                    {!! $svgLabels !!}
                 </svg>
             </div>
         </div>

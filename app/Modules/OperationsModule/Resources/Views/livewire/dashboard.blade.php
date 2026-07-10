@@ -263,14 +263,24 @@
                     @php
                         $sparkData = $trend['data'] ?? [];
                         $sparkCount = count($sparkData);
-                        $sparkW = 160; $sparkH = 28; $sparkMax = max(1, max($sparkData));
-                        $sparkPts = implode(' ', array_map(fn ($i, $v) => (($sparkCount > 1 ? ($i / ($sparkCount - 1)) : 0) * $sparkW).','.(($sparkMax - $v) / $sparkMax * $sparkH), array_keys($sparkData), $sparkData));
+                        $sparkW = 160; $sparkH = 28;
+                        $sparkMax = $sparkCount > 0 ? max(1, max($sparkData)) : 1;
+                        $sparkPts = '';
+                        if ($sparkCount > 0) {
+                            $sparkPts = implode(' ', array_map(fn ($i, $v) => (($sparkCount > 1 ? ($i / ($sparkCount - 1)) : 0) * $sparkW).','.(($sparkMax - $v) / $sparkMax * $sparkH), array_keys($sparkData), $sparkData));
+                        }
                     @endphp
                     <div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-slate-600 font-medium">{{ $trend['label'] }}</span>
                             @if(count($sparkData) > 1)
-                                @php($last = end($sparkData); $prev = prev($sparkData); $diff = $last - $prev; $dir = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'flat'); @endphp
+                                @php
+                                    $sparkVals = array_values($sparkData);
+                                    $lastVal = end($sparkVals);
+                                    $prevVal = $sparkVals[count($sparkVals) - 2] ?? 0;
+                                    $diff = $lastVal - $prevVal;
+                                    $dir = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'flat');
+                                @endphp
                                 <span class="text-xs {{ $dir === 'up' ? 'text-emerald-600' : ($dir === 'down' ? 'text-rose-600' : 'text-slate-400') }}">
                                     @if($dir === 'up')↑ @elseif($dir === 'down')↓ @endif {{ number_format(abs($diff)) }}
                                 </span>

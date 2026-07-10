@@ -11,6 +11,7 @@ use App\Modules\CommunicationsModule\Models\News;
 use App\Modules\CommunicationsModule\Models\Notification;
 use App\Modules\CommunicationsModule\Models\Reaction;
 use App\Modules\CommunicationsModule\Policies\CommentPolicy;
+use App\Modules\CommunicationsModule\Policies\MentionPolicy;
 use App\Modules\CommunicationsModule\Policies\NewsPolicy;
 use App\Modules\CommunicationsModule\Policies\ReactionPolicy;
 use App\Modules\CoreModule\Models\User;
@@ -194,7 +195,7 @@ it('ReactionPolicy allows owner to delete own reaction', function () {
 });
 
 it('MentionPolicy allows mentioned user to view', function () {
-    $policy = app(\App\Modules\CommunicationsModule\Policies\MentionPolicy::class);
+    $policy = app(MentionPolicy::class);
     $mention = new Mention(['mentioned_user_id' => $this->user->id]);
 
     expect($policy->view($this->user, $mention))->toBeTrue();

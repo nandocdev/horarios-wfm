@@ -77,6 +77,8 @@ class CreateEmployee extends Component
 
     public bool $is_manager = false;
 
+    public ?array $metadata = null;
+
     // Validación
     protected function rules(): array
     {

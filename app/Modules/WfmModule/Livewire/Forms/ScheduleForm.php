@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Livewire\Forms;
 
 use App\Modules\WfmModule\Models\Schedule;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Rule;
 use Livewire\Form;
@@ -44,8 +45,12 @@ class ScheduleForm extends Form
     {
         $this->schedule = $schedule;
         $this->name = $schedule->name;
-        $this->start_time = $schedule->start_time;
-        $this->end_time = $schedule->end_time;
+        $this->start_time = $schedule->start_time instanceof CarbonInterface
+            ? $schedule->start_time->format('H:i')
+            : (string) $schedule->start_time;
+        $this->end_time = $schedule->end_time instanceof CarbonInterface
+            ? $schedule->end_time->format('H:i')
+            : (string) $schedule->end_time;
         $this->total_minutes = $schedule->total_minutes;
         $this->break_minutes = $schedule->break_minutes;
         $this->lunch_minutes = $schedule->lunch_minutes;

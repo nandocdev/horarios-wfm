@@ -330,6 +330,14 @@ class Dashboard extends Component
             'teams' => $teams,
             'alerts' => $alerts,
             'trends' => $trends,
+            'quickActions' => [
+                ['label' => 'Crear permiso', 'route' => 'schedules.leave-request'],
+                ['label' => 'Registrar incidencia', 'route' => 'schedules.exceptions'],
+                ['label' => 'Ver horarios', 'route' => 'schedules.my-schedule'],
+                ['label' => 'Planificación semanal', 'route' => 'schedules.planning'],
+                ['label' => 'Reportes', 'route' => 'operations.reports'],
+                ['label' => 'Cobertura', 'route' => 'operations.availability'],
+            ],
             'footer' => [
                 'connectedUsers' => $connected,
                 'lastCalculation' => $now->format('H:i'),

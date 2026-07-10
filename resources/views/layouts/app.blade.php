@@ -1,5 +1,5 @@
 <x-layouts::app.sidebar :title="$title ?? null">
-    <flux:main>
+    <flux:main class="flex-1">
         @php
             $maintenance = \App\Modules\CoreModule\Models\AppSetting::get('maintenance_mode');
         @endphp

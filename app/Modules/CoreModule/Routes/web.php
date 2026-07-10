@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Livewire\Roles\ListRoles;
+use App\Modules\CoreModule\Livewire\Shared\NotificationHistory;
 use App\Modules\CoreModule\Livewire\SystemMaintenance;
 use App\Modules\CoreModule\Livewire\Users\CreateUser;
 use App\Modules\CoreModule\Livewire\Users\EditUser;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Route;
  * Protegidas por autenticación y validación de permisos institucionales.
  */
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Notificaciones
+    Route::get('notifications', NotificationHistory::class)->name('notifications.index');
 
     // Gestión de Usuarios
     Route::prefix('admin/users')->group(function () {

@@ -49,6 +49,7 @@ class MenuHelper
                     ['label' => __('Solicitar Permiso'), 'route' => 'schedules.leave-request', 'pattern' => 'schedules/leave-request*', 'icon' => 'document-plus'],
                     ['label' => __('Solicitar Cambio de Turno'), 'route' => 'schedules.swap-request', 'pattern' => 'schedules/swap-request*', 'icon' => 'arrows-right-left'],
                     ['label' => __('Mis Solicitudes'), 'route' => 'schedules.swap-history', 'pattern' => 'schedules/swap-history*', 'icon' => 'inbox'],
+                    ['label' => __('Notificaciones'), 'route' => 'notifications.index', 'pattern' => 'notifications*', 'icon' => 'bell'],
                 ],
             ],
 

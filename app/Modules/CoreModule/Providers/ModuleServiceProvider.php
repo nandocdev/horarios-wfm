@@ -9,6 +9,7 @@ use App\Modules\CoreModule\Actions\Fortify\ResetUserPassword;
 use App\Modules\CoreModule\Listeners\UpdateLastLoginAtListener;
 use App\Modules\CoreModule\Livewire\Roles\ListRoles;
 use App\Modules\CoreModule\Livewire\Shared\NotificationBell;
+use App\Modules\CoreModule\Livewire\Shared\NotificationHistory;
 use App\Modules\CoreModule\Livewire\Toast;
 use App\Modules\CoreModule\Livewire\Users\CreateUser;
 use App\Modules\CoreModule\Livewire\Users\EditUser;
@@ -105,6 +106,7 @@ class ModuleServiceProvider extends ServiceProvider
             Livewire::component('core.roles.list-roles', ListRoles::class);
             Livewire::component('core.toast', Toast::class);
             Livewire::component('core.shared.notification-bell', NotificationBell::class);
+            Livewire::component('core.shared.notification-history', NotificationHistory::class);
         }
     }
 

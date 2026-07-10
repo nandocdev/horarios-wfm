@@ -54,9 +54,8 @@
             @endforelse
 
             <flux:menu.separator />
-            {{-- Enlace a historial completo si existiera --}}
             <div class="p-2">
-                <flux:button variant="ghost" class="w-full text-center" disabled>
+                <flux:button variant="ghost" class="w-full text-center" href="{{ route('notifications.index') }}" wire:navigate>
                     Ver todas las notificaciones
                 </flux:button>
             </div>

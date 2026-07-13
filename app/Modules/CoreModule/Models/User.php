@@ -7,6 +7,7 @@ namespace App\Modules\CoreModule\Models;
 use App\Modules\CoreModule\Concerns\Auditable;
 use App\Modules\CoreModule\Notifications\ResetPasswordNotification;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Contracts\Identity\UserInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -33,10 +34,25 @@ use Spatie\Permission\Traits\HasRoles;
     'two_factor_recovery_codes',
     'remember_token',
 ])]
-class User extends Authenticatable
+class User extends Authenticatable implements UserInterface
 {
     /** @use HasFactory<UserFactory> */
     use Auditable, HasFactory, HasRoles, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
+
+    public function getId(): int|string
+    {
+        return $this->id;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
     /**
      * Envía la notificación de restablecimiento de contraseña.

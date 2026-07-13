@@ -110,7 +110,7 @@ class IntradayAvailability extends Component
         // Agentes hablando por cola
         $agentsTalkingByQueue = [];
         foreach ($realtimeStates->where('current_state', 'TALKING') as $state) {
-            $meta = json_decode($state->metadata, true) ?? [];
+            $meta = $state->metadata ?? [];
             $callInfo = $meta['call_info'] ?? null;
             $queueName = 'Directa / Outbound';
 

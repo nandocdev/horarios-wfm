@@ -9,7 +9,7 @@
         </flux:button>
     </div>
 
-    {{── Filtros ──}}
+    {{-- Filtros --}}
     <flux:card class="p-4 bg-slate-50/50">
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <flux:field class="flex-1">
@@ -48,7 +48,7 @@
         </div>
     </flux:card>
 
-    {{── Tabla ──}}
+    {{-- Tabla --}}
     <flux:card class="p-0 overflow-hidden">
         <flux:table>
             <flux:table.columns class="sticky top-0 z-10 bg-white">
@@ -146,7 +146,7 @@
         @endif
     </flux:card>
 
-    {{── Modal de Registro/Edición ──}}
+    {{-- Modal de Registro/Edicion --}}
     <flux:modal wire:model="showCreateModal" class="w-full max-w-lg">
         <div class="space-y-4">
             <div>

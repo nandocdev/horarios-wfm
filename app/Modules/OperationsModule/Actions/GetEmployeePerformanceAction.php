@@ -9,6 +9,7 @@ use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
+use App\Shared\DTOs\Operations\AgentStateTransitionDTO;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -91,22 +92,23 @@ final class GetEmployeePerformanceAction
 
     private function getTransitions(EmployeeInterface $employee, Carbon $date): Collection
     {
-        $transitions = $this->performanceRepo->getStateTransitions($employee->getId(), $date)
-            ->map(function ($t) {
-                $t->agent_state = trim((string) $t->agent_state);
-                $t->reason_code = $t->reason_code ? trim((string) $t->reason_code) : null;
-
-                return $t;
-            });
+        $transitions = $this->performanceRepo->getStateTransitions($employee->getId(), $date);
 
         // Si es el día de hoy, ajustamos la duración de la última transición (si está en curso)
         if ($date->isToday() && $transitions->isNotEmpty()) {
             $last = $transitions->last();
-            if ((int) $last->duration === 0) {
+            if ($last->duration === 0) {
                 $startTime = Carbon::parse($last->transition_time);
                 // Solo calculamos si la transición es del presente (evitar negativos si el reloj del server difiere)
                 $elapsed = max(0, now()->diffInSeconds($startTime));
-                $last->duration = $elapsed;
+                $transitions->pop();
+                $transitions->push(new AgentStateTransitionDTO(
+                    employee_id: $last->employee_id,
+                    transition_time: $last->transition_time,
+                    agent_state: $last->agent_state,
+                    reason_code: $last->reason_code,
+                    duration: $elapsed,
+                ));
             }
         }
 

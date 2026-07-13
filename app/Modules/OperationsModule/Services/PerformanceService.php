@@ -4,26 +4,23 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Services;
 
-use App\Modules\ConnectModule\Models\AgentRealtimeState;
-use App\Modules\ConnectModule\Models\AgentStateTransition;
-use App\Modules\ConnectModule\Models\CallRecord;
-use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
-use App\Modules\WfmModule\Models\IntradayActivity;
-use App\Modules\WfmModule\Models\ScheduleException;
-use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
+use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
+use App\Shared\Contracts\Telemetry\AgentRealtimeRepositoryInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 final class PerformanceService
 {
     public function __construct(
         private readonly CalculateRealAdherenceAction $adherenceAction,
         private readonly EmployeeRepositoryInterface $employeeRepo,
+        private readonly DashboardScheduleQueriesInterface $scheduleQueries,
+        private readonly AgentRealtimeRepositoryInterface $realtimeRepo,
     ) {}
 
     /**
@@ -31,47 +28,40 @@ final class PerformanceService
      */
     public function calculateShrinkage(array $employeeIds, CarbonInterface $date): float
     {
-        // Aseguramos instancia de Carbon para operaciones de mutación/clonación controlada
         $carbonDate = Carbon::instance($date);
         $startOfDay = $carbonDate->copy()->startOfDay();
         $endOfDay = $carbonDate->copy()->endOfDay();
 
         // 1. Minutos por Excepciones (Permisos, Vacaciones, Incapacidades)
-        $exceptionMinutes = ScheduleException::whereIn('employee_id', $employeeIds)
-            ->where('start_at', '<=', $endOfDay)
-            ->where('end_at', '>=', $startOfDay)
-            ->get()
-            ->sum(function ($ex) use ($startOfDay, $endOfDay) {
-                // Carbon ya maneja comparaciones con interfaces
-                $start = $ex->start_at->max($startOfDay);
-                $end = $ex->end_at->min($endOfDay);
+        $exceptions = $this->scheduleQueries->getExceptionsForRange($employeeIds, $startOfDay, $endOfDay);
 
-                return max(0, $start->diffInMinutes($end));
-            });
+        $exceptionMinutes = $exceptions->sum(function ($ex) use ($startOfDay, $endOfDay) {
+            $start = $ex->start_at->max($startOfDay);
+            $end = $ex->end_at->min($endOfDay);
+
+            return max(0, $start->diffInMinutes($end));
+        });
 
         // 2. Minutos por Actividades Intradía (Reuniones, Coaching, etc.)
-        $intradayMinutes = IntradayActivity::whereIn('employee_id', $employeeIds)
-            ->whereRaw('time_range && tstzrange(?, ?)', [$startOfDay->toIso8601String(), $endOfDay->toIso8601String()])
-            ->get()
-            ->sum(function ($activity) use ($startOfDay, $endOfDay) {
-                $start = $activity->getRangeStart()?->max($startOfDay);
-                $end = $activity->getRangeEnd()?->min($endOfDay);
+        $intradayActivities = $this->scheduleQueries->getOverlappingIntradayActivities($employeeIds, $startOfDay, $endOfDay);
 
-                return $start && $end ? max(0, $start->diffInMinutes($end)) : 0;
-            });
+        $intradayMinutes = $intradayActivities->sum(function ($activity) use ($startOfDay, $endOfDay) {
+            $start = $activity->getRangeStart()?->max($startOfDay);
+            $end = $activity->getRangeEnd()?->min($endOfDay);
+
+            return $start && $end ? max(0, $start->diffInMinutes($end)) : 0;
+        });
 
         // 3. Minutos Totales Programados (Jornada Bruta)
-        $totalScheduledMinutes = WeeklyScheduleAssignment::whereIn('employee_id', $employeeIds)
-            ->where('day_of_week', $date->dayOfWeekIso)
-            ->whereHas('weeklySchedule', function ($q) use ($date) {
-                $q->where('week_start_date', '<=', $date->toDateString())
-                    ->where('week_end_date', '>=', $date->toDateString());
-            })
-            ->with('schedule')
-            ->get()
-            ->sum(function ($assignment) {
-                return $assignment->schedule?->total_minutes ?? 0;
-            });
+        $assignments = $this->scheduleQueries->getScheduledAssignmentsWithSchedule(
+            $employeeIds,
+            $date->toDateString(),
+            $date->dayOfWeekIso,
+        );
+
+        $totalScheduledMinutes = $assignments->sum(function ($assignment) {
+            return $assignment->schedule?->total_minutes ?? 0;
+        });
 
         if ($totalScheduledMinutes <= 0) {
             return 0.0;
@@ -85,22 +75,17 @@ final class PerformanceService
     /**
      * Calcula los KPIs globales para el Dashboard.
      */
-    /**
-     * Calcula los KPIs globales para el Dashboard.
-     */
     public function getGlobalHeroKpis(?CarbonInterface $targetDate = null): array
     {
         $date = $targetDate ?? now();
         $dateStr = $date->toDateString();
 
-        // 1. Si no es hoy, cachear el resultado completo por 24 horas (86400 segundos)
         if (! $date->isToday()) {
             return Cache::remember("wfm:hero_kpis:historical:{$dateStr}", 86400, function () use ($date) {
                 return $this->resolveHeroKpisData($date);
             });
         }
 
-        // 2. Si es hoy, resolver los Hero KPIs (ayer se cacheará internamente por 1 hora)
         return $this->resolveHeroKpisData($date);
     }
 
@@ -123,7 +108,6 @@ final class PerformanceService
         $yesterday = $date->copy()->subDay();
         $yesterdayStr = $yesterday->toDateString();
 
-        // Cachear las métricas de ayer por 1 hora (3600 segundos)
         $previous = Cache::remember("wfm:hero_kpis_metrics:historical:{$yesterdayStr}", 3600, function () use ($yesterday, $operatorIds) {
             return $this->calculateMetrics($yesterday, $operatorIds);
         });
@@ -193,33 +177,20 @@ final class PerformanceService
     {
         $now = now();
         $today = $now->toDateString();
+        $time = $now->toTimeString();
 
-        // 1. Programados actualmente
-        $idsWithExceptions = ScheduleException::whereIn('employee_id', $operatorIds)
-            ->where('start_at', '<=', $now)
-            ->where('end_at', '>=', $now)
-            ->pluck('employee_id')
-            ->toArray();
+        // 1. Programados actualmente (excluyendo excepciones activas)
+        $activeExceptionIds = $this->scheduleQueries->getActiveExceptionIds($operatorIds, $now);
 
-        $scheduled = WeeklyScheduleAssignment::whereIn('employee_id', $operatorIds)
-            ->whereNotIn('employee_id', $idsWithExceptions)
-            ->where('day_of_week', $now->dayOfWeekIso)
-            ->whereHas('weeklySchedule', function ($q) use ($today) {
-                $q->where('week_start_date', '<=', $today)
-                    ->where('week_end_date', '>=', $today);
-            })
-            ->where('start_time', '<=', $now->toTimeString())
-            ->where('end_time', '>=', $now->toTimeString())
-            ->get();
+        $scheduled = $this->scheduleQueries->getScheduledForTime($operatorIds, $today, $now->dayOfWeekIso, $time)
+            ->reject(fn ($s) => in_array($s->employee_id, $activeExceptionIds));
 
         $totalScheduled = $scheduled->count();
 
         // 2. Conectados actualmente
-        $realtimeStates = AgentRealtimeState::whereIn('employee_id', $operatorIds)
-            ->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])
-            ->get();
-
-        $totalConnected = $realtimeStates->count();
+        $states = $this->realtimeRepo->getRealtimeStates($operatorIds);
+        $connected = $states->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN']);
+        $totalConnected = $connected->count();
 
         // 3. Cálculos en tiempo real
         $coverage = $totalScheduled > 0 ? ($totalConnected / $totalScheduled) * 100 : 0.0;
@@ -227,39 +198,19 @@ final class PerformanceService
         $adherenceRes = $this->adherenceAction->executeBatch($operatorIds, $now);
         $adherence = $adherenceRes['percentage'];
 
-        $occupancy = $this->calculateRealtimeOccupancy($operatorIds);
-        $serviceLevel = (float) (CsqRealtimeStat::avg('service_level_long_term') ?? 0);
+        $occupancy = $this->calculateRealtimeOccupancy($states);
+        $serviceLevel = $this->realtimeRepo->getAverageServiceLevel();
 
-        // 4. Cachear ausentismo de hoy por 120 segundos para evitar sobrecarga
-        $absenteeism = Cache::remember('wfm:realtime:absenteeism', 120, function () use ($operatorIds, $now, $today) {
-            $idsWithEx = ScheduleException::whereIn('employee_id', $operatorIds)
-                ->where('start_at', '<=', $now)
-                ->where('end_at', '>=', $now)
-                ->pluck('employee_id')
-                ->toArray();
-
-            $sched = WeeklyScheduleAssignment::whereIn('employee_id', $operatorIds)
-                ->whereNotIn('employee_id', $idsWithEx)
-                ->where('day_of_week', $now->dayOfWeekIso)
-                ->whereHas('weeklySchedule', function ($q) use ($today) {
-                    $q->where('week_start_date', '<=', $today)
-                        ->where('week_end_date', '>=', $today);
-                })
-                ->where('start_time', '<=', $now->toTimeString())
-                ->where('end_time', '>=', $now->toTimeString())
-                ->get();
-
-            $totalSched = $sched->count();
-
-            $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
+        // 4. Cachear ausentismo de hoy por 120 segundos
+        $absenteeism = Cache::remember('wfm:realtime:absenteeism', 120, function () use ($operatorIds, $scheduled, $totalScheduled) {
+            $connectedFromSched = $this->realtimeRepo->getRealtimeStates($operatorIds)
                 ->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])
-                ->get();
-
-            $connectedFromSched = $states->whereIn('employee_id', $sched->pluck('employee_id'))->count();
+                ->whereIn('employee_id', $scheduled->pluck('employee_id'))
+                ->count();
 
             return (float) MetricFormulas::absenteeismRate(
-                (float) MetricFormulas::absentPersonnel($totalSched, $connectedFromSched),
-                (float) $totalSched
+                (float) MetricFormulas::absentPersonnel($totalScheduled, $connectedFromSched),
+                (float) $totalScheduled
             );
         });
 
@@ -286,19 +237,11 @@ final class PerformanceService
         $formattedDate = $date->toDateString();
 
         // 1. Service Level
-        $callStats = CallRecord::whereNotNull('queue_id')
-            ->whereDate('ivr_started_at', $formattedDate)
-            ->select(
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled')
-            )
-            ->first();
+        $callStats = $this->realtimeRepo->getCallStatsForDate($formattedDate);
         $sl = $callStats->total > 0 ? ($callStats->handled / $callStats->total) * 100 : 0.0;
 
         // 2. Ocupación (basada en duraciones de transiciones)
-        $transitions = AgentStateTransition::whereIn('employee_id', $operatorIds)
-            ->whereDate('transition_time', $formattedDate)
-            ->get();
+        $transitions = $this->realtimeRepo->getBatchStateTransitions($operatorIds, $formattedDate);
 
         $durations = $transitions->groupBy(fn ($t) => strtoupper(trim($t->agent_state)))
             ->map(fn ($group) => $group->sum('duration'));
@@ -307,15 +250,9 @@ final class PerformanceService
         $ready = $durations['READY'] ?? 0;
         $occupancy = ($productive + $ready) > 0 ? ($productive / ($productive + $ready)) * 100 : 0.0;
 
-        // 3. Cobertura (Promedio diario estimado o conteo único de conectados vs programados)
+        // 3. Cobertura
         $connectedCount = $transitions->whereNotIn('agent_state', ['Logout', 'Logged-in'])->pluck('employee_id')->unique()->count();
-        $scheduledCount = WeeklyScheduleAssignment::whereIn('employee_id', $operatorIds)
-            ->where('day_of_week', $date->dayOfWeekIso)
-            ->whereHas('weeklySchedule', function ($q) use ($formattedDate) {
-                $q->where('week_start_date', '<=', $formattedDate)
-                    ->where('week_end_date', '>=', $formattedDate);
-            })
-            ->count();
+        $scheduledCount = $this->scheduleQueries->getScheduledCountForDay($operatorIds, $formattedDate, $date->dayOfWeekIso);
         $coverage = $scheduledCount > 0 ? ($connectedCount / $scheduledCount) * 100 : 100.0;
 
         // 4. Ausentismo
@@ -346,14 +283,12 @@ final class PerformanceService
         return $sign.round($diff, 1).'%';
     }
 
-    private function calculateRealtimeOccupancy(array $operatorIds): float
+    private function calculateRealtimeOccupancy(Collection $states): float
     {
-        $states = AgentRealtimeState::whereIn('employee_id', $operatorIds)
-            ->whereIn('current_state', ['READY', 'TALKING', 'WORK', 'WORK_READY', 'RESERVED'])
-            ->get();
+        $occupancyStates = $states->whereIn('current_state', ['READY', 'TALKING', 'WORK', 'WORK_READY', 'RESERVED']);
 
-        $productive = $states->whereIn('current_state', ['TALKING', 'WORK', 'WORK_READY', 'RESERVED'])->count();
-        $total = $states->count();
+        $productive = $occupancyStates->whereIn('current_state', ['TALKING', 'WORK', 'WORK_READY', 'RESERVED'])->count();
+        $total = $occupancyStates->count();
 
         return $total > 0 ? ($productive / $total) * 100 : 0;
     }

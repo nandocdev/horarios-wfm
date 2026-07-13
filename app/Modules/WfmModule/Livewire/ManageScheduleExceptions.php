@@ -23,6 +23,21 @@ class ManageScheduleExceptions extends Component
 
     public string $search = '';
 
+    public string $dateFrom = '';
+
+    public string $dateTo = '';
+
+    public string $reasonFilter = '';
+
+    /** @var string[] */
+    public array $statusFilter = ['active', 'pending'];
+
+    public function mount(): void
+    {
+        $this->dateFrom = now()->startOfMonth()->toDateString();
+        $this->dateTo = now()->endOfMonth()->toDateString();
+    }
+
     public function create(): void
     {
         $this->form->reset();
@@ -60,9 +75,17 @@ class ManageScheduleExceptions extends Component
         \Flux::toast(__('Excepción eliminada.'));
     }
 
+    public function updatedStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
+        $now = now();
+
         $exceptions = ScheduleException::query()
+            ->with(['employee', 'reason', 'creator'])
             ->when($this->search, function ($query) {
                 $query->whereHas('employee', function ($q) {
                     $q->where('first_name', 'ilike', '%'.$this->search.'%')
@@ -70,7 +93,25 @@ class ManageScheduleExceptions extends Component
                         ->orWhere('username', 'ilike', '%'.$this->search.'%');
                 });
             })
-            ->with(['employee', 'reason', 'creator'])
+            ->when($this->dateFrom, fn ($q) => $q->whereDate('end_at', '>=', $this->dateFrom))
+            ->when($this->dateTo, fn ($q) => $q->whereDate('start_at', '<=', $this->dateTo))
+            ->when($this->reasonFilter, fn ($q) => $q->where('absence_reason_code_id', $this->reasonFilter))
+            ->when(count($this->statusFilter) < 3, function ($query) use ($now) {
+                $query->where(function ($q) use ($now) {
+                    if (in_array('active', $this->statusFilter)) {
+                        $q->orWhere(function ($sq) use ($now) {
+                            $sq->whereDate('start_at', '<=', $now->toDateString())
+                                ->whereDate('end_at', '>=', $now->toDateString());
+                        });
+                    }
+                    if (in_array('pending', $this->statusFilter)) {
+                        $q->orWhereDate('start_at', '>', $now->toDateString());
+                    }
+                    if (in_array('completed', $this->statusFilter)) {
+                        $q->orWhereDate('end_at', '<', $now->toDateString());
+                    }
+                });
+            })
             ->orderBy('start_at', 'desc')
             ->paginate(15);
 
@@ -78,6 +119,7 @@ class ManageScheduleExceptions extends Component
             'exceptions' => $exceptions,
             'employees' => Employee::active()->orderBy('first_name')->get(),
             'reasons' => AbsenceReasonCode::all(),
+            'now' => $now,
         ]);
     }
 }

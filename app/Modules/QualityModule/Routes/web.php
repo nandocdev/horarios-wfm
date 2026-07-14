@@ -9,6 +9,7 @@ use App\Modules\QualityModule\Livewire\EvaluationDetail;
 use App\Modules\QualityModule\Livewire\EvaluationForm;
 use App\Modules\QualityModule\Livewire\EvaluationIndex;
 use App\Modules\QualityModule\Livewire\FeedbackForm;
+use App\Modules\QualityModule\Livewire\ManageQueueCriteria;
 use App\Modules\QualityModule\Livewire\QueueList;
 use Illuminate\Support\Facades\Route;
 
@@ -47,3 +48,7 @@ Route::get('/criterios/{criteria}/editar', CriteriaForm::class)
 Route::get('/colas', QueueList::class)
     ->middleware('can:quality.queues.manage')
     ->name('queues.index');
+
+Route::get('/colas/criterios', ManageQueueCriteria::class)
+    ->middleware('can:quality.criteria.view')
+    ->name('queues.criteria');

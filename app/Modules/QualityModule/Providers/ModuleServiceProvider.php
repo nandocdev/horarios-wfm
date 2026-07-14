@@ -16,6 +16,7 @@ use App\Modules\QualityModule\Livewire\EvaluationDetail;
 use App\Modules\QualityModule\Livewire\EvaluationForm;
 use App\Modules\QualityModule\Livewire\EvaluationIndex;
 use App\Modules\QualityModule\Livewire\FeedbackForm;
+use App\Modules\QualityModule\Livewire\ManageQueueCriteria;
 use App\Modules\QualityModule\Livewire\QueueList;
 use App\Modules\QualityModule\Models\CalibrationLog;
 use App\Modules\QualityModule\Models\Criteria;
@@ -81,6 +82,7 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('quality.criteria-list', CriteriaList::class);
         Livewire::component('quality.criteria-form', CriteriaForm::class);
         Livewire::component('quality.queue-list', QueueList::class);
+        Livewire::component('quality.manage-queue-criteria', ManageQueueCriteria::class);
     }
 
     private function registerPolicies(): void

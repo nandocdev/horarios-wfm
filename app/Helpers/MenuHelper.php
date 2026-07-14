@@ -109,6 +109,7 @@ class MenuHelper
                     ['label' => __('Evaluaciones'), 'route' => 'quality.evaluations.index', 'pattern' => 'quality/evaluaciones*', 'icon' => 'list-bullet'],
                     ['label' => __('Nueva Evaluación'), 'route' => 'quality.evaluations.create', 'pattern' => 'quality/evaluaciones/crear*', 'permission' => 'quality.evaluations.create', 'icon' => 'plus-circle'],
                     ['label' => __('Criterios'), 'route' => 'quality.criteria.index', 'pattern' => 'quality/criterios*', 'permission' => 'quality.criteria.view', 'icon' => 'clipboard-document'],
+                    ['label' => __('Criterios por Cola'), 'route' => 'quality.queues.criteria', 'pattern' => 'quality/colas/criterios*', 'permission' => 'quality.criteria.view', 'icon' => 'list-bullet'],
                     ['label' => __('Colas'), 'route' => 'quality.queues.index', 'pattern' => 'quality/colas*', 'permission' => 'quality.queues.manage', 'icon' => 'queue-list'],
                 ],
             ],

@@ -28,9 +28,9 @@ class CriteriaForm extends Component
         if ($criteria) {
             $this->criteria = Criteria::findOrFail($criteria);
             $this->code = $this->criteria->code;
-            $this->criterio_text = $this->criteria->currentVersion()?->criterio_text ?? '';
-            $this->puntaje = $this->criteria->currentVersion()?->puntaje ?? 10;
-            $this->descripcion = $this->criteria->currentVersion()?->descripcion ?? '';
+            $this->criterio_text = $this->criteria->currentVersion?->criterio_text ?? '';
+            $this->puntaje = $this->criteria->currentVersion?->puntaje ?? 10;
+            $this->descripcion = $this->criteria->currentVersion?->descripcion ?? '';
             $this->isEditing = true;
         }
     }

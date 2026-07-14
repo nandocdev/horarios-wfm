@@ -31,7 +31,7 @@
                         <flux:select wire:model="newCriteriaId" placeholder="Seleccionar criterio...">
                             @foreach($availableCriteria as $criteria)
                                 <option value="{{ $criteria->id }}">
-                                    {{ $criteria->code }} — {{ $criteria->currentVersion()?->criterio_text }}
+                                    {{ $criteria->code }} — {{ $criteria->currentVersion?->criterio_text }}
                                 </option>
                             @endforeach
                         </flux:select>

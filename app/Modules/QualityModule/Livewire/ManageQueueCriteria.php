@@ -51,7 +51,7 @@ class ManageQueueCriteria extends Component
         }
 
         $criteria = Criteria::findOrFail($this->newCriteriaId);
-        $currentVersion = $criteria->currentVersion();
+        $currentVersion = $criteria->currentVersion;
 
         if (! $currentVersion) {
             session()->flash('error', 'El criterio seleccionado no tiene una versión activa.');
@@ -199,7 +199,7 @@ class ManageQueueCriteria extends Component
 
         $availableCriteria = Criteria::with('currentVersion')
             ->get()
-            ->filter(fn (Criteria $c) => $c->currentVersion() !== null)
+            ->filter(fn (Criteria $c) => $c->currentVersion !== null)
             ->values();
 
         return view('quality::livewire.manage-queue-criteria', [

@@ -43,5 +43,6 @@ return [
         App\Modules\DocumentationModule\Providers\ModuleServiceProvider::class, // DocumentationModule: Wiki/documentación interna
         App\Modules\FilesystemModule\Providers\ModuleServiceProvider::class,    // FilesystemModule: Archivos, carpetas, descargas, cuotas
         App\Modules\KnowledgeModule\Providers\ModuleServiceProvider::class,     // KnowledgeModule: Base de conocimiento operativo
+        App\Modules\QualityModule\Providers\ModuleServiceProvider::class,       // QualityModule: Evaluación de calidad de llamadas
     ],
 ];

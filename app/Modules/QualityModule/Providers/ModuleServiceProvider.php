@@ -9,8 +9,13 @@ use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Events\EvaluationCreated;
 use App\Modules\QualityModule\Listeners\SendEvaluationNotification;
 use App\Modules\QualityModule\Listeners\UpdateQueueScoreAverages;
+use App\Modules\QualityModule\Livewire\CalibrationForm;
+use App\Modules\QualityModule\Livewire\CriteriaForm;
 use App\Modules\QualityModule\Livewire\CriteriaList;
+use App\Modules\QualityModule\Livewire\EvaluationDetail;
+use App\Modules\QualityModule\Livewire\EvaluationForm;
 use App\Modules\QualityModule\Livewire\EvaluationIndex;
+use App\Modules\QualityModule\Livewire\FeedbackForm;
 use App\Modules\QualityModule\Livewire\QueueList;
 use App\Modules\QualityModule\Models\CalibrationLog;
 use App\Modules\QualityModule\Models\Criteria;
@@ -69,7 +74,12 @@ class ModuleServiceProvider extends ServiceProvider
     private function registerLivewireComponents(): void
     {
         Livewire::component('quality.evaluation-index', EvaluationIndex::class);
+        Livewire::component('quality.evaluation-form', EvaluationForm::class);
+        Livewire::component('quality.evaluation-detail', EvaluationDetail::class);
+        Livewire::component('quality.feedback-form', FeedbackForm::class);
+        Livewire::component('quality.calibration-form', CalibrationForm::class);
         Livewire::component('quality.criteria-list', CriteriaList::class);
+        Livewire::component('quality.criteria-form', CriteriaForm::class);
         Livewire::component('quality.queue-list', QueueList::class);
     }
 

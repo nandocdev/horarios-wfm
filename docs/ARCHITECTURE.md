@@ -371,7 +371,7 @@ El orden en `config/modules.php` respeta dependencias:
 | `Identity/`   | `UserInterface`                                                                                                        | CoreModule       |
 | `Operations/` | `AgentPerformanceRepositoryInterface`                                                                                  | OperationsModule |
 | `Schedules/`  | `ScheduleServiceInterface`, `ScheduleRepositoryInterface`, `LeaveRequestServiceInterface`, `ShiftSwapServiceInterface` | WfmModule        |
-| `Telemetry/`  | `TelemetryServiceInterface`                                                                                            | ConnectModule    |
+| `Telemetry/`  | `TelemetryServiceInterface`, `TelemetryRealtimeRepositoryInterface`                                                    | ConnectModule    |
 
 ### 8.3 Eventos del Dominio (Shared/Events)
 
@@ -878,13 +878,47 @@ $this->app->singleton(
 
 ---
 
+### ADR-007: Tablas Públicas del Núcleo (users y employees)
+
+**Contexto:** 37 de las 58 foreign keys (64%) entre tablas de distintos módulos referencian `users` o `employees`. Cada módulo que necesita asociar un registro a una persona física (creador, responsable, agente) lo hace mediante FK a estas tablas. Este es un acoplamiento inevitable por el dominio del problema.
+
+**Decisión:** `users` y `employees` se declaran **tablas públicas del núcleo**. Todo módulo puede referenciarlas mediante FK directa. No se requiere abstraer estas dependencias detrás de contratos para la capa de esquema.
+
+**Justificación:**
+- El modelo relacional requiere estas FK para integridad referencial
+- `users` (CoreModule) es la identidad del sistema (autenticación, RBAC)
+- `employees` (PersonnelModule) es la entidad operativa (agentes, supervisores)
+- No existe un modelo de negocio que desacople una "persona" de su representación en estas tablas a nivel de base de datos
+- Cualquier abstracción (repositorio, DTO) añade latencia y complejidad sin eliminar el acoplamiento real
+
+**Reglas de uso:**
+- Las FK son aceptables. Las queries directas a estas tablas desde otros módulos NO lo son (deben usar `EmployeeRepositoryInterface` o `UserInterface`)
+- La capa de infraestructura (migraciones, modelos) puede referenciar las tablas directamente
+- La capa de aplicación (Actions, Services, Livewire) debe usar los contratos definidos en `app/Shared/Contracts/`
+- Cualquier módulo nuevo debe referenciar `employees` o `users` solo mediante FK, no mediante lógica de negocio que acceda directamente a estas tablas
+
+**Riesgos aceptados:**
+- Migrar estas tablas a otro servicio requeriría revertir esta decisión y crear puntos de integración
+- Cambios en el esquema de `employees` o `users` tienen alto impacto por la cantidad de dependientes
+
+**Contexto:** Entorno institucional sin Redis dedicado inicialmente.
+
+**Decisión:** Session driver = `database`, Cache driver = `database` (Redis usado para permisos y colas).
+
+**Consecuencias:**
+- Las sesiones persisten en BD (no se pierden al reiniciar Redis)
+- Mayor latencia que Redis para session/cache
+- Redis sigue disponible para permisos Spatie y colas Horizon
+
+---
+
 ## 20. Riesgos y Deuda Técnica
 
 ### 20.1 Riesgos Identificados
 
 | Riesgo                                        | Impacto                                                            | Probabilidad | Mitigación                                                           |
 | --------------------------------------------- | ------------------------------------------------------------------ | ------------ | -------------------------------------------------------------------- |
-| **Acoplamiento por Base de Datos Compartida** | Módulos podrían depender implícitamente de tablas de otros módulos | Media        | Políticas de código: solo queries a través de Repositories/Contracts |
+| **Acoplamiento por Base de Datos Compartida** | Módulos podrían depender implícitamente de tablas de otros módulos | Media        | `users` y `employees` declaradas tablas públicas del núcleo (ADR-007). Para el resto, queries vía contratos |
 | **Crecimiento de audit_logs**                 | Degradación de performance en consultas de auditoría               | Alta         | Prune job (`AuditPruneCommand`), particionamiento por fecha          |
 | **Volumen de call_records**                   | Tabla de llamadas crece rápidamente                                | Alta         | Archivado, retención configurable                                    |
 | **Disponibilidad de Cisco UCCX/Finesse**      | Los dashboards de tiempo real quedan sin datos si Cisco cae        | Alta         | Degradación gradual: cache de último estado conocido                 |
@@ -946,9 +980,9 @@ Alta (accionable inmediatamente)
 2. [x] Sanear AgentPerformanceRepositoryInterface - Usar DTOs en lugar de modelos concretos en las firmas. La fuga de abstracción propaga acoplamiento a todos los consumidores.
 3. [x] Auditar OperationsModule Livewire - Extraer lógica de consultas a repositorios/acciones. Los 12+ componentes Livewire que hacen queries directas a 4 módulos distintos deben delegar a Actions que usen contratos.
 Media (planificar en próximo ciclo)
-4. [ ] Migrar PerformanceService a contratos - Reemplazar las 10+ queries directas a modelos ConnectModule/WfmModule por llamadas a TelemetryServiceInterface, ScheduleServiceInterface y nuevos contratos.
-5. [ ] Contrato para AgentRealtimeState - Crear TelemetryRealtimeRepositoryInterface para que OperationsModule no importe modelos ConnectModule en Livewire.
-6. [ ] Relaciones Eloquent vía contratos - Evaluar si las relaciones Eloquent cross-module en Models deben reemplazarse por métodos que usen repositorios (trade-off: pierdes lazy loading, ganas desacoplamiento).
+4. [x] Migrar PerformanceService a contratos - Reemplazar las 10+ queries directas a modelos ConnectModule/WfmModule por llamadas a TelemetryServiceInterface, ScheduleServiceInterface y nuevos contratos.
+5. [x] Contrato para AgentRealtimeState - Crear TelemetryRealtimeRepositoryInterface para que OperationsModule no importe modelos ConnectModule en Livewire.
+6. [x] Relaciones Eloquent vía contratos - Evaluar si las relaciones Eloquent cross-module en Models deben reemplazarse por métodos que usen repositorios (trade-off: pierdes lazy loading, ganas desacoplamiento).
 Baja (deseable, no urgente)
-7. [ ] Contrato para CsqRealtimeStat y CallRecord - OperationsModule los consulta directamente, deberían tener una interfaz en app/Shared/Contracts/Telemetry/.
-8. [ ] Documentar employees y users como tablas "públicas del núcleo" - Son el punto de acoplamiento más alto (37 de 58 FKs referencian estas dos tablas). Formalizar que son dependencias aceptadas del CoreModule.
+7. [x] Contrato para CsqRealtimeStat y CallRecord - Cubierto por TelemetryRealtimeRepositoryInterface en app/Shared/Contracts/Telemetry/.
+8. [x] Documentar employees y users como tablas "públicas del núcleo" - Formalizado en ADR-007. Aceptado como dependencia arquitectónica.

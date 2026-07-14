@@ -1,214 +1,240 @@
-# Lineamientos de Seguridad — Sistema de Evaluación de Llamadas
+# Lineamientos de Seguridad — QualityModule
 
-## 1. Estado Actual (Hallazgos)
+## 1. Stack de Seguridad del Proyecto
 
-| # | Hallazgo | Archivo | Severidad |
-|---|---|---|---|
-| S-01 | Contraseña de BD hardcodeada en texto plano | `conexion.php:6` | **CRÍTICA** |
-| S-02 | SQL injection en todas las consultas (interpolación directa de `$_POST`) | `valpost.php`, `recibe.php`, `feedback.php`, etc. | **CRÍTICA** |
-| S-03 | Contraseñas de usuarios en texto plano (`varchar(35)`) | `loginpass.pass` | **CRÍTICA** |
-| S-04 | Sin autenticación obligatoria en páginas de formularios | `confir.php`, `citmed_*.php`, etc. | **ALTA** |
-| S-05 | Sin CSRF tokens en formularios | Todos los `<form>` | **ALTA** |
-| S-06 | Sin control de acceso por rol (cualquier usuario puede evaluar) | — | **ALTA** |
-| S-07 | Datos sensibles de infraestructura expuestos (IP, usuario BD) | `conexion.php` | **MEDIA** |
-| S-08 | Sin HTTPS forzado | — | **MEDIA** |
-| S-09 | `$_SERVER` y `$_POST` se usan sin sanitizar | Varios | **MEDIA** |
-| S-10 | `X-Powered-By: PHP` expuesto en headers | `php.ini` | **BAJA** |
+El QualityModule hereda toda la infraestructura de seguridad del monólito modular. No implementa autenticación ni autorización propia.
 
----
-
-## 2. Medidas Inmediatas (Mitigación Rápida)
-
-### 2.1 Mover credenciales fuera del código
-
-```php
-// config/database.php — NUNCA subir a git
-<?php
-$db_config = [
-    'host' => getenv('DB_HOST') ?: 'localhost',
-    'user' => getenv('DB_USER') ?: 'calidad_app',    // usuario con mínimos privilegios
-    'pass' => getenv('DB_PASS'),                       // leer de variable de entorno
-    'name' => getenv('DB_NAME') ?: 'prueba',
-];
-```
-
-### 2.2 Prepared Statements (reemplazo inmediato para consultas críticas)
-
-```php
-// ❌ NUNCA MÁS:
-mysqli_query($con, "SELECT * FROM loginpass WHERE login ='$loguser'");
-
-// ✅ SIEMPRE:
-$stmt = $pdo->prepare("SELECT * FROM loginpass WHERE login = ?");
-$stmt->execute([$loguser]);
-```
-
-Reglas:
-- **0% de interpolación** de variables en SQL, incluso si vienen de una base de datos.
-- Usar exclusivamente PDO con `prepare()` + `execute()` o MySQLi con prepared statements.
-
-### 2.3 Hash de contraseñas
-
-```php
-// Al registrar/cambiar contraseña:
-$hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-
-// Al validar login:
-if (password_verify($input_password, $stored_hash)) { /* ok */ }
-```
-
-Requisitos:
-- Columna `pass_hash VARCHAR(255)` (bcrypt genera 60 chars, pero dejar margen).
-- La contraseña por defecto `12345678` debe forzar cambio en el primer login (`cambio = FALSE`).
+| Capa | Cómo lo resuelve el proyecto |
+|---|---|
+| Autenticación | Laravel Fortify (email verification + 2FA TOTP habilitados) |
+| Autorización | Spatie Laravel Permission 7 + Policies |
+| CSRF | `VerifyCsrfToken` middleware global + Livewire lo maneja automáticamente |
+| SQL Injection | Eloquent ORM + Query Builder (prepared statements nativos) |
+| Passwords | `Hash::make()` con bcrypt, columna `password` VARCHAR(255) |
+| HTTPS | `TrustProxies` middleware + forced scheme en producción |
+| Headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` |
+| Session | Database driver, lifetime 120 min |
+| Rate Limiting | Fortify throttle 5/min en login |
 
 ---
 
-## 3. Arquitectura de Seguridad Propuesta
+## 2. Rutas Seguras
 
+```php
+// Routes/web.php
+Route::prefix('quality')
+    ->middleware(['web', 'auth', 'verified'])
+    ->group(function () {
+
+    Route::get('/evaluaciones', EvaluationIndex::class)
+        ->middleware('can:quality.evaluations.view')
+        ->name('quality.evaluations.index');
+
+    Route::get('/evaluaciones/crear', EvaluationForm::class)
+        ->middleware('can:quality.evaluations.create')
+        ->name('quality.evaluations.create');
+
+    Route::get('/evaluaciones/{evaluation}', EvaluationDetail::class)
+        ->middleware('can:quality.evaluations.view')
+        ->name('quality.evaluations.show');
+
+    Route::get('/evaluaciones/{evaluation}/feedback', FeedbackForm::class)
+        ->middleware('can:quality.feedback.create')
+        ->name('quality.feedback.create');
+
+    Route::get('/evaluaciones/{evaluation}/calibrar', CalibrationForm::class)
+        ->middleware('can:quality.calibrations.create')
+        ->name('quality.calibrations.create');
+
+    Route::get('/criterios', CriteriaList::class)
+        ->middleware('can:quality.criteria.view')
+        ->name('quality.criteria.index');
+
+    Route::get('/criterios/crear', CriteriaForm::class)
+        ->middleware('can:quality.criteria.create')
+        ->name('quality.criteria.create');
+
+    Route::get('/colas', QueueList::class)
+        ->middleware('can:quality.queues.manage')
+        ->name('quality.queues.index');
+});
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        CAPA DE PRESENTACIÓN                         │
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌─────────────────┐ │
-│  │  HTTPS    │  │  CSP      │  │  X-Frame  │  │  Cookie Secure  │ │
-│  │  HSTS     │  │  Headers  │  │  Options  │  │  + HttpOnly     │ │
-│  └───────────┘  └───────────┘  └───────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────────┤
-│                        CAPA DE APLICACIÓN                           │
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌─────────────────┐ │
-│  │  Auth     │  │  CSRF     │  │  Input    │  │  Role-Based     │ │
-│  │  Middleware│  │  Tokens   │  │  Validation│  │  Access Control │ │
-│  └───────────┘  └───────────┘  └───────────┘  └─────────────────┘ │
-├─────────────────────────────────────────────────────────────────────┤
-│                        CAPA DE DATOS                                │
-│  ┌───────────────┐  ┌───────────────┐  ┌─────────────────────────┐ │
-│  │  Prepared     │  │  Password     │  │  Usuario BD con         │ │
-│  │  Statements   │  │  Hashing      │  │  mínimos privilegios    │ │
-│  └───────────────┘  └───────────────┘  └─────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────────┘
-```
 
----
+## 3. Políticas
 
-## 4. Checklist de Implementación
+```php
+// Policies/EvaluationPolicy.php
+class EvaluationPolicy
+{
+    use HandlesAuthorization;
 
-### 4.1 Autenticación y Sesión
-
-- [ ] Usar `session_regenerate_id(true)` después de login exitoso (previene session fixation)
-- [ ] Configurar `session.cookie_httponly = 1`, `session.cookie_secure = 1`, `session.cookie_samesite = "Strict"`
-- [ ] Timeout de sesión: `session.gc_maxlifetime = 7200` (2 horas, ya configurado)
-- [ ] Bloquear cuenta después de 3 intentos fallidos de login
-- [ ] No revelar si el usuario existe o la contraseña es incorrecta (mensaje genérico: "Credenciales inválidas")
-
-### 4.2 Control de Acceso
-
-- [ ] Cada página debe verificar que el usuario tiene sesión activa:
-    ```php
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: login.php');
-        exit;
+    public function view(User $user, Evaluation $evaluation): bool
+    {
+        return $user->hasPermissionTo('quality.evaluations.view')
+            || $evaluation->evaluator_id === $user->id;
     }
-    ```
-- [ ] Cada acción debe verificar el rol mínimo requerido:
-    ```php
-    if (!in_array('evaluador', $_SESSION['roles'])) {
-        http_response_code(403);
-        exit;
+
+    public function create(User $user): bool
+    {
+        return $user->hasPermissionTo('quality.evaluations.create');
     }
-    ```
-- [ ] El menú principal solo debe mostrar opciones según el rol del usuario
 
-### 4.3 Validación de Input
+    public function delete(User $user, Evaluation $evaluation): bool
+    {
+        if ($evaluation->feedback()->exists() || $evaluation->calibrations()->exists()) {
+            return false; // RN-03
+        }
+        return $user->hasPermissionTo('quality.evaluations.delete');
+    }
 
-| Tipo | Regla | Ejemplo |
-|---|---|---|
-| Strings | `filter_input(INPUT_POST, 'field', FILTER_SANITIZE_STRING)` | nombres, observaciones |
-| Enteros | `filter_input(INPUT_POST, 'score', FILTER_VALIDATE_INT)` | puntajes, IDs |
-| Fechas | Validar formato `YYYY-MM-DD` vía `DateTime::createFromFormat()` | fecha llamada, fecha evaluación |
-| Emails | `filter_var($email, FILTER_VALIDATE_EMAIL)` | — |
-| Selects | Validar contra lista blanca de valores permitidos | tipo_llamada, roles |
-
-### 4.4 CSRF
-
-En cada formulario:
-
-```php
-// Generar token al cargar el formulario
-$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-echo '<input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">';
-
-// Validar al recibir
-if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-    http_response_code(419); // Session expired / CSRF
-    exit;
+    public function calibrate(User $user, Evaluation $evaluation): bool
+    {
+        return $user->hasPermissionTo('quality.calibrations.create')
+            && $evaluation->status === 'activa';
+    }
 }
 ```
 
-### 4.5 Headers HTTP
-
-```apache
-# .htaccess
-Header always set X-Content-Type-Options "nosniff"
-Header always set X-Frame-Options "DENY"
-Header always set X-XSS-Protection "1; mode=block"
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
-Header always set Content-Security-Policy "default-src 'self'; style-src 'self' https: 'unsafe-inline'; script-src 'self' https: 'unsafe-inline'"
-```
-
-### 4.6 Base de Datos
-
-- [ ] Crear usuario de BD dedicado para la aplicación (no `root`, no `Generico`)
-- [ ] Conceder SOLO `SELECT, INSERT, UPDATE, DELETE` en `prueba.*`
-- [ ] No conceder `DROP`, `ALTER`, `CREATE` al usuario de la aplicación
-- [ ] Las migraciones y cambios de esquema se ejecutan con un usuario admin diferente
-
-### 4.7 Logging
+## 4. Validación de Input
 
 ```php
-class AuditLog {
-    public static function log($action, $details, $userId = null) {
-        $log = sprintf(
-            "[%s] [user:%s] [ip:%s] %s: %s\n",
-            date('Y-m-d H:i:s'),
-            $userId ?? 'anon',
-            $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
-            $action,
-            json_encode($details, JSON_UNESCAPED_UNICODE)
+// Http/Requests/StoreEvaluationRequest.php
+class StoreEvaluationRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()->can('quality.evaluations.create');
+    }
+
+    public function rules(): array
+    {
+        return [
+            'employee_id'  => ['required', 'string', 'exists:employees,id'],
+            'evaluator_id' => ['required', 'string', 'exists:users,id'],
+            'queue_id'     => ['required', 'string', 'exists:quality_queues,id'],
+            'dtcall'       => ['nullable', 'date', 'before_or_equal:today'],
+            'tmcall'       => ['nullable', 'date_format:H:i', 'after:06:00', 'before:19:00'],
+            'scores'       => ['required', 'array', 'min:1'],
+            'scores.*.criteria_version_id' => ['required', 'string', 'exists:quality_criteria_versions,id'],
+            'scores.*.puntaje'             => ['required', 'integer', 'min:0'],
+            'callobs'      => ['nullable', 'string', 'max:2500'],
+        ];
+    }
+}
+```
+
+**Nota:** Los IDs son ULIDs (string 26 chars). Las reglas de validación usan `string` en lugar de `integer` para las FK.
+
+## 5. Auditoría
+
+Usar el **AuditModule** existente del proyecto (`App\Modules\AuditModule\Models\AuditLog`) en lugar de una librería externa:
+
+```php
+// En los Listeners:
+use App\Modules\AuditModule\Models\AuditLog;
+
+class LogEvaluationActivity
+{
+    public function handle(EvaluationCreated $event): void
+    {
+        AuditLog::log(
+            action: 'evaluation_created',
+            actorId: $event->createdBy->id,
+            description: "Evaluación creada para empleado {$event->evaluation->employee_id}",
+            properties: ['score' => $event->evaluation->score],
+            module: 'quality'
         );
-        error_log($log, 3, __DIR__ . '/../logs/audit.log');
     }
 }
-
-// Eventos a loguear:
-// - Login exitoso / fallido
-// - Evaluación creada / eliminada
-// - Feedback agregado
-// - Calibración realizada
-// - Cambio de contraseña
-// - Creación/modificación de criterios
 ```
 
----
+### Eventos a auditar
 
-## 5. Checklist de Revisión Pre-Release
+- `evaluation_created` — quién evaluó a quién, cola, score
+- `evaluation_deleted` — soft delete
+- `feedback_created` — quién dio feedback, sobre qué evaluación
+- `calibration_created` — score anterior y nuevo, quién calibró
+- `criteria_version_created` — quién modificó el criterio
 
-- [ ] ¿No hay credenciales en el código?
-- [ ] ¿Todas las consultas SQL usan prepared statements?
-- [ ] ¿Todas las contraseñas están hasheadas con bcrypt?
-- [ ] ¿Hay CSRF tokens en todos los formularios?
-- [ ] ¿Cada endpoint verifica autenticación?
-- [ ] ¿Cada endpoint verifica autorización (rol)?
-- [ ] ¿Los headers de seguridad están configurados?
-- [ ] ¿El usuario de BD tiene solo los privilegios necesarios?
-- [ ] ¿Las sesiones tienen timeout configurado?
-- [ ] ¿Los mensajes de error son genéricos (no revelan detalles internos)?
+## 6. Checklist de Seguridad
 
----
+### Autenticación y Sesión
 
-## 6. Vulnerabilidades Conocidas (Post-Migración)
+- [x] Rutas del módulo envueltas en `middleware('auth')`
+- [x] `middleware('verified')` — email verification (heredado de Fortify)
+- [x] 2FA disponible (heredado de Fortify)
+- [x] Timeout de sesión: 120 min (configuración global)
+- [x] Throttle: 5 intentos/min en login (Fortify)
+
+### Autorización
+
+- [ ] Cada Livewire component verifica su permiso en `mount()` o `authorize()`
+- [ ] Policies registradas en `ModuleServiceProvider`
+- [ ] Seed de roles y permisos en `QualityModuleSeeder`
+- [ ] Super-admin bypass automático (rol `admin` via `Gate::before()`)
+
+### Validación de Input
+
+- [ ] Todos los formularios tienen su `FormRequest`
+- [ ] Livewire `rules()` definidas con type hints
+- [ ] Prohibido `DB::raw()` con concatenación de strings
+- [ ] Escaping automático en Blade con `{{ }}`
+
+### CSRF
+
+- [x] `@csrf` en todo `<form>` Blade (cuando no se usa Livewire)
+- [x] Livewire maneja CSRF automáticamente
+- [x] `VerifyCsrfToken` middleware activo
+
+### Base de Datos
+
+- [ ] Migraciones con `foreignUlid()->constrained()` para integridad referencial ULID
+- [ ] Usuario BD de la app con solo `SELECT, INSERT, UPDATE, DELETE`
+- [ ] Usuario BD de migraciones con `ALTER, CREATE, INDEX, DROP` (solo deploy)
+
+## 7. Pruebas de Seguridad
+
+```php
+// Tests/Feature/QualityModule/SecurityTest.php
+class SecurityTest extends TestCase
+{
+    /** @test */
+    public function unauthenticated_user_is_redirected(): void
+    {
+        $response = $this->get('/quality/evaluaciones');
+        $response->assertRedirect('/login');
+    }
+
+    /** @test */
+    public function evaluator_cannot_access_criteria_admin(): void
+    {
+        $evaluator = User::factory()->create();
+        $evaluator->assignRole('quality-evaluator');
+
+        $response = $this->actingAs($evaluator)
+            ->get('/quality/criterios/crear');
+
+        $response->assertForbidden();
+    }
+
+    /** @test */
+    public function sql_injection_is_prevented(): void
+    {
+        $admin = User::factory()->create()->assignRole('quality-admin');
+        $malicious = "' OR '1'='1";
+
+        $response = $this->actingAs($admin)
+            ->get('/quality/evaluaciones?search='.$malicious);
+
+        $response->assertSuccessful();
+    }
+}
+```
+
+## 8. Vulnerabilidades Remanentes
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| V-01 | Sin HTTPS en producción — las credenciales viajan en texto plano | **Alta** |
-| V-02 | Sin 2FA — una contraseña comprometida expone todo el sistema | **Media** |
-| V-03 | Sin rate limiting en login — permite fuerza bruta | **Media** |
-| V-04 | Sin auditoría automatizada — los logs se revisan manualmente | **Baja** |
+| V-01 | Sin 2FA específico para quality (heredado: el proyecto tiene 2FA global) | Baja |
+| V-02 | Sin rate limiting específico para el módulo (heredado del global) | Baja |
+| V-03 | Sin validación de IP para admin | Baja |

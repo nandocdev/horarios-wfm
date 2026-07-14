@@ -1,14 +1,15 @@
-# PRD — Sistema de Evaluación de Llamadas
+# PRD — QualityModule (Sistema de Evaluación de Llamadas)
 
-**Departamento:** Ingeniería y Calidad — DNASA  
-**Versión del documento:** 1.0  
-**Fecha:** Julio 2026  
+**Módulo:** `app/Modules/QualityModule`
+**Proyecto:** Horarios WFM (Monolito Modular Laravel)
+**Versión del documento:** 1.0
+**Fecha:** Julio 2026
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-Sistema web para que evaluadores del área de calidad registren y administren evaluaciones de llamadas de agentes de call center. Cada llamada se evalúa contra un conjunto de criterios que varían según la cola de atención (trámite, cancelación, farmacia, etc.). Los criterios cambian periódicamente y debe preservarse qué versión se aplicó en cada evaluación.
+Módulo Laravel para que evaluadores del área de calidad registren y administren evaluaciones de llamadas de agentes del contact center. Cada llamada se evalúa contra un conjunto de criterios que varían según la cola de atención (trámite, cancelación, farmacia, etc.). Los criterios cambian periódicamente y debe preservarse qué versión se aplicó en cada evaluación. Se implementa como un módulo autónomo dentro de `app/Modules/QualityModule/`, integrado al monólito modular existente.
 
 ---
 
@@ -28,72 +29,73 @@ Sistema web para que evaluadores del área de calidad registren y administren ev
 | **Evaluador** | Califica llamadas de operadores usando los formularios por cola. |
 | **Coordinador** | Supervisa evaluaciones, puede calibrar (re-asignar puntaje) y agregar feedback. |
 | **Supervisor** | Visualiza evaluaciones de su equipo. |
-| **Operador** | Consulta sus evaluaciones y feedback. (Futuro) |
+| **Operador** | Consulta sus evaluaciones y feedback (futuro). |
 | **Administrador** | Gestiona usuarios, roles, y mantiene los criterios de evaluación. |
+
+Los roles se implementan con **Spatie Laravel Permission**. El super-admin del proyecto (rol `admin`) tiene acceso total vía `Gate::before()`.
 
 ---
 
 ## 4. Requerimientos Funcionales
 
-### Módulo 1 — Autenticación y Gestión de Usuarios
+### Módulo 1 — Autenticación
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-01 | El sistema debe autenticar usuarios contra credenciales almacenadas con hash bcrypt. | Alta |
-| RF-02 | El sistema debe exigir cambio de contraseña en el primer inicio. | Alta |
-| RF-03 | El administrador debe poder crear, editar, inhabilitar y asignar roles a usuarios desde una interfaz. | Alta |
-| RF-04 | Un usuario puede tener múltiples roles (ej: coordinador y evaluador). | Media |
-| RF-05 | Los datos del personal (nombre, login, rol) deben leerse de la BD, no de arreglos hardcodeados. | Alta |
+| RF-01 | El sistema autentica usuarios usando el guard `web` de Laravel Fortify (ya implementado en el proyecto). | Alta |
+| RF-02 | La verificación de email y 2FA son requisitos del proyecto base, no del módulo. | Alta |
 
 ### Módulo 2 — Mantenimiento de Colas y Criterios
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-06 | El administrador debe poder definir colas de atención (Citas Trámite, Farmacia, SIPE, etc.). | Alta |
-| RF-07 | El administrador debe poder crear criterios de evaluación (texto, puntaje, descripción). | Alta |
-| RF-08 | Al modificar un criterio existente, el sistema debe crear una nueva versión sin alterar las anteriores. | Alta |
-| RF-09 | El administrador debe poder asignar criterios (con su versión vigente) a una cola, definiendo el orden de aparición. | Alta |
-| RF-10 | El administrador debe poder activar/desactivar criterios dentro de una cola sin eliminar el histórico. | Alta |
-| RF-11 | El sistema debe permitir que un mismo criterio sea compartido entre varias colas. | Media |
-| RF-12 | El administrador debe poder mantener las banderas rojas (texto, penalización). | Alta |
+| RF-06 | CRUD de colas de atención vía panel Livewire con `<flux:table>`. | Alta |
+| RF-07 | CRUD de criterios de evaluación con versionado automático. | Alta |
+| RF-08 | Al modificar un criterio existente, `CreateCriteriaVersionAction` crea una nueva versión sin alterar las anteriores. | Alta |
+| RF-09 | Asignación de criterios versionados a colas mediante tabla `queue_criteria`. | Alta |
+| RF-10 | Activación/desactivación de criterios dentro de una cola sin eliminar histórico. | Alta |
+| RF-11 | Un criterio puede compartirse entre varias colas. | Media |
+| RF-12 | CRUD de banderas rojas con penalización. | Alta |
 
 ### Módulo 3 — Evaluación de Llamadas
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-13 | El evaluador selecciona la cola, la fecha/hora de llamada, y los datos del agente evaluado. | Alta |
-| RF-14 | El sistema debe presentar dinámicamente los criterios activos de la cola seleccionada. | Alta |
-| RF-15 | El evaluador marca cada criterio como "Cumple" (puntaje completo) o "No cumple" (0). | Alta |
-| RF-16 | El evaluador puede marcar banderas rojas y seleccionar el motivo. | Alta |
-| RF-17 | El sistema calcula automáticamente el puntaje total (suma de puntajes obtenidos). | Alta |
-| RF-18 | El evaluador debe agregar observaciones (máx. 2500 caracteres). | Alta |
-| RF-19 | La evaluación debe congelar la versión de cada criterio al momento de guardarse. | Alta |
-| RF-20 | El evaluador no puede modificar una evaluación después de enviada (solo calibración). | Media |
+| RF-13 | El evaluador selecciona cola, empleado evaluado y fecha/hora de llamada. Los clips individuales provienen del sistema de corte de videos (`scripts/videoparser/`) que segmenta grabaciones de 30 min en llamadas individuales mediante análisis de audio. | Alta |
+| RF-13.1 | La evaluación puede opcionalmente asociarse a un `processed_clip` existente vía FK `clip_id`, permitiendo al evaluador reproducir el clip mientras evalúa. | Alta |
+| RF-14 | El formulario Livewire carga dinámicamente los criterios activos de la cola. | Alta |
+| RF-15 | Cada criterio se marca como "Cumple" (puntaje completo) o "No cumple" (0) mediante toggle. | Alta |
+| RF-16 | Selección de banderas rojas con motivos predefinidos. | Alta |
+| RF-17 | El score total se calcula automáticamente en el frontend (Livewire) y se valida en el Action. | Alta |
+| RF-18 | Observaciones con contador de caracteres (máx 2500). | Alta |
+| RF-19 | La evaluación congela la versión de cada criterio al guardarse (FK a `criteria_versions`). | Alta |
+| RF-20 | Una vez enviada, la evaluación solo puede modificarse vía calibración. | Media |
 
 ### Módulo 4 — Feedback
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-21 | El coordinador/supervisor puede agregar feedback a una evaluación existente. | Alta |
-| RF-22 | El feedback incluye observaciones, fecha y hora. | Alta |
-| RF-23 | Una evaluación puede tener múltiples entradas de feedback. | Media |
+| RF-21 | El coordinador/supervisor agrega feedback a una evaluación existente. | Alta |
+| RF-22 | El feedback incluye observaciones, fecha y hora automática. | Alta |
+| RF-23 | Una evaluación puede tener múltiples entradas de feedback (1:N). | Media |
 
 ### Módulo 5 — Calibración
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-24 | El coordinador puede calibrar una evaluación: modificar el puntaje total y agregar una observación. | Alta |
-| RF-25 | El sistema debe registrar el puntaje anterior, el nuevo, quién calibró y cuándo. | Alta |
+| RF-24 | El coordinador calibra una evaluación: modifica el score total y agrega observación. | Alta |
+| RF-25 | Se registra en `CalibrationLog`: score anterior, nuevo, quién calibró y cuándo. | Alta |
 | RF-26 | La calibración no altera los puntajes individuales por criterio, solo el score total. | Media |
 
 ### Módulo 6 — Consultas y Reportes
 
 | ID | Descripción | Prioridad |
 |---|---|---|
-| RF-27 | El sistema debe mostrar un histórico con DataTables (búsqueda, ordenamiento, exportación a Excel/PDF). | Alta |
-| RF-28 | El histórico debe filtrar por rango de fechas, cola, evaluador, operador, y tipo. | Alta |
-| RF-29 | El sistema debe indicar visualmente si una evaluación tiene feedback y/o calibración. | Media |
-| RF-30 | El administrador debe poder ver el historial de versiones de un criterio. | Baja |
+| RF-27 | Vista general con `<flux:table>` server-side, búsqueda y exportación a Excel. | Alta |
+| RF-28 | Filtros por rango de fechas, cola, evaluador, operador. | Alta |
+| RF-29 | Indicador visual si una evaluación tiene feedback y/o calibración. | Media |
+| RF-30 | Historial de versiones de un criterio (vista de solo lectura). | Baja |
+| RF-31 | Exportación a Excel vía Laravel Excel (Spartner). | Media |
 
 ---
 
@@ -101,108 +103,91 @@ Sistema web para que evaluadores del área de calidad registren y administren ev
 
 | ID | Descripción |
 |---|---|
-| RNF-01 | **Seguridad**: todas las contraseñas con bcrypt; consultas parametrizadas (prepared statements) para eliminar SQL injection. |
-| RNF-02 | **Integridad referencial**: todas las relaciones deben tener FK a nivel de BD. |
-| RNF-03 | **Portabilidad**: nombres de tablas y columnas sin guiones ni caracteres especiales. |
-| RNF-04 | **Mantenibilidad**: cero datos hardcodeados en PHP; tablas normalizadas. |
-| RNF-05 | **Auditabilidad**: cada modificación de criterio, calibración y feedback debe tener timestamp y usuario. |
-| RNF-06 | **Rendimiento**: el histórico (30K+ registros) debe cargar en < 3s con DataTables server-side. |
+| RNF-01 | **Seguridad**: autenticación con Fortify; todas las queries vía Eloquent con prepared statements. |
+| RNF-02 | **Integridad referencial**: migraciones con FK a nivel de BD (ULIDs). |
+| RNF-03 | **Aislamiento**: nombres de tablas con prefijo `quality_` para evitar colisiones con otros módulos del proyecto. |
+| RNF-04 | **Mantenibilidad**: cero datos hardcodeados; todo seed desde migraciones. |
+| RNF-05 | **Auditabilidad**: cada modificación registrada vía AuditModule del proyecto o eventos con timestamps. |
+| RNF-06 | **Rendimiento**: histórico (30K+ registros) en < 3s con eager loading + paginación server-side. |
+| RNF-07 | **Aislamiento**: el módulo se habilita/deshabilita desde `config/modules.php` sin afectar el resto del proyecto. |
+| RNF-08 | **Consistencia**: todas las PKs y FKs usan ULIDs, consistentes con el BaseModel del proyecto. |
 
 ---
 
 ## 6. Casos de Uso
 
-### CU-01: Iniciar sesión
-
-```
-Actor:      Evaluador, Coordinador, Supervisor, Administrador
-Precondición: Usuario existe y está activo en login_credentials.
-Flujo:
-  1. El usuario ingresa login y contraseña en Principal.php.
-  2. El sistema verifica el hash contra login_credentials.
-  3. Si es primer inicio (cambio = FALSE), redirige a cambio de contraseña.
-  4. Si las credenciales son válidas, redirige al menú principal.
-Postcondición: Sesión iniciada.
-```
-
-### CU-02: Evaluar llamada
+### CU-01: Evaluar llamada
 
 ```
 Actor:      Evaluador
-Precondición: Sesión iniciada, cola con criterios activos.
+Precondición: Sesión iniciada, rol 'quality-evaluator', cola con criterios activos.
+             El sistema de corte de videos (scripts/videoparser/) ya procesó
+             la grabación y generó clips individuales en processed_clips.
 Flujo:
-  1. El evaluador selecciona una cola desde el menú (ElgCri.php).
-  2. El sistema carga los criterios activos vía v_queues_criteria_active.
-  3. El evaluador completa: evaluador, coordinador, supervisor, operador,
-     fecha/hora llamada.
-  4. El evaluador marca cada criterio como Sí/No.
-  5. El evaluador indica si hay bandera roja y selecciona el motivo.
-  6. El evaluador escribe observaciones.
-  7. El sistema calcula el puntaje total y guarda:
-     - Cabecera en evaluations
-     - Cada puntaje en evaluation_scores (apuntando a criteria_versions.id)
-     - Banderas rojas en evaluation_red_flags
-  8. Redirige al menú principal.
-Postcondición: Evaluación registrada con versiones de criterios congeladas.
+  1. GET /quality/evaluaciones/crear?queue=CM-Tr → EvaluationForm Livewire.
+  2. El componente carga criterios desde CriteriaRepository::getActiveByQueue().
+  3. Evaluador selecciona empleado (Employee desde PersonnelModule). El formulario
+     muestra los processed_clips disponibles para ese empleado en la fecha elegida.
+  4. Evaluador selecciona un clip (opcional) y completa los puntajes.
+  5. Submit → StoreEvaluationAction::execute(CreateEvaluationDTO $dto).
+  6. Action: calcula score, crea Evaluation con clip_id opcional, bulk insert
+     EvaluationScores y RedFlags en transacción.
+  7. Event EvaluationCreated es disparado.
+  8. Redirige a /quality/evaluaciones con flash message.
+Postcondición: Evaluación persistida con versiones de criterios congeladas.
+               Si se asoció un clip, el evaluador puede reproducirlo desde el detalle.
 ```
 
-### CU-03: Agregar feedback
+### CU-02: Agregar feedback
 
 ```
 Actor:      Coordinador, Supervisor
 Precondición: Evaluación existe y está activa.
 Flujo:
-  1. Desde el histórico, el usuario hace clic en "Feedback" de una evaluación.
-  2. El sistema carga la evaluación con las observaciones originales (solo lectura).
-  3. El usuario escribe las observaciones del feedback.
-  4. El sistema guarda en feedback con fecha/hora y redirige.
-Postcondición: Feedback registrado, visible en el histórico.
+  1. GET /quality/evaluaciones/{id}/feedback → FeedbackForm Livewire.
+  2. Usuario escribe observaciones y submit.
+  3. StoreFeedbackAction::execute() guarda en Feedback.
+  4. Event FeedbackAdded.
+Postcondición: Feedback registrado.
 ```
 
-### CU-04: Calibrar evaluación
+### CU-03: Calibrar evaluación
 
 ```
 Actor:      Coordinador
-Precondición: Evaluación existe y está activa.
+Precondición: Evaluación existe.
 Flujo:
-  1. Desde el histórico, el coordinador selecciona "Calibrar".
-  2. El sistema muestra el score actual y los puntajes por criterio.
-  3. El coordinador ingresa el nuevo score y una observación.
-  4. El sistema registra en calibration_log: score anterior, score nuevo,
-     observación, login del coordinador, fecha y hora.
-  5. El sistema actualiza evaluations.score.
-Postcondición: Calibración registrada sin modificar puntajes originales.
+  1. GET /quality/evaluaciones/{id}/calibrar → CalibrationForm Livewire.
+  2. Coordinador ingresa nuevo score y observación.
+  3. StoreCalibrationAction: registra en CalibrationLog, actualiza Evaluation.score.
+  4. Event CalibrationCreated.
+Postcondición: Calibración registrada.
 ```
 
-### CU-05: Crear/editar criterio
+### CU-04: Crear/editar criterio
 
 ```
 Actor:      Administrador
-Precondición: Sesión iniciada como admin.
+Precondición: Rol quality-admin.
 Flujo:
-  1. El administrador accede al módulo de criterios.
-  2. Si es nuevo: ingresa código, texto, puntaje y descripción.
-     El sistema crea criteria + criteria_versions (versión 1, valid_from = hoy).
-  3. Si edita existente: el sistema NO modifica la versión actual.
-     Crea una nueva criteria_versions (version + 1, valid_from = hoy,
-     valid_to de la anterior = hoy).
-  4. Asigna el criterio a una o más colas vía queue_criteria.
-Postcondición: Nueva versión del criterio creada. Evaluaciones anteriores
-               conservan su versión original.
+  1. GET /quality/criterios → CriteriaList Livewire.
+  2. Nuevo: CreateCriteriaAction::execute() → crea Criteria + CriteriaVersion v1.
+  3. Editar: CreateCriteriaVersionAction::execute() → cierra versión anterior, crea nueva.
+  4. AssignToQueueAction asigna el criteria_version a una Queue.
+Postcondición: Nueva versión del criterio. Evaluaciones anteriores intactas.
 ```
 
-### CU-06: Consultar histórico
+### CU-05: Consultar histórico
 
 ```
 Actor:      Evaluador, Coordinador, Supervisor, Administrador
 Precondición: Sesión iniciada.
 Flujo:
-  1. El usuario accede a "Histórico" desde el menú.
-  2. El sistema carga v_evaluations_list y la muestra con DataTables.
-  3. El usuario puede buscar, filtrar por fechas/cola/operador, ordenar columnas.
-  4. El usuario puede exportar a Excel, PDF o CSV.
-  5. El usuario puede hacer clic en una fila para ver el detalle de criterios.
-Postcondición: Datos visibles sin modificaciones.
+  1. GET /quality/evaluaciones → EvaluationIndex Livewire con <flux:table>.
+  2. Server-side paginate con filtros (fechas, cola, evaluador, empleado).
+  3. Export a Excel vía Laravel Excel.
+  4. Click en fila → GET /quality/evaluaciones/{id} → EvaluationDetail Livewire.
+Postcondición: Datos visibles.
 ```
 
 ---
@@ -211,12 +196,13 @@ Postcondición: Datos visibles sin modificaciones.
 
 | ID | Regla |
 |---|---|
-| RN-01 | Una evaluación eliminada (status = 'eliminada') no aparece en el histórico pero persiste en BD. |
-| RN-02 | El score total es siempre la suma de puntajes_obtenidos de evaluation_scores, salvo que haya calibración. |
+| RN-01 | Una evaluación con `deleted_at` no null no aparece en el histórico pero persiste en BD. |
+| RN-02 | El score total es siempre la suma de `evaluation_scores.puntaje_obtenido`, salvo que haya calibración. |
 | RN-03 | No se puede eliminar una evaluación si tiene feedback o calibración asociados. |
-| RN-04 | Un criterio no puede desasignarse de una cola si existen evaluaciones que lo referencian. |
-| RN-05 | El rango de fecha/hora de llamada debe estar entre 06:00 y 19:00. |
-| RN-06 | Un usuario bloqueado (3 intentos fallidos) no puede iniciar sesión hasta que un admin lo desbloquee. |
+| RN-04 | Un criterio no puede desasignarse de una cola si existen evaluation_scores que lo referencian. |
+| RN-05 | El rango de hora de llamada debe estar entre 06:00 y 19:00 (validación en Form Request). |
+| RN-06 | `employee_id` referencia a `employees` (PersonnelModule, tabla pública — ADR-007). |
+| RN-07 | `evaluator_id` referencia a `users` (CoreModule, tabla pública — ADR-007). |
 
 ---
 
@@ -224,9 +210,12 @@ Postcondición: Datos visibles sin modificaciones.
 
 | Término | Definición |
 |---|---|
-| **Cola** | Tipo de atención (Citas Médicas, Farmacia, SIPE, etc.). |
-| **Criterio** | Aspecto evaluable de la llamada (ej: "El operador saludó en los primeros 30 segundos"). |
-| **Versión de criterio** | Snapchat inmutable del texto y puntaje de un criterio en un momento dado. |
-| **Bandera Roja** | Falta grave que penaliza fuertemente la evaluación. |
-| **Calibración** | Ajuste del puntaje total por parte de un coordinador, con registro de auditoría. |
-| **Feedback** | Retroalimentación del coordinador/supervisor al evaluador sobre una evaluación. |
+| **Cola** (Queue) | Tipo de atención (Citas Médicas, Farmacia, SIPE, etc.). |
+| **Criterio** (Criteria) | Aspecto evaluable de la llamada, con versiones inmutables. |
+| **Versión de criterio** (CriteriaVersion) | Snapshot inmutable del texto y puntaje en un momento dado. |
+| **Bandera Roja** (RedFlagCriteria) | Falta grave con penalización. |
+| **Calibración** (CalibrationLog) | Ajuste del score total por un coordinador. |
+| **Feedback** (Feedback) | Retroalimentación del coordinador/supervisor. |
+| **Employee** | Agente del contact center, modelo del PersonnelModule. |
+| **User** | Usuario del sistema (evaluador, coordinador), modelo del CoreModule. |
+| **ProcessedClip** | Clip de video/audio individual generado por `scripts/videoparser/` a partir de una grabación de 30 min. Cada clip corresponde a una llamada detectada mediante análisis de audio y correlacionada con un `CallRecord`. |

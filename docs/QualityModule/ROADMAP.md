@@ -228,3 +228,5 @@ Fase 1 (Fundación)
 - Sprint 5.1 (Tests) + 5.2 (Hardening)
 
 **Estimación:** 5 fases × ~2 sprints por fase = ~10 sprints. Ajustar según velocidad del equipo.
+
+

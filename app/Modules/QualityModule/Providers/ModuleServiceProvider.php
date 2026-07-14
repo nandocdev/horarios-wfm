@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\QualityModule\Providers;
 
+use App\Modules\QualityModule\Console\Commands\SeedQualityData;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Observers\EvaluationObserver;
 use Illuminate\Support\Facades\Route;
@@ -26,5 +27,16 @@ class ModuleServiceProvider extends ServiceProvider
         }
 
         Evaluation::observe(EvaluationObserver::class);
+
+        $this->registerCommands();
+    }
+
+    private function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                SeedQualityData::class,
+            ]);
+        }
     }
 }

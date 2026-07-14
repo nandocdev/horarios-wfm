@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
+use App\Modules\QualityModule\Database\Seeders\QualityModuleSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -34,6 +35,7 @@ class DatabaseSeeder extends Seeder
             OperationalSettingsSeeder::class,
             VacacionesSeeder::class,
             KnowledgeBaseSeeder::class,
+            QualityModuleSeeder::class,
         ]);
 
         // Asegurar que el usuario administrador mantenga permisos totales

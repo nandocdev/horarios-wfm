@@ -7,6 +7,9 @@ namespace App\Modules\QualityModule\Providers;
 use App\Modules\QualityModule\Console\Commands\SeedQualityData;
 use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Events\EvaluationCreated;
+use App\Modules\QualityModule\Events\FeedbackAdded;
+use App\Modules\QualityModule\Listeners\LogEvaluationAudit;
+use App\Modules\QualityModule\Listeners\LogFeedbackAudit;
 use App\Modules\QualityModule\Listeners\SendEvaluationNotification;
 use App\Modules\QualityModule\Listeners\UpdateQueueScoreAverages;
 use App\Modules\QualityModule\Livewire\CalibrationForm;
@@ -106,6 +109,14 @@ class ModuleServiceProvider extends ServiceProvider
         Event::listen(
             CalibrationCreated::class,
             UpdateQueueScoreAverages::class,
+        );
+        Event::listen(
+            EvaluationCreated::class,
+            LogEvaluationAudit::class,
+        );
+        Event::listen(
+            FeedbackAdded::class,
+            LogFeedbackAudit::class,
         );
     }
 

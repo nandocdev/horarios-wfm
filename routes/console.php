@@ -39,3 +39,8 @@ Schedule::command('uccx:auto-import')
 Schedule::command('operations:reconcile-attendance')
     ->dailyAt('03:00')
     ->withoutOverlapping();
+
+// Quality Module: Recalcular estadísticas de colas
+Schedule::job(new \App\Modules\QualityModule\Jobs\RecalculateQueueStats())
+    ->daily()
+    ->withoutOverlapping();

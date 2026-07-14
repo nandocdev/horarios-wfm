@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Actions;
 
-use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Carbon\CarbonInterface;
 
@@ -15,7 +15,8 @@ final class CalculateAdvancedProductivityAction
 {
     public function __construct(
         private readonly AgentPerformanceRepositoryInterface $performanceRepo,
-        private readonly TelemetryServiceInterface $telemetryService
+        private readonly TelemetryServiceInterface $telemetryService,
+        private readonly TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {}
 
     public function execute(EmployeeInterface $employee, CarbonInterface $date): AgentDailyMetric
@@ -32,7 +33,7 @@ final class CalculateAdvancedProductivityAction
 
         if ($callsTotal > 0) {
             $queueGroups = $calls->groupBy('csq_name');
-            $queueGoals = CallQueue::pluck('aht_goal', 'name')->toArray();
+            $queueGoals = $this->realtimeRepo->getQueueAhtGoals()->toArray();
 
             foreach ($queueGroups as $name => $group) {
                 $count = $group->count();

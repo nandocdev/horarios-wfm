@@ -100,6 +100,19 @@ class MenuHelper
                 ],
             ],
 
+            // ⭐ Calidad
+            [
+                'label' => __('Calidad'),
+                'icon' => 'clipboard-check',
+                'permission' => 'quality.evaluations.view',
+                'submenu' => [
+                    ['label' => __('Evaluaciones'), 'route' => 'quality.evaluations.index', 'pattern' => 'quality/evaluaciones*', 'icon' => 'list-checks'],
+                    ['label' => __('Nueva Evaluación'), 'route' => 'quality.evaluations.create', 'pattern' => 'quality/evaluaciones/crear*', 'permission' => 'quality.evaluations.create', 'icon' => 'plus-circle'],
+                    ['label' => __('Criterios'), 'route' => 'quality.criteria.index', 'pattern' => 'quality/criterios*', 'permission' => 'quality.criteria.view', 'icon' => 'clipboard-document'],
+                    ['label' => __('Colas'), 'route' => 'quality.queues.index', 'pattern' => 'quality/colas*', 'permission' => 'quality.queues.manage', 'icon' => 'queue-list'],
+                ],
+            ],
+
             // 📞 Centro de Contacto
             [
                 'label' => __('Centro de Contacto'),

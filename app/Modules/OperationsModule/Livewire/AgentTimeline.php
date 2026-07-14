@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\DTOs\TimelineItemDTO;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -202,10 +202,9 @@ class AgentTimeline extends Component
         }
 
         // C. Transiciones Reales (CUIC Snapshot)
-        $transitions = AgentStateTransition::where('employee_id', $this->employeeId)
-            ->whereDate('transition_time', $now->toDateString())
-            ->orderBy('transition_time', 'asc')
-            ->get();
+        $realtimeRepo = app(TelemetryRealtimeRepositoryInterface::class);
+        $transitions = $realtimeRepo->getBatchStateTransitions([(int) $this->employeeId], $now->toDateString())
+            ->sortBy('transition_time');
 
         Log::error('DEBUG: Transitions found: '.$transitions->count());
 

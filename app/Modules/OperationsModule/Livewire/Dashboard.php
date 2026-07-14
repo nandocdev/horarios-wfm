@@ -8,7 +8,7 @@ use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
-use App\Shared\Contracts\Telemetry\AgentRealtimeRepositoryInterface;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -75,7 +75,7 @@ class Dashboard extends Component
 
     public function render(
         DashboardScheduleQueriesInterface $scheduleQueries,
-        AgentRealtimeRepositoryInterface $realtimeRepo,
+        TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
         $user = $this->getCurrentUser();
         $employee = $this->getEmployee();

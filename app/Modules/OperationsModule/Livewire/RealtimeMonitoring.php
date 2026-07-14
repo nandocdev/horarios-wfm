@@ -10,7 +10,7 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
-use App\Shared\Contracts\Telemetry\AgentRealtimeRepositoryInterface;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -58,7 +58,7 @@ class RealtimeMonitoring extends Component
 
     public function mount(
         DashboardScheduleQueriesInterface $scheduleQueries,
-        AgentRealtimeRepositoryInterface $realtimeRepo,
+        TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
         $this->authorize('monitorRealtime', Schedule::class);
 
@@ -127,7 +127,7 @@ class RealtimeMonitoring extends Component
 
     public function showDetails(
         int $empId,
-        AgentRealtimeRepositoryInterface $realtimeRepo,
+        TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
         $telemetryService = app(TelemetryServiceInterface::class);
         $expectedStateAction = app(GetExpectedAgentStateAction::class);
@@ -428,7 +428,7 @@ class RealtimeMonitoring extends Component
     }
 
     public function render(
-        AgentRealtimeRepositoryInterface $realtimeRepo,
+        TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
         $lastUpdate = $realtimeRepo->getLatestUpdate();
         $lastUpdateCarbon = $lastUpdate ? Carbon::parse($lastUpdate) : null;

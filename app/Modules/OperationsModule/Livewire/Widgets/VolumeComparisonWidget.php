@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire\Widgets;
 
-use App\Modules\ConnectModule\Models\CallRecord;
-use Illuminate\Support\Facades\DB;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -19,8 +18,9 @@ class VolumeComparisonWidget extends Component
         HTML;
     }
 
-    public function render()
-    {
+    public function render(
+        TelemetryRealtimeRepositoryInterface $realtimeRepo,
+    ) {
         $now = now();
         $startOfCurrentWeek = $now->copy()->startOfWeek();
         $endOfCurrentWeek = $now->copy()->endOfWeek();
@@ -28,29 +28,15 @@ class VolumeComparisonWidget extends Component
         $startOfPreviousWeek = $startOfCurrentWeek->copy()->subWeek();
         $endOfPreviousWeek = $startOfPreviousWeek->copy()->endOfWeek();
 
-        // Data Semana Actual
-        $currentWeekData = CallRecord::whereNotNull('queue_id')
-            ->whereBetween('ivr_started_at', [$startOfCurrentWeek, $endOfCurrentWeek])
-            ->select(
-                DB::raw('DATE(ivr_started_at) as date'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned')
-            )
-            ->groupBy('date')
-            ->get()
-            ->keyBy('date');
+        $currentWeekData = $realtimeRepo->getCallVolumeByDateRange(
+            $startOfCurrentWeek->toDateString(),
+            $endOfCurrentWeek->toDateString(),
+        );
 
-        // Data Semana Anterior
-        $previousWeekData = CallRecord::whereNotNull('queue_id')
-            ->whereBetween('ivr_started_at', [$startOfPreviousWeek, $endOfPreviousWeek])
-            ->select(
-                DB::raw('DATE(ivr_started_at) as date'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned')
-            )
-            ->groupBy('date')
-            ->get()
-            ->keyBy('date');
+        $previousWeekData = $realtimeRepo->getCallVolumeByDateRange(
+            $startOfPreviousWeek->toDateString(),
+            $endOfPreviousWeek->toDateString(),
+        );
 
         $labels = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie'];
         $currHandled = [];

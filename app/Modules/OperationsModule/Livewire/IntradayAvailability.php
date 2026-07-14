@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\ConnectModule\Models\AgentRealtimeState;
-use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\PersonnelModule\Models\Employee;
-use App\Modules\WfmModule\Models\ScheduleException;
-use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -19,21 +17,23 @@ use Livewire\Component;
  */
 class IntradayAvailability extends Component
 {
-    /**
-     * Define el intervalo de actualización automática (polling).
-     */
-    public int $refreshInterval = 10; // Segundos
+    public int $refreshInterval = 10;
+
+    public function __construct(
+        private readonly TelemetryRealtimeRepositoryInterface $realtimeRepo,
+        private readonly DashboardScheduleQueriesInterface $scheduleQueries,
+    ) {
+        parent::__construct();
+    }
 
     #[Computed]
     public function realtimeMetrics(): array
     {
-        // 0. Obtener los IDs de los empleados que son posiciones operativas (IDs 1, 2, 5, 11, 13)
         $operadorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
             ->pluck('id')
             ->toArray();
 
         if (empty($operadorIds)) {
-            // Early return si no hay operadores
             return [
                 'total_scheduled' => 0,
                 'total_connected' => 0,
@@ -46,68 +46,40 @@ class IntradayAvailability extends Component
             ];
         }
 
-        // 1. Obtener todos los estados de Finesse (agentes conectados)
-        $realtimeStates = AgentRealtimeState::select('employee_id', 'external_id', 'current_state', 'reason_code', 'metadata')
-            ->where('current_state', '!=', 'LOGOUT')
-            ->whereIn('employee_id', $operadorIds)
-            ->get();
+        $realtimeStates = $this->realtimeRepo->getRealtimeStates($operadorIds)
+            ->where('current_state', '!=', 'LOGOUT');
 
-        // 2. Obtener horarios del día actual
         $now = now();
-        $currentAssignments = WeeklyScheduleAssignment::whereHas('weeklySchedule', function ($q) use ($now) {
-            $q->where('week_start_date', '<=', $now->toDateString())
-                ->where('week_end_date', '>=', $now->toDateString());
-        })
-            ->whereIn('employee_id', $operadorIds)
-            ->where('day_of_week', $now->dayOfWeekIso)
-            ->where('start_time', '<=', $now->toTimeString())
-            ->where('end_time', '>=', $now->toTimeString())
-            ->get();
+        $today = $now->toDateString();
+        $time = $now->toTimeString();
+
+        $currentAssignments = $this->scheduleQueries->getScheduledForTime($operadorIds, $today, $now->dayOfWeekIso, $time);
 
         $scheduledEmployeeIds = $currentAssignments->pluck('employee_id')->toArray();
         $connectedEmployeeIds = $realtimeStates->pluck('employee_id')->toArray();
 
-        // 3. Obtener excepciones activas
-        $activeExceptions = ScheduleException::whereIn('employee_id', $scheduledEmployeeIds)
-            ->where(function ($q) use ($now) {
-                $q->where(function ($q2) use ($now) {
-                    $q2->where('start_at', '<=', $now)
-                        ->where('end_at', '>=', $now);
-                })->orWhere(function ($q2) use ($now) {
-                    $q2->where('is_full_day', true)
-                        ->whereDate('start_at', '<=', $now->toDateString())
-                        ->whereDate('end_at', '>=', $now->toDateString());
-                });
-            })
-            ->pluck('employee_id')
-            ->toArray();
+        $activeExceptions = $this->scheduleQueries->getActiveExceptionIds($operadorIds, $now);
 
-        // Cálculos
         $totalScheduled = count($scheduledEmployeeIds) - count($activeExceptions);
         $totalConnected = count($connectedEmployeeIds);
 
-        // Ausentes (Agendados - Conectados - Excepcionados)
         $absentIds = array_diff($scheduledEmployeeIds, $connectedEmployeeIds, $activeExceptions);
         $totalAbsent = count($absentIds);
 
-        // Agentes agendados que están en excepción
         $totalExceptions = count(array_intersect($scheduledEmployeeIds, $activeExceptions));
 
         $talking = $realtimeStates->where('current_state', 'TALKING')->count();
         $ready = $realtimeStates->where('current_state', 'READY')->count();
         $notReady = $realtimeStates->where('current_state', 'NOT_READY')->count();
 
-        // Adherencia Real Intradía (Desde el inicio hasta ahora)
         $adherenceRes = app(CalculateRealAdherenceAction::class)->executeBatch($operadorIds, $now);
         $adherence = $adherenceRes['percentage'];
 
-        // Breakdown de Not Ready
         $notReadyBreakdown = $realtimeStates->where('current_state', 'NOT_READY')
             ->groupBy('reason_code')
             ->map(fn ($group) => $group->count())
             ->toArray();
 
-        // Agentes hablando por cola
         $agentsTalkingByQueue = [];
         foreach ($realtimeStates->where('current_state', 'TALKING') as $state) {
             $meta = $state->metadata ?? [];
@@ -122,8 +94,7 @@ class IntradayAvailability extends Component
             $agentsTalkingByQueue[$queueName] = ($agentsTalkingByQueue[$queueName] ?? 0) + 1;
         }
 
-        $csqSummary = CsqRealtimeStat::orderByDesc('calls_waiting')
-            ->get()
+        $csqSummary = $this->realtimeRepo->getCsqRealtimeStats()
             ->map(function ($csq) use (&$agentsTalkingByQueue) {
                 $csq->agents_talking = $agentsTalkingByQueue[$csq->csq_name] ?? 0;
                 unset($agentsTalkingByQueue[$csq->csq_name]);

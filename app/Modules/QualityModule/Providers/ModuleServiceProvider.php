@@ -9,13 +9,21 @@ use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Events\EvaluationCreated;
 use App\Modules\QualityModule\Listeners\SendEvaluationNotification;
 use App\Modules\QualityModule\Listeners\UpdateQueueScoreAverages;
+use App\Modules\QualityModule\Models\CalibrationLog;
+use App\Modules\QualityModule\Models\Criteria;
 use App\Modules\QualityModule\Models\Evaluation;
+use App\Modules\QualityModule\Models\Feedback;
 use App\Modules\QualityModule\Observers\EvaluationObserver;
+use App\Modules\QualityModule\Policies\CalibrationPolicy;
+use App\Modules\QualityModule\Policies\CriteriaPolicy;
+use App\Modules\QualityModule\Policies\EvaluationPolicy;
+use App\Modules\QualityModule\Policies\FeedbackPolicy;
 use App\Modules\QualityModule\Repositories\EloquentCriteriaRepository;
 use App\Modules\QualityModule\Repositories\EloquentEvaluationRepository;
 use App\Shared\Contracts\Quality\CriteriaRepositoryInterface;
 use App\Shared\Contracts\Quality\EvaluationRepositoryInterface;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -48,8 +56,17 @@ class ModuleServiceProvider extends ServiceProvider
 
         Evaluation::observe(EvaluationObserver::class);
 
+        $this->registerPolicies();
         $this->registerEventListeners();
         $this->registerCommands();
+    }
+
+    private function registerPolicies(): void
+    {
+        Gate::policy(Evaluation::class, EvaluationPolicy::class);
+        Gate::policy(Criteria::class, CriteriaPolicy::class);
+        Gate::policy(Feedback::class, FeedbackPolicy::class);
+        Gate::policy(CalibrationLog::class, CalibrationPolicy::class);
     }
 
     private function registerEventListeners(): void

@@ -29,6 +29,7 @@ final class StoreCalibrationAction
 
             $evaluation->update([
                 'score' => $dto->score_nuevo,
+                'status' => \App\Modules\QualityModule\Enums\EvaluationStatus::Activa->value,
             ]);
 
             CalibrationCreated::dispatch($calibration);

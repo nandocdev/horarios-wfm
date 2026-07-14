@@ -22,6 +22,8 @@ class FeedbackForm extends Component
 
     public function submit(StoreFeedbackAction $action): void
     {
+        $this->authorize('create', [\App\Modules\QualityModule\Models\Feedback::class, $this->evaluation]);
+
         $this->validate(['obsfeed' => 'required|string|max:2500']);
 
         $action->execute(new CreateFeedbackDTO(

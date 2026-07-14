@@ -8,8 +8,12 @@ use App\Modules\CoreModule\Models\User;
 
 class CalibrationPolicy
 {
-    public function create(User $user): bool
+    public function create(User $user, \App\Modules\QualityModule\Models\Evaluation $evaluation): bool
     {
-        return $user->hasPermissionTo('quality.calibrations.create');
+        return $user->hasPermissionTo('quality.calibrations.create')
+            && in_array($evaluation->status, [
+                \App\Modules\QualityModule\Enums\EvaluationStatus::PendienteCalibracion->value,
+                \App\Modules\QualityModule\Enums\EvaluationStatus::Activa->value,
+            ]);
     }
 }

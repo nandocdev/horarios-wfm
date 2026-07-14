@@ -19,6 +19,13 @@ final class StoreEvaluationAction
         return DB::transaction(function () use ($dto) {
             $score = collect($dto->scores)->sum('puntaje');
 
+            $evaluator = \App\Modules\CoreModule\Models\User::find($dto->evaluator_id);
+            $status = \App\Modules\QualityModule\Enums\EvaluationStatus::Activa->value;
+            
+            if ($evaluator && $evaluator->hasRole(\App\Modules\QualityModule\Enums\QualityRole::Evaluator->value)) {
+                $status = \App\Modules\QualityModule\Enums\EvaluationStatus::PendienteCalibracion->value;
+            }
+
             $evaluation = Evaluation::create([
                 'queue_id' => $dto->queue_id,
                 'employee_id' => $dto->employee_id,
@@ -31,7 +38,7 @@ final class StoreEvaluationAction
                 'score' => $score,
                 'callobs' => $dto->callobs,
                 'has_redflag' => ! empty($dto->red_flags),
-                'status' => 'activa',
+                'status' => $status,
             ]);
 
             if (! empty($dto->scores)) {

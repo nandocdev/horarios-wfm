@@ -25,6 +25,8 @@ class CalibrationForm extends Component
 
     public function submit(StoreCalibrationAction $action): void
     {
+        $this->authorize('create', [\App\Modules\QualityModule\Models\CalibrationLog::class, $this->evaluation]);
+
         $this->validate([
             'score_nuevo' => 'required|integer|min:0|max:100',
             'obs' => 'nullable|string|max:2500',

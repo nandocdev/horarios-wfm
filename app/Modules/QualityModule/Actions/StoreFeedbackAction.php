@@ -12,14 +12,22 @@ final class StoreFeedbackAction
 {
     public function execute(CreateFeedbackDTO $dto): Feedback
     {
-        $feedback = Feedback::create([
-            'evaluation_id' => $dto->evaluation_id,
-            'obsfeed' => $dto->obsfeed,
-            'created_by' => $dto->created_by,
-        ]);
-
-        FeedbackAdded::dispatch($feedback);
-
-        return $feedback;
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($dto) {
+            $evaluation = \App\Modules\QualityModule\Models\Evaluation::findOrFail($dto->evaluation_id);
+            
+            $feedback = Feedback::create([
+                'evaluation_id' => $dto->evaluation_id,
+                'obsfeed' => $dto->obsfeed,
+                'created_by' => $dto->created_by,
+            ]);
+            
+            $evaluation->update([
+                'status' => \App\Modules\QualityModule\Enums\EvaluationStatus::ConFeedback->value,
+            ]);
+    
+            FeedbackAdded::dispatch($feedback);
+    
+            return $feedback;
+        });
     }
 }

@@ -30,6 +30,7 @@ enum QualityRole: string
             self::Evaluator => [
                 'quality.evaluations.view',
                 'quality.evaluations.create',
+                'quality.feedback.create',
             ],
             self::Supervisor => [
                 'quality.evaluations.view',

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\QualityModule\Actions;
 
 use App\Modules\QualityModule\DTOs\CreateEvaluationDTO;
+use App\Modules\QualityModule\Events\EvaluationCreated;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\EvaluationRedFlag;
 use App\Modules\QualityModule\Models\EvaluationScore;
@@ -59,6 +60,8 @@ final class StoreEvaluationAction
 
                 EvaluationRedFlag::insert($redFlagsData);
             }
+
+            EvaluationCreated::dispatch($evaluation);
 
             return $evaluation;
         });

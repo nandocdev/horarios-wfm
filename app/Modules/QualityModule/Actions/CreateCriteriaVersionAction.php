@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\QualityModule\Actions;
 
+use App\Modules\QualityModule\Events\CriteriaVersionCreated;
 use App\Modules\QualityModule\Models\Criteria;
 use App\Modules\QualityModule\Models\CriteriaVersion;
 use Carbon\Carbon;
@@ -32,7 +33,7 @@ final class CreateCriteriaVersionAction
                 ]);
             }
 
-            return CriteriaVersion::create([
+            $version = CriteriaVersion::create([
                 'criteria_id' => $criteriaId,
                 'version' => $nextVersion,
                 'criterio_text' => $newData['criterio_text'],
@@ -41,6 +42,10 @@ final class CreateCriteriaVersionAction
                 'valid_from' => Carbon::now()->toDateString(),
                 'valid_to' => null,
             ]);
+
+            CriteriaVersionCreated::dispatch($version);
+
+            return $version;
         });
     }
 }

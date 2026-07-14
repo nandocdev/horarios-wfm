@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\QualityModule\Actions;
 
 use App\Modules\QualityModule\DTOs\CreateCalibrationDTO;
+use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Models\CalibrationLog;
 use App\Modules\QualityModule\Models\Evaluation;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,8 @@ final class StoreCalibrationAction
             $evaluation->update([
                 'score' => $dto->score_nuevo,
             ]);
+
+            CalibrationCreated::dispatch($calibration);
 
             return $calibration;
         });

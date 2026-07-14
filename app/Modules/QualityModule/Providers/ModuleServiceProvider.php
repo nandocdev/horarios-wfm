@@ -11,13 +11,28 @@ use App\Modules\QualityModule\Listeners\SendEvaluationNotification;
 use App\Modules\QualityModule\Listeners\UpdateQueueScoreAverages;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Observers\EvaluationObserver;
+use App\Modules\QualityModule\Repositories\EloquentCriteriaRepository;
+use App\Modules\QualityModule\Repositories\EloquentEvaluationRepository;
+use App\Shared\Contracts\Quality\CriteriaRepositoryInterface;
+use App\Shared\Contracts\Quality\EvaluationRepositoryInterface;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class ModuleServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->singleton(
+            EvaluationRepositoryInterface::class,
+            EloquentEvaluationRepository::class,
+        );
+
+        $this->app->singleton(
+            CriteriaRepositoryInterface::class,
+            EloquentCriteriaRepository::class,
+        );
+    }
 
     public function boot(): void
     {

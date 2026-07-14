@@ -6,7 +6,7 @@ namespace App\Shared\Contracts\Telemetry;
 
 use Illuminate\Support\Collection;
 
-interface AgentRealtimeRepositoryInterface
+interface TelemetryRealtimeRepositoryInterface
 {
     public function getRealtimeStates(?array $employeeIds = null): Collection;
 
@@ -35,6 +35,11 @@ interface AgentRealtimeRepositoryInterface
     public function getQueueStats(int $limit = 6): Collection;
 
     /**
+     * @return Collection<int, object>
+     */
+    public function getCsqRealtimeStats(): Collection;
+
+    /**
      * @return Collection<int, string>
      */
     public function getCallTrends(string $from, string $to): Collection;
@@ -55,4 +60,29 @@ interface AgentRealtimeRepositoryInterface
     public function getCallStatsForDate(string $date): object;
 
     public function getAverageServiceLevel(): float;
+
+    /**
+     * @return Collection<string, int>
+     */
+    public function getTalkingAgentsByQueue(array $employeeIds): Collection;
+
+    /**
+     * @return array<string, int>
+     */
+    public function getHistoricalStateDistribution(array $employeeIds, string $date): array;
+
+    /**
+     * @return array<string, int>
+     */
+    public function getCurrentStateDistribution(array $employeeIds): array;
+
+    /**
+     * @return Collection<int, object>
+     */
+    public function getQueuePerformanceReport(string $date): Collection;
+
+    /**
+     * @return Collection<string, object>
+     */
+    public function getCallVolumeByDateRange(string $start, string $end): Collection;
 }

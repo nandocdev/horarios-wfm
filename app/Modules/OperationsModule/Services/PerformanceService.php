@@ -7,7 +7,7 @@ namespace App\Modules\OperationsModule\Services;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
-use App\Shared\Contracts\Telemetry\AgentRealtimeRepositoryInterface;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -20,7 +20,7 @@ final class PerformanceService
         private readonly CalculateRealAdherenceAction $adherenceAction,
         private readonly EmployeeRepositoryInterface $employeeRepo,
         private readonly DashboardScheduleQueriesInterface $scheduleQueries,
-        private readonly AgentRealtimeRepositoryInterface $realtimeRepo,
+        private readonly TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {}
 
     /**

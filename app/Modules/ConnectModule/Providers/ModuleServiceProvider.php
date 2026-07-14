@@ -19,9 +19,9 @@ use App\Modules\ConnectModule\Policies\CallQueuePolicy;
 use App\Modules\ConnectModule\Policies\CallRecordPolicy;
 use App\Modules\ConnectModule\Policies\CaseSubtypePolicy;
 use App\Modules\ConnectModule\Policies\ChannelPolicy;
-use App\Modules\ConnectModule\Repositories\EloquentAgentRealtimeRepository;
+use App\Modules\ConnectModule\Repositories\EloquentTelemetryRealtimeRepository;
 use App\Modules\ConnectModule\Services\TelemetryService;
-use App\Shared\Contracts\Telemetry\AgentRealtimeRepositoryInterface;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -36,8 +36,8 @@ class ModuleServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(
-            AgentRealtimeRepositoryInterface::class,
-            EloquentAgentRealtimeRepository::class
+            TelemetryRealtimeRepositoryInterface::class,
+            EloquentTelemetryRealtimeRepository::class
         );
     }
 

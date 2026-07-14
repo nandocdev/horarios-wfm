@@ -9,12 +9,12 @@ use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Models\CsqRealtimeStat;
-use App\Shared\Contracts\Telemetry\AgentRealtimeRepositoryInterface;
+use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-final class EloquentAgentRealtimeRepository implements AgentRealtimeRepositoryInterface
+final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepositoryInterface
 {
     public function getRealtimeStates(?array $employeeIds = null): Collection
     {
@@ -77,6 +77,12 @@ final class EloquentAgentRealtimeRepository implements AgentRealtimeRepositoryIn
             ]);
     }
 
+    public function getCsqRealtimeStats(): Collection
+    {
+        return CsqRealtimeStat::orderByDesc('calls_waiting')
+            ->get();
+    }
+
     public function getCallTrends(string $from, string $to): Collection
     {
         return DB::table('agent_call_performance')
@@ -131,5 +137,83 @@ final class EloquentAgentRealtimeRepository implements AgentRealtimeRepositoryIn
     public function getAverageServiceLevel(): float
     {
         return (float) (CsqRealtimeStat::avg('service_level_long_term') ?? 0);
+    }
+
+    public function getTalkingAgentsByQueue(array $employeeIds): Collection
+    {
+        return AgentRealtimeState::whereIn('employee_id', $employeeIds)
+            ->where('current_state', 'TALKING')
+            ->get()
+            ->groupBy(fn ($agent) => $agent->metadata['call_info']['queue_name'] ?? 'OTROS')
+            ->map->count();
+    }
+
+    public function getHistoricalStateDistribution(array $employeeIds, string $date): array
+    {
+        $states = AgentStateTransition::whereIn('employee_id', $employeeIds)
+            ->whereDate('transition_time', $date)
+            ->select('agent_state', DB::raw('count(distinct employee_id) as count'))
+            ->groupBy('agent_state')
+            ->get()
+            ->pluck('count', 'agent_state')
+            ->toArray();
+
+        return [
+            'Ready' => (int) ($states['READY'] ?? 0),
+            'Talking' => (int) ($states['TALKING'] ?? 0),
+            'AUX' => (int) ($states['NOT_READY'] ?? 0) + (int) ($states['WORK'] ?? 0),
+            'Offline' => (int) ($states['LOGOUT'] ?? 0) + (int) ($states['OFFLINE'] ?? 0),
+        ];
+    }
+
+    public function getCurrentStateDistribution(array $employeeIds): array
+    {
+        $states = AgentRealtimeState::whereIn('employee_id', $employeeIds)
+            ->select('current_state', DB::raw('count(*) as count'))
+            ->groupBy('current_state')
+            ->get()
+            ->pluck('count', 'current_state')
+            ->toArray();
+
+        return [
+            'Ready' => (int) ($states['READY'] ?? 0),
+            'Talking' => (int) ($states['TALKING'] ?? 0),
+            'AUX' => (int) ($states['NOT_READY'] ?? 0) + (int) ($states['WORK'] ?? 0),
+            'Offline' => (int) ($states['LOGOUT'] ?? 0) + (int) ($states['OFFLINE'] ?? 0),
+        ];
+    }
+
+    public function getQueuePerformanceReport(string $date): Collection
+    {
+        return CallRecord::join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
+            ->whereDate('ivr_started_at', $date)
+            ->select(
+                'call_queues.name as queue_name',
+                'call_queues.aht_goal',
+                DB::raw('COUNT(*) as total_offered'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned'),
+                DB::raw('AVG(talk_time + work_time) as avg_aht'),
+                DB::raw('AVG(queue_time) as avg_asa'),
+                DB::raw('MAX(queue_time) as max_wait'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sl_count'),
+            )
+            ->groupBy('call_queues.id', 'call_queues.name', 'call_queues.aht_goal')
+            ->orderBy('total_offered', 'desc')
+            ->get();
+    }
+
+    public function getCallVolumeByDateRange(string $start, string $end): Collection
+    {
+        return CallRecord::whereNotNull('queue_id')
+            ->whereBetween('ivr_started_at', [$start, $end])
+            ->select(
+                DB::raw('DATE(ivr_started_at) as date'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
+                DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned'),
+            )
+            ->groupBy('date')
+            ->get()
+            ->keyBy('date');
     }
 }

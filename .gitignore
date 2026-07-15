@@ -28,4 +28,4 @@ package-lock.json
 
 .gemini/
 gha-creds-*.json
-scripts/
+scripts/*.excalidraw:Zone.Identifier

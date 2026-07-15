@@ -30,7 +30,7 @@ class SchedulePublishedNotification extends Notification implements ShouldQueue
             'start_date' => $this->weeklySchedule->week_start_date->format('Y-m-d'),
             'title' => 'Nuevo Horario Publicado',
             'message' => "Se ha publicado el horario para la semana del {$this->weeklySchedule->week_start_date->format('d/m/Y')}.",
-            'action_url' => route('schedules.my-schedule'),
+            'action_url' => route('schedules.my-schedule', [], false),
         ];
     }
 }

@@ -41,7 +41,7 @@ class SwapRequestNotification extends Notification implements ShouldQueue
             'title' => 'Nueva Solicitud de Intercambio',
             'message' => "{$requester->first_name} ha solicitado intercambiar un turno contigo para el periodo {$dateRange}.",
             'level' => 'info',
-            'action_url' => route('schedules.swap-history'),
+            'action_url' => route('schedules.swap-history', [], false),
         ];
     }
 

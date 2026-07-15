@@ -46,7 +46,7 @@ class ScheduleRequestStatusNotification extends Notification implements ShouldQu
             'status' => $this->status,
             'title' => "{$typeLabel}: {$label}",
             'message' => "Tu solicitud de {$typeLabel} para el día {$this->details['date']} ha sido {$label}.",
-            'action_url' => $this->requestType === 'swap' ? route('schedules.swap-history') : route('schedules.leave-history'),
+            'action_url' => $this->requestType === 'swap' ? route('schedules.swap-history', [], false) : route('schedules.leave-history', [], false),
         ];
     }
 }

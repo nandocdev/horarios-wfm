@@ -38,7 +38,7 @@ class PendingApprovalNotification extends Notification implements ShouldQueue
             'requester_name' => $this->requesterName,
             'title' => "Nueva Aprobación Pendiente: {$typeLabel}",
             'message' => "{$this->requesterName} ha solicitado un {$typeLabel} para el día {$this->details['date']}. Requiere tu revisión.",
-            'action_url' => route('schedules.manager-approvals'),
+            'action_url' => route('schedules.manager-approvals', [], false),
         ];
     }
 }

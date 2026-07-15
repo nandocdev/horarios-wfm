@@ -29,19 +29,23 @@
             </div>
 
             @forelse($this->notifications as $notification)
-                <div class="px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-opacity border-b border-slate-100 dark:border-slate-700 last:border-0">
+                <div
+                    class="px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-opacity border-b border-slate-100 dark:border-slate-700 last:border-0">
                     <div class="flex justify-between items-start gap-2">
                         <div class="flex-1">
-                            <flux:text size="sm" weight="semibold">{{ $notification->data['title'] ?? 'Notificación' }}</flux:text>
+                            <flux:text size="sm" weight="semibold">{{ $notification->data['title'] ?? 'Notificación' }}
+                            </flux:text>
                             <flux:text size="xs" class="block mt-1">{{ $notification->data['message'] ?? '' }}</flux:text>
                             <flux:text size="xs" variant="subtle" class="mt-2 block">
                                 {{ $notification->created_at->diffForHumans() }}
                             </flux:text>
                         </div>
-                        <flux:button variant="ghost" size="sm" icon="check" wire:click="markAsRead('{{ $notification->id }}')" />
+                        <flux:button variant="ghost" size="sm" icon="check"
+                            wire:click="markAsRead('{{ $notification->id }}')" />
                     </div>
                     @if(isset($notification->data['action_url']))
-                        <flux:button variant="link" size="sm" href="{{ $notification->data['action_url'] }}" class="mt-2 p-0 h-auto" wire:navigate>
+                        <flux:button variant="link" size="sm" href="{{ $notification->data['action_url'] }}"
+                            class="mt-2 p-0 h-auto" wire:navigate>
                             Ver detalle
                         </flux:button>
                     @endif
@@ -55,7 +59,8 @@
 
             <flux:menu.separator />
             <div class="p-2">
-                <flux:button variant="ghost" class="w-full text-center" href="{{ route('notifications.index') }}" wire:navigate>
+                <flux:button variant="ghost" class="w-full text-center" href="{{ route('notifications.index') }}"
+                    wire:navigate>
                     Ver todas las notificaciones
                 </flux:button>
             </div>

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Notificaciones
-    Route::get('notifications', NotificationHistory::class)->name('notifications.index');
+    Route::get('/notifications', NotificationHistory::class)->name('notifications.index');
 
     // Gestión de Usuarios
     Route::prefix('admin/users')->group(function () {

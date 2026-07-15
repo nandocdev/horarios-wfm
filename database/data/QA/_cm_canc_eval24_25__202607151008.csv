@@ -1,0 +1,56 @@
+"id","criterio","puntaje","descripción"
+1, ¿Contesto la llamada en los primeros 5 segundos? ,5,Las llamadas deben ser contestadas antes de 5 segundos.
+2,¿Brindó el saludo correctamente?,5,"Brindó el saludo correctamente.
+Ejemplo: Buen día, le atiende (mencione su nombre), ¿Cómo le puedo ayudar? / ¿En qué puedo ayudarle?
+Deberá hablar despacio, no utilizar apodos. Si el usuario, solicita su apellido deberá brindarlo."
+3,¿Preguntó el nombre del usuario?,5,"Preguntó el nombre de la persona que está llamando al inicio de la llamada, en caso contrario perderá los puntos. 
+Ejemplo: ¿A quién tengo el placer de atender? / ¿Con quién tengo el gusto de hablar? / Agradezco me brinde su nombre."
+4,¿Personalizó la llamada?,5,"Mencionó el nombre o apellido del usuario con el que está conversando.  En caso de que el usuario no indique su nombre, deberá referirse a él(ella) como Sr(a)."
+5,¿Solicitó los datos del paciente?,8,"Solicitar el número de documento (cédula y/o pasaporte registrado) y nombre completo del paciente.
+Perderá los puntos en los siguientes casos:      
+1. Asumir que la cita médica, es del usuario que está llamando.  
+2. Mencionar el nombre del paciente, que le aparece en cualquier aplicativo o sistema de citas médicas."
+6,¿Solicitó los datos de la cita?,5,Solicitar los datos de la cita: Ejemplo: Agradezco me brinde los datos de la cita a cancelar (policlínica y servicio).
+7,¿Verificó el historial del paciente?,8,"Cada vez que acceda a el(los) aplicativo(s) o sistema(s) de citas médicas, utilice el historial para validar que tenga controles vigentes. Usar pendiente en  e-siap y en X-his. Indistinto. Anotar en aviso de e-Siap el nombre de la persona que solicito la cancelación, debe verificar y validar el historial del paciente.  Al realizar esto, se asegura que el paciente no tenga solicitudes en proceso o pendientes.  El historial nos sirve para verificar si tiene controles vigentes."
+8,"¿Confirmo los datos, antes de cancelar la cita?",8,"Deberá confirmar los datos de la cita médica programada antes de cancelar.
+Ejemplo: Se procede a cancelar la cita médica para el paciente (mencione el nombre completo del paciente),  (mencione los datos de la cita) el día__, hora___, policlínica___, servicio___, con el(a) doctor(a).  Agradecemos su cancelación.
+Nota: Antes de cancelar la cita, verifique si es cupo es nuevo (referencia en papel), es importante que le indique al paciente, que solo podrá cancelarla, si desea reprogramarla deberá realizarla por el mismo  medio que la solicito, ya sea mediante el formulario web o directamente en la instalación."
+9,¿Aplico correctamente los procedimientos?,8,"Utilizó correctamente el(los) procedimiento(s) establecidos en diversas normativas de citas médicas. Ejemplo: Manual de Normas Administrativas para la Atención en la Consulta Externa de las Instalaciones de Salud
+El incumplimiento de los procedimientos genera molestias en los usuarios, reclamos, productos, no conformes."
+10,¿Registro la llamada en el sistema adecuado?,8,Realizar el registro correctamente en el(los) aplicativo(s) o sistema(s) por ejemplo: Process Maker.
+11,"¿Fue cortés,  amable y empático?",5,"Deberá mostrarse siempre a disposición del usuario, debe ser cordial, utilizar expresiones de cortesía.
+Ejemplos: gracias, permítame, con mucho gusto, bríndeme, por favor, es tan amable de, por supuesto, a sus órdenes, un placer atenderle, disculpe usted, le quedo muy agradecido(a), para servirle, siempre a su disposición.
+Deberá dirigirse al usuario por usted, no debe tutearlo (aunque se trate de un niño), no rebasar el grado de confianza y no debe precipitar el cierre de la conversación. Evite la informalidad, no utilice frases o palabras cariñosas.
+Si se presenta un acto involuntario como: toser, estornudar, bostezar, aclarar la garganta, suspirar (respiración muy fuerte) deberá disculparse.
+¿Qué es Empatía?  La empatía es la capacidad psicológica o cognitiva de sentir o percibir lo que otra persona sentiría, si estuviera en la misma situación vivida por esa persona. Consiste en intentar comprender los sentimientos y emociones, intentando experimentar de forma objetiva y racional lo que siente otro individuo.
+Si el usuario expresa insatisfacción o molestia, deberá mostrarse que lo comprende, ser paciente y debe ponerse a disposición para resolver la situación. Es recomendable utilizar frases como: Siento mucho escuchar eso / Deme la oportunidad de validar su consulta.  
+Para evitar que se moleste o enoje.   No utilice frases prohibidas o mandatorias. Ejemplo: “tiene que”, “obviamente”, “me escucho”, “le dije que”, “me entiende”). Podría decir, por ejemplo: En este caso le recomiendo... / En este caso le sugiero... / En este caso sería conveniente que...      
+No utilizar un lenguaje negativo y/o tono ofensivo, irónico, burla…"
+12,¿Utilizó el tono de voz adecuado?,5,"Emplear un volumen de la voz y entonación adecuados; es decir, su tono no debe ser ni excesivamente bajo, ni alto, no debe ser agresivo al hablar, apático, distante, ni con falta de dinamismo. Deberá utilizar la velocidad adecuada al hablar, de manera que el usuario le entienda, no debe hablar, ni muy lento, ni muy rápido. 
+Observación: en caso de que deba elevar el tono de voz, por el ruido externo,  se recomienda disculparse y notificarle."
+13,¿Utilizó un lenguaje apropiado?,5,"Utilizar palabras sencillas y fáciles de comprender, no debe utilizar términos que provoquen confusión al usuario. 
+Deberá pronunciar de forma correcta y completa cada palabra respetando las pausas, ordenando sus ideas de forma clara y comprensible.
+Perderá los puntos si expresa palabras  de forma inadecuada, ejemplos: “mmm”, “aja”, “ehhhh”, “ujum”, “ahhhh”, “ok”, “póngase”, “pa’ vé’”, “ven pacá”, “ta’ bien”, “ta’ luego”, “suba arriba”, “dale”, “chuleta”, “haiga”, “aló”, “diga”, “ya va”,  “tiene”, “las citan tan’ pal’”,  “pa’ que”, “es pa´ ya”, “con quien”, “tengo el guto de habla”, “wao”, “emm”...
+No utilice diminutivos, ejemplos: “minutito”, “ahorita”, “segundito”, “momentito”, etc…"
+14,Muletillas,5,"No debe emplear muletillas durante la conversación. ¿Qué es Muletilla?: Palabra o expresión que se repite o intercala en el discurso con excesiva frecuencia, como si se tratara de un tic de la persona que habla o escribe. Las muletillas sirven para encubrir dudas, vacíos, vicios del comunicador, en definitiva, para cubrir insuficiencias. Otras veces son producto de los nervios, ejemplos: correcto, o sea, así es, pues, bueno... "
+15,¿Manejó correctamente del tiempo en silencio y espera?,5,"Utilizar correctamente el tiempo de silencio y espera que es de 1 minuto. 
+Notificar: Antes de colocar al usuario en silencio debe notificarle. Ejemplo: Agradezco se mantenga en línea mientras verifico la información, escuchara un silencio, no piense que le cerré.
+Establecer tiempo de espera: En consultas que ameriten ganar un acuerdo de espera, debe indicar el motivo de la misma y establecer el tiempo que durará dicha consulta. Ejemplo: Le agradezco me permita (1) un minuto, estoy consultando con mi superior.
+La llamada se debe retomar antes que venza el tiempo.  En caso de que demore en la búsqueda de la información, deberá retomar o refrescar la llamada.  
+Agradecer: En todas sus llamadas debe agradecer la espera. Ejemplo: Gracias por su amable espera / Sigo verificando la información / Manténgase en línea por favor.
+Perderá los puntos en los siguientes casos:      
+1. No le notifica al usuario, que lo colocaría en silencio.
+2. No estableció el tiempo de espera.
+3. No retomo la llamada en el tiempo establecido. 
+4. No agradece la espera.
+5. Cuando le dice al usuario un momento y no se ha ganado un acuerdo de tiempo específico. (en este caso deberá retomar la llamada aproximadamente los primeros 30 segundos."
+16,¿Mantuvo escucha activa durante la llamada?,5,"¿Qué es la escucha activa?  Es la habilidad de escuchar y entender lo que el usuario, le está diciendo o expresando.   Deberá prestar atención durante toda la llamada.  Podría utilizar frases como: si, correcto, comprendo, así es; para que el usuario sienta que le está prestando atención.   
+Perderá los puntos en los siguientes casos:          
+1. Si interrumpe abruptamente durante la conversación.     
+2. No entender o comprender lo que le está diciendo por interactuar con otras personas que le rodean o con alguna otra distracción.
+3. Solicita al usuario que le repitan un dato solicitado y claramente había sido suministrado.  No perderá los puntos: si el usuario inicia la llamada brindando la información, sin ser solicitada.     
+4. Si asume un dato no mencionado por el usuario.           
+5. Si utiliza el botón del silencio, cuando el usuario está hablando.
+Observación: Si no logra escuchar por el ruido externo en cualquiera de los ambientes, ya sea en su lugar de trabajo o por el usuario; o porque éste habló muy bajo, se escucha entrecortado; es decir cualquier evento que impida captar la solicitud o consulta con claridad desde el principio; deberá explicar alguna de las razones anteriores y solicitarle (con mucha amabilidad) que le repita la información."
+17,¿Se despidió correctamente?,5,"Gracias por llamar, tenga buen día (mencionar tarde o noche, de acuerdo a la hora). Estamos para Servirle
+Perderá los puntos si se despide por ejemplo: “Bendiciones”, “A usted”, “Igualmente”, “Bye” “Se cuida”, “Hasta luego”, “Bueno”, “Chao”, entre otros. "

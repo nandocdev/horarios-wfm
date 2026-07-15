@@ -1,0 +1,12 @@
+"id","criterio","puntaje","descripción"
+1,¿Brindó el saludo correctamente?,5,Debe enviar el saludo correcto (Buenos días / Buenas tardes estimado(a) asegurado(a): Ejemplo: Buenos días estimado asegurado: Reciba un cordial saludo en nombre del Centro de Contactos de la Caja de Seguro Social.  Le atiende escriba su nombre
+2,¿Personalizó la Interaccion? ,5,Personalizar con el nombre del perfil del usuario. No aplicará en los casos de aparecerles apodos e íconos inadecuados.
+3,¿Utilizó la plantilla adecuada?,10,Utiliza la plantilla autorizada acorde a la consulta realizada por el asegurado.
+4,¿Brindó la información correcta?,15,"Deberá brindar la información correcta y completa, de acuerdo a la solicitud del asegurado."
+5,"¿Cuidó la redacción, gramática y ortografía?",15,"Verifique si la redacción es correcta, cuidando los signos gramaticales y la ortografía; es importante que utilice palabras fáciles de comprender y que mantenga una secuencia lógica de manera que el usuario pueda entender.   "
+6,¿Aplico correctamente los procedimientos?,15,"Aplico el(los) procedimiento(s) establecidos en diversas normativas. El incumplimiento de los procedimientos genera molestias en los usuarios, quejas y reclamos."
+7,Tiempo de Respuesta,15,Se refiere al tiempo de respuesta inicial. Es decir; es el tiempo que le toma al operador en ofrecer la respuesta desde la apertura del mensaje hasta brindar el saludo. No debe exceder de los 10 segundos.
+8,Duración del chat,10,"Mide la duración de la conversación de principio a fin. No deberá abandonar el chat por más de 5 minutos, exceptuando los casos donde el usuario solicita varias consultas en una misma conversación y una vez culmine, deberá pasar al siguiente de manera inmediata."
+9,¿Su consulta fue resuelta? ,5,"Debe preguntar al usuario si su consulta fue resuelta. Ejemplo: ¿Estimado asegurado, su consulta pudo ser resuelta?"
+10, Envío el link de la encuesta ,2,"Deberá enviar el link de la encuesta al asegurado. Ejemplo: Estimado asegurado, su opinión es muy importante para seguir mejorando. Por favor complete la siguiente encuesta agregar el link de encuesta Gracias por su valioso tiempo. Nota: solo aplicará cuando este activa la encuesta, cuando no se darán los puntos."
+11,¿Se despidió correctamente?,3,¡Estamos para servirle!Saludos escriba sus iniciales

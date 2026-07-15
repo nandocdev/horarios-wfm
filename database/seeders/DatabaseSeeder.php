@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             OrganizationModuleSeeder::class,
             EmploymentStatusSeeder::class,
             RolesAndPermissionsSeeder::class,
+            QualityModuleSeeder::class,
             ChannelsSeeder::class,
             UserFromEmployeeSeeder::class,
             AssignEmployeeRolesSeeder::class,
@@ -35,11 +36,10 @@ class DatabaseSeeder extends Seeder
             OperationalSettingsSeeder::class,
             VacacionesSeeder::class,
             KnowledgeBaseSeeder::class,
-            QualityModuleSeeder::class,
         ]);
 
         // Asegurar que el usuario administrador mantenga permisos totales
-        $adminUser = User::query()->where('email', 'yhernandez@css.gob.pa')->first();
+        $adminUser = User::query()->where('email', 'ferncastillo@css.gob.pa')->first();
         $adminRole = Role::query()->where('name', 'admin')->where('guard_name', 'web')->first();
 
         if ($adminUser !== null && $adminRole !== null) {

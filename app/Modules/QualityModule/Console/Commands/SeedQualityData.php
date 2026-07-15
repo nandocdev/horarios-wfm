@@ -11,7 +11,7 @@ class SeedQualityData extends Command
 {
     protected $signature = 'quality:seed';
 
-    protected $description = 'Seed datos iniciales del QualityModule: colas, roles, criterios';
+    protected $description = 'Seed datos iniciales del QualityModule: colas, criterios desde CSVs';
 
     public function handle(QualityModuleSeeder $seeder): int
     {

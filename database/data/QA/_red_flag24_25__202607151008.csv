@@ -1,0 +1,12 @@
+"id","criterio","descripcion","perdida"
+1, El saludo no fue realizado en los primeros 30 segundos.,"No atendió la llamada dentro de los primeros 30 segundos. / Contesto la llamada, coloca al usuario en espera, sin brindar el saludo correctamente.",25
+2," El operador utilizo lenguaje inapropiado, fue grosero, poco profesional.","Cualquier operador que sea encontrado siendo grosero, poco profesional o maltratando, ya sea a un usuario o a un compañero.",100
+3, Línea abierta.,"El operador no coloca el botón del silencio, mientras atiende la llamada, el usuario escucha lo que está conversando temas no relacionados a la llamada.",75
+4, Al operador se le escucha distraído.,Cualquier operador que sea encontrado atendiendo asuntos no relacionados a la llamada como por ejemplo: conversando con un compañero temas no concernientes a la llamada.,75
+5, El usuario cerró la llamada debido a espera extendida.,"Coloca al usuario en espera sin notificar y el usuario cierra la llamada. / Abandono de llamada por parte del operador los casos en los cuales el usuario cierre la llamada por silencios extendidos, ya que el operador debe refrescar la llamada constantemente.",75
+6," El operador cierra o abandona una llamada, chat o email sin razón.",Cualquier operador que abandone a un usuario dentro de cualquier de las canales de atención.,75
+7, El operador divulgo información no autorizada a un usuario.,Brindó información no autorizada.,30
+8, El operador se rehusó a escalar la llamada.,Cualquier operador que niegue la solicitud de un usuario de ser transferido con un supervisor.,50
+9, El operador se quedó deliberadamente en la línea.,"Termina la atención, el usuario no cierra  y el operador no le solicita que cierre la llamada.",50
+10, Uso de celular en la llamada.,"Utilizar el celular en la atención de cualquier canal (voz o web), para asuntos no oficiales, sin notificar previamente su uso por una urgencia personal.",50
+11, Respuesta Incorrecta.,"No Brinda la información Correcta de Unidad, servicio, horario, etc.",100

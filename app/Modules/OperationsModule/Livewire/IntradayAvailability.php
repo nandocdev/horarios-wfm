@@ -19,16 +19,12 @@ class IntradayAvailability extends Component
 {
     public int $refreshInterval = 10;
 
-    public function __construct(
-        private readonly TelemetryRealtimeRepositoryInterface $realtimeRepo,
-        private readonly DashboardScheduleQueriesInterface $scheduleQueries,
-    ) {
-        parent::__construct();
-    }
-
     #[Computed]
     public function realtimeMetrics(): array
     {
+        $realtimeRepo = app(TelemetryRealtimeRepositoryInterface::class);
+        $scheduleQueries = app(DashboardScheduleQueriesInterface::class);
+
         $operadorIds = Employee::whereIn('position_id', [1, 2, 5, 11, 13])
             ->pluck('id')
             ->toArray();
@@ -46,19 +42,19 @@ class IntradayAvailability extends Component
             ];
         }
 
-        $realtimeStates = $this->realtimeRepo->getRealtimeStates($operadorIds)
+        $realtimeStates = $realtimeRepo->getRealtimeStates($operadorIds)
             ->where('current_state', '!=', 'LOGOUT');
 
         $now = now();
         $today = $now->toDateString();
         $time = $now->toTimeString();
 
-        $currentAssignments = $this->scheduleQueries->getScheduledForTime($operadorIds, $today, $now->dayOfWeekIso, $time);
+        $currentAssignments = $scheduleQueries->getScheduledForTime($operadorIds, $today, $now->dayOfWeekIso, $time);
 
         $scheduledEmployeeIds = $currentAssignments->pluck('employee_id')->toArray();
         $connectedEmployeeIds = $realtimeStates->pluck('employee_id')->toArray();
 
-        $activeExceptions = $this->scheduleQueries->getActiveExceptionIds($operadorIds, $now);
+        $activeExceptions = $scheduleQueries->getActiveExceptionIds($operadorIds, $now);
 
         $totalScheduled = count($scheduledEmployeeIds) - count($activeExceptions);
         $totalConnected = count($connectedEmployeeIds);
@@ -94,7 +90,7 @@ class IntradayAvailability extends Component
             $agentsTalkingByQueue[$queueName] = ($agentsTalkingByQueue[$queueName] ?? 0) + 1;
         }
 
-        $csqSummary = $this->realtimeRepo->getCsqRealtimeStats()
+        $csqSummary = $realtimeRepo->getCsqRealtimeStats()
             ->map(function ($csq) use (&$agentsTalkingByQueue) {
                 $csq->agents_talking = $agentsTalkingByQueue[$csq->csq_name] ?? 0;
                 unset($agentsTalkingByQueue[$csq->csq_name]);

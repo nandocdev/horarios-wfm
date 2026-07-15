@@ -24,11 +24,11 @@
                             <flux:table.row :key="$role->id" class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                 <flux:table.cell>
                                     <flux:badge size="sm" :color="match(true) {
-                                                                                                    $role->hierarchy_level <= 10 => 'red',
-                                                                                                    $role->hierarchy_level <= 30 => 'amber',
-                                                                                                    $role->hierarchy_level <= 50 => 'blue',
-                                                                                                    default => 'zinc',
-                                                                                                }" variant="subtle"
+                                                                                                        $role->hierarchy_level <= 10 => 'red',
+                                                                                                        $role->hierarchy_level <= 30 => 'amber',
+                                                                                                        $role->hierarchy_level <= 50 => 'blue',
+                                                                                                        default => 'zinc',
+                                                                                                    }" variant="subtle"
                                         inset="top bottom">
                                         Lvl {{ $role->hierarchy_level }}
                                     </flux:badge>
@@ -86,7 +86,7 @@
     </div>
 
     <!-- Modal de Permisos -->
-    <flux:modal name="role-permissions" class="md:max-w-4xl">
+    <flux:modal name="role-permissions" class="md:">
         <div class="space-y-4">
             <div>
                 <flux:heading size="lg">Gestionar Permisos: <span

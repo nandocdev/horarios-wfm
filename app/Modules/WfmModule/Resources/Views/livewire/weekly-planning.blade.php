@@ -1,13 +1,13 @@
-<div class="p-6 lg:p-8 max-w-4xl mx-auto flex-1 flex flex-col">
+<div class="p-6 lg:p-8  mx-auto flex-1 flex flex-col">
     <div class="flex items-center justify-between mb-8">
         <div>
             <flux:heading size="xl">{{ __('Planificación Semanal') }}</flux:heading>
             <flux:subheading class="mt-2">{{ __('Listado de semanas de planificación de horarios.') }}</flux:subheading>
         </div>
         @can('schedules.manage')
-        <flux:button wire:click="confirmCreateWeek" icon="plus" variant="primary">
-            {{ __('Nueva Semana') }}
-        </flux:button>
+            <flux:button wire:click="confirmCreateWeek" icon="plus" variant="primary">
+                {{ __('Nueva Semana') }}
+            </flux:button>
         @endcan
     </div>
 
@@ -66,12 +66,13 @@
                         </div>
                     </flux:table.cell>
                     <flux:table.cell class="py-2">
-                        <flux:badge :color="match($week->status) {
-                                                                                                                            'draft' => 'slate',
-                                                                                                                            'published' => 'green',
-                                                                                                                            'closed' => 'amber',
-                                                                                                                            default => 'slate'
-                                                                                                                        }">
+                        <flux:badge
+                            :color="match($week->status) {
+                                                                                                                                'draft' => 'slate',
+                                                                                                                                'published' => 'green',
+                                                                                                                                'closed' => 'amber',
+                                                                                                                                default => 'slate'
+                                                                                                                            }">
                             {{ ucfirst($week->status) }}
                         </flux:badge>
                     </flux:table.cell>
@@ -101,7 +102,7 @@
                     </flux:table.cell>
                     <flux:table.cell align="end" class="py-2">
                         <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" variant="primary"
-                             size="sm" icon="pencil-square" wire:navigate>
+                            size="sm" icon="pencil-square" wire:navigate>
                             {{ __('Gestionar Equipos') }}
                         </flux:button>
                     </flux:table.cell>

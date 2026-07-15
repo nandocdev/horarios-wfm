@@ -5,7 +5,7 @@
             <flux:subheading>Validación por filas, importación por chunks y procesamiento en cola.</flux:subheading>
         </div>
 
-        <form wire:submit="import" class="space-y-4 max-w-4xl mx-auto">
+        <form wire:submit="import" class="space-y-4  mx-auto">
             <!-- TODO: Refactor to FluxUI -->
             <div class="space-y-2">
                 <label for="csv" class="text-sm font-medium text-slate-700">Archivo CSV</label>
@@ -51,15 +51,16 @@
                         <flux:table.cell class="py-2">{{ $batch->original_filename }}</flux:table.cell>
                         <flux:table.cell class="py-2">
                             <flux:badge :variant="match($batch->status) {
-                                    'completed' => 'success',
-                                    'completed_with_errors' => 'warning',
-                                    'failed' => 'danger',
-                                    default => 'ghost'
-                                }">
+                                        'completed' => 'success',
+                                        'completed_with_errors' => 'warning',
+                                        'failed' => 'danger',
+                                        default => 'ghost'
+                                    }">
                                 {{ $batch->status }}
                             </flux:badge>
                         </flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $batch->processed_rows }}/{{ $batch->total_rows }}</flux:table.cell>
+                        <flux:table.cell class="py-2">{{ $batch->processed_rows }}/{{ $batch->total_rows }}
+                        </flux:table.cell>
                         <flux:table.cell class="py-2">{{ $batch->imported_rows }}</flux:table.cell>
                         <flux:table.cell class="py-2">{{ $batch->rejected_rows }}</flux:table.cell>
                         <flux:table.cell class="py-2">{{ $batch->creator?->name ?? 'Sistema' }}</flux:table.cell>

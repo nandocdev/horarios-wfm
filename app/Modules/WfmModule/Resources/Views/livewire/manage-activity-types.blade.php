@@ -1,4 +1,4 @@
-<div class="p-6 lg:p-8 max-w-4xl mx-auto flex-1 flex flex-col">
+<div class="p-6 lg:p-8  mx-auto flex-1 flex flex-col">
     <div class="flex justify-between items-center mb-6">
         <flux:heading size="xl">Tipos de Actividad</flux:heading>
         <flux:button wire:click="create" variant="primary" icon="plus">Nuevo Tipo</flux:button>
@@ -24,13 +24,16 @@
                     </flux:table.cell>
                     <flux:table.cell class="py-2">
                         <div class="flex gap-2">
-                            <flux:badge :color="$type->is_productive ? 'blue' : 'zinc'">{{ $type->is_productive ? 'Productivo' : 'No Prod.' }}</flux:badge>
-                            <flux:badge :color="$type->is_paid ? 'green' : 'red'">{{ $type->is_paid ? 'Pagado' : 'No Pagado' }}</flux:badge>
+                            <flux:badge :color="$type->is_productive ? 'blue' : 'zinc'">
+                                {{ $type->is_productive ? 'Productivo' : 'No Prod.' }}</flux:badge>
+                            <flux:badge :color="$type->is_paid ? 'green' : 'red'">
+                                {{ $type->is_paid ? 'Pagado' : 'No Pagado' }}</flux:badge>
                         </div>
                     </flux:table.cell>
                     <flux:table.cell align="end" class="py-2">
                         <flux:button wire:click="edit({{ $type->id }})" variant="ghost" size="sm" icon="pencil" />
-                        <flux:button wire:click="delete({{ $type->id }})" variant="ghost" size="sm" icon="trash" color="red" wire:confirm="¿Estás seguro?" />
+                        <flux:button wire:click="delete({{ $type->id }})" variant="ghost" size="sm" icon="trash" color="red"
+                            wire:confirm="¿Estás seguro?" />
                     </flux:table.cell>
                 </flux:table.row>
             @endforeach
@@ -42,7 +45,7 @@
             <flux:heading size="lg">{{ $form->activityType ? 'Editar Tipo' : 'Nuevo Tipo' }}</flux:heading>
 
             <flux:input wire:model="form.name" label="Nombre" placeholder="Ej. Reunión de Equipo" />
-            
+
             <flux:input wire:model="form.color" type="color" label="Color de Identificación" />
 
             <div class="space-y-3">

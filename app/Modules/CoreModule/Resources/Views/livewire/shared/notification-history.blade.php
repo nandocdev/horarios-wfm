@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-8 flex-1 flex flex-col">
+<div class=" mx-auto space-y-8 flex-1 flex flex-col">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Historial de Notificaciones</flux:heading>
@@ -15,10 +15,12 @@
     <flux:card class="p-0 overflow-hidden">
         <div class="divide-y divide-slate-100 dark:divide-slate-800">
             @forelse($notifications as $notification)
-                <div class="p-4 flex items-start gap-4 {{ $notification->read_at ? '' : 'bg-blue-50/50 dark:bg-blue-900/10' }}">
+                <div
+                    class="p-4 flex items-start gap-4 {{ $notification->read_at ? '' : 'bg-blue-50/50 dark:bg-blue-900/10' }}">
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2">
-                            <span class="font-semibold text-sm {{ $notification->read_at ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-white' }}">
+                            <span
+                                class="font-semibold text-sm {{ $notification->read_at ? 'text-slate-700 dark:text-slate-300' : 'text-slate-900 dark:text-white' }}">
                                 {{ $notification->data['title'] ?? 'Notificación' }}
                             </span>
                             @unless($notification->read_at)
@@ -31,14 +33,16 @@
                         <div class="flex items-center gap-4 mt-2">
                             <span class="text-xs text-slate-400">{{ $notification->created_at->diffForHumans() }}</span>
                             @if(isset($notification->data['action_url']))
-                                <flux:button variant="link" size="sm" href="{{ $notification->data['action_url'] }}" wire:navigate class="p-0 h-auto text-xs">
+                                <flux:button variant="link" size="sm" href="{{ $notification->data['action_url'] }}"
+                                    wire:navigate class="p-0 h-auto text-xs">
                                     Ver detalle
                                 </flux:button>
                             @endif
                         </div>
                     </div>
                     @unless($notification->read_at)
-                        <flux:button wire:click="markAsRead('{{ $notification->id }}')" variant="ghost" size="sm" icon="check" class="flex-shrink-0" />
+                        <flux:button wire:click="markAsRead('{{ $notification->id }}')" variant="ghost" size="sm" icon="check"
+                            class="flex-shrink-0" />
                     @endunless
                 </div>
             @empty

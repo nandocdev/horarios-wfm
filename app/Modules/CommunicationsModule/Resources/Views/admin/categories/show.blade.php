@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
-        <div class="max-w-4xl mx-auto">
+        <div class="mx-auto">
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center">
                     <a href="{{ route('communications.admin.categories.index') }}"

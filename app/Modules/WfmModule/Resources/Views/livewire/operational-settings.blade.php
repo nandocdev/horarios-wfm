@@ -1,8 +1,9 @@
-<div class="space-y-8 max-w-4xl mx-auto flex-1 flex flex-col">
+<div class="space-y-8  mx-auto flex-1 flex flex-col">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl" level="1">Configuración Operativa</flux:heading>
-            <flux:subheading>Define los umbrales de alerta y metas de rendimiento para el monitoreo en tiempo real.</flux:subheading>
+            <flux:subheading>Define los umbrales de alerta y metas de rendimiento para el monitoreo en tiempo real.
+            </flux:subheading>
         </div>
 
         <flux:button wire:click="save" variant="primary" icon="check">
@@ -39,12 +40,8 @@
                             </flux:text>
                         </div>
                         <div class="w-32">
-                            <flux:input 
-                                wire:model="thresholds.{{ $index }}.display_value" 
-                                type="number"
-                                size="sm"
-                                suffix="{{ $setting['unit'] === 'segundos' ? 's' : 'm' }}"
-                            />
+                            <flux:input wire:model="thresholds.{{ $index }}.display_value" type="number" size="sm"
+                                suffix="{{ $setting['unit'] === 'segundos' ? 's' : 'm' }}" />
                         </div>
                     </div>
                 @endforeach
@@ -56,12 +53,12 @@
             <flux:card class="space-y-4">
                 <div class="flex items-center justify-between">
                     <flux:heading size="lg">Metas de KPIs</flux:heading>
-                    
+
                     <flux:modal.trigger name="add-goal">
                         <flux:button size="sm" icon="plus" variant="ghost">Agregar Meta</flux:button>
                     </flux:modal.trigger>
                 </div>
-                
+
                 <flux:separator />
 
                 <div class="space-y-4">
@@ -85,23 +82,14 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <div class="w-24">
-                                    <flux:input 
-                                        wire:model="kpiGoals.{{ $index }}.display_value" 
-                                        type="number"
-                                        size="sm"
-                                        suffix="{{ $goal['unit'] }}"
-                                    />
+                                    <flux:input wire:model="kpiGoals.{{ $index }}.display_value" type="number" size="sm"
+                                        suffix="{{ $goal['unit'] }}" />
                                 </div>
-                                
+
                                 @if(!$isSystemGoal)
-                                    <flux:button 
-                                        wire:click="removeGoal({{ $goal['id'] }})"
-                                        wire:confirm="¿Estás seguro de eliminar esta meta?"
-                                        variant="ghost" 
-                                        size="sm" 
-                                        icon="trash" 
-                                        inset="top bottom"
-                                    />
+                                    <flux:button wire:click="removeGoal({{ $goal['id'] }})"
+                                        wire:confirm="¿Estás seguro de eliminar esta meta?" variant="ghost" size="sm"
+                                        icon="trash" inset="top bottom" />
                                 @endif
                             </div>
                         </div>
@@ -121,12 +109,7 @@
                                 <flux:text font="bold">{{ $queue['name'] }}</flux:text>
                             </div>
                             <div class="w-32">
-                                <flux:input 
-                                    wire:model="queues.{{ $index }}.aht_goal" 
-                                    type="number"
-                                    size="sm"
-                                    suffix="s"
-                                />
+                                <flux:input wire:model="queues.{{ $index }}.aht_goal" type="number" size="sm" suffix="s" />
                             </div>
                         </div>
                     @endforeach
@@ -150,7 +133,8 @@
 
         <div class="space-y-4">
             <flux:input wire:model="newGoalKey" label="Identificador (ej: occupancy)" placeholder="occupancy" />
-            <flux:input wire:model="newGoalLabel" label="Nombre de la Meta (ej: Meta de Ocupación)" placeholder="Meta de Ocupación" />
+            <flux:input wire:model="newGoalLabel" label="Nombre de la Meta (ej: Meta de Ocupación)"
+                placeholder="Meta de Ocupación" />
         </div>
 
         <div class="flex gap-2">

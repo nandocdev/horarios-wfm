@@ -1,4 +1,4 @@
-<div class="p-6 lg:p-8 max-w-4xl mx-auto flex-1 flex flex-col">
+<div class="p-6 lg:p-8  mx-auto flex-1 flex flex-col">
     <div class="flex items-center gap-4">
         <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" icon="arrow-left"
             variant="ghost" wire:navigate />
@@ -40,22 +40,24 @@
                         @foreach($days as $dayNum => $dayName)
                             @php
                                 $currentDate = $week->week_start_date->copy()->addDays($dayNum - 1);
-                                
+
                                 // Buscar si hay una excepción para este empleado y este día
-                                $dayException = $exceptionsByEmployee->get($employee->id)?->first(function($ex) use ($currentDate) {
+                                $dayException = $exceptionsByEmployee->get($employee->id)?->first(function ($ex) use ($currentDate) {
                                     return $currentDate->between(
-                                        $ex->start_at->startOfDay(), 
+                                        $ex->start_at->startOfDay(),
                                         $ex->end_at->endOfDay()
                                     );
                                 });
 
                                 $assignment = $assignmentsByEmployee->get($employee->id)?->firstWhere('day_of_week', $dayNum);
                             @endphp
-                            <flux:table.cell align="center" class="py-1 {{ $dayException ? 'bg-slate-50/50 dark:bg-slate-800/30' : '' }}">
+                            <flux:table.cell align="center"
+                                class="py-1 {{ $dayException ? 'bg-slate-50/50 dark:bg-slate-800/30' : '' }}">
                                 @if($dayException)
-                                    <div class="flex flex-col items-center justify-center p-2 rounded-md border border-dashed border-slate-200 dark:border-slate-700 opacity-80" 
-                                         title="{{ $dayException->remarks }}">
-                                        <flux:badge :color="$dayException->reason?->color ?? 'slate'" size="sm" class="font-bold uppercase text-[9px]">
+                                    <div class="flex flex-col items-center justify-center p-2 rounded-md border border-dashed border-slate-200 dark:border-slate-700 opacity-80"
+                                        title="{{ $dayException->remarks }}">
+                                        <flux:badge :color="$dayException->reason?->color ?? 'slate'" size="sm"
+                                            class="font-bold uppercase text-[9px]">
                                             {{ $dayException->reason?->name ?? __('EXCEPCIÓN') }}
                                         </flux:badge>
                                         <span class="mt-1 text-[10px] text-slate-500 font-medium italic">

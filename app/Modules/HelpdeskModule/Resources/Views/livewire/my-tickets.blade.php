@@ -1,8 +1,9 @@
-<div class="space-y-8 max-w-4xl mx-auto">
+<div class="space-y-8  mx-auto">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Mis Tickets de Soporte</flux:heading>
-            <flux:subheading>Gestiona tus solicitudes de asistencia técnica, administrativa u operativa.</flux:subheading>
+            <flux:subheading>Gestiona tus solicitudes de asistencia técnica, administrativa u operativa.
+            </flux:subheading>
         </div>
         <flux:button variant="primary" icon="plus" wire:click="openCreateModal">Nuevo Ticket</flux:button>
     </div>
@@ -23,24 +24,29 @@
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
                         <td class="p-2 text-sm font-medium">
                             <div class="flex flex-col">
-                                <span class="font-bold text-primary-600">#{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
-                                <span class="text-[10px] text-slate-500">{{ $ticket->created_at->format('d M Y, H:i') }}</span>
+                                <span
+                                    class="font-bold text-primary-600">#{{ str_pad($ticket->id, 5, '0', STR_PAD_LEFT) }}</span>
+                                <span
+                                    class="text-[10px] text-slate-500">{{ $ticket->created_at->format('d M Y, H:i') }}</span>
                             </div>
                         </td>
                         <td class="p-2">
                             <div class="flex flex-col gap-1">
                                 <div class="flex items-center gap-2">
-                                    <flux:badge size="sm" :color="$ticket->category->color">{{ $ticket->category->name }}</flux:badge>
+                                    <flux:badge size="sm" :color="$ticket->category->color">{{ $ticket->category->name }}
+                                    </flux:badge>
                                     @if($ticket->priority === 'high' || $ticket->priority === 'urgent')
-                                        <flux:badge size="sm" color="red" icon="fire" class="font-bold">{{ $ticket->priority_label }}</flux:badge>
+                                        <flux:badge size="sm" color="red" icon="fire" class="font-bold">
+                                            {{ $ticket->priority_label }}</flux:badge>
                                     @endif
                                 </div>
-                                <span class="font-medium text-sm text-slate-900 dark:text-slate-100">{{ $ticket->subject }}</span>
+                                <span
+                                    class="font-medium text-sm text-slate-900 dark:text-slate-100">{{ $ticket->subject }}</span>
                             </div>
                         </td>
                         <td class="p-2">
                             @php
-                                $statusColor = match($ticket->status) {
+                                $statusColor = match ($ticket->status) {
                                     'new' => 'zinc',
                                     'open' => 'blue',
                                     'in_progress' => 'amber',
@@ -55,7 +61,8 @@
                         <td class="p-2 text-sm text-slate-500">
                             @if($ticket->assignedAgent)
                                 <div class="flex items-center gap-2">
-                                    <flux:avatar size="xs" :name="$ticket->assignedAgent->first_name . ' ' . $ticket->assignedAgent->last_name" />
+                                    <flux:avatar size="xs"
+                                        :name="$ticket->assignedAgent->first_name . ' ' . $ticket->assignedAgent->last_name" />
                                     <span>{{ $ticket->assignedAgent->first_name }}</span>
                                 </div>
                             @else
@@ -63,7 +70,8 @@
                             @endif
                         </td>
                         <td class="p-2 text-right">
-                            <flux:button href="{{ route('helpdesk.ticket.detail', $ticket->id) }}" wire:navigate variant="subtle" size="sm" icon="eye">Ver Detalles</flux:button>
+                            <flux:button href="{{ route('helpdesk.ticket.detail', $ticket->id) }}" wire:navigate
+                                variant="subtle" size="sm" icon="eye">Ver Detalles</flux:button>
                         </td>
                     </tr>
                 @empty
@@ -121,7 +129,8 @@
 
             <flux:field>
                 <flux:label>Descripción detallada</flux:label>
-                <flux:textarea wire:model="description" rows="5" placeholder="Explica el problema paso a paso para que el equipo de soporte pueda ayudarte rápidamente..." />
+                <flux:textarea wire:model="description" rows="5"
+                    placeholder="Explica el problema paso a paso para que el equipo de soporte pueda ayudarte rápidamente..." />
                 <flux:error name="description" />
             </flux:field>
 

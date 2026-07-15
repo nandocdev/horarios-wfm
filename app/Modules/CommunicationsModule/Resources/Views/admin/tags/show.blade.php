@@ -4,10 +4,11 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
-        <div class="max-w-4xl mx-auto">
+        <div class=" mx-auto">
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center">
-                    <a href="{{ route('communications.admin.tags.index') }}" class="text-slate-600 hover:text-slate-900 mr-4">
+                    <a href="{{ route('communications.admin.tags.index') }}"
+                        class="text-slate-600 hover:text-slate-900 mr-4">
                         ← Volver a Etiquetas
                     </a>
                     <h1 class="text-3xl font-bold text-slate-900">{{ $tag->name }}</h1>
@@ -44,7 +45,8 @@
                         <div>
                             <dt class="text-sm font-medium text-slate-500">Estado</dt>
                             <dd class="mt-1">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-md {{ $tag->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                <span
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-md {{ $tag->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                     {{ $tag->is_active ? 'Activa' : 'Inactiva' }}
                                 </span>
                             </dd>

@@ -1,20 +1,19 @@
-<div class="max-w-4xl mx-auto space-y-8 flex-1 flex flex-col">
+<div class=" mx-auto space-y-8 flex-1 flex flex-col">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <flux:heading size="xl">Aprobación de Cambios de Turno (WFM)</flux:heading>
-            <flux:subheading>Revisa y procesa las solicitudes de intercambio de turnos del Call Center.</flux:subheading>
+            <flux:subheading>Revisa y procesa las solicitudes de intercambio de turnos del Call Center.
+            </flux:subheading>
         </div>
-        
+
         {{-- Navegación de Solicitudes (Tabs) --}}
         <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-md self-start md:self-auto">
-            <flux:button wire:click="$set('currentTab', 'pending')" 
-                         variant="{{ $currentTab === 'pending' ? 'filled' : 'ghost' }}" 
-                         size="sm">
+            <flux:button wire:click="$set('currentTab', 'pending')"
+                variant="{{ $currentTab === 'pending' ? 'filled' : 'ghost' }}" size="sm">
                 Pendientes
             </flux:button>
-            <flux:button wire:click="$set('currentTab', 'processed')" 
-                         variant="{{ $currentTab === 'processed' ? 'filled' : 'ghost' }}" 
-                         size="sm">
+            <flux:button wire:click="$set('currentTab', 'processed')"
+                variant="{{ $currentTab === 'processed' ? 'filled' : 'ghost' }}" size="sm">
                 Tramitadas
             </flux:button>
         </div>
@@ -27,9 +26,11 @@
                     <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Fecha</th>
                     <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Solicitante</th>
                     <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Destinatario</th>
-                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-center">Estado</th>
+                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-center">Estado
+                    </th>
                     <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Motivo</th>
-                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Acciones</th>
+                    <th class="py-2 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Acciones
+                    </th>
                 </tr>
             </thead>
             <tbody class="divide-y dark:divide-slate-800">
@@ -43,13 +44,15 @@
                         </td>
                         <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ $request->requester->first_name }} {{ $request->requester->last_name }}</span>
+                                <span class="font-bold">{{ $request->requester->first_name }}
+                                    {{ $request->requester->last_name }}</span>
                                 <span class="text-xs text-slate-500">{{ $request->requester->team->name ?? 'N/A' }}</span>
                             </div>
                         </td>
                         <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ $request->recipient->first_name }} {{ $request->recipient->last_name }}</span>
+                                <span class="font-bold">{{ $request->recipient->first_name }}
+                                    {{ $request->recipient->last_name }}</span>
                                 <span class="text-xs text-slate-500">{{ $request->recipient->team->name ?? 'N/A' }}</span>
                             </div>
                         </td>
@@ -57,13 +60,16 @@
                             @if($request->status === 'approved')
                                 <flux:badge color="green" size="sm" inset="top bottom" class="font-bold">APROBADO</flux:badge>
                             @elseif($request->status === 'accepted')
-                                <flux:badge color="blue" size="sm" inset="top bottom" class="font-bold">LISTO (ACEPTADO)</flux:badge>
+                                <flux:badge color="blue" size="sm" inset="top bottom" class="font-bold">LISTO (ACEPTADO)
+                                </flux:badge>
                             @elseif($request->status === 'pending')
-                                <flux:badge color="amber" size="sm" inset="top bottom" class="font-bold">PENDIENTE RECEPTOR</flux:badge>
+                                <flux:badge color="amber" size="sm" inset="top bottom" class="font-bold">PENDIENTE RECEPTOR
+                                </flux:badge>
                             @elseif($request->status === 'rejected')
                                 <flux:badge color="red" size="sm" inset="top bottom" class="font-bold">RECHAZADO</flux:badge>
                             @else
-                                <flux:badge color="slate" size="sm" inset="top bottom">{{ strtoupper($request->status) }}</flux:badge>
+                                <flux:badge color="slate" size="sm" inset="top bottom">{{ strtoupper($request->status) }}
+                                </flux:badge>
                             @endif
                         </td>
                         <td class="py-2 px-4 text-sm text-slate-500 max-w-xs truncate italic">
@@ -71,29 +77,23 @@
                         </td>
                         <td class="py-2 px-4 text-right">
                             <div class="flex justify-end gap-2">
-                                <flux:button wire:click="showDetails({{ $request->id }})" 
-                                            variant="ghost" 
-                                            size="sm" 
-                                            icon="eye">
+                                <flux:button wire:click="showDetails({{ $request->id }})" variant="ghost" size="sm"
+                                    icon="eye">
                                     Detalles
                                 </flux:button>
                                 @can('wfm.swaps.manage')
-                                @if($currentTab === 'pending' && $request->status === 'accepted')
-                                    <flux:button wire:click="approveSwap({{ $request->id }})" 
-                                                wire:confirm="¿Estás seguro de aprobar este cambio? Se aplicará el intercambio de turnos en el horario inmediatamente." 
-                                                variant="primary" 
-                                                size="sm" 
-                                                icon="check">
-                                        Aprobar
-                                    </flux:button>
-                                    <flux:button wire:click="rejectSwap({{ $request->id }})" 
-                                                wire:confirm="¿Deseas rechazar esta solicitud?" 
-                                                variant="subtle" 
-                                                size="sm" 
-                                                icon="x-mark">
-                                        Rechazar
-                                    </flux:button>
-                                @endif
+                                    @if($currentTab === 'pending' && $request->status === 'accepted')
+                                        <flux:button wire:click="approveSwap({{ $request->id }})"
+                                            wire:confirm="¿Estás seguro de aprobar este cambio? Se aplicará el intercambio de turnos en el horario inmediatamente."
+                                            variant="primary" size="sm" icon="check">
+                                            Aprobar
+                                        </flux:button>
+                                        <flux:button wire:click="rejectSwap({{ $request->id }})"
+                                            wire:confirm="¿Deseas rechazar esta solicitud?" variant="subtle" size="sm"
+                                            icon="x-mark">
+                                            Rechazar
+                                        </flux:button>
+                                    @endif
                                 @endcan
                             </div>
                         </td>
@@ -129,12 +129,14 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Solicitante</span>
-                    <p class="text-sm font-medium">{{ $selectedRequest->requester->first_name }} {{ $selectedRequest->requester->last_name }}</p>
+                    <p class="text-sm font-medium">{{ $selectedRequest->requester->first_name }}
+                        {{ $selectedRequest->requester->last_name }}</p>
                     <p class="text-xs text-slate-400">{{ $selectedRequest->requester->team->name ?? 'N/A' }}</p>
                 </div>
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Destinatario</span>
-                    <p class="text-sm font-medium">{{ $selectedRequest->recipient->first_name }} {{ $selectedRequest->recipient->last_name }}</p>
+                    <p class="text-sm font-medium">{{ $selectedRequest->recipient->first_name }}
+                        {{ $selectedRequest->recipient->last_name }}</p>
                     <p class="text-xs text-slate-400">{{ $selectedRequest->recipient->team->name ?? 'N/A' }}</p>
                 </div>
             </div>
@@ -143,7 +145,8 @@
                 <span class="text-xs text-slate-500 uppercase font-bold">Comparativa de Horarios Originales</span>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
-                        <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de {{ $selectedRequest->requester->first_name }}</p>
+                        <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
+                            {{ $selectedRequest->requester->first_name }}</p>
                         @if($requesterShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($requesterShift->start_time)->format('H:i') }} -
@@ -155,7 +158,8 @@
                         @endif
                     </div>
                     <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
-                        <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de {{ $selectedRequest->recipient->first_name }}</p>
+                        <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
+                            {{ $selectedRequest->recipient->first_name }}</p>
                         @if($recipientShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($recipientShift->start_time)->format('H:i') }} -
@@ -179,7 +183,8 @@
             @if($selectedRequest->status === 'rejected' && $selectedRequest->rejection_reason)
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Motivo del Rechazo</span>
-                    <p class="text-sm p-3 bg-red-50/50 dark:bg-red-950/20 text-red-700 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/50">
+                    <p
+                        class="text-sm p-3 bg-red-50/50 dark:bg-red-950/20 text-red-700 dark:text-red-300 rounded-md border border-red-100 dark:border-red-900/50">
                         {{ $selectedRequest->rejection_reason }}
                     </p>
                 </div>
@@ -211,20 +216,16 @@
             <div class="flex justify-between pt-4 border-t dark:border-slate-800">
                 <div class="flex gap-2">
                     @can('wfm.swaps.manage')
-                    @if($selectedRequest->status === 'accepted')
-                        <flux:button wire:click="approveSwap({{ $selectedRequest->id }})" 
-                                    wire:confirm="¿Estás seguro de aprobar este cambio?" 
-                                    variant="primary" 
-                                    size="sm">
-                            Aprobar
-                        </flux:button>
-                        <flux:button wire:click="rejectSwap({{ $selectedRequest->id }})" 
-                                    wire:confirm="¿Deseas rechazar esta solicitud?" 
-                                    variant="subtle" 
-                                    size="sm">
-                            Rechazar
-                        </flux:button>
-                    @endif
+                        @if($selectedRequest->status === 'accepted')
+                            <flux:button wire:click="approveSwap({{ $selectedRequest->id }})"
+                                wire:confirm="¿Estás seguro de aprobar este cambio?" variant="primary" size="sm">
+                                Aprobar
+                            </flux:button>
+                            <flux:button wire:click="rejectSwap({{ $selectedRequest->id }})"
+                                wire:confirm="¿Deseas rechazar esta solicitud?" variant="subtle" size="sm">
+                                Rechazar
+                            </flux:button>
+                        @endif
                     @endcan
                 </div>
                 <flux:modal.close>

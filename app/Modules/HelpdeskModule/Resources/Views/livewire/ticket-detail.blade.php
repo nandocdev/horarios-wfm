@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-8">
+<div class=" mx-auto space-y-8">
     {{-- Header del Ticket --}}
     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
@@ -26,21 +26,21 @@
                 @if($ticket->sla_deadline)
                     @php
                         $slaStatus = $ticket->sla_status;
-                        $slaColor = match($slaStatus) {
+                        $slaColor = match ($slaStatus) {
                             'breached' => 'red',
                             'at_risk' => 'amber',
                             'on_track' => 'green',
                             'compliant' => 'green',
                             default => 'zinc'
                         };
-                        $slaIcon = match($slaStatus) {
+                        $slaIcon = match ($slaStatus) {
                             'breached' => 'alert-circle',
                             'at_risk' => 'clock',
                             'on_track' => 'check',
                             'compliant' => 'check-circle',
                             default => 'help'
                         };
-                        $slaLabel = match($slaStatus) {
+                        $slaLabel = match ($slaStatus) {
                             'breached' => 'SLA Vencido',
                             'at_risk' => 'SLA en Riesgo',
                             'on_track' => 'SLA en Tiempo',
@@ -49,7 +49,8 @@
                         };
                     @endphp
                     <span>•</span>
-                    <flux:badge size="sm" :color="$slaColor" :icon="$slaIcon">{{ $slaLabel }}: {{ $ticket->sla_deadline->format('d M, H:i') }}</flux:badge>
+                    <flux:badge size="sm" :color="$slaColor" :icon="$slaIcon">{{ $slaLabel }}:
+                        {{ $ticket->sla_deadline->format('d M, H:i') }}</flux:badge>
                 @endif
             </div>
         </div>
@@ -90,7 +91,8 @@
                 <flux:avatar :name="$ticket->creator->first_name . ' ' . $ticket->creator->last_name" />
                 <div class="flex-1 space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="font-bold text-sm text-slate-900 dark:text-white">{{ $ticket->creator->first_name }}
+                        <span
+                            class="font-bold text-sm text-slate-900 dark:text-white">{{ $ticket->creator->first_name }}
                             {{ $ticket->creator->last_name }}</span>
                         <span class="text-xs text-slate-500"
                             title="{{ $ticket->created_at }}">{{ $ticket->created_at->diffForHumans() }}</span>

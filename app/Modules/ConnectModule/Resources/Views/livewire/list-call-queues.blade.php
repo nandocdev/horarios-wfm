@@ -4,7 +4,7 @@
         <p class="text-sm text-slate-600">Gestiona las colas que pueden asignarse a registros de llamada.</p>
     </flux:card>
 
-    <flux:card class="max-w-4xl">
+    <flux:card class="">
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-3">
             <flux:input wire:model.defer="form.name" label="Nombre de la cola" />
             <flux:error name="form.name" />
@@ -30,10 +30,13 @@
         <flux:table>
             <flux:table.columns>
                 <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Nombre</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Descripción</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Tipos asociados</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Descripción
+                </flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Tipos asociados
+                </flux:table.column>
                 <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Activo</flux:table.column>
-                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
+                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones
+                </flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>

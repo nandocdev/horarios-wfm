@@ -1,4 +1,4 @@
-<form wire:submit="create" class="space-y-8 max-w-4xl mx-auto">
+<form wire:submit="create" class="space-y-8  mx-auto">
     <flux:card class="space-y-4">
         <div>
             <flux:heading size="md">Información Personal</flux:heading>
@@ -96,7 +96,8 @@
                     @endforeach
                 </flux:select>
 
-                <flux:select label="Estado laboral *" wire:model="employment_status_id" placeholder="Seleccionar estado">
+                <flux:select label="Estado laboral *" wire:model="employment_status_id"
+                    placeholder="Seleccionar estado">
                     @foreach($selectOptions['employment_statuses'] as $id => $name)
                         <flux:select.option value="{{ $id }}">{{ $name }}</flux:select.option>
                     @endforeach

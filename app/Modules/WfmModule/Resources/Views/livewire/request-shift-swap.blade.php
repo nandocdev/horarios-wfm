@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-8 flex-1 flex flex-col">
+<div class=" mx-auto space-y-8 flex-1 flex flex-col">
     <div>
         <flux:heading size="xl">Solicitar Cambio de Turno</flux:heading>
         <flux:subheading>Completa los detalles para intercambiar tu turno con un compañero de otro equipo.
@@ -90,7 +90,8 @@
                                     </div>
                                 </div>
                                 <p class="text-[10px] text-slate-500 uppercase font-bold">
-                                    {{ $requesterAssignment->schedule->name }}</p>
+                                    {{ $requesterAssignment->schedule->name }}
+                                </p>
                             </div>
                         @else
                             <div class="py-4 text-center opacity-50">
@@ -135,7 +136,8 @@
                                     </div>
                                 </div>
                                 <p class="text-[10px] text-slate-500 uppercase font-bold">
-                                    {{ $recipientAssignment->schedule->name }}</p>
+                                    {{ $recipientAssignment->schedule->name }}
+                                </p>
                             </div>
                         @else
                             <div class="py-4 text-center opacity-50">

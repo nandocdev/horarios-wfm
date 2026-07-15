@@ -1,12 +1,13 @@
-<div class="max-w-4xl mx-auto px-4 sm:px-4 lg:px-8 py-8">
+<div class=" mx-auto px-4 sm:px-4 lg:px-8 py-8">
     <div class="mb-8">
         <div class="flex items-center gap-2 mb-4">
-            <flux:button href="{{ route('documentation.index') }}" variant="ghost" icon="arrow-left" size="sm" wire:navigate>
+            <flux:button href="{{ route('documentation.index') }}" variant="ghost" icon="arrow-left" size="sm"
+                wire:navigate>
                 Volver a la lista
             </flux:button>
-            
+
             <flux:separator vertical />
-            
+
             <div class="flex gap-2">
                 @foreach($article->categories as $cat)
                     <flux:badge :color="$cat->color ?? 'blue'" size="sm" variant="subtle">
@@ -17,7 +18,7 @@
         </div>
 
         <flux:heading size="3xl" class="mb-2">{{ $article->title }}</flux:heading>
-        
+
         <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
             <span class="flex items-center gap-1">
                 <flux:icon name="user" size="xs" class="size-4" />

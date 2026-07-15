@@ -1,11 +1,11 @@
 <div class="space-y-8">
-    <flux:card class="max-w-4xl">
+    <flux:card class="">
         <flux:heading size="xl">Canales</flux:heading>
         <p class="text-sm text-slate-600">Gestiona los canales top-level del Contact Center (relacionados con colas y
             tipos).</p>
     </flux:card>
 
-    <flux:card class="max-w-4xl">
+    <flux:card class="">
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-3">
             <flux:input wire:model.defer="form.name" label="Nombre" />
             <flux:error name="form.name" />
@@ -31,9 +31,11 @@
         <flux:table>
             <flux:table.columns>
                 <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Nombre</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Descripción</flux:table.column>
+                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Descripción
+                </flux:table.column>
                 <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Activo</flux:table.column>
-                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
+                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones
+                </flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
@@ -55,7 +57,8 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell class="py-2" colspan="4" align="center">No hay canales registrados.</flux:table.cell>
+                        <flux:table.cell class="py-2" colspan="4" align="center">No hay canales registrados.
+                        </flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>

@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto space-y-8 flex-1 flex flex-col">
+<div class=" mx-auto space-y-8 flex-1 flex flex-col">
     <div class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Historial de Solicitudes</flux:heading>

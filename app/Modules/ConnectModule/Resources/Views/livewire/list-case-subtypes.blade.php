@@ -4,7 +4,7 @@
         <p class="text-sm text-slate-600">Administra los tipos de consulta por cola del Contact Center.</p>
     </flux:card>
 
-    <flux:card class="max-w-4xl">
+    <flux:card class="">
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-3">
             <flux:select wire:model.defer="form.queue_id" label="Cola">
                 <flux:select.option value="">Seleccionar</flux:select.option>
@@ -44,7 +44,8 @@
                 <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Código</flux:table.column>
                 <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Nombre</flux:table.column>
                 <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Activo</flux:table.column>
-                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
+                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones
+                </flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
@@ -68,7 +69,8 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell class="py-2" colspan="5" align="center">No hay tipos de consulta registrados.</flux:table.cell>
+                        <flux:table.cell class="py-2" colspan="5" align="center">No hay tipos de consulta registrados.
+                        </flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>

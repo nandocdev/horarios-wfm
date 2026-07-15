@@ -9,7 +9,7 @@
         </flux:card>
     @endif
 
-    <flux:card class="max-w-4xl">
+    <flux:card class="">
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-2">
             <flux:select wire:model="form.channel_id" label="Canal">
                 <flux:select.option value="">Seleccionar</flux:select.option>

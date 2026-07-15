@@ -25,6 +25,7 @@ yarn-error.log
 composer.lock
 package-lock.json
 /database/data/*.sql
+/scripts/*
 
 .gemini/
 gha-creds-*.json

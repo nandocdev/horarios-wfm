@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\QualityModule\Actions;
 
+use App\Modules\CoreModule\Models\User;
 use App\Modules\QualityModule\DTOs\CreateEvaluationDTO;
+use App\Modules\QualityModule\Enums\EvaluationStatus;
+use App\Modules\QualityModule\Enums\QualityRole;
 use App\Modules\QualityModule\Events\EvaluationCreated;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\EvaluationRedFlag;
@@ -19,11 +22,11 @@ final class StoreEvaluationAction
         return DB::transaction(function () use ($dto) {
             $score = collect($dto->scores)->sum('puntaje');
 
-            $evaluator = \App\Modules\CoreModule\Models\User::find($dto->evaluator_id);
-            $status = \App\Modules\QualityModule\Enums\EvaluationStatus::Activa->value;
-            
-            if ($evaluator && $evaluator->hasRole(\App\Modules\QualityModule\Enums\QualityRole::Evaluator->value)) {
-                $status = \App\Modules\QualityModule\Enums\EvaluationStatus::PendienteCalibracion->value;
+            $evaluator = User::find($dto->evaluator_id);
+            $status = EvaluationStatus::Activa->value;
+
+            if ($evaluator && $evaluator->hasRole(QualityRole::Evaluator->value)) {
+                $status = EvaluationStatus::PendienteCalibracion->value;
             }
 
             $evaluation = Evaluation::create([

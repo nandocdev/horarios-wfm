@@ -6,6 +6,7 @@ namespace App\Modules\QualityModule\Models;
 
 use App\Shared\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Criteria extends BaseModel
 {
@@ -20,12 +21,12 @@ class Criteria extends BaseModel
         return $this->hasMany(CriteriaVersion::class, 'criteria_id');
     }
 
-    public function currentVersion(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function currentVersion(): HasOne
     {
         return $this->hasOne(CriteriaVersion::class, 'criteria_id')
             ->where(function ($query) {
                 $query->whereNull('valid_to')
-                      ->orWhere('valid_to', '>=', now()->toDateString());
+                    ->orWhere('valid_to', '>=', now()->toDateString());
             })
             ->latestOfMany('version');
     }

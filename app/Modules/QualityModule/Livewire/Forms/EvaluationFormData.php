@@ -20,7 +20,7 @@ final class EvaluationFormData extends Form
 
     public ?string $callobs = null;
 
-    /** @var array<array{criteria_version_id: string, puntaje: int}> */
+    /** @var array<array{criteria_version_id: string, cumple: bool}> */
     public array $scores = [];
 
     /** @var array<int, bool> */

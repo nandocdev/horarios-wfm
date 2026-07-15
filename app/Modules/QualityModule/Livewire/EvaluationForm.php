@@ -9,6 +9,7 @@ use App\Modules\QualityModule\Actions\StoreEvaluationAction;
 use App\Modules\QualityModule\DTOs\CreateEvaluationDTO;
 use App\Modules\QualityModule\Livewire\Forms\EvaluationFormData;
 use App\Modules\QualityModule\Models\Queue;
+use App\Modules\QualityModule\Models\RedFlagCriteria;
 use App\Shared\Contracts\Quality\CriteriaRepositoryInterface;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -49,7 +50,7 @@ class EvaluationForm extends Component
         foreach ($this->criterios as $criterio) {
             $this->form->scores[] = [
                 'criteria_version_id' => $criterio->id,
-                'puntaje' => 0,
+                'cumple' => false,
             ];
         }
     }
@@ -57,6 +58,15 @@ class EvaluationForm extends Component
     public function submit(StoreEvaluationAction $action): void
     {
         $this->form->validate();
+
+        $scoresDTO = [];
+        foreach ($this->form->scores as $i => $score) {
+            $criteriaVersion = $this->criterios[$i] ?? null;
+            $scoresDTO[] = [
+                'criteria_version_id' => $score['criteria_version_id'],
+                'puntaje' => ($score['cumple'] ?? false) ? ($criteriaVersion?->puntaje ?? 0) : 0,
+            ];
+        }
 
         $redFlags = [];
         foreach ($this->form->red_flags as $rfId => $selected) {
@@ -73,7 +83,7 @@ class EvaluationForm extends Component
             dtcall: $this->form->dtcall,
             tmcall: $this->form->tmcall,
             callobs: $this->form->callobs,
-            scores: $this->form->scores,
+            scores: $scoresDTO,
             red_flags: $redFlags,
         );
 
@@ -88,7 +98,7 @@ class EvaluationForm extends Component
     {
         return view('quality::livewire.evaluation-form', [
             'queues' => Queue::orderBy('code')->get(),
-            // employee is already available as a component property
+            'redFlagCriteria' => RedFlagCriteria::where('is_active', true)->get(),
         ])->layout('layouts.app', ['title' => 'Nueva Evaluación']);
     }
 }

@@ -22,17 +22,54 @@
             @if($criterios->isEmpty())
                 <flux:text class="text-slate-400 text-center py-8">Seleccione una cola para cargar los criterios</flux:text>
             @else
-                <div class="space-y-3">
+                <div class="space-y-3" x-data="{ showDesc: null }">
                     @foreach($criterios as $index => $criterio)
-                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                            <div class="flex-1">
-                                <flux:text size="sm" class="font-medium">{{ $criterio->criterio_text }}</flux:text>
-                                <flux:text size="xs" class="text-slate-400">Puntaje máximo: {{ $criterio->puntaje }}</flux:text>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <flux:text size="sm" class="font-medium">{{ $criterio->criterio_text }}</flux:text>
+                                        @if($criterio->descripcion)
+                                            <button type="button" @click="showDesc = showDesc === {{ $index }} ? null : {{ $index }}" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                                <flux:icon name="information-circle" size="sm" />
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <flux:text size="xs" class="text-slate-400">{{ $criterio->puntaje }} pts</flux:text>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2">
+                                        <flux:text size="xs" class="text-slate-400">No cumple</flux:text>
+                                        <flux:switch wire:model.live="form.scores.{{ $index }}.cumple" />
+                                        <flux:text size="xs" class="text-slate-400">Cumple</flux:text>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <flux:input wire:model="form.scores.{{ $index }}.puntaje" type="number" min="0" max="{{ $criterio->puntaje }}" class="w-20 text-center" />
-                            </div>
+                            @if($criterio->descripcion)
+                                <div x-show="showDesc === {{ $index }}" x-cloak class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                                    <flux:text size="xs" class="text-slate-500 leading-relaxed whitespace-pre-line">{{ $criterio->descripcion }}</flux:text>
+                                </div>
+                            @endif
                         </div>
+                    @endforeach
+                </div>
+            @endif
+
+            @if($redFlagCriteria->isNotEmpty())
+                <flux:separator text="Red Flags" />
+
+                <div class="space-y-2">
+                    <flux:text size="sm" class="text-slate-500 mb-2">
+                        Seleccione las incidencias graves aplicables (restan puntos automáticamente)
+                    </flux:text>
+                    @foreach($redFlagCriteria as $rf)
+                        <label class="flex items-start gap-3 p-2 rounded-md hover:bg-red-50 dark:hover:bg-red-950 cursor-pointer">
+                            <flux:checkbox wire:model="form.red_flags.{{ $rf->id }}" />
+                            <div class="flex-1">
+                                <flux:text size="sm">{{ $rf->criterio_text }}</flux:text>
+                                <flux:text size="xs" class="text-red-500">-{{ $rf->perdida }} puntos</flux:text>
+                            </div>
+                        </label>
                     @endforeach
                 </div>
             @endif

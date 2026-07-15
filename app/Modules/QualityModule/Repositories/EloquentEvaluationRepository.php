@@ -26,6 +26,12 @@ final class EloquentEvaluationRepository implements EvaluationRepositoryInterfac
             $query->where('queue_id', $filters['queue_id']);
         }
 
+        if (! empty($filters['team_id'])) {
+            $query->whereHas('employee', function ($q) use ($filters) {
+                $q->where('team_id', $filters['team_id']);
+            });
+        }
+
         if (! empty($filters['evaluator_id'])) {
             $query->where('evaluator_id', $filters['evaluator_id']);
         }

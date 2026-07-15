@@ -90,6 +90,7 @@ class MenuHelper
                 'permission' => 'operations.view',
                 'submenu' => [
                     ['label' => __('Monitoreo en Tiempo Real'), 'route' => 'operations.realtime', 'pattern' => 'operations/realtime*', 'permission' => 'wfm.realtime.view', 'icon' => 'cpu-chip'],
+                    ['label' => __('Reporte Diario'), 'route' => 'operations.daily-report', 'pattern' => 'operations/reporte-diario*', 'icon' => 'clipboard-document-list'],
                     ['label' => __('Disponibilidad Intradía'), 'route' => 'operations.availability', 'pattern' => 'operations/availability*', 'icon' => 'clock'],
                     ['label' => __('Desempeño por Cola'), 'route' => 'operations.queue-performance', 'pattern' => 'operations/queue-performance*', 'icon' => 'phone'],
                     ['label' => __('Scorecard de Desempeño'), 'route' => 'operations.performance', 'pattern' => 'operations/performance*', 'icon' => 'chart-bar'],

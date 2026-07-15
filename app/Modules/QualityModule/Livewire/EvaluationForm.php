@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\QualityModule\Livewire;
 
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\QualityModule\Actions\StoreEvaluationAction;
 use App\Modules\QualityModule\DTOs\CreateEvaluationDTO;
 use App\Modules\QualityModule\Livewire\Forms\EvaluationFormData;
@@ -18,8 +19,12 @@ class EvaluationForm extends Component
 
     public Collection $criterios;
 
-    public function mount(CriteriaRepositoryInterface $repo): void
+    public Employee $employee;
+
+    public function mount(Employee $employee, CriteriaRepositoryInterface $repo): void
     {
+        $this->employee = $employee;
+        $this->form->employee_id = $employee->id;
         $this->form->queue_id = request('queue', '');
         $this->criterios = collect();
 
@@ -83,6 +88,7 @@ class EvaluationForm extends Component
     {
         return view('quality::livewire.evaluation-form', [
             'queues' => Queue::orderBy('code')->get(),
+            // employee is already available as a component property
         ])->layout('layouts.app', ['title' => 'Nueva Evaluación']);
     }
 }

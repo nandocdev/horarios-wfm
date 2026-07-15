@@ -11,15 +11,20 @@ use App\Modules\QualityModule\Livewire\EvaluationIndex;
 use App\Modules\QualityModule\Livewire\FeedbackForm;
 use App\Modules\QualityModule\Livewire\ManageQueueCriteria;
 use App\Modules\QualityModule\Livewire\QueueList;
+use App\Modules\QualityModule\Livewire\TeamEvaluationSelector;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/evaluaciones', EvaluationIndex::class)
     ->middleware('can:quality.evaluations.view')
     ->name('evaluations.index');
 
-Route::get('/evaluaciones/crear', EvaluationForm::class)
+Route::get('/evaluaciones/crear', TeamEvaluationSelector::class)
     ->middleware('can:quality.evaluations.create')
     ->name('evaluations.create');
+
+Route::get('/evaluaciones/crear/{employee}', EvaluationForm::class)
+    ->middleware('can:quality.evaluations.create')
+    ->name('evaluations.form');
 
 Route::get('/evaluaciones/{evaluation}', EvaluationDetail::class)
     ->middleware('can:quality.evaluations.view')

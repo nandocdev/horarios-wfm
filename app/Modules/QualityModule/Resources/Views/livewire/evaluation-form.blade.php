@@ -12,7 +12,7 @@
                         <option value="{{ $queue->id }}">{{ $queue->code }} — {{ $queue->name }}</option>
                     @endforeach
                 </flux:select>
-                <flux:input wire:model="form.employee_id" label="ID Empleado *" type="number" />
+                <flux:input value="{{ $employee->username }} — {{ $employee->full_name }}" label="Empleado *" disabled />
                 <flux:input wire:model="form.dtcall" label="Fecha llamada" type="date" />
                 <flux:input wire:model="form.tmcall" label="Hora llamada" type="time" />
             </div>

@@ -20,13 +20,13 @@ class QualityModuleSeeder extends Seeder
     private function seedQueues(): void
     {
         foreach (QueueCode::cases() as $code) {
-            Queue::firstOrCreate(
+            Queue::updateOrCreate(
                 ['code' => $code->value],
                 ['name' => $code->label(), 'is_active' => true]
             );
         }
 
-        $this->command?->info(sprintf('✓ %d colas creadas', count(QueueCode::cases())));
+        $this->command?->info(sprintf('✓ %d colas sincronizadas', count(QueueCode::cases())));
     }
 
     private function importCriteriaFromCsv(): void

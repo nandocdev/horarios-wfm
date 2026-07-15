@@ -91,7 +91,7 @@ final class CsvCriteriaImporter
                 ['code' => $criteriaCode],
             );
 
-            $version = CriteriaVersion::firstOrCreate(
+            $version = CriteriaVersion::updateOrCreate(
                 [
                     'criteria_id' => $criteria->id,
                     'version' => 1,
@@ -107,7 +107,7 @@ final class CsvCriteriaImporter
                 ]
             );
 
-            QueueCriteria::firstOrCreate(
+            QueueCriteria::updateOrCreate(
                 [
                     'queue_id' => $queue->id,
                     'criteria_version_id' => $version->id,
@@ -139,7 +139,7 @@ final class CsvCriteriaImporter
                 continue;
             }
 
-            RedFlagCriteria::firstOrCreate(
+            RedFlagCriteria::updateOrCreate(
                 ['criterio_text' => $criterioText],
                 [
                     'criterio_text' => $criterioText,

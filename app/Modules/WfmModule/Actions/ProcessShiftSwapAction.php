@@ -9,6 +9,7 @@ use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\TemporalAssignment;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 
 class ProcessShiftSwapAction
@@ -121,7 +122,7 @@ class ProcessShiftSwapAction
      * Crea asignaciones temporales para que cada operador reporte
      * al coordinador del otro durante el periodo del swap.
      */
-    private function createTemporalAssignments(ShiftSwapRequest $request, Carbon $startDate, Carbon $endDate): void
+    private function createTemporalAssignments(ShiftSwapRequest $request, CarbonInterface $startDate, CarbonInterface $endDate): void
     {
         $requester = Employee::with('team')->find($request->requester_id);
         $recipient = Employee::with('team')->find($request->recipient_id);

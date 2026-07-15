@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\QualityModule\Livewire;
 
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\QualityModule\Models\Queue;
 use App\Shared\Contracts\Quality\EvaluationRepositoryInterface;
 use Livewire\Component;
@@ -27,9 +28,15 @@ class EvaluationIndex extends Component
 
     public string $sortDirection = 'desc';
 
+    public ?string $teamFilter = null;
+
+    public ?string $employeeFilter = null;
+
     protected $queryString = [
         'search' => ['except' => ''],
         'queueFilter' => ['except' => null],
+        'teamFilter' => ['except' => null],
+        'employeeFilter' => ['except' => null],
         'dateFrom' => ['except' => null],
         'dateTo' => ['except' => null],
         'statusFilter' => ['except' => null],
@@ -41,6 +48,16 @@ class EvaluationIndex extends Component
     }
 
     public function updatingQueueFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTeamFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingEmployeeFilter(): void
     {
         $this->resetPage();
     }
@@ -77,6 +94,8 @@ class EvaluationIndex extends Component
                 'fecha_desde' => $this->dateFrom,
                 'fecha_hasta' => $this->dateTo,
                 'queue_id' => $this->queueFilter,
+                'team_id' => $this->teamFilter,
+                'employee_id' => $this->employeeFilter,
                 'status' => $this->statusFilter,
             ]),
             sortField: $this->sortField,
@@ -86,6 +105,7 @@ class EvaluationIndex extends Component
         return view('quality::livewire.evaluation-index', [
             'evaluations' => $evaluations,
             'queues' => Queue::orderBy('name')->get(),
+            'teams' => Team::orderBy('name')->get(),
         ]);
     }
 }

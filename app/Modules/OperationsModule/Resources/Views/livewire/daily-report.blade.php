@@ -90,7 +90,7 @@
             <flux:card>
                 <div class="space-y-2">
                     <div class="flex items-center gap-2">
-                        <flux:icon name="coffee" class="w-4 h-4 text-emerald-500" />
+                        <flux:icon name="clock" class="w-4 h-4 text-emerald-500" />
                         <flux:heading size="sm" class="text-emerald-700 dark:text-emerald-300">Descanso</flux:heading>
                     </div>
                     <flux:separator />
@@ -160,7 +160,7 @@
             <flux:card>
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
-                        <flux:icon name="clipboard-list" class="w-4 h-4 text-amber-500" />
+                        <flux:icon name="clipboard-document-list" class="w-4 h-4 text-amber-500" />
                         <flux:heading size="sm">Actividades</flux:heading>
                     </div>
                     <flux:separator />
@@ -193,16 +193,16 @@
                     <div class="space-y-2">
                         @php
                             $states = [
-                                ['label' => 'TALKING', 'seconds' => $d['talk_seconds'], 'color' => 'green'],
-                                ['label' => 'READY', 'seconds' => $d['ready_seconds'], 'color' => 'blue'],
-                                ['label' => 'NOT READY', 'seconds' => $d['not_ready_seconds'], 'color' => 'red'],
-                                ['label' => 'WORK', 'seconds' => $d['work_seconds'], 'color' => 'amber'],
+                                ['label' => 'TALKING', 'seconds' => $d['talk_seconds'], 'class' => 'bg-green-500'],
+                                ['label' => 'READY', 'seconds' => $d['ready_seconds'], 'class' => 'bg-blue-500'],
+                                ['label' => 'NOT READY', 'seconds' => $d['not_ready_seconds'], 'class' => 'bg-red-500'],
+                                ['label' => 'WORK', 'seconds' => $d['work_seconds'], 'class' => 'bg-amber-500'],
                             ];
                         @endphp
                         @foreach($states as $s)
                             <div class="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded">
                                 <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-{{ $s['color'] }}-500"></span>
+                                    <span class="w-2 h-2 rounded-full {{ $s['class'] }}"></span>
                                     <flux:text size="sm">{{ $s['label'] }}</flux:text>
                                 </div>
                                 <flux:text size="sm" class="font-mono">{{ gmdate('H:i:s', $s['seconds']) }}</flux:text>
@@ -263,7 +263,7 @@
                                 <td class="py-2 px-3 text-slate-600">{{ $d['position_name'] ?? '—' }}</td>
                                 <td class="py-2 px-3 text-center font-mono text-xs">{{ $d['scheduled_entry'] }}</td>
                                 <td class="py-2 px-3 text-center">
-                                    <flux:icon name="circle" class="w-2 h-2 inline {{ $d['current_state'] !== 'LOGOUT' && $d['current_state'] !== 'OFFLINE' ? 'text-green-500' : 'text-red-400' }}" />
+                                    <span class="inline-block w-2 h-2 rounded-full {{ $d['current_state'] !== 'LOGOUT' && $d['current_state'] !== 'OFFLINE' ? 'bg-green-500' : 'bg-red-400' }}"></span>
                                 </td>
                                 <td class="py-2 px-3 text-center font-mono text-xs">{{ $d['scheduled_lunch'] ?? '—' }}</td>
                                 <td class="py-2 px-3 text-center font-mono text-xs">

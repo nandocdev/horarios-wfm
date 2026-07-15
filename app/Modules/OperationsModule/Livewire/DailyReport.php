@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Livewire;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Modules\WfmModule\Models\TemporalAssignment;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
@@ -64,11 +65,31 @@ class DailyReport extends Component
                 ? ($this->teamId ? [$this->teamId] : Team::pluck('id')->toArray())
                 : ($employee?->getManagedTeamIds() ?? []);
 
-            $employees = Employee::with('team', 'position')
+            $teamEmployees = Employee::with('team', 'position')
                 ->whereIn('team_id', $teamIds)
                 ->where('is_active', true)
                 ->orderBy('first_name')
                 ->get();
+
+            // Incluir empleados temporalmente asignados a los supervisores de estos equipos
+            $supervisorIds = Team::whereIn('id', $teamIds)
+                ->whereNotNull('supervisor_id')
+                ->pluck('supervisor_id')
+                ->toArray();
+
+            $tempEmployeeIds = [];
+            foreach ($supervisorIds as $supId) {
+                $tempEmployeeIds = array_merge(
+                    $tempEmployeeIds,
+                    TemporalAssignment::subordinateIdsFor($supId, $now)
+                );
+            }
+
+            $tempEmployees = ! empty($tempEmployeeIds)
+                ? Employee::with('team', 'position')->whereIn('id', array_unique($tempEmployeeIds))->get()
+                : collect();
+
+            $employees = $teamEmployees->concat($tempEmployees)->unique('id')->values();
 
             $data = $employees->map(fn ($e) => $this->buildOperatorData(
                 $e, $now, $realtimeRepo, $scheduleQueries

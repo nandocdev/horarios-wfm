@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Actions;
 
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
+use App\Modules\WfmModule\Models\TemporalAssignment;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -54,8 +56,8 @@ class ProcessShiftSwapAction
                 $currentDate = $currentDate->addDay();
             }
 
-            // El WorkflowsModule es el encargado de registrar el Approval y actualizar el estado de la solicitud.
-            // Esta Action se limita únicamente a aplicar los cambios físicos en la rejilla de horarios.
+            // 6. Crear asignaciones temporales de coordinadores cruzados
+            $this->createTemporalAssignments($request, $startDate, $endDate);
 
             return true;
         });
@@ -113,6 +115,72 @@ class ProcessShiftSwapAction
         // Nota: A toma el turno de B y B toma el turno de A
         $this->createSwappedAssignment($a, $b, $request->id);
         $this->createSwappedAssignment($b, $a, $request->id);
+    }
+
+    /**
+     * Crea asignaciones temporales para que cada operador reporte
+     * al coordinador del otro durante el periodo del swap.
+     */
+    private function createTemporalAssignments(ShiftSwapRequest $request, Carbon $startDate, Carbon $endDate): void
+    {
+        $requester = Employee::with('team')->find($request->requester_id);
+        $recipient = Employee::with('team')->find($request->recipient_id);
+
+        if (! $requester || ! $recipient) {
+            return;
+        }
+
+        // Supervisor actual de cada operador (team.supervisor_id o parent_id)
+        $requesterSupervisorId = $requester->team?->supervisor_id ?? $requester->parent_id;
+        $recipientSupervisorId = $recipient->team?->supervisor_id ?? $recipient->parent_id;
+
+        // Solo crear asignaciones si ambos tienen supervisor definido
+        // y son distintos (swap cruzado real)
+        if (! $requesterSupervisorId || ! $recipientSupervisorId) {
+            return;
+        }
+
+        if ($requesterSupervisorId === $recipientSupervisorId) {
+            // Mismo supervisor, no hay swap cruzado que hacer
+            return;
+        }
+
+        $dateStrStart = $startDate->toDateString();
+        $dateStrEnd = $endDate->toDateString();
+
+        // Operador1 reporta al supervisor del Operador2
+        TemporalAssignment::updateOrCreate(
+            [
+                'employee_id' => $requester->id,
+                'source_type' => 'shift_swap',
+                'source_id' => $request->id,
+            ],
+            [
+                'employee_id' => $requester->id,
+                'supervisor_id' => $recipientSupervisorId,
+                'start_date' => $dateStrStart,
+                'end_date' => $dateStrEnd,
+                'source_type' => 'shift_swap',
+                'source_id' => $request->id,
+            ]
+        );
+
+        // Operador2 reporta al supervisor del Operador1
+        TemporalAssignment::updateOrCreate(
+            [
+                'employee_id' => $recipient->id,
+                'source_type' => 'shift_swap',
+                'source_id' => $request->id,
+            ],
+            [
+                'employee_id' => $recipient->id,
+                'supervisor_id' => $requesterSupervisorId,
+                'start_date' => $dateStrStart,
+                'end_date' => $dateStrEnd,
+                'source_type' => 'shift_swap',
+                'source_id' => $request->id,
+            ]
+        );
     }
 
     private function createSwappedAssignment(WeeklyScheduleAssignment $original, WeeklyScheduleAssignment $sourceData, int $requestId): void

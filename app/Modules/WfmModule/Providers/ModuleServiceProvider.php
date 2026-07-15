@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Providers;
 
 use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
+use App\Modules\WfmModule\Console\Commands\CleanExpiredTemporalAssignments;
 use App\Modules\WfmModule\Listeners\ApplyShiftSwapToSchedule;
 use App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved;
 use App\Modules\WfmModule\Livewire\EmployeeWeeklyPlanning;
@@ -113,6 +114,17 @@ class ModuleServiceProvider extends ServiceProvider
             ShiftSwapApproved::class,
             [NotifyShiftSwapApproved::class, 'handle']
         );
+
+        $this->registerCommands();
+    }
+
+    private function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                CleanExpiredTemporalAssignments::class,
+            ]);
+        }
     }
 
     /**

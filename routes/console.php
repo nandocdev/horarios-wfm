@@ -45,3 +45,8 @@ Schedule::command('operations:reconcile-attendance')
 Schedule::job(new RecalculateQueueStats)
     ->daily()
     ->withoutOverlapping();
+
+// WFM: Limpiar asignaciones temporales expiradas (swap de turnos)
+Schedule::command('wfm:clean-temporal-assignments')
+    ->dailyAt('04:00')
+    ->withoutOverlapping();

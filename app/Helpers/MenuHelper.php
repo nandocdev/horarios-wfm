@@ -80,6 +80,7 @@ class MenuHelper
                     ['label' => __('Tipos de Actividad'), 'route' => 'schedules.activity-types', 'pattern' => 'schedules/activity-types*', 'permission' => 'wfm.catalogs.activities', 'icon' => 'tag'],
                     ['label' => __('Motivos de Ausencia'), 'route' => 'schedules.absence-reasons', 'pattern' => 'schedules/absence-reasons*', 'permission' => 'wfm.catalogs.absences', 'icon' => 'folder-minus'],
                     ['label' => __('Estados de Agente'), 'route' => 'schedules.agent-states', 'pattern' => 'schedules/agent-states*', 'permission' => 'wfm.catalogs.agent_states', 'icon' => 'signal'],
+                    ['label' => __('Aprobar Cambios de Turno'), 'route' => 'schedules.wfm-approvals', 'pattern' => 'schedules/wfm-approvals*', 'permission' => 'wfm.swaps.manage', 'icon' => 'check-badge'],
                 ],
             ],
 

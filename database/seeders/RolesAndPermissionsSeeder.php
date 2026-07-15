@@ -211,6 +211,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'wfm.catalogs.agent_states',
             'wfm.catalogs.scheduled_defs',
             'wfm.settings.manage',
+
+            // Quality Module
+            'quality.evaluations.view',
+            'quality.evaluations.create',
+            'quality.evaluations.delete',
+            'quality.feedback.create',
+            'quality.calibrations.create',
+            'quality.criteria.view',
+            'quality.criteria.create',
+            'quality.criteria.update',
+            'quality.queues.manage',
+            'quality.dashboard.view',
         ];
 
         // Registro masivo de permisos ANTES de cualquier asignación
@@ -276,6 +288,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'helpdesk.view',
             'articles.viewAny',
             'knowledge.viewAny',
+            'quality.evaluations.view',
         ]);
 
         // Coordinator
@@ -301,6 +314,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.send',
             'articles.viewAny',
             'knowledge.viewAny',
+            'quality.evaluations.view',
+            'quality.evaluations.create',
+            'quality.feedback.create',
         ]);
 
         // Chief
@@ -324,6 +340,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.view',
             'articles.viewAny',
             'knowledge.viewAny',
+            'quality.evaluations.view',
+            'quality.dashboard.view',
         ]);
 
         // Director
@@ -343,7 +361,49 @@ class RolesAndPermissionsSeeder extends Seeder
             'news.viewAny',
             'articles.viewAny',
             'knowledge.viewAny',
+            'quality.evaluations.view',
+            'quality.dashboard.view',
         ]);
+
+        // 4. CREACIÓN DE ROLES ESPECÍFICOS DE CALIDAD
+        $qualityRoles = [
+            'quality-evaluator' => [
+                'quality.evaluations.view',
+                'quality.evaluations.create',
+                'quality.feedback.create',
+            ],
+            'quality-supervisor' => [
+                'quality.evaluations.view',
+                'quality.evaluations.create',
+                'quality.feedback.create',
+            ],
+            'quality-coordinator' => [
+                'quality.evaluations.view',
+                'quality.evaluations.create',
+                'quality.evaluations.delete',
+                'quality.feedback.create',
+                'quality.calibrations.create',
+            ],
+            'quality-admin' => [
+                'quality.evaluations.view',
+                'quality.evaluations.create',
+                'quality.evaluations.delete',
+                'quality.feedback.create',
+                'quality.calibrations.create',
+                'quality.criteria.view',
+                'quality.criteria.create',
+                'quality.criteria.update',
+                'quality.queues.manage',
+                'quality.dashboard.view',
+            ],
+        ];
+
+        foreach ($qualityRoles as $name => $perms) {
+            $role = Role::firstOrCreate(
+                ['name' => $name, 'guard_name' => 'web']
+            );
+            $role->syncPermissions($perms);
+        }
 
         // Limpiar caché final
         app(PermissionRegistrar::class)->forgetCachedPermissions();

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\QualityModule\Jobs\RecalculateQueueStats;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -41,6 +42,6 @@ Schedule::command('operations:reconcile-attendance')
     ->withoutOverlapping();
 
 // Quality Module: Recalcular estadísticas de colas
-Schedule::job(new \App\Modules\QualityModule\Jobs\RecalculateQueueStats())
+Schedule::job(new RecalculateQueueStats)
     ->daily()
     ->withoutOverlapping();

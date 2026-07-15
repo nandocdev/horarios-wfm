@@ -219,7 +219,7 @@ app/Modules/WfmModule
 ├── Notifications
 │   ├── AttendanceIncidentNotification.php
 │   ├── IntradayActivityNotification.php
-│   ├── PendingApprovalNotification.php
+
 │   ├── ScheduleModifiedNotification.php
 │   ├── SchedulePublishedNotification.php
 │   ├── ScheduleRequestStatusNotification.php

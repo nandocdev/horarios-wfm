@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
@@ -75,7 +76,7 @@ class SwapRequestHistory extends Component
             $dto = new NotificationDTO(
                 title: 'Solicitud Cancelada',
                 message: "{$employee->full_name} ha cancelado la solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
-                actionUrl: route('schedules.swap-history'),
+                actionUrl: route('schedules.swap-history', [], false),
                 level: 'warning'
             );
             $request->recipient->user->notify(new SwapStatusChangedNotification($dto));
@@ -88,26 +89,52 @@ class SwapRequestHistory extends Component
     public function acceptSwap($requestId)
     {
         $employee = Auth::user()->employee;
-        $request = ShiftSwapRequest::with(['requester', 'requester.user'])->where('id', $requestId)
+        $request = ShiftSwapRequest::with([
+            'requester', 'requester.user', 'requester.manager.user',
+            'recipient', 'recipient.user', 'recipient.manager.user',
+        ])->where('id', $requestId)
             ->where('recipient_id', $employee->id)
             ->where('status', 'pending')
             ->firstOrFail();
 
         $request->update(['status' => 'accepted']);
 
+        $dateStr = $request->start_date->format('d/m/Y');
+
         // Notificar al solicitante
         if ($request->requester?->user) {
             $dto = new NotificationDTO(
                 title: 'Intercambio Aceptado',
-                message: "{$employee->full_name} ha aceptado tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')}. Pendiente por aprobación de supervisor.",
-                actionUrl: route('schedules.swap-history'),
+                message: "{$employee->full_name} ha aceptado tu solicitud de intercambio para el {$dateStr}. Pendiente por aprobación de WFM.",
+                actionUrl: route('schedules.swap-history', [], false),
                 level: 'success'
             );
             $request->requester->user->notify(new SwapStatusChangedNotification($dto));
         }
 
+        // Notificar al coordinador del solicitante
+        $this->notifyCoordinator($request->requester?->manager, $request->requester, $employee, $dateStr);
+
+        // Notificar al coordinador del destinatario (quien aceptó)
+        $this->notifyCoordinator($request->recipient?->manager, $request->recipient, $request->requester, $dateStr);
+
         \Flux::toast('Has aceptado el intercambio de turno.', variant: 'success');
         $this->dispatch('modal-hide', name: 'swap-details');
+    }
+
+    private function notifyCoordinator(?Employee $coordinator, $operator, $otherOperator, string $dateStr): void
+    {
+        if (! $coordinator?->user) {
+            return;
+        }
+
+        $dto = new NotificationDTO(
+            title: 'Intercambio de Turno Aceptado — Pendiente de Aprobación',
+            message: "{$operator->full_name} y {$otherOperator->full_name} han acordado un intercambio para el {$dateStr}. Requiere aprobación de WFM.",
+            actionUrl: route('schedules.swap-history', [], false),
+            level: 'info'
+        );
+        $coordinator->user->notify(new SwapStatusChangedNotification($dto));
     }
 
     public function rejectSwap($requestId)
@@ -125,7 +152,7 @@ class SwapRequestHistory extends Component
             $dto = new NotificationDTO(
                 title: 'Intercambio Rechazado',
                 message: "{$employee->full_name} ha rechazado tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
-                actionUrl: route('schedules.swap-history'),
+                actionUrl: route('schedules.swap-history', [], false),
                 level: 'danger'
             );
             $request->requester->user->notify(new SwapStatusChangedNotification($dto));

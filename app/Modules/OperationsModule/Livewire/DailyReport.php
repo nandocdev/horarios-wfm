@@ -49,7 +49,8 @@ class DailyReport extends Component
         PerformanceService $performanceService,
     ) {
         $user = auth()->user();
-        $employee = $user->employee;
+        $empModel = $user->employee;
+        $employee = $empModel ? Employee::with('team', 'position')->find($empModel->id) : null;
         $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser', 'chief', 'director']);
         $now = Carbon::parse($this->date);
         $today = $now->toDateString();
@@ -63,7 +64,8 @@ class DailyReport extends Component
                 ? ($this->teamId ? [$this->teamId] : Team::pluck('id')->toArray())
                 : ($employee?->getManagedTeamIds() ?? []);
 
-            $employees = Employee::whereIn('team_id', $teamIds)
+            $employees = Employee::with('team', 'position')
+                ->whereIn('team_id', $teamIds)
                 ->where('is_active', true)
                 ->orderBy('first_name')
                 ->get();

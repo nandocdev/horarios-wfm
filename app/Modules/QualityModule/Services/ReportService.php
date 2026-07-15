@@ -21,7 +21,7 @@ class ReportService
                 $avg = Evaluation::where('queue_id', $queue->id)
                     ->where('status', EvaluationStatus::Activa)
                     ->avg('score');
-                
+
                 $averages[$queue->id] = [
                     'name' => $queue->name,
                     'code' => $queue->code,
@@ -36,7 +36,7 @@ class ReportService
     public function recalculateQueueAverages(): void
     {
         Cache::forget('quality:dashboard:averages');
-        
+
         $queues = Queue::where('is_active', true)->get();
         foreach ($queues as $queue) {
             Cache::forget("quality:queue_avg:{$queue->id}");

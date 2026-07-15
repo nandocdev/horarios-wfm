@@ -16,11 +16,11 @@ uses(RefreshDatabase::class);
 
 it('adds calibration to an evaluation and updates the score', function () {
     Event::fake();
-    
+
     $user = User::factory()->create();
     $employee = Employee::factory()->create();
     $queue = Queue::create(['code' => 'CAL', 'name' => 'CAL', 'is_active' => true]);
-    
+
     $evaluation = Evaluation::create([
         'queue_id' => $queue->id,
         'employee_id' => $employee->id,
@@ -32,23 +32,23 @@ it('adds calibration to an evaluation and updates the score', function () {
         'score' => 80,
         'status' => 'activa',
     ]);
-    
+
     $dto = new CreateCalibrationDTO(
         evaluation_id: $evaluation->id,
         score_nuevo: 95,
         created_by: $user->id,
         obs: 'Recalibrated'
     );
-    
+
     $action = app(StoreCalibrationAction::class);
     $calibration = $action->execute($dto);
-    
+
     $evaluation->refresh();
-    
+
     expect($evaluation->score)->toBe(95)
         ->and($calibration->score_anterior)->toBe(80)
         ->and($calibration->score_nuevo)->toBe(95)
         ->and($calibration->obs)->toBe('Recalibrated');
-    
+
     Event::assertDispatched(CalibrationCreated::class);
 });

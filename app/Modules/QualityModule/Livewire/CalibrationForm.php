@@ -6,6 +6,7 @@ namespace App\Modules\QualityModule\Livewire;
 
 use App\Modules\QualityModule\Actions\StoreCalibrationAction;
 use App\Modules\QualityModule\DTOs\CreateCalibrationDTO;
+use App\Modules\QualityModule\Models\CalibrationLog;
 use App\Modules\QualityModule\Models\Evaluation;
 use Livewire\Component;
 
@@ -17,15 +18,15 @@ class CalibrationForm extends Component
 
     public ?string $obs = null;
 
-    public function mount(string $evaluation): void
+    public function mount(Evaluation $evaluation): void
     {
-        $this->evaluation = Evaluation::findOrFail($evaluation);
+        $this->evaluation = $evaluation;
         $this->score_nuevo = $this->evaluation->score ?? 0;
     }
 
     public function submit(StoreCalibrationAction $action): void
     {
-        $this->authorize('create', [\App\Modules\QualityModule\Models\CalibrationLog::class, $this->evaluation]);
+        $this->authorize('create', [CalibrationLog::class, $this->evaluation]);
 
         $this->validate([
             'score_nuevo' => 'required|integer|min:0|max:100',

@@ -11,12 +11,12 @@ class EvaluationDetail extends Component
 {
     public Evaluation $evaluation;
 
-    public function mount(string $evaluation): void
+    public function mount(Evaluation $evaluation): void
     {
-        $this->evaluation = Evaluation::with([
+        $this->evaluation = $evaluation->load([
             'queue', 'scores.criteriaVersion', 'redFlags.redFlagCriteria',
             'feedbacks.creator', 'calibrations.creator',
-        ])->findOrFail($evaluation);
+        ]);
     }
 
     public function render()

@@ -107,8 +107,8 @@
 
             @if($evaluation->status === 'activa')
                 <div class="space-y-2">
-                    <flux:button href="{{ route('quality.feedback.create', $evaluation->id) }}" variant="primary" icon="chat" class="w-full">Agregar Feedback</flux:button>
-                    <flux:button href="{{ route('quality.calibrations.create', $evaluation->id) }}" variant="warning" icon="adjustments" class="w-full">Calibrar</flux:button>
+                    <flux:button href="{{ route('quality.feedback.create', $evaluation->id) }}" variant="primary" icon="chat-bubble-left-right" class="w-full">Agregar Feedback</flux:button>
+                    <flux:button href="{{ route('quality.calibrations.create', $evaluation->id) }}" variant="warning" icon="scale" class="w-full">Calibrar</flux:button>
                 </div>
             @endif
         </div>

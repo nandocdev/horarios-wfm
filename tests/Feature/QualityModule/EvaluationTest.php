@@ -23,7 +23,7 @@ it('creates an evaluation and dispatches event', function () {
     Role::firstOrCreate(['name' => 'admin']);
     $user = User::factory()->create();
     $employee = Employee::factory()->create();
-    
+
     $queue = Queue::create([
         'code' => 'TEST',
         'name' => 'Test Queue',
@@ -49,7 +49,7 @@ it('creates an evaluation and dispatches event', function () {
         dteval: now()->toDateString(),
         tmeval: now()->toTimeString(),
         scores: [
-            ['criteria_version_id' => $version->id, 'puntaje' => 10]
+            ['criteria_version_id' => $version->id, 'puntaje' => 10],
         ],
         red_flags: [],
         callobs: 'Everything was good'

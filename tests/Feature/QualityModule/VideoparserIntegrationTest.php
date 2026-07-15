@@ -14,7 +14,7 @@ it('can associate an evaluation with a clip id from videoparser', function () {
     $user = User::factory()->create();
     $employee = Employee::factory()->create();
     $queue = Queue::create(['code' => 'VID', 'name' => 'VID', 'is_active' => true]);
-    
+
     $evaluation = Evaluation::create([
         'queue_id' => $queue->id,
         'employee_id' => $employee->id,
@@ -27,11 +27,11 @@ it('can associate an evaluation with a clip id from videoparser', function () {
         'score' => 100,
         'status' => 'activa',
     ]);
-    
+
     $this->assertDatabaseHas('quality_evaluations', [
         'id' => $evaluation->id,
         'clip_id' => 'clip-12345-abcde',
     ]);
-    
+
     expect($evaluation->clip_id)->toBe('clip-12345-abcde');
 });

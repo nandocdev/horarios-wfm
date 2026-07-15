@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Modules\QualityModule\Policies;
 
 use App\Modules\CoreModule\Models\User;
+use App\Modules\QualityModule\Enums\EvaluationStatus;
+use App\Modules\QualityModule\Models\Evaluation;
 
 class CalibrationPolicy
 {
-    public function create(User $user, \App\Modules\QualityModule\Models\Evaluation $evaluation): bool
+    public function create(User $user, Evaluation $evaluation): bool
     {
         return $user->hasPermissionTo('quality.calibrations.create')
             && in_array($evaluation->status, [
-                \App\Modules\QualityModule\Enums\EvaluationStatus::PendienteCalibracion->value,
-                \App\Modules\QualityModule\Enums\EvaluationStatus::Activa->value,
+                EvaluationStatus::PendienteCalibracion->value,
+                EvaluationStatus::Activa->value,
             ]);
     }
 }

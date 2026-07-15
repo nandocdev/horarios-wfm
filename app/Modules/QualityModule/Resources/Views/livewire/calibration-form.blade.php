@@ -18,7 +18,7 @@
 
             <div class="flex justify-end gap-2">
                 <flux:button href="{{ route('quality.evaluations.show', $evaluation->id) }}" variant="subtle">Cancelar</flux:button>
-                <flux:button wire:click="submit" variant="warning" icon="adjustments">Registrar Calibración</flux:button>
+                <flux:button wire:click="submit" variant="warning" icon="scale">Registrar Calibración</flux:button>
             </div>
         </div>
     </flux:card>

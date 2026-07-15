@@ -16,11 +16,11 @@ uses(RefreshDatabase::class);
 
 it('adds feedback to an evaluation', function () {
     Event::fake();
-    
+
     $user = User::factory()->create();
     $employee = Employee::factory()->create();
     $queue = Queue::create(['code' => 'FDB', 'name' => 'FDB', 'is_active' => true]);
-    
+
     $evaluation = Evaluation::create([
         'queue_id' => $queue->id,
         'employee_id' => $employee->id,
@@ -32,22 +32,22 @@ it('adds feedback to an evaluation', function () {
         'score' => 100,
         'status' => 'activa',
     ]);
-    
+
     $dto = new CreateFeedbackDTO(
         evaluation_id: $evaluation->id,
         obsfeed: 'Good job',
         created_by: $user->id
     );
-    
+
     $action = app(StoreFeedbackAction::class);
     $feedback = $action->execute($dto);
-    
+
     expect($feedback->obsfeed)->toBe('Good job');
-    
+
     $this->assertDatabaseHas('quality_feedback', [
         'id' => $feedback->id,
         'evaluation_id' => $evaluation->id,
     ]);
-    
+
     Event::assertDispatched(FeedbackAdded::class);
 });

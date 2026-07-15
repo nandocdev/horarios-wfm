@@ -6,11 +6,16 @@
 
     <flux:card>
         <div class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                 <flux:input wire:model.live.debounce.250ms="search" label="Buscar" placeholder="Empleado, evaluador..." />
                 <flux:select wire:model.live="queueFilter" label="Cola" placeholder="Todas">
                     @foreach($queues as $queue)
                         <option value="{{ $queue->id }}">{{ $queue->code }} — {{ $queue->name }}</option>
+                    @endforeach
+                </flux:select>
+                <flux:select wire:model.live="teamFilter" label="Equipo (Coordinación)" placeholder="Todos">
+                    @foreach($teams as $team)
+                        <option value="{{ $team->id }}">{{ $team->name }}</option>
                     @endforeach
                 </flux:select>
                 <flux:input wire:model.live="dateFrom" type="date" label="Desde" />
@@ -47,8 +52,8 @@
                             <flux:table.cell class="py-2">
                                 <flux:badge size="sm" color="slate" inset="top">{{ $evaluation->queue?->code }}</flux:badge>
                             </flux:table.cell>
-                            <flux:table.cell class="py-2 text-sm">{{ $evaluation->employee_id }}</flux:table.cell>
-                            <flux:table.cell class="py-2 text-sm">{{ $evaluation->evaluator_id }}</flux:table.cell>
+                            <flux:table.cell class="py-2 text-sm">{{ $evaluation->employee?->name ?? 'Desconocido' }}</flux:table.cell>
+                            <flux:table.cell class="py-2 text-sm">{{ $evaluation->evaluator?->name ?? 'Desconocido' }}</flux:table.cell>
                             <flux:table.cell class="py-2">
                                 <flux:badge size="sm" color="{{ $evaluation->score >= 80 ? 'green' : ($evaluation->score >= 60 ? 'amber' : 'red') }}" inset="top">
                                     {{ $evaluation->score ?? '—' }}
@@ -60,7 +65,26 @@
                                 </flux:badge>
                             </flux:table.cell>
                             <flux:table.cell class="py-2">
-                                {{-- <flux:button href="{{ route('quality.evaluations.show', $evaluation->id) }}" variant="ghost" size="sm" icon="eye">Ver</flux:button> --}}
+                                <flux:dropdown>
+                                    <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal" inset="top bottom" />
+                                    <flux:menu>
+                                        <flux:menu.item icon="eye" href="{{ route('quality.evaluations.show', $evaluation->id) }}">
+                                            Ver Detalle
+                                        </flux:menu.item>
+
+                                        @can('create', [\App\Modules\QualityModule\Models\CalibrationLog::class, $evaluation])
+                                            <flux:menu.item icon="scale" href="{{ route('quality.calibrations.create', $evaluation->id) }}">
+                                                Calibrar
+                                            </flux:menu.item>
+                                        @endcan
+
+                                        @can('create', [\App\Modules\QualityModule\Models\Feedback::class, $evaluation])
+                                            <flux:menu.item icon="chat-bubble-left-right" href="{{ route('quality.feedback.create', $evaluation->id) }}">
+                                                Dar Feedback
+                                            </flux:menu.item>
+                                        @endcan
+                                    </flux:menu>
+                                </flux:dropdown>
                             </flux:table.cell>
                         </flux:table.row>
                     @empty

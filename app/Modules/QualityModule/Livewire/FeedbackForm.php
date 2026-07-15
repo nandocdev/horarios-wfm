@@ -7,6 +7,7 @@ namespace App\Modules\QualityModule\Livewire;
 use App\Modules\QualityModule\Actions\StoreFeedbackAction;
 use App\Modules\QualityModule\DTOs\CreateFeedbackDTO;
 use App\Modules\QualityModule\Models\Evaluation;
+use App\Modules\QualityModule\Models\Feedback;
 use Livewire\Component;
 
 class FeedbackForm extends Component
@@ -15,14 +16,14 @@ class FeedbackForm extends Component
 
     public string $obsfeed = '';
 
-    public function mount(string $evaluation): void
+    public function mount(Evaluation $evaluation): void
     {
-        $this->evaluation = Evaluation::findOrFail($evaluation);
+        $this->evaluation = $evaluation;
     }
 
     public function submit(StoreFeedbackAction $action): void
     {
-        $this->authorize('create', [\App\Modules\QualityModule\Models\Feedback::class, $this->evaluation]);
+        $this->authorize('create', [Feedback::class, $this->evaluation]);
 
         $this->validate(['obsfeed' => 'required|string|max:2500']);
 

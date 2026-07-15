@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\QualityModule\Providers;
 
+use App\Modules\QualityModule\Console\Commands\ImportCsvCriteriaCommand;
 use App\Modules\QualityModule\Console\Commands\SeedQualityData;
 use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Events\EvaluationCreated;
@@ -125,6 +126,7 @@ class ModuleServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 SeedQualityData::class,
+                ImportCsvCriteriaCommand::class,
             ]);
         }
     }

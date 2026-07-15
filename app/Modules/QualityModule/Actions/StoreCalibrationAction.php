@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\QualityModule\Actions;
 
 use App\Modules\QualityModule\DTOs\CreateCalibrationDTO;
+use App\Modules\QualityModule\Enums\EvaluationStatus;
 use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Models\CalibrationLog;
 use App\Modules\QualityModule\Models\Evaluation;
@@ -29,7 +30,7 @@ final class StoreCalibrationAction
 
             $evaluation->update([
                 'score' => $dto->score_nuevo,
-                'status' => \App\Modules\QualityModule\Enums\EvaluationStatus::Activa->value,
+                'status' => EvaluationStatus::Activa->value,
             ]);
 
             CalibrationCreated::dispatch($calibration);

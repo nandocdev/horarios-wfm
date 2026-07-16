@@ -16,23 +16,6 @@
         </div>
     </div>
 
-    {{-- Manager Filters --}}
-    @if($isManager)
-        <div class="flex items-center gap-4 bg-white dark:bg-zinc-900 p-2 rounded-md border border-zinc-200 dark:border-zinc-800">
-            <flux:select wire:model.live="targetTeamId" placeholder="Filtrar por equipo..." class="min-w-48">
-                <option value="">Todos los equipos</option>
-                @foreach($availableTeams as $team)
-                    <option value="{{ $team['id'] }}">{{ $team['name'] }}</option>
-                @endforeach
-            </flux:select>
-            <flux:select wire:model.live="targetEmployeeId" placeholder="Seleccionar colaborador..." class="min-w-64">
-                @foreach($availableEmployees as $emp)
-                    <option value="{{ $emp['id'] }}">{{ $emp['full_name'] }}</option>
-                @endforeach
-            </flux:select>
-        </div>
-    @endif
-
     @if(!$employeeData)
         <flux:card><div class="text-center py-12 text-slate-400">Seleccione un empleado para ver su jornada</div></flux:card>
     @else

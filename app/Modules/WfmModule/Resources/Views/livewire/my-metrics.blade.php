@@ -1,210 +1,291 @@
 <div class="space-y-6">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-            <flux:heading size="xl" level="1">Mis Métricas</flux:heading>
-            <flux:subheading>{{ $currentDate->locale('es')->translatedFormat('l d F Y') }}</flux:subheading>
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800">
+        <div class="flex items-center gap-3">
+            <flux:avatar size="md" />
+            <div>
+                <flux:heading size="lg">{{ $employee?->full_name ?? 'Sin empleado' }}</flux:heading>
+                <flux:text size="sm" class="text-slate-500">{{ $employee?->team?->name ?? '—' }}</flux:text>
+            </div>
         </div>
-        <div class="flex items-center gap-2">
-            <flux:button wire:click="previousDay" icon="chevron-left" size="sm" variant="subtle" />
-            <flux:button wire:click="nextDay" icon="chevron-right" size="sm" variant="subtle" />
-            <flux:button wire:click="$set('date', '{{ now()->toDateString() }}')" size="sm" variant="subtle">Hoy</flux:button>
+        <div class="flex items-center gap-3">
+            <div class="text-right">
+                <flux:text size="sm" class="font-medium">{{ $currentDate->locale('es')->translatedFormat('l d F Y') }}</flux:text>
+            </div>
+            <div class="flex gap-1">
+                <flux:button wire:click="previousDay" icon="chevron-left" size="xs" variant="subtle" />
+                <flux:button wire:click="$set('selectedDate', '{{ now()->toDateString() }}')" size="xs" variant="subtle">Hoy</flux:button>
+                <flux:button wire:click="nextDay" icon="chevron-right" size="xs" variant="subtle" />
+            </div>
+            <flux:badge color="{{ $states['is_connected'] ?? false ? 'green' : 'red' }}" size="sm" inset="top" class="font-bold">
+                {{ ($states['current'] ?? 'OFFLINE') === 'READY' ? 'Conectado Ready' : ($states['current'] ?? 'OFFLINE') }}
+            </flux:badge>
         </div>
     </div>
 
     @if(!$employee)
-        <flux:card>
-            <div class="text-center py-12">
-                <flux:icon name="user-circle" class="w-12 h-12 text-slate-200 mx-auto mb-3" />
-                <flux:text class="text-slate-400">Debes tener un perfil de empleado asociado para ver métricas</flux:text>
-            </div>
-        </flux:card>
+        <flux:card><div class="text-center py-12 text-slate-400">Sin perfil de empleado asociado</div></flux:card>
     @else
+        {{-- Summary Bar --}}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <flux:card class="text-center">
+                <flux:text size="xs" class="text-slate-500 uppercase font-bold">Turno</flux:text>
+                <flux:heading size="lg" class="mt-1">{{ $states['scheduled_entry'] }} - {{ $states['scheduled_end'] }}</flux:heading>
+            </flux:card>
+            <flux:card class="text-center">
+                <flux:text size="xs" class="text-slate-500 uppercase font-bold">Entrada</flux:text>
+                <flux:heading size="lg" class="mt-1">{{ $states['real_entry'] ?? '--:--' }}</flux:heading>
+                @if($states['entry_diff'] !== null)
+                    <flux:text size="xs" class="{{ (int) $states['entry_diff'] <= 0 ? 'text-green-600' : 'text-red-600' }}">
+                        {{ $states['entry_diff'] }} min
+                    </flux:text>
+                @endif
+            </flux:card>
+            <flux:card class="text-center">
+                <flux:text size="xs" class="text-slate-500 uppercase font-bold">Tiempo Conectado</flux:text>
+                <flux:heading size="lg" class="mt-1 font-mono">{{ gmdate('H:i:s', $states['total_seconds']) }}</flux:heading>
+            </flux:card>
+            <flux:card class="text-center">
+                <flux:text size="xs" class="text-slate-500 uppercase font-bold">T. Productivo</flux:text>
+                <flux:heading size="lg" class="mt-1 font-mono">{{ gmdate('H:i:s', $states['productive_seconds']) }}</flux:heading>
+                <flux:text size="xs" class="text-green-600">{{ $states['productivity_pct'] }}%</flux:text>
+            </flux:card>
+        </div>
+
         {{-- Hero KPIs --}}
         @if(!empty($heroKpis))
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                @foreach($heroKpis as $kpi)
-                    <flux:card class="text-center">
-                        <flux:text size="xs" class="text-slate-500 uppercase font-bold">{{ $kpi['label'] }}</flux:text>
-                        <flux:heading size="2xl" class="mt-1">{{ $kpi['value'] }}</flux:heading>
-                        @isset($kpi['delta'])
-                            <flux:text size="xs" class="{{ str_starts_with($kpi['delta'], '+') ? 'text-green-600' : (str_starts_with($kpi['delta'], '-') ? 'text-red-600' : 'text-slate-400') }}">
-                                {{ $kpi['delta'] }}
-                            </flux:text>
-                        @endisset
-                    </flux:card>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                @foreach(['adherence', 'occupancy', 'coverage', 'service_level'] as $key)
+                    @isset($heroKpis[$key])
+                        @php $kpi = $heroKpis[$key]; @endphp
+                        <flux:card class="text-center">
+                            <flux:text size="xs" class="text-slate-500 uppercase font-bold">{{ $kpi['label'] }}</flux:text>
+                            <flux:heading size="3xl" class="mt-1 font-bold">{{ $kpi['value'] }}</flux:heading>
+                            <flux:badge size="sm" color="{{ $kpi['status'] === 'success' ? 'green' : ($kpi['status'] === 'warning' ? 'amber' : 'red') }}" inset="top" class="mt-1">
+                                {{ $kpi['status'] === 'success' ? '🟢' : ($kpi['status'] === 'warning' ? '🟡' : '🔴') }}
+                            </flux:badge>
+                        </flux:card>
+                    @endisset
                 @endforeach
             </div>
         @endif
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {{-- Col 1: Estado Actual --}}
-            <div class="space-y-6">
-                <flux:card>
-                    <div class="space-y-3">
-                        <flux:heading size="sm">Estado Actual</flux:heading>
-                        <flux:separator />
-                        <div class="flex items-center gap-3">
-                            <span class="w-3 h-3 rounded-full {{ $states['current'] !== 'LOGOUT' && $states['current'] !== 'OFFLINE' ? 'bg-green-500' : 'bg-red-400' }}"></span>
-                            <div>
-                                <flux:text size="lg" class="font-bold">{{ $states['current'] }}</flux:text>
-                                @if($states['reason'])
-                                    <flux:text size="xs" class="text-slate-400 block">{{ $states['reason'] }}</flux:text>
-                                @endif
-                            </div>
-                        </div>
-                        <flux:separator />
+        {{-- Timeline placeholder --}}
+        <flux:card>
+            <flux:heading size="sm" class="mb-2">Mi Jornada</flux:heading>
+            <div class="h-8 bg-slate-100 dark:bg-slate-800 rounded-full relative overflow-hidden">
+                @php
+                    $dayStart = 6; $dayEnd = 18; $totalSlots = ($dayEnd - $dayStart) * 2;
+                    $segments = [
+                        ['pct' => 20, 'color' => 'bg-green-400'],
+                        ['pct' => 15, 'color' => 'bg-blue-500'],
+                        ['pct' => 5, 'color' => 'bg-purple-400'],
+                        ['pct' => 10, 'color' => 'bg-green-400'],
+                        ['pct' => 8, 'color' => 'bg-yellow-300'],
+                        ['pct' => 12, 'color' => 'bg-green-400'],
+                        ['pct' => 10, 'color' => 'bg-blue-500'],
+                        ['pct' => 10, 'color' => 'bg-orange-400'],
+                        ['pct' => 5, 'color' => 'bg-blue-500'],
+                        ['pct' => 5, 'color' => 'bg-green-400'],
+                    ];
+                @endphp
+                <div class="flex h-full">
+                    @foreach($segments as $seg)
+                        <div class="{{ $seg['color'] }}" style="width: {{ $seg['pct'] }}%"></div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="flex justify-between text-xs text-slate-400 mt-1">
+                <span>06:00</span><span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span>
+            </div>
+            <div class="flex gap-4 mt-2 text-xs text-slate-500">
+                <span><span class="inline-block w-3 h-3 rounded-full bg-green-400 align-middle mr-1"></span>Ready</span>
+                <span><span class="inline-block w-3 h-3 rounded-full bg-blue-500 align-middle mr-1"></span>Talking</span>
+                <span><span class="inline-block w-3 h-3 rounded-full bg-purple-400 align-middle mr-1"></span>ACW</span>
+                <span><span class="inline-block w-3 h-3 rounded-full bg-yellow-300 align-middle mr-1"></span>Break</span>
+                <span><span class="inline-block w-3 h-3 rounded-full bg-orange-400 align-middle mr-1"></span>Lunch</span>
+                <span><span class="inline-block w-3 h-3 rounded-full bg-red-400 align-middle mr-1"></span>Offline</span>
+            </div>
+        </flux:card>
+
+        {{-- Cumplimiento + Productividad --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {{-- Cumplimiento --}}
+            <flux:card>
+                <flux:heading size="sm" class="mb-3">Cumplimiento del Horario</flux:heading>
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-xs text-slate-500 uppercase border-b dark:border-zinc-800">
+                        <th class="pb-2 font-semibold">Evento</th>
+                        <th class="pb-2 font-semibold text-center">Programado</th>
+                        <th class="pb-2 font-semibold text-center">Real</th>
+                        <th class="pb-2 font-semibold text-right">Dif</th>
+                        <th class="pb-2 font-semibold text-center">Estado</th>
+                    </tr></thead>
+                    <tbody>
+                        @php
+                            $entryDiff = $states['entry_diff'];
+                            $entryDiffLabel = $entryDiff !== null ? ($entryDiff <= 0 ? (string) $entryDiff : '+'.$entryDiff) : '—';
+                            $events = [
+                                ['label' => 'Entrada', 'sched' => $states['scheduled_entry'], 'real' => $states['real_entry'] ?? '--:--', 'diff' => $entryDiffLabel, 'ok' => ($entryDiff !== null && $entryDiff <= 5)],
+                                ['label' => 'Almuerzo', 'sched' => $states['lunch_start'] ?? '--:--', 'real' => '—', 'diff' => '—', 'ok' => true],
+                                ['label' => 'Regreso', 'sched' => $states['lunch_end'] ?? '--:--', 'real' => '—', 'diff' => '—', 'ok' => true],
+                                ['label' => 'Descanso', 'sched' => $states['break_start'] ?? '--:--', 'real' => '—', 'diff' => '—', 'ok' => true],
+                            ];
+                        @endphp
+                        @foreach($events as $e)
+                            <tr class="border-t dark:border-zinc-800">
+                                <td class="py-2 font-medium">{{ $e['label'] }}</td>
+                                <td class="py-2 text-center font-mono">{{ $e['sched'] }}</td>
+                                <td class="py-2 text-center font-mono">{{ $e['real'] }}</td>
+                                <td class="py-2 text-right font-mono {{ $e['ok'] ? 'text-green-600' : 'text-red-600' }}">{{ $e['diff'] }}</td>
+                                <td class="py-2 text-center">{{ $e['ok'] ? '🟢' : '🔴' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </flux:card>
+
+            {{-- Productividad --}}
+            <flux:card>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <flux:heading size="sm" class="mb-2 text-green-600">Tiempo Productivo</flux:heading>
                         <div class="space-y-1 text-sm">
-                            <div class="flex justify-between"><span class="text-slate-500">Tiempo conectado</span><span class="font-mono font-medium">{{ gmdate('H:i:s', $states['logged_seconds']) }}</span></div>
-                            <div class="flex justify-between"><span class="text-slate-500">TALKING</span><span class="font-mono">{{ gmdate('H:i:s', $states['talking']) }}</span></div>
-                            <div class="flex justify-between"><span class="text-slate-500">READY</span><span class="font-mono">{{ gmdate('H:i:s', $states['ready']) }}</span></div>
-                            <div class="flex justify-between"><span class="text-slate-500">NOT READY</span><span class="font-mono">{{ gmdate('H:i:s', $states['not_ready']) }}</span></div>
-                            <div class="flex justify-between"><span class="text-slate-500">Almuerzo</span><span class="font-mono">{{ gmdate('H:i:s', $states['lunch']) }}</span></div>
-                            <div class="flex justify-between"><span class="text-slate-500">Descanso</span><span class="font-mono">{{ gmdate('H:i:s', $states['break']) }}</span></div>
+                            @foreach([
+                                ['label' => 'Talking', 'sec' => $states['talk']],
+                                ['label' => 'Ready', 'sec' => $states['ready']],
+                                ['label' => 'ACW', 'sec' => $states['acw']],
+                                ['label' => 'Reserved', 'sec' => $states['reserved']],
+                            ] as $item)
+                                <div class="flex justify-between p-1.5 bg-slate-50 dark:bg-zinc-900 rounded">
+                                    <span>{{ $item['label'] }}</span>
+                                    <span class="font-mono">{{ gmdate('H:i:s', $item['sec']) }}</span>
+                                </div>
+                            @endforeach
+                            <div class="flex justify-between pt-2 border-t dark:border-zinc-800 font-bold">
+                                <span>Total</span>
+                                <span class="font-mono">{{ gmdate('H:i:s', $states['productive_seconds']) }}</span>
+                            </div>
                         </div>
                     </div>
-                </flux:card>
-
-                {{-- Horario --}}
-                @if($schedule)
-                    <flux:card>
-                        <div class="space-y-3">
-                            <flux:heading size="sm">Horario de Hoy</flux:heading>
-                            <flux:separator />
-                            <div class="text-sm space-y-1">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Turno</span>
-                                    <span class="font-medium">{{ $schedule->schedule?->name ?? '—' }}</span>
+                    <div>
+                        <flux:heading size="sm" class="mb-2 text-red-500">T. No Productivo</flux:heading>
+                        <div class="space-y-1 text-sm">
+                            @foreach([
+                                ['label' => 'Almuerzo', 'sec' => $states['lunch']],
+                                ['label' => 'Descanso', 'sec' => $states['break']],
+                                ['label' => 'Auxiliar', 'sec' => $states['not_ready']],
+                                ['label' => 'Offline', 'sec' => $states['offline']],
+                            ] as $item)
+                                <div class="flex justify-between p-1.5 bg-slate-50 dark:bg-zinc-900 rounded">
+                                    <span>{{ $item['label'] }}</span>
+                                    <span class="font-mono">{{ gmdate('H:i:s', $item['sec']) }}</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Entrada</span>
-                                    <span class="font-mono font-medium">{{ $schedule->start_time ? Carbon\Carbon::parse($schedule->start_time)->format('H:i') : '--:--' }}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Salida</span>
-                                    <span class="font-mono font-medium">{{ $schedule->end_time ? Carbon\Carbon::parse($schedule->end_time)->format('H:i') : '--:--' }}</span>
-                                </div>
-                                @if($schedule->schedule?->total_minutes)
-                                    <div class="flex justify-between">
-                                        <span class="text-slate-500">Duración</span>
-                                        <span class="font-mono font-medium">{{ $schedule->schedule->total_minutes }} min</span>
-                                    </div>
-                                @endif
-                            </div>
-                            @if($hasExceptions)
-                                <flux:badge color="amber" size="sm">Con excepción de horario</flux:badge>
-                            @endif
-                        </div>
-                    </flux:card>
-                @endif
-            </div>
-
-            {{-- Col 2: Llamadas --}}
-            <div class="space-y-6">
-                <flux:card>
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-2">
-                            <flux:icon name="phone" class="w-4 h-4 text-indigo-500" />
-                            <flux:heading size="sm">Llamadas</flux:heading>
-                        </div>
-                        <flux:separator />
-                        <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                                <flux:text size="2xl" class="font-bold text-indigo-600">{{ $callStats->total ?? 0 }}</flux:text>
-                                <flux:text size="xs" class="text-slate-500 block">Total</flux:text>
-                            </div>
-                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
-                                <flux:text size="2xl" class="font-bold text-green-600">{{ $callStats->handled ?? 0 }}</flux:text>
-                                <flux:text size="xs" class="text-slate-500 block">Atendidas</flux:text>
+                            @endforeach
+                            <div class="flex justify-between pt-2 border-t dark:border-zinc-800 font-bold">
+                                <span>Total</span>
+                                <span class="font-mono">{{ gmdate('H:i:s', $states['total_seconds'] - $states['productive_seconds']) }}</span>
                             </div>
                         </div>
-                        @if($callStats->total > 0)
-                            <flux:text size="xs" class="text-slate-400 text-center block">
-                                SLA: {{ round(($callStats->handled / $callStats->total) * 100, 1) }}%
-                            </flux:text>
-                        @endif
                     </div>
-                </flux:card>
+                </div>
+            </flux:card>
+        </div>
 
-                {{-- Por Cola --}}
+        {{-- Llamadas + Auxiliares --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <flux:card>
+                <flux:heading size="sm" class="mb-3">Atención de Llamadas</flux:heading>
                 @if($queuePerf->isNotEmpty())
-                    <flux:card>
-                        <div class="space-y-3">
-                            <flux:heading size="sm">Desempeño por Cola</flux:heading>
-                            <flux:separator />
-                            <div class="space-y-2">
-                                @foreach($queuePerf as $qp)
-                                    <div class="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-900 rounded-md text-sm">
-                                        <div>
-                                            <flux:text size="sm" class="font-medium">{{ $qp['queue_name'] ?? '—' }}</flux:text>
-                                            <flux:text size="xs" class="text-slate-400 block">{{ ($qp['total_offered'] ?? 0) - ($qp['handled'] ?? 0) }} abandonadas</flux:text>
-                                        </div>
-                                        <div class="text-right">
-                                            <flux:text size="sm" class="font-mono font-bold">{{ $qp['total_offered'] ?? 0 }}</flux:text>
-                                            <flux:text size="xs" class="text-slate-400 block">AHT {{ $qp['avg_aht'] ? gmdate('i:s', (int) $qp['avg_aht']) : '--:--' }}</flux:text>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </flux:card>
+                    <table class="w-full text-sm">
+                        <thead><tr class="text-left text-xs text-slate-500 uppercase border-b dark:border-zinc-800">
+                            <th class="pb-2 font-semibold">Cola</th>
+                            <th class="pb-2 font-semibold text-right">Atendidas</th>
+                            <th class="pb-2 font-semibold text-right">AHT</th>
+                            <th class="pb-2 font-semibold text-right">Tiempo</th>
+                        </tr></thead>
+                        <tbody>
+                            @foreach($queuePerf as $qp)
+                                <tr class="border-t dark:border-zinc-800">
+                                    <td class="py-2 font-medium">{{ $qp['queue_name'] ?? '—' }}</td>
+                                    <td class="py-2 text-right">{{ $qp['handled'] ?? 0 }}</td>
+                                    <td class="py-2 text-right font-mono">{{ $qp['avg_aht'] ? gmdate('i:s', (int) $qp['avg_aht']) : '--:--' }}</td>
+                                    <td class="py-2 text-right font-mono">{{ $qp['avg_aht'] ? gmdate('H:i:s', (int) $qp['handled'] * (int) $qp['avg_aht']) : '--:--' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <flux:text class="text-slate-400">Sin datos de llamadas</flux:text>
                 @endif
-            </div>
+            </flux:card>
 
-            {{-- Col 3: Actividades + Shrinkage --}}
-            <div class="space-y-6">
-                <flux:card>
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-2">
-                            <flux:icon name="clipboard-document-list" class="w-4 h-4 text-amber-500" />
-                            <flux:heading size="sm">Actividades Intradía</flux:heading>
-                        </div>
-                        <flux:separator />
-                        @if($intradayEvents->isNotEmpty())
-                            <div class="space-y-2">
-                                @foreach($intradayEvents as $event)
-                                    <div class="p-2 bg-slate-50 dark:bg-slate-900 rounded-md text-sm">
-                                        <flux:text size="sm" class="font-medium">{{ $event['title'] ?? 'Actividad' }}</flux:text>
-                                        <flux:text size="xs" class="text-slate-400 block">{{ $event['time'] ?? '' }}</flux:text>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <flux:text class="text-slate-400 text-center py-4">Sin actividades programadas</flux:text>
-                        @endif
-                    </div>
-                </flux:card>
+            <flux:card>
+                <flux:heading size="sm" class="mb-3">Uso de Auxiliares</flux:heading>
+                <table class="w-full text-sm">
+                    <thead><tr class="text-left text-xs text-slate-500 uppercase border-b dark:border-zinc-800">
+                        <th class="pb-2 font-semibold">Auxiliar</th>
+                        <th class="pb-2 font-semibold text-right">Veces</th>
+                        <th class="pb-2 font-semibold text-right">Tiempo</th>
+                        <th class="pb-2 font-semibold text-center">Estado</th>
+                    </tr></thead>
+                    <tbody>
+                        @php
+                            $auxItems = [
+                                ['label' => 'Almuerzo', 'sec' => $states['lunch'], 'ok' => $states['lunch'] <= 3300],
+                                ['label' => 'Descanso', 'sec' => $states['break'], 'ok' => $states['break'] <= 1200],
+                                ['label' => 'Personal', 'sec' => $states['not_ready'], 'ok' => $states['not_ready'] <= 600],
+                            ];
+                        @endphp
+                        @foreach($auxItems as $item)
+                            <tr class="border-t dark:border-zinc-800">
+                                <td class="py-2 font-medium">{{ $item['label'] }}</td>
+                                <td class="py-2 text-right">{{ $item['sec'] > 0 ? 1 : 0 }}</td>
+                                <td class="py-2 text-right font-mono">{{ $item['sec'] > 0 ? gmdate('i:s', $item['sec']) : '—' }}</td>
+                                <td class="py-2 text-center">{{ $item['ok'] ? '🟢' : '🔴' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </flux:card>
+        </div>
 
-                <flux:card>
-                    <div class="space-y-3">
-                        <div class="flex items-center gap-2">
-                            <flux:icon name="chart-bar" class="w-4 h-4 text-emerald-500" />
-                            <flux:heading size="sm">Shrinkage (Reductores)</flux:heading>
-                        </div>
-                        <flux:separator />
-                        <div class="text-center py-4">
-                            <flux:heading size="3xl" class="font-bold">{{ round($shrinkage, 1) }}%</flux:heading>
-                            <flux:text size="xs" class="text-slate-500">Tiempo no productivo</flux:text>
-                        </div>
-                    </div>
-                </flux:card>
+        {{-- Detalle de Eventos --}}
+        <flux:card>
+            <flux:heading size="sm" class="mb-3">Detalle de Eventos</flux:heading>
+            @if(isset($transitions) && $transitions->isNotEmpty())
+                <div class="max-h-48 overflow-y-auto">
+                    <table class="w-full text-sm">
+                        <thead><tr class="text-left text-xs text-slate-500 uppercase border-b dark:border-zinc-800 sticky top-0 bg-white dark:bg-zinc-900">
+                            <th class="pb-2 font-semibold">Hora</th>
+                            <th class="pb-2 font-semibold">Evento</th>
+                            <th class="pb-2 font-semibold text-right">Duración</th>
+                        </tr></thead>
+                        <tbody>
+                            @foreach($transitions->sortByDesc('transition_time')->take(20) as $t)
+                                <tr class="border-t dark:border-zinc-800">
+                                    <td class="py-1.5 font-mono text-xs">{{ Carbon\Carbon::parse($t->transition_time)->format('H:i') }}</td>
+                                    <td class="py-1.5">
+                                        <flux:badge size="sm" color="{{ match(strtoupper($t->agent_state)) { 'READY' => 'green', 'TALKING' => 'blue', 'WORK','ACW' => 'purple', 'LOGOUT','OFFLINE' => 'red', 'NOT_READY' => 'amber', default => 'slate' } }}" inset="top">
+                                            {{ strtoupper($t->agent_state) }}
+                                        </flux:badge>
+                                    </td>
+                                    <td class="py-1.5 text-right font-mono text-xs">{{ gmdate('i:s', $t->duration) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <flux:text class="text-slate-400 text-center py-4">Sin eventos registrados</flux:text>
+            @endif
+        </flux:card>
 
-                @if(isset($heroKpis['adherence']))
-                    <flux:card>
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <flux:icon name="clock" class="w-4 h-4 text-blue-500" />
-                                <flux:heading size="sm">Adherencia</flux:heading>
-                            </div>
-                            <flux:separator />
-                            <div class="text-center py-4">
-                                <flux:heading size="3xl" class="font-bold text-blue-600">{{ $heroKpis['adherence']['value'] }}</flux:heading>
-                                <flux:text size="xs" class="text-slate-500">vs {{ $heroKpis['adherence']['delta'] ?? '—' }} ayer</flux:text>
-                            </div>
-                        </div>
-                    </flux:card>
-                @endif
-            </div>
+        {{-- Footer --}}
+        <div class="text-xs text-slate-400 text-center pt-4 border-t dark:border-zinc-800">
+            Última actualización: {{ now()->diffForHumans() }}
+            <span class="mx-2">•</span>
+            Fuente: Cisco Finesse • CUIC • WFM • Control de Asistencia
         </div>
     @endif
 </div>

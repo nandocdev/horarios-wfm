@@ -14,21 +14,21 @@ use Livewire\Component;
 
 class MyMetrics extends Component
 {
-    public string $date;
+    public string $selectedDate;
 
     public function mount(): void
     {
-        $this->date = now()->toDateString();
+        $this->selectedDate = now()->toDateString();
     }
 
     public function previousDay(): void
     {
-        $this->date = Carbon::parse($this->date)->subDay()->toDateString();
+        $this->selectedDate = Carbon::parse($this->selectedDate)->subDay()->toDateString();
     }
 
     public function nextDay(): void
     {
-        $this->date = Carbon::parse($this->date)->addDay()->toDateString();
+        $this->selectedDate = Carbon::parse($this->selectedDate)->addDay()->toDateString();
     }
 
     public function render(
@@ -38,12 +38,11 @@ class MyMetrics extends Component
     ) {
         $user = auth()->user();
         $employee = $user->employee ? Employee::with('team', 'position')->find($user->employee->id) : null;
-        $now = Carbon::parse($this->date);
+        $now = Carbon::parse($this->selectedDate);
         $today = $now->toDateString();
         $dayOfWeek = $now->dayOfWeekIso;
 
-        $metrics = [];
-        $schedule = null;
+        $scheduleData = [];
         $states = [];
         $callStats = null;
         $queuePerf = [];
@@ -52,69 +51,107 @@ class MyMetrics extends Component
         $heroKpis = [];
 
         if ($employee) {
-            // 1. Schedule
-            $assignments = WeeklyScheduleAssignment::with('schedule')
+            // Schedule
+            $assignment = WeeklyScheduleAssignment::with('schedule')
                 ->where('employee_id', $employee->id)
                 ->where('day_of_week', $dayOfWeek)
                 ->whereHas('weeklySchedule', fn ($q) => $q
                     ->where('week_start_date', '<=', $today)
                     ->where('week_end_date', '>=', $today)
                 )
-                ->get();
+                ->first();
 
-            $schedule = $assignments->first();
+            $schedEntry = $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '--:--';
+            $schedEnd = $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '--:--';
+            $lunchStart = $assignment?->lunch_start_time ? Carbon::parse($assignment->lunch_start_time)->format('H:i') : null;
+            $lunchEnd = $assignment?->lunch_end_time ? Carbon::parse($assignment->lunch_end_time)->format('H:i') : null;
+            $breakStart = $assignment?->break_start_time ? Carbon::parse($assignment->break_start_time)->format('H:i') : null;
+            $breakEnd = $assignment?->break_end_time ? Carbon::parse($assignment->break_end_time)->format('H:i') : null;
 
-            // 2. Real-time states
+            // Realtime states
             $realtimeStates = $realtimeRepo->getRealtimeStates([$employee->id]);
             $currentState = $realtimeStates->first();
+            $isConnected = $currentState && ! in_array($currentState->current_state, ['LOGOUT', 'OFFLINE', 'UNKNOWN']);
 
-            // 3. Transitions
+            // Transitions for time breakdown
             $transitions = $realtimeRepo->getBatchStateTransitions([$employee->id], $today);
             $timeByState = $transitions->groupBy(fn ($t) => strtoupper(trim($t->agent_state)))
                 ->map(fn ($group) => $group->sum('duration'));
 
+            $totalSeconds = $timeByState->sum();
+            $talkSeconds = $timeByState->get('TALKING', 0);
+            $readySeconds = $timeByState->get('READY', 0);
+            $acwSeconds = $timeByState->get('WORK', 0) + $timeByState->get('ACW', 0);
+            $reservedSeconds = $timeByState->get('RESERVED', 0);
+            $productiveSeconds = $talkSeconds + $readySeconds + $acwSeconds + $reservedSeconds;
+            $notReadySeconds = $timeByState->get('NOT_READY', 0);
+            $lunchSeconds = $timeByState->get('NOT_READY_LUNCH', 0) + $timeByState->get('NOT_READY_ALMUERZO', 0) + $timeByState->get('LUNCH', 0);
+            $breakSeconds = $timeByState->get('NOT_READY_BREAK', 0) + $timeByState->get('NOT_READY_DESCANSO', 0) + $timeByState->get('BREAK', 0);
+            $offlineSeconds = $timeByState->get('LOGOUT', 0) + $timeByState->get('OFFLINE', 0);
+
+            // First transition of the day = real entry
+            $firstTransition = $transitions->sortBy('transition_time')->first();
+            $realEntry = $firstTransition?->transition_time
+                ? Carbon::parse($firstTransition->transition_time)->format('H:i')
+                : null;
+
+            // Calculate entry difference
+            $entryDiff = null;
+            if ($realEntry && $assignment?->start_time) {
+                $sched = Carbon::parse($assignment->start_time);
+                $real = Carbon::parse($firstTransition->transition_time);
+                $entryDiff = (int) $sched->diffInMinutes($real, false);
+            }
+
             $states = [
                 'current' => $currentState?->current_state ?? 'OFFLINE',
                 'reason' => $currentState?->reason_code,
-                'logged_seconds' => $timeByState->sum(),
-                'talking' => $timeByState->get('TALKING', 0),
-                'ready' => $timeByState->get('READY', 0),
-                'not_ready' => $timeByState->get('NOT_READY', 0),
-                'work' => $timeByState->get('WORK', 0),
-                'lunch' => $timeByState->get('NOT_READY_LUNCH', 0) + $timeByState->get('NOT_READY_ALMUERZO', 0) + $timeByState->get('LUNCH', 0),
-                'break' => $timeByState->get('NOT_READY_BREAK', 0) + $timeByState->get('NOT_READY_DESCANSO', 0) + $timeByState->get('BREAK', 0),
+                'is_connected' => $isConnected,
+                'total_seconds' => $totalSeconds,
+                'productive_seconds' => $productiveSeconds,
+                'talk' => $talkSeconds,
+                'ready' => $readySeconds,
+                'acw' => $acwSeconds,
+                'reserved' => $reservedSeconds,
+                'not_ready' => $notReadySeconds,
+                'lunch' => $lunchSeconds,
+                'break' => $breakSeconds,
+                'offline' => $offlineSeconds,
+                'productivity_pct' => $totalSeconds > 0 ? round(($productiveSeconds / $totalSeconds) * 100, 1) : 0,
+                'real_entry' => $realEntry,
+                'entry_diff' => $entryDiff,
+                'scheduled_entry' => $schedEntry,
+                'scheduled_end' => $schedEnd,
+                'lunch_start' => $lunchStart,
+                'lunch_end' => $lunchEnd,
+                'break_start' => $breakStart,
+                'break_end' => $breakEnd,
             ];
 
-            // 4. Call stats
+            // Call stats
             $callStats = $realtimeRepo->getCallStatsForDate($today);
             $queuePerf = $realtimeRepo->getQueuePerformanceReport($today);
 
-            // 5. Intraday activities
+            // Intraday activities
             $intradayEvents = $scheduleQueries->getUpcomingEvents([$employee->id], $today, 20);
 
-            // 6. Hero KPIs (coverage, adherence, occupancy, sl, absenteeism, shrinkage)
-            $employeeIds = [$employee->id];
+            // Hero KPIs
             $heroKpis = $performanceService->getGlobalHeroKpis($now);
 
-            // 7. Shrinkage personal
-            $shrinkage = $performanceService->calculateShrinkage($employeeIds, $now);
-
-            // 8. Attendance
-            $exceptions = $scheduleQueries->getExceptionCount([$employee->id], $today);
+            // Shrinkage
+            $shrinkage = $performanceService->calculateShrinkage([$employee->id], $now);
         }
 
         return view('wfm::livewire.my-metrics', [
-            'metrics' => $metrics,
             'employee' => $employee,
-            'schedule' => $schedule,
+            'currentDate' => $now,
             'states' => $states,
             'callStats' => $callStats,
             'queuePerf' => $queuePerf,
             'intradayEvents' => $intradayEvents,
-            'shrinkage' => $shrinkage,
             'heroKpis' => $heroKpis,
-            'currentDate' => $now,
-            'hasExceptions' => ($exceptions ?? 0) > 0,
+            'shrinkage' => $shrinkage,
+            'transitions' => $transitions ?? collect(),
         ])->layout('layouts.app', ['title' => 'Mis Métricas']);
     }
 }

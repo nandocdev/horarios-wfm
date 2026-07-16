@@ -1,941 +1,533 @@
-# Arquitectura del Sistema — Horarios WFM
+# Arquitectura del Sistema — HorariosWFM
 
-> **Versión del documento:** 1.0
-> **Última actualización:** Julio 2026
-> **Clasificación:** Arquitectura General
-
----
-
-## Tabla de Contenidos
-
-1. [Resumen Ejecutivo](#1-resumen-ejecutivo)
-2. [Principios Arquitectónicos](#2-principios-arquitectónicos)
-3. [Vista de Contexto (C4 — Nivel 1)](#3-vista-de-contexto-c4--nivel-1)
-4. [Vista de Contenedores (C4 — Nivel 2)](#4-vista-de-contenedores-c4--nivel-2)
-5. [Vista de Componentes — Módulos (C4 — Nivel 3)](#5-vista-de-componentes--módulos-c4--nivel-3)
-6. [Estructura del Monolito Modular](#6-estructura-del-monolito-modular)
-7. [Sistema de Carga de Módulos](#7-sistema-de-carga-de-módulos)
-8. [Comunicación Cross-Module](#8-comunicación-cross-module)
-9. [Shared Kernel](#9-shared-kernel)
-10. [Pipeline HTTP](#10-pipeline-http)
-11. [Autenticación y Autorización](#11-autenticación-y-autorización)
-12. [Frontend y UI](#12-frontend-y-ui)
-13. [Colas y Procesamiento Asíncrono](#13-colas-y-procesamiento-asíncrono)
-14. [WebSockets y Tiempo Real](#14-websockets-y-tiempo-real)
-15. [Integraciones Externas](#15-integraciones-externas)
-16. [Monitoreo y Observabilidad](#16-monitoreo-y-observabilidad)
-17. [Tareas Programadas](#17-tareas-programadas)
-18. [Testing](#18-testing)
-19. [Decisiones Arquitectónicas (ADRs)](#19-decisiones-arquitectónicas-adrs)
-20. [Riesgos y Deuda Técnica](#20-riesgos-y-deuda-técnica)
-21. [Evolución Futura](#21-evolución-futura)
+> Documento de Arquitectura de Software
+> Sistema WFM — Call Center de la Caja de Seguro Social de Panamá
+> Versión 2.0 — Julio 2026
 
 ---
 
-## 1. Resumen Ejecutivo
+## 1. Principios Arquitectónicos
 
-**Horarios WFM** es un sistema de Workforce Management para el Contact Center de la **Caja de Seguro Social de Panamá**. Su función principal es planificar, publicar y monitorear los horarios de cientos de operadores, integrando telemetría en tiempo real desde la plataforma Cisco UCCX/Finesse para calcular adherencia, productividad y otras métricas operativas.
-
-El sistema está construido como un **Monolito Modular** sobre Laravel 13, donde 13 módulos de negocio conviven en un mismo proceso pero se comunican exclusivamente a través de contratos, eventos y DTOs compartidos, sin importaciones directas entre módulos.
-
----
-
-## 2. Principios Arquitectónicos
-
-| Principio                                 | Aplicación                                                                                                                                    |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Monolito Modular**                      | Toda la aplicación se despliega como una unidad, pero el código se organiza en módulos con dependencias explícitas y comunicación acotada     |
-| **Comunicación basada en contratos**      | Los módulos se comunican mediante interfaces (`app/Shared/Contracts/`), eventos de dominio (`app/Shared/Events/`) y DTOs (`app/Shared/DTOs/`) |
-| **Cero imports directos entre módulos**   | Ningún módulo importa clases de otro módulo directamente. Las dependencias se resuelven a través del contenedor de servicios de Laravel       |
-| **BaseModel compartido**                  | Todos los modelos Eloquent extienden `App\Shared\Models\BaseModel` que usa ULIDs como primary keys                                            |
-| **Actions con responsabilidad única**     | La lógica de negocio transaccional se encapsula en clases de acción con un único método `execute()`                                           |
-| **Políticas de autorización por recurso** | Cada modelo tiene su propia Policy usando Spatie Laravel Permission                                                                           |
-| **Declaración estricta de tipos**         | `declare(strict_types=1)` es obligatorio en todo archivo PHP                                                                                  |
-| **Simplicidad antes que abstracción**     | Se prefiere la solución más simple que cumpla el requerimiento; se evita sobreingeniería                                                      |
+| Principio | Aplicación |
+|-----------|-----------|
+| **Monolito Modular** | Despliegue único, base de datos compartida, dominios aislados en módulos. Sin microservicios. |
+| **Acciones, no Services** | La lógica de negocio vive en `Actions/` (una clase = un caso de uso). Prohibido Fat Controllers o Service Classes genéricas. |
+| **Comunicación desacoplada** | Los módulos no importan modelos de otros módulos directamente. Usan `Events`, `DTOs` y `Contracts`. |
+| **ULID como estándar** | Todas las llaves primarias son ULIDs via `BaseModel`. La base de datos usa `bigint` auto-incremental como PK física; ULID es la identidad lógica. |
+| **Inmutabilidad y trazabilidad** | `AuditLog` es append-only. Operaciones de escritura multi-entidad van en `DB::transaction()`. |
+| **Prevención de N+1** | `Model::preventLazyLoading()` activo globalmente en producción. |
+| **Seguridad por capas** | Fortify (auth) → Middleware (sesión, verificación) → Policy (autorización granular). Super-admin bypass via `Gate::before()`. |
+| **declare(strict_types=1)** | Exigido por Pint en todo archivo PHP del proyecto. |
 
 ---
 
-## 3. Vista de Contexto (C4 — Nivel 1)
+## 2. Diagrama de Dependencias entre Módulos
 
-```mermaid
-graph TB
-    subgraph "Actores Humanos"
-        AGENTE[Agente / Operador]
-        SUPERV[Supervisor]
-        ANALISTA[Analista WFM]
-        ADMIN[Administrador]
-    end
-
-    subgraph "Sistema"
-        WFM[Horarios WFM<br/>Sistema WFM]
-    end
-
-    subgraph "Sistemas Externos"
-        CISCO_F[Cisco Finesse<br/>Estados CTI]
-        CISCO_C[Cisco CUIC<br/>Reportes Históricos]
-        WEBEX[Webex<br/>Notificaciones]
-        EMAIL[Servidor SMTP]
-    end
-
-    AGENTE -->|Consulta horarios<br/>Solicita permisos<br/>Intercambia turnos| WFM
-    SUPERV -->|Aprueba solicitudes<br/>Monitorea equipo| WFM
-    ANALISTA -->|Planifica horarios<br/>Publica mallas<br/>Gestiona excepciones| WFM
-    ADMIN -->|Gestiona usuarios<br/>Configura roles<br/>Parámetros globales| WFM
-
-    WFM -->|Consulta estados| CISCO_F
-    WFM -->|Obtiene reportes| CISCO_C
-    WFM -->|Envía notificaciones| WEBEX
-    WFM -->|Envía correos| EMAIL
+```
+                         ┌──────────────┐
+                         │  QualityMod  │
+                         │  (en curso)  │
+                         └──────┬───────┘
+                                │
+         ┌──────────────┐       │
+         │  Workflows   │       │
+         │  Module      │       │
+         └──────┬───────┘       │
+                │               │
+┌───────────────┼───────────────┼──────────────────┐
+│  Support      │               │                  │
+│  Modules      │  Helpdesk │ Documentation       │
+│  Filesystem   │  Knowledge                      │
+└───────────────┼───────────────┼──────────────────┘
+                │               │
+         ┌──────┴───────┐ ┌────┴────────┐
+         │Communications│ │ Operations  │
+         │  Module      │ │  Module     │
+         └──────┬───────┘ └────┬────────┘
+                │              │
+         ┌──────┴───────┐ ┌───┴──────────┐
+         │  AuditMod    │ │  WfmModule   │
+         └──────┬───────┘ └────┬─────────┘
+                │              │
+         ┌──────┴──────────────┴──────────┐
+         │        ConnectModule           │
+         │   (Cisco UCCX/Finesse/CUIC)    │
+         └───────────────┬────────────────┘
+                         │
+         ┌───────────────┴────────────────┐
+         │      PersonnelModule           │
+         │   (Empleados, equipos, RRHH)   │
+         └───────────────┬────────────────┘
+                         │
+         ┌───────────────┴────────────────┐
+         │  OrganizationModule │ GeoModule│
+         └───────────────┬────────────────┘
+                         │
+         ┌───────────────┴────────────────┐
+         │          CoreModule            │
+         │   (Auth, RBAC, Config global)  │
+         └────────────────────────────────┘
 ```
 
-**Propósito del Sistema:** Orquestar la planificación, ejecución y monitoreo de la fuerza laboral del Contact Center, integrando datos de telemetría en tiempo real para garantizar la cobertura operativa y medir el desempeño de los agentes.
+**Regla:** Un módulo solo conoce a sus dependientes (flechas hacia abajo). La comunicación ascendente ocurre via `Events` y `Contracts` en `app/Shared/`.
 
 ---
 
-## 4. Vista de Contenedores (C4 — Nivel 2)
-
-```mermaid
-graph TB
-    USR["Usuario<br/>(Navegador Web)"]
-
-    subgraph "Horarios WFM (Servidor)"
-        HTTP["Nginx / Servidor Web<br/>HTTP/HTTPS"]
-        APP["Aplicación Laravel<br/>PHP 8.4"]
-        WS["Laravel Reverb<br/>WebSocket Server"]
-        HOR["Laravel Horizon<br/>Queue Worker"]
-    end
-
-    subgraph "Persistencia"
-        PG[("PostgreSQL<br/>Base de Datos")]
-        REDIS[("Redis<br/>Cache + Colas")]
-        FS["Sistema de Archivos<br/>(Discos: local, s3)"]
-    end
-
-    subgraph "Externos"
-        CISCO_F["Cisco Finesse<br/>REST API XML"]
-        CISCO_C["Cisco CUIC<br/>REST API"]
-        WEBEX["Webex API"]
-        SMTP["SMTP"]
-    end
-
-    USR -->|HTTPS| HTTP
-    HTTP -->|PHP-FPM| APP
-    APP -->|Lectura/Escritura| PG
-    APP -->|Cache + Sesiones| REDIS
-    APP -->|Jobs| REDIS
-    APP -->|Archivos subidos| FS
-    APP -->|WebSocket| WS
-    USR -.->|wss://| WS
-
-    HOR -->|Procesa jobs| REDIS
-    HOR -->|Jobs finalizados actualizan| PG
-
-    APP -->|HTTP XML| CISCO_F
-    APP -->|HTTP REST| CISCO_C
-    APP -->|HTTP REST| WEBEX
-    APP -->|SMTP| SMTP
-```
-
-### Stack Tecnológico por Contenedor
-
-| Contenedor    | Tecnología       | Versión  | Propósito                              |
-| ------------- | ---------------- | -------- | -------------------------------------- |
-| Servidor Web  | Nginx            | —        | Proxy inverso, SSL, archivos estáticos |
-| Aplicación    | Laravel + PHP    | 13 / 8.4 | Lógica de negocio, API, UI             |
-| WebSocket     | Laravel Reverb   | 1.x      | Eventos en tiempo real al navegador    |
-| Queue Worker  | Laravel Horizon  | 5.x      | Procesamiento asíncrono de jobs        |
-| Base de Datos | PostgreSQL       | 16       | Persistencia principal                 |
-| Cache/Colas   | Redis            | 7        | Cache, sesiones, colas, locks          |
-| Archivos      | Disco local / S3 | —        | Uploads, reportes, media               |
-
----
-
-## 5. Vista de Componentes — Módulos (C4 — Nivel 3)
-
-### 5.1 Mapa de Dependencias entre Módulos
-
-```mermaid
-graph LR
-    CORE[CoreModule] --> ORG[OrganizationModule]
-    CORE --> GEO[GeoModule]
-    CORE --> COMM[CommunicationsModule]
-    CORE --> AUDIT[AuditModule]
-
-    ORG --> PERS[PersonnelModule]
-    GEO --> PERS
-    CORE --> PERS
-
-    PERS --> OPS[OperationsModule]
-    PERS --> CONN[ConnectModule]
-    PERS --> WFM[WfmModule]
-
-    OPS --> WFM
-    CONN --> OPS
-    CONN --> WFM
-
-    WFM --> HELP[HelpdeskModule]
-    WFM --> DOC[DocumentationModule]
-    WFM --> FILE[FilesystemModule]
-    WFM --> KNOW[KnowledgeModule]
-
-    CORE --> HELP
-    CORE --> DOC
-    CORE --> FILE
-    CORE --> KNOW
-
-    classDef base fill:#e1f5fe
-    classDef org fill:#f3e5f5
-    classDef ops fill:#fff3e0
-    classDef support fill:#e8f5e9
-
-    class CORE,GEO base
-    class ORG,PERS org
-    class OPS,CONN,WFM ops
-    class HELP,DOC,FILE,KNOW,COMM,AUDIT support
-```
-
-> **Nota:** Las flechas indican dirección de dependencia. El módulo origen depende del módulo destino. La comunicación real se realiza mediante contratos e interfaces, no mediante importaciones directas de clases.
-
-### 5.2 Descripción de Módulos
-
-| #   | Módulo                   | Namespace              | Propósito                                                  | Modelos Clave                                                                        |
-| --- | ------------------------ | ---------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 1   | **CoreModule**           | `CoreModule`           | IAM, RBAC, autenticación Fortify, configuraciones globales | `User`, `Role`, `Permission`, `AppSetting`                                           |
-| 2   | **OrganizationModule**   | `OrganizationModule`   | Estructura organizacional                                  | `Directorate`, `Department`, `Position`                                              |
-| 3   | **GeoModule**            | `GeoModule`            | Geografía panameña                                         | `District`, `Township`                                                               |
-| 4   | **PersonnelModule**      | `PersonnelModule`      | Empleados, equipos, asignaciones                           | `Employee`, `Team`, `TeamMember`                                                     |
-| 5   | **OperationsModule**     | `OperationsModule`     | KPIs, dashboards, adherencia, productividad                | `AttendanceIncident`, `AgentDailyMetric`                                             |
-| 6   | **ConnectModule**        | `ConnectModule`        | Integración Cisco UCCX/CUIC/Finesse                        | `CallRecord`, `CallQueue`, `Channel`, `AgentStateTransition`                         |
-| 7   | **CommunicationsModule** | `CommunicationsModule` | Noticias, encuestas, shoutouts, comentarios                | `News`, `Poll`, `Shoutout`, `Comment`                                                |
-| 8   | **AuditModule**          | `AuditModule`          | Auditoría de eventos, exportación                          | `AuditLog`                                                                           |
-| 9   | **WfmModule**            | `WfmModule`            | Planificación semanal, turnos, swaps, permisos, intradía   | `Schedule`, `WeeklySchedule`, `LeaveRequest`, `ShiftSwapRequest`, `IntradayActivity` |
-| 10  | **HelpdeskModule**       | `HelpdeskModule`       | Tickets de soporte, SLA                                    | `HelpdeskTicket`, `HelpdeskTicketComment`                                            |
-| 11  | **DocumentationModule**  | `DocumentationModule`  | Wiki/documentación interna                                 | `DocumentationArticle`                                                               |
-| 12  | **FilesystemModule**     | `FilesystemModule`     | Archivos, carpetas, descargas, cuotas                      | `File`, `Folder`, `FileShare`, `StorageQuota`                                        |
-| 13  | **KnowledgeModule**      | `KnowledgeModule`      | Base de conocimiento operativo                             | `KnowledgeArticle`, `KnowledgeCategory`, `KnowledgeQueue`                            |
-
-### 5.3 Estructura Canónica de un Módulo
+## 3. Estructura Interna de un Módulo
 
 ```
 app/Modules/{Module}/
-├── Actions/                    # Lógica transaccional (único método execute())
-│   └── Realtime/               # (solo WfmModule) Acciones de tiempo real
-├── Console/Commands/           # Comandos Artisan propios del módulo
-├── Database/Migrations/        # Migraciones específicas (opcional)
-├── DTOs/                       # Objetos de transferencia inmutables (Spatie Data)
-├── Emails/                     # Clases Mailable (opcional)
-├── Enums/                      # Enums PHP (opcional)
-├── Events/                     # Eventos de dominio del módulo
+├── Actions/           → Lógica de negocio (un archivo = un caso de uso)
+├── Console/Commands/  → Comandos Artisan propios del módulo
+├── Database/
+│   ├── Migrations/    → Migraciones locales (alternativa a database/migrations/)
+│   └── Seeders/       → Seeders específicos
+├── DTOs/              → Objetos de transferencia inmutables (Spatie Data)
+├── Emails/            → Clases Mailable
+├── Enums/             → Enums PHP 8+ del dominio
+├── Events/            → Eventos de dominio
 ├── Http/
-│   ├── Controllers/            # Controladores HTTP (si aplica)
-│   └── Requests/               # Form Requests
-├── Jobs/                       # Queue jobs del módulo
-├── Listeners/                  # Manejadores de eventos
-├── Livewire/                   # Componentes UI reactivos
-│   └── Forms/                  # Livewire Form Objects
-├── Mail/                       # Clases Mailable adicionales
-├── Models/                     # Modelos Eloquent (extienden BaseModel)
-├── Notifications/              # Clases de notificación
-├── Observers/                  # Observers de ciclo de vida
-├── Policies/                   # Políticas de autorización (Spatie)
+│   ├── Controllers/   → Solo para APIs y webhooks (no Livewire)
+│   └── Requests/      → Form Requests (solo para endpoints HTTP clásicos)
+├── Jobs/              → Jobs encolables
+├── Listeners/         → Manejadores de eventos
+├── Livewire/
+│   ├── *.php          → Componentes Livewire (orquestación UI, sin lógica de negocio)
+│   └── Forms/         → Livewire Form Objects (validación)
+├── Mail/              → Vistas de correo
+├── Models/            → Eloquent Models (heredan de BaseModel)
+├── Notifications/     → Clases de notificación
+├── Observers/         → Efectos secundarios de modelos
+├── Policies/          → Autorización (Spatie Permission)
 ├── Providers/
-│   └── ModuleServiceProvider.php  # Registration + Boot
-├── Repositories/               # (opcional) Repositorios
-├── Resources/Views/            # Vistas Blade
-│   └── livewire/               # Vistas de componentes Livewire
+│   └── ModuleServiceProvider.php  → Registro del módulo
+├── Repositories/      → Solo si hay consultas complejas reutilizables
+├── Resources/Views/   → Vistas Blade (prefijo: `{module}::vista`)
 ├── Routes/
-│   ├── web.php                 # Rutas web del módulo
-│   └── api.php                 # (opcional) Rutas API
-└── Services/                   # Servicios de negocio
+│   ├── web.php        → Rutas web
+│   └── api.php        → Rutas API
+└── Services/          → Solo si hay lógica reutilizable entre múltiples Actions
+```
+
+### 3.1 Reglas estrictas
+
+- **Actions:** Un solo método público `execute()`. Operaciones de escritura usan `DB::transaction()`.
+- **Livewire:** No contiene lógica de base de datos ni de negocio. Valida via `Form Objects`, delega a `Actions`, redirige con `navigate: true`.
+- **DTOs:** Clases `readonly` tipadas. Se construyen desde `Form Objects` o `Form Requests`.
+- **Policies:** Usan `$user->hasPermissionTo()` (Spatie). Toda entidad DEBE tener su Policy.
+- **Observers:** Solo efectos secundarios (caché, logs, sincronizaciones). Sin lógica de negocio.
+
+---
+
+## 4. Comunicación entre Módulos
+
+### 4.1 Shared Events (app/Shared/Events/)
+
+Eventos de dominio compartidos entre módulos:
+
+| Evento | Emisor | Propósito |
+|--------|--------|-----------|
+| `WeeklySchedulePublished` | WfmModule | Horario semanal publicado |
+| `ScheduleAssignmentUpdated` | WfmModule | Asignación de turno modificada |
+| `LeaveRequestCreated` | WfmModule | Solicitud de permiso creada |
+| `LeaveRequestDecision` | WfmModule | Decisión sobre solicitud de permiso |
+| `ShiftSwapRequested` | WfmModule | Intercambio de turno solicitado |
+| `ShiftSwapApproved` | WfmModule | Intercambio de turno aprobado |
+
+### 4.2 Shared Contracts (app/Shared/Contracts/)
+
+14 interfaces que definen contratos entre módulos:
+
+| Namespace | Interfaces | Consumidor |
+|-----------|-----------|------------|
+| `Employees/` | `EmployeeInterface`, `EmployeeRepositoryInterface`, `EmployeeLookupRepositoryInterface` | WfmModule, OperationsModule |
+| `Schedules/` | `ScheduleServiceInterface`, `ScheduleRepositoryInterface`, `DashboardScheduleQueriesInterface`, `LeaveRequestServiceInterface`, `ShiftSwapServiceInterface` | OperationsModule |
+| `Telemetry/` | `TelemetryServiceInterface`, `TelemetryRealtimeRepositoryInterface` | OperationsModule |
+| `Operations/` | `AgentPerformanceRepositoryInterface` | Dashboard módulos |
+| `Quality/` | `CriteriaRepositoryInterface`, `EvaluationRepositoryInterface` | QualityModule |
+| `Identity/` | `UserInterface` | Todos los módulos |
+
+### 4.3 Shared DTOs (app/Shared/DTOs/)
+
+- `NotificationDTO` — Payload para notificaciones multi-canal
+- `TimelineItemDTO` — Item de línea de tiempo de agente
+- `AdherenceStatusDTO` — Estado de adherencia
+- `ScheduleDayDTO` — Resumen de día de horario
+- `TelemetryStateDTO` — Estado de telemetría
+- `Operations/AgentCallRecordDTO`, `AgentDailyMetricDTO`, `AgentStateTransitionDTO` — Métricas operativas
+
+### 4.4 Regla de comunicación
+
+```
+❌ INCORRECTO:  use App\Modules\Inventory\Models\Product;  // Dependencia directa
+✅ CORRECTO:    event(new OrderCreated($orderDTO));         // Evento desacoplado
+✅ CORRECTO:    app(ScheduleServiceInterface::class)        // Contrato
 ```
 
 ---
 
-## 6. Estructura del Monolito Modular
+## 5. Shared Infrastructure
 
-### 6.1 Árbol de Directorios (Nivel Superior)
+### 5.1 BaseModel
 
-```
-app/
-├── Concerns/                   # Traits reutilizables (PasswordValidationRules, etc.)
-├── Console/Commands/           # Comandos Artisan globales (CiscoSync, Communications*)
-├── Helpers/                    # Helpers globales (toast.php)
-├── Http/Middleware/            # Middleware de aplicación
-├── Modules/                    # 13 módulos de negocio
-├── Notifications/              # Canales de notificación globales (WebexChannel)
-├── Providers/                  # AppServiceProvider, HorizonServiceProvider, WebexNotificationProvider
-├── Reports/                    # Generación de reportes
-├── Services/                   # Servicios globales (WebexService)
-└── Shared/                     # Kernel compartido
-    ├── Contracts/              # Interfaces para comunicación cross-module
-    ├── DTOs/                   # DTOs compartidos
-    ├── Events/                 # Eventos de dominio cross-module
-    ├── Infrastructure/         # Infraestructura compartida (CiscoFinesseClient)
-    ├── Models/                 # BaseModel
-    ├── Notifications/          # BaseNotification, Concerns
-    ├── Services/               # Servicios compartidos (MenuDataService)
-    └── Support/                # Utilidades (MetricFormulas)
-```
+`app/Shared/Models/BaseModel.php` — Clase base abstracta para todos los modelos:
 
-### 6.2 Sistema de Archivos y Namespaces
+- Usa `HasUlids` trait de Laravel
+- `$incrementing = false`, `$keyType = 'string'`
+- La base de datos usa `$table->id()` (bigint auto-incremental) como PK física. ULID es la identidad lógica manejada por Eloquent.
 
-| Path                    | Namespace               | Propósito                       |
-| ----------------------- | ----------------------- | ------------------------------- |
-| `app/`                  | `App\`                  | Código fuente principal         |
-| `app/Modules/{Module}/` | `App\Modules\{Module}\` | Módulos de negocio              |
-| `app/Shared/`           | `App\Shared\`           | Kernel compartido entre módulos |
-| `database/factories/`   | `Database\Factories\`   | Fábricas de modelos             |
-| `database/seeders/`     | `Database\Seeders\`     | Seeders de base de datos        |
+### 5.2 MetricFormulas
+
+`app/Shared/Support/Metrics/MetricFormulas.php` — Clase `final` con 16 métodos `static` que centralizan las fórmulas de cálculo:
+
+- `productivity()`, `utilization()`, `utilizationDenominator()`
+- `checkLate()`, `aht()`, `secondsToMinutes()`, `formatDuration()`
+- `checkAdherence()`, `coverageRate()`, `absenteeismRate()`
+- `absentPersonnel()`, `occupancy()`, `conformance()`, `asa()`, `serviceLevel()`
+
+### 5.3 BaseNotification
+
+`app/Shared/Notifications/BaseNotification.php` — Clase abstracta para notificaciones multi-canal:
+
+- Implementa `ShouldQueue` (todas las notificaciones son asíncronas)
+- Canales: `database` (notificaciones in-app), `broadcast` (WebSockets via Reverb), `webex` (condicional según configuración)
+- Usa `NotificationDTO` como payload tipado
+
+### 5.4 CiscoFinesseClient
+
+`app/Shared/Infrastructure/Cisco/CiscoFinesseClient.php` — Cliente HTTP para API REST XML de Cisco Finesse:
+
+- Autenticación Basic Auth
+- Timeout configurable (15s default)
+- `withoutVerifying()` para entornos con certificados auto-firmados
+- Parseo XML → JSON → array via `simplexml_load_string` + `json_encode`
+
+### 5.5 Helper global
+
+`app/Helpers/toast.php` — Auto-cargado via `composer.json` `files` key. Provee la función global `toast()` para notificaciones flash (success/danger/warning/info).
 
 ---
 
-## 7. Sistema de Carga de Módulos
+## 6. Frontend Architecture
 
-### 7.1 Flujo de Initialización
+### 6.1 Stack
 
-```mermaid
-sequenceDiagram
-    participant BP as bootstrap/providers.php
-    participant ASP as AppServiceProvider
-    participant MP as ModuleServiceProviders
-    participant SF as config/modules.php
+- **Livewire 4** — Componentes reactivos del lado del servidor
+- **Flux UI 2** — Librería de componentes UI (todo `<flux:xxx>`)
+- **TailwindCSS 4** — Estilos (vía Vite plugin)
+- **Vite 8** — Bundler de assets
+- **Laravel Echo 2** — Cliente WebSocket (Pusher/Reverb)
+- **ApexCharts** — Gráficos en dashboards
 
-    BP->>ASP: register()
-    ASP->>SF: config('modules.enabled')
-    loop for each provider
-        ASP->>MP: $app->register(Provider)
-        MP->>MP: register() — Bindings en contenedor
-        MP->>MP: boot() — Rutas, vistas, policies, eventos, livewire
-    end
-    ASP->>ASP: boot() — Super-admin Gate, defaults
-```
-
-### 7.2 Código de Carga
-
-**`bootstrap/providers.php`** registra los proveedores raíz:
+### 6.2 Patrón de Componente Livewire
 
 ```
-AppServiceProvider::class
-HorizonServiceProvider::class
-WebexNotificationServiceProvider::class
-FluxServiceProvider::class
+Form Object (validación) → Componente Livewire (orquestación) → Action (lógica) → Evento/Respuesta
 ```
 
-**`AppServiceProvider::register()`** itera `config('modules.enabled')` y registra cada `ModuleServiceProvider`:
+Ejemplo de flujo:
+
+```
+CreateDirectorate (Livewire Component)
+  ├── $this->authorize('create', Directorate::class)   → Policy
+  ├── $this->validate()                                 → rules()
+  ├── DirectorateDTO::fromArray($validated)              → DTO inmutable
+  ├── (new CreateDirectorateAction)->execute($dto)       → Action transaccional
+  └── redirect()->with('success', '...')                 → Respuesta
+```
+
+### 6.3 Reglas de UI
+
+- **Siempre FluxUI:** `<flux:input>`, `<flux:button>`, `<flux:modal>`, `<flux:table>`, etc. Si un componente FluxUI no existe para el caso, usar HTML estándar con comentario `<!-- TODO: Refactor to FluxUI -->`.
+- **SPA Navigation:** `wire:navigate` en enlaces internos, `navigate: true` en redirecciones.
+- **Form Objects:** Toda validación de UI en `Livewire/Forms/`, no en el componente principal.
+- **Lazy Loading:** Widgets pesados usan `<livewire:widget lazy />`.
+
+### 6.4 Componentes registrados
+
+Los componentes Livewire se registran manualmente en cada `ModuleServiceProvider`:
 
 ```php
-foreach (config('modules.enabled', []) as $provider) {
-    if (class_exists($provider)) {
-        $this->app->register($provider);
-    }
-}
+Livewire::component('users::create', CreateUser::class);
 ```
 
-### 7.3 Orden de Carga y Dependencias
-
-El orden en `config/modules.php` respeta dependencias:
-
-1. **CoreModule** — Sin dependencias de otros módulos. Auth, RBAC, usuarios
-2. **OrganizationModule** — Depende de CoreModule (usuarios). Direcciones, departamentos
-3. **GeoModule** — Depende de CoreModule. Geografía panameña
-4. **PersonnelModule** — Depende de CoreModule, OrganizationModule, GeoModule. Empleados, equipos
-5. **OperationsModule** — Depende de PersonnelModule. KPIs, dashboards
-6. **ConnectModule** — Depende de PersonnelModule. Integración Cisco
-7. **CommunicationsModule** — Depende de CoreModule. Noticias, encuestas
-8. **AuditModule** — Depende de CoreModule. Auditoría
-9. **WfmModule** — Depende de PersonnelModule, ConnectModule. Planificación WFM
-10. **HelpdeskModule** — Depende de CoreModule, WfmModule (opcional). Tickets
-11. **DocumentationModule** — Depende de CoreModule. Wiki
-12. **FilesystemModule** — Depende de CoreModule. Archivos
-13. **KnowledgeModule** — Depende de CoreModule. Base de conocimiento
+Adicionalmente, `config/livewire.php` tiene un mapeo `component_namespaces` para resolución automática. Nuevos componentes pueden requerir entrada en ambos lugares.
 
 ---
 
-## 8. Comunicación Cross-Module
+## 7. Database Architecture
 
-### 8.1 Principios
+### 7.1 PostgreSQL Features
 
-1. **Sin imports directos entre módulos.** Ningún módulo hace `use App\Modules\OtroModulo\...`
-2. **La comunicación se realiza mediante:**
-   - **Contracts (Interfaces):** Definidos en `app/Shared/Contracts/`. Implementados por el módulo proveedor, consumidos por otros módulos
-   - **Events:** Definidos en `app/Shared/Events/`. Emitidos por un módulo, escuchados por otros
-   - **DTOs:** Definidos en `app/Shared/DTOs/`. Objetos inmutables para transferencia de datos
-   - **Service Container Bindings:** Los módulos registran bindings `Interface → Implementation` en su `register()`
-3. **Eventos cross-module** son la única forma de comunicación asíncrona entre módulos
+El proyecto aprovecha características específicas de PostgreSQL:
 
-### 8.2 Contratos (Shared/Contracts)
+| Feature | Uso |
+|---------|-----|
+| `tsTZrange` / `tstzrange` | Rangos de tiempo en intraday activities (con GiST index para exclusión de solapamientos) |
+| `UNLOGGED TABLE` | `agent_realtime_states` — tabla de alta frecuencia sin WAL |
+| `jsonb` | Metadatos flexibles en `employees`, `schedules`, `agent_realtime_states` |
+| `btree_gist` extension | Índices GiST para exclusión de rangos |
+| Partial indexes | Índices condicionales para consultas frecuentes |
+| `CHECK` constraints | Validación a nivel DB (ej. `parent_id <> id` en employees) |
 
-| Carpeta       | Contrato                                                                                                               | Módulo Proveedor |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| `Employees/`  | `EmployeeInterface`, `EmployeeRepositoryInterface`, `EmployeeLookupRepositoryInterface`                                | PersonnelModule  |
-| `Identity/`   | `UserInterface`                                                                                                        | CoreModule       |
-| `Operations/` | `AgentPerformanceRepositoryInterface`                                                                                  | OperationsModule |
-| `Schedules/`  | `ScheduleServiceInterface`, `ScheduleRepositoryInterface`, `LeaveRequestServiceInterface`, `ShiftSwapServiceInterface` | WfmModule        |
-| `Telemetry/`  | `TelemetryServiceInterface`                                                                                            | ConnectModule    |
+### 7.2 Migraciones
 
-### 8.3 Eventos del Dominio (Shared/Events)
+- **64 migraciones** en `database/migrations/` — orden lineal con timestamps `2026_MM_DD_*`
+- **~16 migraciones locales** en `app/Modules/{Module}/Database/Migrations/` — cargadas via `ModuleServiceProvider::loadMigrationsFrom()`
+- Las migraciones verifican `DB::getDriverName() === 'pgsql'` para aplicar features PostgreSQL; caso contrario fallback a tipos estándar.
 
-| Evento                      | Emisor    | Escuchadores                                                               |
-| --------------------------- | --------- | -------------------------------------------------------------------------- |
-| `WeeklySchedulePublished`   | WfmModule | AuditModule (audita el evento)                                             |
-| `LeaveRequestCreated`       | WfmModule | AuditModule                                                                |
-| `LeaveRequestDecision`      | WfmModule | AuditModule                                                                |
-| `ScheduleAssignmentUpdated` | WfmModule | —                                                                          |
-| `ShiftSwapApproved`         | WfmModule | WfmModule (ApplyShiftSwapToSchedule, NotifyShiftSwapApproved), AuditModule |
-| `ShiftSwapRequested`        | WfmModule | —                                                                          |
+### 7.3 ULID vs PK física
 
-### 8.4 DTOs Compartidos (Shared/DTOs)
+- **Modelo:** `BaseModel` usa `HasUlids`, `$incrementing = false`, `$keyType = 'string'`
+- **Base de datos:** Las migraciones usan `$table->id()` (bigint auto-incremental)
+- El ULID se genera y almacena como string en la columna `id`. La base de datos ve un `bigint` pero Eloquent maneja el ULID como string.
 
-| DTO                  | Propósito                                            |
-| -------------------- | ---------------------------------------------------- |
-| `AdherenceStatusDTO` | Estado de adherencia de un agente en un momento dado |
-| `NotificationDTO`    | Datos para construir una notificación                |
-| `TimelineItemDTO`    | Elemento de línea de tiempo para dashboards          |
-| `ScheduleDayDTO`     | Representación de un día de horario                  |
-| `TelemetryStateDTO`  | Estado de telemetría desde Cisco                     |
+### 7.4 Seeders
 
-### 8.5 Diagrama de Comunicación entre Módulos
+28 seeders ejecutados en orden de dependencias en `DatabaseSeeder.php`:
 
-```mermaid
-sequenceDiagram
-    participant WFM as WfmModule
-    participant OPS as OperationsModule
-    participant CONN as ConnectModule
-    participant PERS as PersonnelModule
-    participant AUDIT as AuditModule
+1. Geografía (Panamá)
+2. Organización (Direcciones, Departamentos, Puestos)
+3. Estados de contratación
+4. Roles y permisos (130+ permisos, 7 roles jerárquicos + 4 roles de calidad)
+5. Usuarios y empleados
+6. Equipos y asignaciones
+7. Comunicaciones, colas, subtipos
+8. Horarios y catálogos WFM
+9. Helpdesk, configuraciones operativas
+10. Base de conocimiento
 
-    Note over PERS,WFM: Consulta de empleados vía EmployeeRepositoryInterface
-    WFM->>PERS: EmployeeLookupRepositoryInterface::findByTeam()
-    PERS-->>WFM: Collection<Employee>
-
-    Note over CONN,WFM: Telemetría vía TelemetryServiceInterface
-    OPS->>CONN: TelemetryServiceInterface::getAgentState()
-    CONN-->>OPS: TelemetryStateDTO
-
-    Note over WFM,OPS: Estado esperado del agente
-    OPS->>WFM: GetExpectedAgentStateAction::execute(userId, timestamp)
-    WFM-->>OPS: expectedState (string)
-
-    Note over WFM,AUDIT: Eventos del dominio
-    WFM->>WFM: event(new WeeklySchedulePublished(...))
-    WFM->>AUDIT: ⚡ WeeklySchedulePublished
-    AUDIT->>AUDIT: AuditWeeklySchedulePublishedListener
-
-    Note over WFM,WFM: Eventos internos del mismo módulo
-    WFM->>WFM: event(new ShiftSwapApproved(...))
-    WFM->>WFM: ApplyShiftSwapToSchedule (Listener)
-    WFM->>WFM: NotifyShiftSwapApproved (Listener)
-```
+El admin (`ferncastillo@css.gob.pa`) recibe forzosamente el rol `admin` al final del seeding.
 
 ---
 
-## 9. Shared Kernel
+## 8. Integraciones Externas
 
-### 9.1 BaseModel
+### 8.1 Cisco UCCX/Finesse — Tiempo Real
 
-Todos los modelos extienden `App\Shared\Models\BaseModel`:
+| Aspecto | Detalle |
+|---------|---------|
+| **Propósito** | Estados de agente en vivo, diálogos activos |
+| **Protocolo** | API REST XML (Basic Auth) |
+| **Cliente** | `CiscoFinesseClient` en `app/Shared/Infrastructure/Cisco/` |
+| **Frecuencia** | Cada 5 segundos via `CiscoSync` job auto-despachante |
+| **Horario** | 5:00 AM — 7:00 PM (horario laboral del call center) |
+| **Tabla destino** | `agent_realtime_states` (UNLOGGED, updateOrInsert) |
+| **Configuración** | `config/contact-center.php` + variables de entorno `UCCX_*` |
+
+### 8.2 Cisco CUIC — Histórico (ETL)
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Propósito** | CDRs, transiciones de estado, métricas de desempeño |
+| **Protocolo** | API REST con UUIDs de reporte pre-configurados |
+| **Reportes** | 7 tipos: agent_state_transitions, agent_detail, agent_performance_detail, agent_csq_detail, voice_csq_summary, agent_chat_detail, agent_realtime_detail |
+| **Frecuencia** | Cada 15-300 segundos via comandos Artisan (`cuic:sync`, `cuic:sync-realtime`) |
+| **Tablas destino** | `call_records`, `agent_state_transitions`, `agent_call_performance`, `chat_records`, `csq_realtime_stats` |
+
+### 8.3 Cisco Sync Job
+
+`app/Jobs/CiscoSync.php` — Job auto-despachante que:
+
+1. Recibe un flag `syncMasterData` (true en primera ejecución del día para sincronizar nombres/equipos)
+2. Itera empleados activos con username
+3. Consulta `CiscoFinesseClient::getAgentInfo()` por cada uno
+4. Para agentes en estado `TALKING`, obtiene datos de la llamada via `getAgentDialogs()`
+5. Actualiza `agent_realtime_states` con `updateOrInsert()`
+6. Se re-despacha a sí mismo con `delay(5 segundos)`
+7. Usa cola `realtime-sync` (aislada en Horizon) para no bloquear otras colas
+
+### 8.4 Webex
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Propósito** | Notificaciones a equipos de IT/operaciones |
+| **Servicio** | `app/Services/WebexService.php` (singleton) |
+| **Canal de notificación** | `WebexChannel` en `app/Notifications/Channels/` |
+| **Métodos** | `sendText()`, `sendMarkdown()`, `sendToAll()` |
+
+---
+
+## 9. Queue y Job Architecture
+
+### 9.1 Horizon Configuration
+
+| Supervisor | Colas | Procesos | Timeout | Propósito |
+|-----------|-------|----------|---------|-----------|
+| `supervisor-1` | `default`, `notifications` | 10 (auto) | 60s | Trabajo general y notificaciones |
+| `supervisor-wfm` | `wfm-heavy` | 5 (simple) | 300s | Cálculos pesados de planificación |
+
+### 9.2 Colas del Sistema
+
+| Cola | Conexión | Propósito |
+|------|----------|-----------|
+| `default` | Redis | Trabajo general |
+| `notifications` | Redis | Notificaciones push/email/webex |
+| `wfm-heavy` | Redis | Cálculos de planificación masiva |
+| `realtime-sync` | Database | Sincronización Cisco (aislada por conexión database) |
+
+### 9.3 Patrón de Job Auto-despachante
+
+`CiscoSync` implementa el patrón de auto-re-despacho para reemplazar un while-loop tradicional:
 
 ```php
-abstract class BaseModel extends Model
+public function handle(): void
 {
-    use HasUlids;
-
-    public $incrementing = false;
-    protected $keyType = 'string';
+    // ... sync logic ...
+    
+    // Re-despachar con 5 segundos de retraso
+    self::dispatch(false)->delay(now()->addSeconds(5));
 }
 ```
 
-**Implicaciones:**
-- Todos los IDs son ULIDs (26 caracteres alfanuméricos)
-- Sin auto-increment; los IDs se generan antes de la inserción
-- Compatible con sistemas distribuidos (sin contención de secuencia)
-
-### 9.2 Infraestructura Compartida
-
-**`CiscoFinesseClient`** (`app/Shared/Infrastructure/Cisco/`): Cliente HTTP para la API REST XML de Cisco Finesse. Proporciona:
-- `getAgentInfo(loginId)` — Estado actual del agente
-- `getAgentDialogs(loginId)` — Diálogos/llamadas activos
-- `getAllUsers()` — Lista de todos los agentes
-
-### 9.3 Métricas Compartidas
-
-**`MetricFormulas`** (`app/Shared/Support/Metrics/`): Librería de fórmulas estandarizadas consumida por OperationsModule y otros:
-- `productivity()`, `utilization()`, `occupancy()`
-- `aht()`, `asa()`, `serviceLevel()`
-- `checkAdherence()`, `checkLate()`
-- `coverageRate()`, `absenteeismRate()`
-
-### 9.4 Notificaciones Compartidas
-
-**`BaseNotification`** (`app/Shared/Notifications/`): Clase base para todas las notificaciones.
-**`HasWebexSupport`** (`app/Shared/Notifications/Concerns/`): Trait para notificaciones que soportan envío a Webex.
-**`WebexChannel`** (`app/Notifications/Channels/`): Canal de notificación personalizado para Webex.
+Esto permite que Horizon maneje la concurrencia, reintentos y monitoreo sin bloquear workers.
 
 ---
 
-## 10. Pipeline HTTP
+## 10. Security Architecture
 
-### 10.1 Middleware Global
-
-Configurado en `bootstrap/app.php`, se agregan al grupo `web`:
-
-```mermaid
-graph LR
-    REQ[Request] --> SESS[StartSession]
-    SESS --> CSRF[VerifyCsrfToken]
-    CSRF --> MAINT[CheckMaintenanceMode<br/>CoreModule]
-    MAINT --> PWD[EnsurePasswordChange]
-    PWD --> MENU[InjectMenuData]
-    MENU --> AUTH[auth / verified]
-    AUTH --> ROUTE[Route Handler]
-```
-
-| Middleware             | Origen                       | Propósito                                                         |
-| ---------------------- | ---------------------------- | ----------------------------------------------------------------- |
-| `CheckMaintenanceMode` | `CoreModule\Http\Middleware` | Bloquea acceso si el modo mantenimiento está activo               |
-| `EnsurePasswordChange` | `app/Http/Middleware`        | Redirige a cambio de contraseña si `force_password_change = true` |
-| `InjectMenuData`       | `app/Http/Middleware`        | Inyecta conteos para badges del menú (aprobaciones pendientes)    |
-
-### 10.2 Middleware por Ruta
-
-- `auth` — Usuario autenticado
-- `verified` — Email verificado (Fortify)
-- `role:admin` — Solo rol admin (usado en Horizon, Pulse)
-
-### 10.3 Manejo de Excepciones
-
-- `PostTooLargeException` se captura globalmente y retorna respuesta JSON para Livewire o redirect con error
-
----
-
-## 11. Autenticación y Autorización
-
-### 11.1 Autenticación (Laravel Fortify)
-
-- **Login:** Rate limit 5/min por email+IP
-- **2FA:** TOTP con códigos de recuperación. Rate limit 5/min
-- **Registro:** Deshabilitado
-- **Verificación de email:** Obligatoria para acceder a rutas protegidas
-- **Cambio de contraseña forzado:** Al primer inicio (`force_password_change`)
-- **Confirmación de contraseña:** Para acciones sensibles (settings), con bypass si el usuario está forzado a cambiar
-
-### 11.2 Autorización (Spatie Laravel Permission)
-
-```mermaid
-graph TB
-    USER[User] -->|hasRole| ROLE[Role]
-    USER -->|hasPermission| PERM[Permission]
-    ROLE -->|hasPermissions| PERM
-    USER -->|Gate::before| ADMIN{is admin?}
-    ADMIN -->|sí| GRANT[Grant all]
-    ADMIN -->|no| POLICY[Check Policy]
-```
-
-- **Roles:** `admin`, `wfm`, `supervisor`, `evaluator`, `agent`, etc.
-- **Permisos:** Nomenclatura `{recurso}.{accion}` (ej. `news.create`, `schedules.manage`)
-- **Super-admin bypass:** `Gate::before()` en `AppServiceProvider::boot()` otorga acceso total al rol `admin`
-- **Cache de permisos:** 24 horas en Redis. Se purga al modificar roles/permisos
-- **Policies:** Por modelo, registradas en cada `ModuleServiceProvider`
-
-### 11.3 Sesiones
-
-- **Driver:** `database` (tabla `sessions`)
-- **Lifetime:** 120 minutos
-- **Cookie:** `SameSite=Lax`, `HttpOnly`
-
----
-
-## 12. Frontend y UI
-
-### 12.1 Stack
-
-| Capa             | Tecnología   | Versión |
-| ---------------- | ------------ | ------- |
-| Framework UI     | Livewire     | 4.x     |
-| Componentes      | Flux UI      | 2.x     |
-| CSS              | TailwindCSS  | 4.x     |
-| Iconos           | Lucide       | —       |
-| WebSocket Client | Laravel Echo | 2.x     |
-| Build tool       | Vite         | —       |
-
-### 12.2 Arquitectura de Componentes Livewire
-
-- Cada módulo registra sus componentes en `ModuleServiceProvider::boot()` mediante `Livewire::component()`
-- Los componentes se registran con prefijo del módulo: `wfm.my-schedule`, `core.users.list-users`
-- Las vistas Blade asociadas viven en `Resources/Views/livewire/` de cada módulo
-- Namespaces adicionales en `config/livewire.php`: `layouts`, `pages`, `employees`, `schedule`
-
-### 12.3 Layout
-
-- **Layout principal:** `resources/views/layouts/app.blade.php`
-- **Sidebar:** Persistente, con soporte de colapso, iconos + etiquetas
-- **Navbar:** Minimal, con breadcrumbs visibles siempre
-- **Namespaces de vistas:** `reports::`, `core::`, `wfm::`, etc. registrados por módulo
-
-### 12.4 Navegación
-
-- Rutas web definidas centralmente en `routes/web.php` (home, dashboard)
-- Rutas de settings en `routes/settings.php` (profile, appearance, security)
-- Rutas de módulos cargadas desde `Routes/web.php` de cada módulo con prefijos como `admin/wfm/`, `admin/audit/`, etc.
-
----
-
-## 13. Colas y Procesamiento Asíncrono
-
-### 13.1 Infraestructura
-
-- **Driver:** Redis (vía Horizon)
-- **Horizon Dashboard:** `/horizon` (protegido con `role:admin`)
-
-### 13.2 Colas y Supervisores
-
-| Cola            | Propósito               | Supervisor     | Procesos (prod) | Timeout |
-| --------------- | ----------------------- | -------------- | --------------- | ------- |
-| `default`       | Jobs generales          | supervisor-1   | hasta 10 (auto) | 60s     |
-| `notifications` | Notificaciones          | supervisor-1   | hasta 10 (auto) | 60s     |
-| `wfm-heavy`     | Cálculos intensivos WFM | supervisor-wfm | 5 (simple)      | 300s    |
-
-### 13.3 Jobs Identificados
-
-- **ConnectModule:** Sincronización Cisco UCCX/CUIC, transiciones de estado
-- **WfmModule:** Notificaciones de horario publicado, aprobación de swaps
-- **CommunicationsModule:** Notificaciones de contenido programado
-
-### 13.4 Estrategia de Balanceo
-
-| Entorno    | supervisor-1          | supervisor-wfm              |
-| ---------- | --------------------- | --------------------------- |
-| Producción | `auto` scaling (time) | `simple` (5 procesos fijos) |
-| Local      | 3 procesos máx        | No disponible               |
-
----
-
-## 14. WebSockets y Tiempo Real
-
-### 14.1 Infraestructura
-
-- **Servidor:** Laravel Reverb 1.x
-- **Cliente:** Laravel Echo 2.x
-
-### 14.2 Canales
-
-| Canal                  | Tipo    | Propósito                                |
-| ---------------------- | ------- | ---------------------------------------- |
-| `App.Models.User.{id}` | Privado | Notificaciones en tiempo real al usuario |
-
-### 14.3 Casos de Uso
-
-- Notificaciones push de aprobaciones de swaps y permisos
-- Actualización de contadores en el menú (badges de aprobaciones pendientes)
-
----
-
-## 15. Integraciones Externas
-
-### 15.1 Cisco UCCX / Finesse
-
-| Aspecto                 | Detalle                                                                     |
-| ----------------------- | --------------------------------------------------------------------------- |
-| **Propósito**           | Obtener estados de agentes en tiempo real (Ready, Not Ready, Talking, etc.) |
-| **Protocolo**           | HTTP REST con autenticación básica                                          |
-| **Formato**             | XML (parseado a array con `simplexml`)                                      |
-| **Configuración**       | `config/contact-center.php`: `cisco.base_url`, `username`, `password`       |
-| **Cliente**             | `app/Shared/Infrastructure/Cisco/CiscoFinesseClient.php`                    |
-| **Endpoints**           | `User/{loginId}`, `User/{loginId}/Dialogs`, `Users`                         |
-| **Tolerancia a fallos** | Timeout 15s, SSL verification deshabilitable                                |
-
-### 15.2 Cisco CUIC
-
-| Aspecto           | Detalle                                                                                                                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Propósito**     | Reportes históricos de desempeño de agentes y colas                                                                                                                                        |
-| **Protocolo**     | HTTP REST con autenticación básica                                                                                                                                                         |
-| **Formato**       | JSON                                                                                                                                                                                       |
-| **Configuración** | `config/contact-center.php`: `cuic.*`                                                                                                                                                      |
-| **Reportes**      | 7 reportes mapeados por UUID: `agent_state_transitions`, `agent_detail`, `agent_performance_detail`, `agent_csq_detail`, `voice_csq_summary`, `agent_chat_detail`, `agent_realtime_detail` |
-| **Workaround**    | Reporte `agent_detail` con HTTP 500 al usar filtro POST → se usa `agent_state_transitions` + filtro en memoria                                                                             |
-
-### 15.3 Webex
-
-| Aspecto                       | Detalle                                                    |
-| ----------------------------- | ---------------------------------------------------------- |
-| **Propósito**                 | Envío de notificaciones a equipos/salas Webex              |
-| **Servicio**                  | `app/Services/WebexService.php`                            |
-| **Canal**                     | `app/Notifications/Channels/WebexChannel.php`              |
-| **Provider**                  | `WebexNotificationServiceProvider` registra bindings       |
-| **Soporte en notificaciones** | Trait `HasWebexSupport` en notificaciones que lo requieren |
-
-### 15.4 Shell Scripts de Producción
-
-| Script                | Propósito                                         |
-| --------------------- | ------------------------------------------------- |
-| `start-cisco-sync.sh` | Loop de sincronización continua con Cisco Finesse |
-| `start-cuic-sync.sh`  | Loop de sincronización continua con CUIC          |
-| `worker-cron.sh`      | Gestión de workers Horizon en producción          |
-
----
-
-## 16. Monitoreo y Observabilidad
-
-### 16.1 Laravel Pulse
-
-- **URL:** `/pulse`
-- **Middleware:** `web + role:admin`
-- **Recorders activos:**
-
-| Recorder               | Propósito                                 |
-| ---------------------- | ----------------------------------------- |
-| `CacheInteractions`    | Hit/miss ratio de caché                   |
-| `Exceptions`           | Excepciones no capturadas                 |
-| `Queues`               | Throughput y latencia de colas            |
-| `SlowJobs`             | Jobs que exceden el umbral                |
-| `SlowOutgoingRequests` | Llamadas HTTP lentas a servicios externos |
-| `SlowQueries`          | Queries > 500ms                           |
-| `Servers`              | CPU, memoria del servidor                 |
-| `UserRequests`         | Requests lentas por usuario               |
-| `UserJobs`             | Jobs lentos por usuario                   |
-
-### 16.2 Laravel Horizon
-
-- **URL:** `/horizon`
-- **Middleware:** `web + role:admin`
-- **Métricas:** Snapshots de jobs, colas (retención 24h)
-
----
-
-## 17. Tareas Programadas
-
-Definidas en `routes/console.php`:
-
-| Comando                                      | Frecuencia   | Propósito                               |
-| -------------------------------------------- | ------------ | --------------------------------------- |
-| `communications:publish-scheduled`           | Cada 5 min   | Publica contenido programado (noticias) |
-| `communications:auto-archive`                | Cada hora    | Archiva contenido expirado              |
-| `communications:send-expired-poll-reminders` | Cada hora    | Recordatorios de encuestas por vencer   |
-| `communications:send-newsletter`             | Diario 08:00 | Envío de newsletter                     |
-| `schedules:compile-daily-snapshots`          | Diario 02:00 | Snapshots diarios de horarios           |
-| `uccx:auto-import`                           | Cada hora    | Importación automática desde UCCX       |
-| `operations:reconcile-attendance`            | Diario 03:00 | Reconciliación nocturna de asistencia   |
-
-> Todas las tareas usan `->withoutOverlapping()` para evitar ejecuciones concurrentes.
-
----
-
-## 18. Testing
-
-### 18.1 Configuración
-
-- **Framework:** Pest 4.x
-- **Base de datos:** SQLite en memoria (`:memory:`)
-- **TestCase base:** Seeds `RolesAndPermissionsSeeder` en `setUp()`
-- **Driver de sesión:** `array`
-- **Driver de caché:** `array`
-- **Driver de cola:** `sync`
-- **BCRYPT rounds:** 4
-
-### 18.2 Estructura de Tests
+### 10.1 Capas de Seguridad (en orden)
 
 ```
-tests/
-├── Feature/
-│   ├── Auth/               # Autenticación, verificación, 2FA
-│   ├── Core/               # CRUD usuarios, RBAC
-│   ├── Employees/          # Importación, exportación, policies
-│   ├── Organization/       # Estructura organizacional
-│   ├── Location/           # Catálogos geográficos
-│   ├── Settings/           # Perfil, seguridad
-│   ├── Audit/              # Auditoría
-│   └── Modules/            # Tests por módulo
-│       ├── AuditModule/
-│       ├── CommunicationsModule/
-│       ├── ContactCenter/
-│       ├── HelpdeskModule/
-│       ├── Operations/
-│       ├── OperationsModule/
-│       ├── PersonnelModule/
-│       ├── ScheduleModule/
-│       └── WfmModule/
-└── Unit/
-    └── Modules/            # Tests unitarios (sin DB)
+Request
+  │
+  ├─ Laravel Fortify (auth)
+  │   ├─ Email + Password
+  │   ├─ 2FA (TOTP)
+  │   └─ Email Verification
+  │
+  ├─ Middleware
+  │   ├─ EncryptCookies
+  │   ├─ VerifyCsrfToken
+  │   ├─ EnsurePasswordChange (custom)
+  │   └─ InjectMenuData (custom)
+  │
+  ├─ Policy (Spatie Permission)
+  │   ├─ $user->hasPermissionTo('users.edit')
+  │   ├─ $user->hasRole('admin') → super-bypass via Gate::before()
+  │   └─ Jerarquía de roles (hierarchy_level: 1-99)
+  │
+  └─ Action (lógica de negocio)
+      └─ DB::transaction() + validación de estado
 ```
 
-### 18.3 Comandos
+### 10.2 RBAC — Roles y Jerarquía
 
-| Comando                                        | Propósito                                       |
-| ---------------------------------------------- | ----------------------------------------------- |
-| `composer test`                                | `config:clear → pint --test → php artisan test` |
-| `php artisan test --compact --filter=TestName` | Test específico                                 |
-| `vendor/bin/pint --format agent`               | Corregir estilo de código                       |
+7 roles principales con `hierarchy_level`:
 
----
+| Rol | Código | Nivel | Permisos |
+|-----|--------|-------|----------|
+| operator | OP | 1 | Mínimos (ver horario propio, solicitar cambios) |
+| supervisor | SUP | 2 | Visión de equipo, aprobar solicitudes básicas |
+| coordinator | COOR | 3 | Operaciones, reportes, gestión intra-día |
+| chief | JEF | 4 | Reportes gerenciales, analytics |
+| wfm | WFM | 5 | **Todos los permisos** (igual que admin) |
+| director | DIR | 6 | Visión ejecutiva, comunicaciones |
+| admin | ADM | 99 | **Todos los permisos + super-bypass** |
 
-## 19. Decisiones Arquitectónicas (ADRs)
+Además, 4 roles específicos de calidad: `quality-evaluator`, `quality-supervisor`, `quality-coordinator`, `quality-admin`.
 
-### ADR-001: Monolito Modular vs Microservicios
+### 10.3 Super-admin Bypass
 
-**Contexto:** El sistema necesita desplegarse en un entorno institucional con recursos limitados.
+En `AppServiceProvider::boot()`:
 
-**Decisión:** Monolito Modular Laravel.
-
-**Alternativas descartadas:**
-- **Microservicios:** Descartado por sobrecarga operativa (múltiples deploys, bases de datos distribuidas, consistencia eventual) desproporcionada para el tamaño del equipo y la institución.
-
-**Consecuencias:**
-- Un solo deploy, una sola base de datos
-- Comunicación entre módulos requiere disciplina de no importar clases directamente
-- Escalamiento horizontal del monolito, no por servicio
-
----
-
-### ADR-002: ULIDs como Primary Keys
-
-**Contexto:** Necesidad de identificadores únicos no secuenciales para seguridad (no exponer volumen de datos) y compatibilidad con sistemas distribuidos.
-
-**Decisión:** ULIDs sobre `HasUlids` trait de Laravel.
-
-**Alternativas descartadas:**
-- **Auto-increment integers:** Exponen el volumen de datos, problemas en merges/migraciones
-- **UUIDs v4:** Más largos (36 chars), sin ventaja temporal para ordenamiento
-- **UUIDs v7:** Buena opción, pero mayor complejidad de implementación que ULIDs nativos de Laravel
-
-**Consecuencias:**
-- Todas las FK son strings de 26 caracteres
-- Mayor espacio en índices vs integers
-- Sin contención de secuencia en escrituras concurrentes
-
----
-
-### ADR-003: Eventos del Dominio para Comunicación Cross-Module
-
-**Contexto:** Los módulos no deben importarse directamente entre sí.
-
-**Decisión:** Eventos de Laravel definidos en `app/Shared/Events/` para comunicación asíncrona entre módulos.
-
-**Alternativas descartadas:**
-- **Llamadas directas a Actions de otros módulos:** Violaría el principio de no acoplamiento
-- **Message Bus / RabbitMQ:** Sobrecarga innecesaria para un monólito modular
-
-**Consecuencias:**
-- Comunicación desacoplada y registrable (auditable)
-- Los listeners pueden ser sincrónicos o encolados
-- No hay garantía de entrega en orden (para eso están las transacciones de BD)
-
----
-
-### ADR-004: Contratos con Service Container Bindings
-
-**Contexto:** Los módulos necesitan consumir servicios de otros módulos sin conocer su implementación.
-
-**Decisión:** Interfaces en `app/Shared/Contracts/` con implementaciones registradas en el Service Container de Laravel.
-
-**Ejemplo:**
 ```php
-// ConnectModule/Providers/ModuleServiceProvider.php
-$this->app->singleton(
-    TelemetryServiceInterface::class,
-    TelemetryService::class
-);
+Gate::before(function ($user, $ability) {
+    return $user->hasRole('admin') ? true : null;
+});
 ```
 
-**Alternativas descartadas:**
-- **Traits reutilizables:** No resuelven el problema de polimorfismo en runtime
-- **Facades:** Mayor acoplamiento implícito
+El rol `admin` (nivel 99) tiene acceso total a todo. Retorna `true` para cualquier habilidad; retorna `null` para no-intervención si no es admin (delegando a la Policy).
 
-**Consecuencias:**
-- Fácil de mockear en tests
-- Permite cambiar implementaciones sin modificar consumidores
-- Binding explícito en ServiceProvider
+### 10.4 Protecciones Globales
 
----
-
-### ADR-005: Base de Datos Única PostgreSQL
-
-**Contexto:** Sistema institucional con datos altamente relacionados.
-
-**Decisión:** Una sola base de datos PostgreSQL con esquemas bien definidos.
-
-**Alternativas descartadas:**
-- **Base de datos por módulo:** Incrementa la complejidad de joins y consistencia transaccional
-- **Base de datos separada para telemetría:** Se considerará si el volumen de datos lo requiere en el futuro
-
-**Consecuencias:**
-- Joins directos entre tablas de diferentes módulos (aunque idealmente no deberían ocurrir)
-- Una sola conexión de base de datos
-- Backup y restauración simple
+- `DB::prohibitDestructiveCommands()` en producción — protege contra `DB::statement('DROP TABLE...')`
+- `Model::preventLazyLoading()` — lanza excepción si se intenta lazy load
+- `Password::min(12)` con mixedCase + letters + numbers + symbols + uncompromised en producción
+- `Date::use(CarbonImmutable)` — inmutabilidad de fechas para evitar efectos secundarios
 
 ---
 
-### ADR-006: Session y Cache en Base de Datos (default)
+## 11. Testing Strategy
 
-**Contexto:** Entorno institucional sin Redis dedicado inicialmente.
+### 11.1 Configuración
 
-**Decisión:** Session driver = `database`, Cache driver = `database` (Redis usado para permisos y colas).
+- **Framework:** Pest 4 + `pestphp/pest-plugin-laravel`
+- **Base de datos:** SQLite in-memory (`phpunit.xml`: `DB_CONNECTION=sqlite`, `DB_DATABASE=:memory:`)
+- **Trait global:** `RefreshDatabase` aplicado via `pest()->extend(TestCase::class)->use(RefreshDatabase::class)`
+- **Colas:** `QUEUE_CONNECTION=sync` en tests
+- **Cache:** `CACHE_STORE=array` en tests
 
-**Consecuencias:**
-- Las sesiones persisten en BD (no se pierden al reiniciar Redis)
-- Mayor latencia que Redis para session/cache
-- Redis sigue disponible para permisos Spatie y colas Horizon
+### 11.2 Prioridad de Tests
 
----
+1. **Feature Tests** — Prueban el flujo completo: Livewire → Action → DB → respuesta
+2. **Unit Tests** — Solo para lógica pura sin DB (ej. `MetricFormulas`)
+3. **No escribir** tests excesivamente aislados que no detecten problemas reales
 
-## 20. Riesgos y Deuda Técnica
+### 11.3 Ubicación
 
-### 20.1 Riesgos Identificados
+- `tests/Feature/Modules/{Module}/` — Tests de módulo específicos
+- `tests/Feature/` — Tests generales
+- `tests/Unit/` — Tests unitarios puros
 
-| Riesgo                                        | Impacto                                                            | Probabilidad | Mitigación                                                           |
-| --------------------------------------------- | ------------------------------------------------------------------ | ------------ | -------------------------------------------------------------------- |
-| **Acoplamiento por Base de Datos Compartida** | Módulos podrían depender implícitamente de tablas de otros módulos | Media        | Políticas de código: solo queries a través de Repositories/Contracts |
-| **Crecimiento de audit_logs**                 | Degradación de performance en consultas de auditoría               | Alta         | Prune job (`AuditPruneCommand`), particionamiento por fecha          |
-| **Volumen de call_records**                   | Tabla de llamadas crece rápidamente                                | Alta         | Archivado, retención configurable                                    |
-| **Disponibilidad de Cisco UCCX/Finesse**      | Los dashboards de tiempo real quedan sin datos si Cisco cae        | Alta         | Degradación gradual: cache de último estado conocido                 |
-| **Concurrencia en planificación semanal**     | Dos analistas publicando horarios simultáneamente                  | Baja         | Locks optimistas con `->withoutOverlapping()`                        |
+### 11.4 Comandos
 
-### 20.2 Deuda Técnica Documentada
-
-| ID        | Descripción                                                                            | Prioridad |
-| --------- | -------------------------------------------------------------------------------------- | --------- |
-| **DT-01** | RUP docs desactualizados (describen `bigint` PK cuando el proyecto usa ULIDs)          | Alta      |
-| **DT-02** | `.github/instructions/main.instructions.md` referencia `docs/technical/` que no existe | Alta      |
-| **DT-03** | Versiones inconsistentes entre README (Laravel 11), AGENTS.md (Laravel 13) y realidad  | Alta      |
-| **DT-04** | Falta de documentación de los eventos del dominio Shared/Events                        | Media     |
-| **DT-05** | QualityModule/docs describe sistema legacy PHP separado dentro del mismo repositorio   | Media     |
-| **DT-06** | `CiscoFinesseClient::get()` tiene código comentado que oculta errores HTTP             | Media     |
-| **DT-07** | No hay tests para `MetricFormulas`, `MenuDataService`, `CiscoFinesseClient`            | Media     |
-| **DT-08** | Caché de permisos Spatie con TTL de 24h (cambios no se reflejan inmediatamente)        | Baja      |
+- `composer test` — `config:clear` → `lint:check` → `php artisan test`
+- `php artisan test --compact --filter=TestName` — Test específico
 
 ---
 
-## 21. Evolución Futura
+## 12. Infrastructure & Deployment
 
-### 21.1 Mejoras Planificadas
+### 12.1 Entornos
 
-1. **Documentación de Eventos:** Crear catálogo completo de eventos del dominio con emisores, listeners y casos de uso
-2. **API REST pública:** Exponer endpoints para integración con sistemas externos (nómina, RRHH)
-3. **Cache distribuida:** Migrar session y cache a Redis dedicado para mejorar performance
-4. **Arquitectura hexagonal por módulo:** Evolucionar cada módulo hacia puertos y adaptadores
-5. **Separación de telemetría:** Evaluar base de datos separada (TimeScaleDB) para datos de telemetría de alto volumen
+| Entorno | DB | Colas | Cache |
+|---------|----|-------|-------|
+| Local | SQLite (dev) / PostgreSQL | Database (dev) | Database (array) |
+| Producción | PostgreSQL 16 | Redis (Horizon) | Redis |
 
-### 21.2 Candidatos a Microservicios
+### 12.2 Scripts de Producción
 
-Si el monolito creciera más allá de la capacidad del equipo, los siguientes módulos son candidatos naturales a separarse:
+| Script | Propósito |
+|--------|-----------|
+| `start-cisco-sync.sh` | Daemon de sincronización Cisco Finesse (loop 5s) |
+| `start-cuic-sync.sh` | Daemon de sincronización CUIC (realtime cada 15s, ETL cada 300s) |
+| `worker-cron.sh` | Worker queue con horario laboral (5AM-7PM) |
+| `sincroniza.sh` | Rsync de develop → servidor producción |
 
-- **ConnectModule:** Por su carga de sincronización constante con sistemas externos
-- **OperationsModule:** Por sus necesidades de agregación de datos en tiempo real
+### 12.3 Commands de Consola
+
+| Comando | Propósito |
+|---------|-----------|
+| `php artisan cisco:sync --loop --interval=5` | Sincronización en vivo Cisco Finesse |
+| `php artisan cuic:sync --loop --interval=300 --minutes=60` | ETL histórico CUIC |
+| `php artisan cuic:sync-realtime --loop --interval=15` | Sincronización en tiempo real CUIC |
+| `php artisan connect:sync-cuic` | Sincronización CUIC (una ejecución) |
+| `php artisan connect:sync-realtime` | Sincronización tiempo real (una ejecución) |
+
+### 12.4 Dev Server
+
+```bash
+composer dev   # Inicia 4 procesos concurrentes:
+               # - php artisan serve (puerto 8000)
+               # - php artisan queue:listen (tries=1, timeout=0)
+               # - php artisan pail (logs en terminal)
+               # - npm run dev (Vite HMR)
+```
 
 ---
 
-## Referencias
+## 13. Glosario Arquitectónico
 
-| Documento                          | Ubicación                                        |
-| ---------------------------------- | ------------------------------------------------ |
-| Design System y UI Tokens          | `AGENTS.md`                                      |
-| Guía de desarrollo                 | `.github/instructions/main.instructions.md`      |
-| Especificaciones RUP por módulo    | `docs/RUP/*.md`                                  |
-| Documentación de integración Webex | `docs/CommunicationModule/WebexImplementaion.md` |
-| Módulo de Calidad (sistema legacy) | `docs/QualityModule/`                            |
-| Configuración de contact center    | `config/contact-center.php`                      |
-| Configuración de Horizon           | `config/horizon.php`                             |
-| Configuración de módulos           | `config/modules.php`                             |
-| Código fuente del Shared Kernel    | `app/Shared/`                                    |
-
----
+| Término | Definición |
+|---------|-----------|
+| **Action** | Clase con un único método `execute()` que encapsula un caso de uso transaccional |
+| **DTO** | `readonly class` con propiedades tipadas para transporte de datos entre capas |
+| **Form Object** | Clase Livewire que encapsula `rules()` y `validationAttributes()` para un formulario |
+| **ModuleServiceProvider** | ServiceProvider que registra rutas, vistas, Livewire components y policies de un módulo |
+| **Shared Contract** | Interface en `app/Shared/Contracts/` que define un contrato entre módulos |
+| **Shared Event** | Evento de dominio en `app/Shared/Events/` para comunicación cross-module |
+| **Policy** | Clase de autorización que usa `$user->hasPermissionTo()` de Spatie |
+| **Self-dispatching Job** | Job que se re-despacha a sí mismo al finalizar para crear un loop manejado por la cola |
+| **UNLOGGED TABLE** | Tabla PostgreSQL sin WAL (Write-Ahead Log), usada para datos transitorios de alta frecuencia |
+| **ULID** | Identificador único lexicográficamente ordenable, generado por Eloquent via `HasUlids` trait |

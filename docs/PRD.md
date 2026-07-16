@@ -232,7 +232,7 @@ Un sistema WFM integrado puede:
 | RNF-07 | Seguridad — XSS                 | Sanitización de todo contenido generado por usuarios (HTMLPurifier)           |
 | RNF-08 | Seguridad — Contraseñas         | Mínimo 12 caracteres, mixtas, no comprometidas en producción                  |
 | RNF-09 | Seguridad — Rate Limiting       | Límite de tasa en reacciones, comentarios, login                              |
-| RNF-10 | Disponibilidad — Cisco          | Circuit breaker en integraciones, reintentos, sin bloquear sistema si CTI cae |
+| RNF-10 | Disponibilidad — Cisco          | Circuit breaker en integraciones, reintentos con backoff exponencial, health check previo, stale data en dashboards si CTI cae (ver ARCHITECTURE.md §8.5 para matriz completa) |
 | RNF-11 | Disponibilidad — Notificaciones | Todas las notificaciones encoladas (ShouldQueue)                              |
 | RNF-12 | Consistencia — Transacciones    | `DB::transaction()` en toda operación de escritura multi-entidad              |
 | RNF-13 | Consistencia — Timestamps       | Uso de CarbonImmutable, fechas con timezone                                   |
@@ -243,6 +243,11 @@ Un sistema WFM integrado puede:
 | RNF-18 | Privacidad — Datos sensibles    | Enfermedades, discapacidades y datos salariales cifrados en DB                |
 | RNF-19 | Privacidad — RBAC               | Acceso a datos restringido por jerarquía de rol (`hierarchy_level`)           |
 | RNF-20 | Trazabilidad — Auditoría        | Tabla `audit_logs` append-only, sin update/delete                             |
+| RNF-21 | Cisco — Dead cycle prevention    | `CiscoSync` debe implementar backoff exponencial (1s→2s→4s→...→30s max) y health check previo; no debe detenerse permanentemente si Finesse falla |
+| RNF-22 | Cisco — Cache de mapeo           | El mapeo `external_id → employee_id` debe cachearse en Redis con TTL de 1 hora mínimo |
+| RNF-23 | Cisco — Alertas automáticas      | Fallos consecutivos de integración (>3 ciclos) deben notificar a Webex/Sentry automáticamente |
+| RNF-24 | Cisco — Checkpoint en backfill   | `CuicBackfillCommand` debe persistir su progreso para retomar desde donde quedó si se interrumpe |
+| RNF-25 | Cisco — Stale data en dashboards | Si los datos de Finesse están congelados (>30s sin actualizar), el dashboard debe mostrar indicador visual y la adherencia debe marcarse como "Pendiente de Validación Manual" |
 
 ---
 
@@ -359,14 +364,23 @@ Cisco UCCX/Finesse/CUIC
 
 ## 9. Riesgos y Mitigaciones
 
-| Riesgo                                           | Impacto                                         | Probabilidad | Mitigación                                                        |
-| ------------------------------------------------ | ----------------------------------------------- | ------------ | ----------------------------------------------------------------- |
-| Caída de infraestructura Cisco                   | Alto — Sin datos CTI en tiempo real             | Media        | Circuit breaker, datos parciales, cola de reintentos              |
-| Volumen masivo de registros telefónicos          | Alto — Degradación de performance               | Alta         | Upserts por lotes, tablas UNLOGGED para tiempo real               |
-| Condiciones de carrera en aprobaciones           | Medio — Doble aprobación o estado inconsistente | Media        | DB::transaction() + validación de estado al inicio de cada acción |
-| Cambios en API de Cisco                          | Alto — Rotura de sync                           | Baja         | Capa de anticorrupción (ConnectModule), DTOs de mapeo             |
-| Fuga de datos sensibles (enfermedades, salarios) | Crítico                                         | Media        | Cifrado en reposo, policies estrictas por rol jerárquico          |
-| Lentitud en dashboards con muchos agentes        | Medio — Mala UX                                 | Alta         | Widgets lazy, caché Redis, polling optimizado                     |
+| Riesgo                                                      | Impacto                                                 | Probabilidad | Mitigación                                                                 |
+| ----------------------------------------------------------- | ------------------------------------------------------- | ------------ | -------------------------------------------------------------------------- |
+| Caída de infraestructura Cisco                              | Alto — Sin datos CTI en tiempo real                     | Media        | Circuit breaker, datos parciales (stale data en dashboards), cola `realtime-sync` aislada |
+| Volumen masivo de registros telefónicos                     | Alto — Degradación de performance                       | Alta         | Upserts por lotes (chunks de 1000), tablas UNLOGGED para tiempo real, índices mínimos en tablas de alta escritura |
+| **Dead cycle: CiscoSync no se re-despacha tras fallo**      | **Crítico — Sin datos de agente en tiempo real por el resto del día** | **Alta** | **Health check previo al ciclo + re-despacho condicional con backoff exponencial + alerta a Webex** |
+| **Sin circuit breaker en clientes HTTP Cisco**              | **Alto — Degradación progresiva de workers si Cisco falla intermitentemente** | **Alta** | **Implementar CircuitBreakerMiddleware de Laravel HTTP Client en CiscoFinesseClient y FinesseService** |
+| **Timeout único en endpoints Finesse**                      | **Alto — getAllUsers() falla con 500+ usuarios**        | **Media**    | **Timeouts diferenciados: 15s para getAgentInfo(), 30-60s para getAllUsers()** |
+| **Pérdida de estados activos si PostgreSQL se reinicia**    | **Alto — Dashboards muestran datos vacíos hasta nuevo ciclo** | **Baja** | **Respaldo periódico de agent_realtime_states (UNLOGGED) a tabla con WAL cada 5 min** |
+| **Sin caché de mapeo employee_id → external_id**            | **Medio — 500+ consultas DB por ciclo de sync**         | **Alta**     | **Cachear en Redis con TTL de 1 hora**                                      |
+| **Sin checkpoint en CUIC backfill**                         | **Medio — Si el backfill se interrumpe, debe reiniciar desde cero** | **Media** | **Tabla cuic_sync_checkpoints con progreso por intervalo horario**         |
+| **Sin alertas automáticas de fallo de integración**         | **Medio — IT se entera por usuarios; ventana de reacción larga** | **Alta** | **Evento SyncFailed + notificación a Webex/Sentry**                         |
+| Condiciones de carrera en aprobaciones                      | Medio — Doble aprobación o estado inconsistente         | Media        | DB::transaction() + validación de estado al inicio de cada acción           |
+| Cambios en API de Cisco                                     | Alto — Rotura de sync                                   | Baja         | Capa de anticorrupción (ConnectModule), DTOs de mapeo, tests de integración con fixtures |
+| Fuga de datos sensibles (enfermedades, salarios)            | Crítico                                                 | Media        | Cifrado en reposo, policies estrictas por rol jerárquico                    |
+| Lentitud en dashboards con muchos agentes                   | Medio — Mala UX                                         | Alta         | Widgets lazy, caché Redis, polling optimizado (wire:poll cada 5s vs cada 2s) |
+| Latencia de reconciliación de adherencia post-fallo CUIC    | Medio — Adherencia desactualizada hasta 1-2h            | Media        | Backfill por lotes de 1 hora con sleep(1) entre lotes para reducir contención |
+| Saturación de logs por errores repetitivos de Cisco         | Bajo — Logs difíciles de leer, disco de logs            | Alta         | Rate-limiting de logs de error (Log::throttle()), summary cada N ciclos     |
 
 ---
 

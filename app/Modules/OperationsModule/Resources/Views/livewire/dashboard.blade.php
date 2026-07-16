@@ -4,7 +4,12 @@
             <div>
                 <h1 class="text-2xl font-semibold text-slate-900">{{ $greeting }}, {{ $displayName }}</h1>
                 <p class="mt-2 text-sm text-slate-600">{{ $todayLabel }}</p>
-                <p class="mt-1 text-sm font-medium text-slate-500">{{ $currentTime }}</p>
+                <div class="mt-1 flex items-center gap-2">
+                    <span class="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 border border-blue-200">{{ $roleLabel }}</span>
+                    @if($shift['team'] && $shift['team'] !== '—')
+                        <span class="text-sm text-slate-500">· {{ $shift['team'] }}</span>
+                    @endif
+                </div>
             </div>
             <div class="flex flex-col items-start gap-2 lg:items-end">
                 <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
@@ -141,28 +146,32 @@
                     <thead class="bg-slate-50 text-left text-slate-500">
                         <tr>
                             <th class="px-4 py-3 font-medium">Cola</th>
-                            <th class="px-4 py-3 font-medium">Espera</th>
-                            <th class="px-4 py-3 font-medium">Atendidas</th>
-                            <th class="px-4 py-3 font-medium">AHT</th>
-                            <th class="px-4 py-3 font-medium">SLA</th>
-                            <th class="px-4 py-3 font-medium">Estado</th>
+                            <th class="px-4 py-3 font-medium text-center">En Espera</th>
+                            <th class="px-4 py-3 font-medium text-center">Atendidas</th>
+                            <th class="px-4 py-3 font-medium text-center">Abandonadas</th>
+                            <th class="px-4 py-3 font-medium text-center">AHT</th>
+                            <th class="px-4 py-3 font-medium text-center">% Abandono</th>
+                            <th class="px-4 py-3 font-medium text-center">SLA</th>
+                            <th class="px-4 py-3 font-medium text-center">Estado</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 bg-white">
                         @foreach ($queues as $queue)
                             <tr class="@if ($queue['state'] === 'critical') bg-rose-50 @elseif ($queue['state'] === 'attention') bg-amber-50 @else bg-white @endif">
                                 <td class="px-4 py-3 font-medium text-slate-700">{{ $queue['name'] }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ $queue['waiting'] }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ $queue['handled'] }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ $queue['aht'] }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ $queue['sla'] }}</td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-3 text-center font-mono text-slate-600">{{ $queue['waiting'] }}</td>
+                                <td class="px-4 py-3 text-center font-mono text-slate-600">{{ $queue['handled'] }}</td>
+                                <td class="px-4 py-3 text-center font-mono {{ $queue['abandoned'] > 0 ? 'text-red-600 font-semibold' : 'text-slate-600' }}">{{ $queue['abandoned'] }}</td>
+                                <td class="px-4 py-3 text-center font-mono text-slate-600">{{ $queue['aht'] }}</td>
+                                <td class="px-4 py-3 text-center font-mono {{ $queue['abandon_rate'] > 5 ? 'text-red-600 font-semibold' : ($queue['abandon_rate'] > 3 ? 'text-amber-500' : 'text-slate-600') }}">{{ $queue['abandon_rate'] }}%</td>
+                                <td class="px-4 py-3 text-center font-mono text-slate-600">{{ $queue['sla'] }}</td>
+                                <td class="px-4 py-3 text-center">
                                     @if ($queue['state'] === 'critical')
-                                        <span class="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">🔴</span>
+                                        <span class="rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700">Critico</span>
                                     @elseif ($queue['state'] === 'attention')
-                                        <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">🟠</span>
+                                        <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">Atencion</span>
                                     @else
-                                        <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">🟢</span>
+                                        <span class="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Normal</span>
                                     @endif
                                 </td>
                             </tr>

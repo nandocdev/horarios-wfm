@@ -82,10 +82,20 @@ class Dashboard extends Component
         $now = now();
         $today = $now->toDateString();
         $employeeIds = $this->resolveEmployeeIds();
-        $scopeAll = empty($employeeIds);
 
         $displayName = $employee?->full_name ?? $user?->name ?? 'Operador';
         $teamName = $employee?->team?->name;
+        $userRole = $user->getRoleNames()->first() ?? 'operator';
+        $roleLabel = match ($userRole) {
+            'admin' => 'Administrador',
+            'director' => 'Director',
+            'wfm' => 'Analista WFM',
+            'chief' => 'Jefe',
+            'coordinator' => 'Coordinador',
+            'supervisor' => 'Supervisor',
+            'operator' => 'Operador',
+            default => $userRole,
+        };
         $greeting = match (true) {
             $now->hour < 12 => 'Buenos días', $now->hour < 19 => 'Buenas tardes', default => 'Buenas noches'
         };
@@ -95,27 +105,27 @@ class Dashboard extends Component
             ? $currentWeek->week_start_date->format('d M').' - '.$currentWeek->week_end_date->format('d M')
             : $now->startOfWeek()->format('d M').' - '.$now->endOfWeek()->format('d M');
 
-        $scheduledToday = $scheduleQueries->getScheduledCount($employeeIds, $today, $now->dayOfWeekIso);
+        $scheduledToday = $scheduleQueries->getScheduledCount(null, $today, $now->dayOfWeekIso);
 
-        $states = $realtimeRepo->getRealtimeStates($employeeIds);
+        $states = $realtimeRepo->getRealtimeStates(null);
         $connected = $states->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])->count();
         $totalStates = $states->count();
         $connectedPct = $totalStates > 0 ? round(($connected / $totalStates) * 100, 1) : 0;
 
-        $exceptionsToday = $scheduleQueries->getExceptionCount($employeeIds, $today);
+        $exceptionsToday = $scheduleQueries->getExceptionCount(null, $today);
 
-        $leaveCounts = $scheduleQueries->getLeaveCounts($employeeIds, $today);
+        $leaveCounts = $scheduleQueries->getLeaveCounts(null, $today);
 
         $nowIso = $now->toIso8601String();
-        $intradayActive = $scheduleQueries->getActiveIntradayCount($employeeIds, $nowIso);
-        $intradayToday = $scheduleQueries->getTodayIntradayCount($employeeIds, $today);
+        $intradayActive = $scheduleQueries->getActiveIntradayCount(null, $nowIso);
+        $intradayToday = $scheduleQueries->getTodayIntradayCount(null, $today);
 
         $coverage = $totalStates > 0 ? round(($connected / $totalStates) * 100, 1) : 0;
         $coverageGoal = 95;
 
         $queues = $realtimeRepo->getQueueStats(6);
 
-        $incidentQuery = $scopeAll ? AttendanceIncident::query() : AttendanceIncident::whereIn('employee_id', $employeeIds);
+        $incidentQuery = AttendanceIncident::query();
         $incidents = [
             ['label' => 'Tardanzas', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn ($q) => $q->where('code', 'LATE'))->count()],
             ['label' => 'Ausencias', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn ($q) => $q->where('code', 'ABSENT'))->count()],
@@ -126,13 +136,13 @@ class Dashboard extends Component
 
         $events = $scheduleQueries->getUpcomingEvents($employeeIds, $today);
 
-        $pendingSwaps = $scheduleQueries->getPendingSwapCount($employeeIds);
+        $pendingSwaps = $scheduleQueries->getPendingSwapCount(null);
 
         $requests = [
             ['label' => 'Permisos', 'value' => $leaveCounts['pending']],
             ['label' => 'Cambios turno', 'value' => $pendingSwaps],
             ['label' => 'Incidencias', 'value' => (clone $incidentQuery)->whereNull('admin_comment')->count()],
-            ['label' => 'Vacaciones', 'value' => $scheduleQueries->getLeaveCounts($employeeIds, $today)['pending']],
+            ['label' => 'Vacaciones', 'value' => $scheduleQueries->getLeaveCounts(null, $today)['pending']],
         ];
 
         $teams = Team::withCount([
@@ -223,6 +233,7 @@ class Dashboard extends Component
         return view('operations::livewire.dashboard', [
             'greeting' => $greeting,
             'displayName' => $displayName,
+            'roleLabel' => $roleLabel,
             'todayLabel' => $now->locale('es')->translatedFormat('l d F Y'),
             'currentTime' => $now->format('H:i'),
             'weekRange' => $weekRange,

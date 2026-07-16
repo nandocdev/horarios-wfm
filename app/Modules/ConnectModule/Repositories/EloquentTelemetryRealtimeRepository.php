@@ -70,10 +70,14 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
             ->map(fn ($q): array => [
                 'name' => $q->csq_name,
                 'waiting' => $q->calls_waiting,
-                'handled' => $q->calls_handled ?? 0,
-                'aht' => $q->avg_handle_time ? gmdate('i:s', (int) $q->avg_handle_time) : '0:00',
-                'sla' => $q->service_level ? round($q->service_level, 1).'%' : '—',
-                'state' => ($q->service_level ?? 100) < 80 ? 'critical' : (($q->service_level ?? 100) < 90 ? 'attention' : 'normal'),
+                'handled' => $q->calls_handled_since_midnight ?? 0,
+                'abandoned' => $q->calls_abandoned_since_midnight ?? 0,
+                'abandon_rate' => ($q->total_calls_since_midnight ?? 0) > 0
+                    ? round(($q->calls_abandoned_since_midnight / $q->total_calls_since_midnight) * 100, 1)
+                    : 0.0,
+                'aht' => '—',
+                'sla' => $q->service_level_long_term ? round($q->service_level_long_term, 1).'%' : '—',
+                'state' => ($q->service_level_long_term ?? 100) < 80 ? 'critical' : (($q->service_level_long_term ?? 100) < 90 ? 'attention' : 'normal'),
             ]);
     }
 

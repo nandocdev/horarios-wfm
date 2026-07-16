@@ -26,7 +26,7 @@ composer.lock
 package-lock.json
 /database/data/*.sql
 /scripts/*
-
+/docs/trash/*
 .gemini/
 gha-creds-*.json
 scripts/*.excalidraw:Zone.Identifier

@@ -3,7 +3,7 @@
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
             <flux:heading size="xl" level="1">Mis Métricas</flux:heading>
-            <flux:subheading>{{ $date->locale('es')->translatedFormat('l d F Y') }}</flux:subheading>
+            <flux:subheading>{{ $currentDate->locale('es')->translatedFormat('l d F Y') }}</flux:subheading>
         </div>
         <div class="flex items-center gap-2">
             <flux:button wire:click="previousDay" icon="chevron-left" size="sm" variant="subtle" />

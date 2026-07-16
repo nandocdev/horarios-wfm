@@ -113,7 +113,7 @@ class MyMetrics extends Component
             'intradayEvents' => $intradayEvents,
             'shrinkage' => $shrinkage,
             'heroKpis' => $heroKpis,
-            'date' => $now,
+            'currentDate' => $now,
             'hasExceptions' => ($exceptions ?? 0) > 0,
         ])->layout('layouts.app', ['title' => 'Mis Métricas']);
     }

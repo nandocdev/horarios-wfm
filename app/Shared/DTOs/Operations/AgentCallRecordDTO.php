@@ -6,7 +6,7 @@ namespace App\Shared\DTOs\Operations;
 
 use Spatie\LaravelData\Data;
 
-final readonly class AgentCallRecordDTO extends Data
+final class AgentCallRecordDTO extends Data
 {
     public function __construct(
         public int $employee_id,

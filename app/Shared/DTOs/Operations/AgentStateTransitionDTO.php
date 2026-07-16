@@ -6,7 +6,7 @@ namespace App\Shared\DTOs\Operations;
 
 use Spatie\LaravelData\Data;
 
-final readonly class AgentStateTransitionDTO extends Data
+final class AgentStateTransitionDTO extends Data
 {
     public function __construct(
         public int $employee_id,

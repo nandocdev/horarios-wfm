@@ -55,9 +55,10 @@ interface TelemetryRealtimeRepositoryInterface
     public function getBatchStateTransitions(array $employeeIds, string $date): Collection;
 
     /**
+     * @param  int[]|null  $employeeIds
      * @return object{total: int, handled: int}
      */
-    public function getCallStatsForDate(string $date): object;
+    public function getCallStatsForDate(string $date, ?array $employeeIds = null): object;
 
     public function getAverageServiceLevel(): float;
 
@@ -77,9 +78,10 @@ interface TelemetryRealtimeRepositoryInterface
     public function getCurrentStateDistribution(array $employeeIds): array;
 
     /**
+     * @param  int[]|null  $employeeIds
      * @return Collection<int, object>
      */
-    public function getQueuePerformanceReport(string $date): Collection;
+    public function getQueuePerformanceReport(string $date, ?array $employeeIds = null): Collection;
 
     /**
      * @return Collection<string, object>

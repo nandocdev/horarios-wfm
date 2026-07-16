@@ -97,8 +97,9 @@ class MyDay extends Component
             $entryDiff = (int) $sched->diffInMinutes($real, false);
         }
 
-        // Calls
-        $callStats = $realtimeRepo->getCallStatsForDate($today);
+        // Calls (solo del usuario autenticado)
+        $empIds = [$targetEmployee->id];
+        $callStats = $realtimeRepo->getCallStatsForDate($today, $empIds);
         $totalCalls = (int) ($callStats->total ?? 0);
         $handledCalls = (int) ($callStats->handled ?? 0);
         $sla = $totalCalls > 0 ? round(($handledCalls / $totalCalls) * 100, 1) : 0;

@@ -123,14 +123,19 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
             ->get();
     }
 
-    public function getCallStatsForDate(string $date): object
+    public function getCallStatsForDate(string $date, ?array $employeeIds = null): object
     {
-        return CallRecord::whereNotNull('queue_id')
-            ->whereDate('ivr_started_at', $date)
-            ->select(
-                DB::raw('COUNT(*) as total'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled')
-            )
+        $query = CallRecord::whereNotNull('queue_id')
+            ->whereDate('ivr_started_at', $date);
+
+        if ($employeeIds !== null) {
+            $query->whereIn('employee_id', $employeeIds);
+        }
+
+        return $query->select(
+            DB::raw('COUNT(*) as total'),
+            DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled')
+        )
             ->first() ?? (object) ['total' => 0, 'handled' => 0];
     }
 
@@ -183,21 +188,26 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
         ];
     }
 
-    public function getQueuePerformanceReport(string $date): Collection
+    public function getQueuePerformanceReport(string $date, ?array $employeeIds = null): Collection
     {
-        return CallRecord::join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
-            ->whereDate('ivr_started_at', $date)
-            ->select(
-                'call_queues.name as queue_name',
-                'call_queues.aht_goal',
-                DB::raw('COUNT(*) as total_offered'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned'),
-                DB::raw('AVG(talk_time + work_time) as avg_aht'),
-                DB::raw('AVG(queue_time) as avg_asa'),
-                DB::raw('MAX(queue_time) as max_wait'),
-                DB::raw('SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sl_count'),
-            )
+        $query = CallRecord::join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
+            ->whereDate('ivr_started_at', $date);
+
+        if ($employeeIds !== null) {
+            $query->whereIn('call_records.employee_id', $employeeIds);
+        }
+
+        return $query->select(
+            'call_queues.name as queue_name',
+            'call_queues.aht_goal',
+            DB::raw('COUNT(*) as total_offered'),
+            DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
+            DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned'),
+            DB::raw('AVG(talk_time + work_time) as avg_aht'),
+            DB::raw('AVG(queue_time) as avg_asa'),
+            DB::raw('MAX(queue_time) as max_wait'),
+            DB::raw('SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sl_count'),
+        )
             ->groupBy('call_queues.id', 'call_queues.name', 'call_queues.aht_goal')
             ->orderBy('total_offered', 'desc')
             ->get();

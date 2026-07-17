@@ -6,7 +6,8 @@ namespace App\Modules\ConnectModule\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CsqRealtimeStat extends Model {
+class CsqRealtimeStat extends Model
+{
     protected $table = 'csq_realtime_stats';
 
     protected $fillable = [

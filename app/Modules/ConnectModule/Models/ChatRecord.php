@@ -8,7 +8,8 @@ use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ChatRecord extends Model {
+class ChatRecord extends Model
+{
     protected $fillable = [
         'conversation_id',
         'agent_login_id',
@@ -35,7 +36,8 @@ class ChatRecord extends Model {
         'employee_id' => 'integer',
     ];
 
-    public function employee(): BelongsTo {
+    public function employee(): BelongsTo
+    {
         return $this->belongsTo(Employee::class);
     }
 }

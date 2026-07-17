@@ -14,13 +14,14 @@ use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
-final class GetEmployeePerformanceAction {
+final class GetEmployeePerformanceAction
+{
     public function __construct(
         private readonly AgentPerformanceRepositoryInterface $performanceRepo,
-    ) {
-    }
+    ) {}
 
-    public function execute(EmployeeInterface $employee, Carbon $date): EmployeePerformanceDTO {
+    public function execute(EmployeeInterface $employee, Carbon $date): EmployeePerformanceDTO
+    {
         // 1. Obtener Programación
         $schedule = $this->getSchedule($employee, $date);
 
@@ -28,7 +29,7 @@ final class GetEmployeePerformanceAction {
         $transitions = $this->getTransitions($employee, $date);
         $callRecords = $this->getRawCallRecords($employee, $date);
 
-        if ($transitions->isEmpty() && $callRecords->isEmpty() && !$schedule) {
+        if ($transitions->isEmpty() && $callRecords->isEmpty() && ! $schedule) {
             return EmployeePerformanceDTO::empty($date->toDateString());
         }
 
@@ -70,11 +71,13 @@ final class GetEmployeePerformanceAction {
         );
     }
 
-    private function getRawCallRecords(EmployeeInterface $employee, Carbon $date): Collection {
+    private function getRawCallRecords(EmployeeInterface $employee, Carbon $date): Collection
+    {
         return $this->performanceRepo->getCallRecords($employee->getId(), $date);
     }
 
-    private function getSchedule(EmployeeInterface $employee, Carbon $date): ?WeeklyScheduleAssignment {
+    private function getSchedule(EmployeeInterface $employee, Carbon $date): ?WeeklyScheduleAssignment
+    {
         $schedule = WeeklyScheduleAssignment::query()
             ->where('employee_id', $employee->getId())
             ->whereHas('weeklySchedule', function ($q) use ($date) {
@@ -87,7 +90,8 @@ final class GetEmployeePerformanceAction {
         return $schedule;
     }
 
-    private function getTransitions(EmployeeInterface $employee, Carbon $date): Collection {
+    private function getTransitions(EmployeeInterface $employee, Carbon $date): Collection
+    {
         $transitions = $this->performanceRepo->getStateTransitions($employee->getId(), $date);
 
         // Si es el día de hoy, ajustamos la duración de la última transición (si está en curso)
@@ -111,7 +115,8 @@ final class GetEmployeePerformanceAction {
         return $transitions;
     }
 
-    private function getException(EmployeeInterface $employee, Carbon $date): ?ScheduleException {
+    private function getException(EmployeeInterface $employee, Carbon $date): ?ScheduleException
+    {
         return ScheduleException::query()
             ->with('reason')
             ->where('employee_id', $employee->getId())
@@ -122,9 +127,10 @@ final class GetEmployeePerformanceAction {
             ->first();
     }
 
-    private function calculateAttendance(?WeeklyScheduleAssignment $schedule, Collection $transitions, Collection $calls, ?ScheduleException $exception = null): array {
+    private function calculateAttendance(?WeeklyScheduleAssignment $schedule, Collection $transitions, Collection $calls, ?ScheduleException $exception = null): array
+    {
         // Entrada real: El primer estado que NO sea Logout y que tenga al menos 10 segundos de duración
-        $firstValidTransition = $transitions->first(fn($t) => $t->agent_state !== 'Logout' && $t->duration > 10);
+        $firstValidTransition = $transitions->first(fn ($t) => $t->agent_state !== 'Logout' && $t->duration > 10);
         $actualEntry = $firstValidTransition ? $firstValidTransition->transition_time : null;
 
         $scheduledEntry = $schedule?->start_time;
@@ -140,7 +146,7 @@ final class GetEmployeePerformanceAction {
 
             $status = MetricFormulas::checkLate($scheduledDateTime, $actualEntryTime) ? 'tardanza' : 'a_tiempo';
             $diff = (int) $scheduledDateTime->diffInMinutes($actualEntryTime, false);
-        } elseif ($scheduledEntry && !$actualEntry) {
+        } elseif ($scheduledEntry && ! $actualEntry) {
             $status = $exception ? 'excepción' : 'ausente';
         }
 
@@ -155,7 +161,8 @@ final class GetEmployeePerformanceAction {
         ];
     }
 
-    private function calculateStateAdherence(Collection $transitions, ?WeeklyScheduleAssignment $schedule, string $type): array {
+    private function calculateStateAdherence(Collection $transitions, ?WeeklyScheduleAssignment $schedule, string $type): array
+    {
         $keywords = $type === 'lunch' ? ['almuerzo', 'lunch', 'comida'] : ['break', 'descanso', 'pausa'];
         $scheduledDuration = $type === 'lunch' ? ($schedule?->lunch_minutes ?? 45) : ($schedule?->break_minutes ?? 15);
 
@@ -184,10 +191,10 @@ final class GetEmployeePerformanceAction {
 
         // Fallback dinámico por duración (Solo si no hay motivos detectados)
         if ($actualSeconds === 0) {
-            $fallback = $transitions->filter(fn($t) => in_array($t->agent_state, ['Not Ready', 'Auxiliary']));
+            $fallback = $transitions->filter(fn ($t) => in_array($t->agent_state, ['Not Ready', 'Auxiliary']));
             if ($type === 'lunch') {
                 // Almuerzo: Bloque continuo más largo entre 30 y 90 minutos
-                $target = $fallback->filter(fn($t) => $t->duration >= 1800 && $t->duration <= 5400)
+                $target = $fallback->filter(fn ($t) => $t->duration >= 1800 && $t->duration <= 5400)
                     ->sortByDesc('duration')
                     ->first();
                 if ($target) {
@@ -196,8 +203,8 @@ final class GetEmployeePerformanceAction {
                 }
             } else {
                 // Break: Bloques entre 5 y 25 minutos
-                $actualSeconds = $fallback->filter(fn($t) => $t->duration >= 300 && $t->duration <= 1500)->sum('duration');
-                $match = $fallback->filter(fn($t) => $t->duration >= 300 && $t->duration <= 1500)->first();
+                $actualSeconds = $fallback->filter(fn ($t) => $t->duration >= 300 && $t->duration <= 1500)->sum('duration');
+                $match = $fallback->filter(fn ($t) => $t->duration >= 300 && $t->duration <= 1500)->first();
             }
         }
 
@@ -208,19 +215,21 @@ final class GetEmployeePerformanceAction {
         ];
     }
 
-    private function calculateTimeByReason(Collection $transitions): array {
-        return $transitions->filter(fn($t) => $t->agent_state === 'Not Ready')
-            ->groupBy(fn($t) => $t->reason_code ?: '')
-            ->map(fn($group) => [
+    private function calculateTimeByReason(Collection $transitions): array
+    {
+        return $transitions->filter(fn ($t) => $t->agent_state === 'Not Ready')
+            ->groupBy(fn ($t) => $t->reason_code ?: '')
+            ->map(fn ($group) => [
                 'minutes' => round($group->sum('duration') / 60, 1),
                 'count' => $group->count(),
             ])
             ->toArray();
     }
 
-    private function calculateTimeByActivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?string $actualEntry, ?WeeklyScheduleAssignment $schedule): array {
+    private function calculateTimeByActivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?string $actualEntry, ?WeeklyScheduleAssignment $schedule): array
+    {
         $activities = $transitions->groupBy('agent_state')
-            ->map(fn($group) => round($group->sum('duration') / 60, 1))
+            ->map(fn ($group) => round($group->sum('duration') / 60, 1))
             ->toArray();
 
         $totalConnectedMinutes = round($transitions->sum('duration') / 60, 1);
@@ -261,10 +270,11 @@ final class GetEmployeePerformanceAction {
         return $activities;
     }
 
-    private function calculateProductivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?WeeklyScheduleAssignment $schedule): array {
+    private function calculateProductivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?WeeklyScheduleAssignment $schedule): array
+    {
         $productiveStates = ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'];
         $totalConnectedSeconds = $transitions->sum('duration');
-        $productiveSeconds = $transitions->filter(fn($t) => in_array(strtoupper(trim((string) $t->agent_state)), $productiveStates))
+        $productiveSeconds = $transitions->filter(fn ($t) => in_array(strtoupper(trim((string) $t->agent_state)), $productiveStates))
             ->sum('duration');
 
         $connectedMinutes = round($totalConnectedSeconds / 60, 1);
@@ -296,9 +306,10 @@ final class GetEmployeePerformanceAction {
         ];
     }
 
-    private function getCallVolumeSummary(Collection $calls): array {
+    private function getCallVolumeSummary(Collection $calls): array
+    {
         return $calls->groupBy('csq_name')
-            ->map(fn($group) => [
+            ->map(fn ($group) => [
                 'total_calls' => $group->count(),
                 'avg_handle_time' => MetricFormulas::aht(
                     (float) $group->sum('talk_time'),

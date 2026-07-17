@@ -14,7 +14,8 @@ use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Carbon\Carbon;
 use Livewire\Component;
 
-class DailyReport extends Component {
+class DailyReport extends Component
+{
     public string $view = 'operator';
 
     public string $date;
@@ -23,19 +24,23 @@ class DailyReport extends Component {
 
     public bool $showDetails = false;
 
-    public function mount(): void {
+    public function mount(): void
+    {
         $this->date = now()->toDateString();
     }
 
-    public function switchView(string $view): void {
+    public function switchView(string $view): void
+    {
         $this->view = $view;
     }
 
-    public function previousDay(): void {
+    public function previousDay(): void
+    {
         $this->date = Carbon::parse($this->date)->subDay()->toDateString();
     }
 
-    public function nextDay(): void {
+    public function nextDay(): void
+    {
         $this->date = Carbon::parse($this->date)->addDay()->toDateString();
     }
 
@@ -80,13 +85,13 @@ class DailyReport extends Component {
                 );
             }
 
-            $tempEmployees = !empty($tempEmployeeIds)
+            $tempEmployees = ! empty($tempEmployeeIds)
                 ? Employee::with('team', 'position')->whereIn('id', array_unique($tempEmployeeIds))->get()
                 : collect();
 
             $employees = $teamEmployees->concat($tempEmployees)->unique('id')->values();
 
-            $data = $employees->map(fn($e) => $this->buildOperatorData(
+            $data = $employees->map(fn ($e) => $this->buildOperatorData(
                 $e, $now, $realtimeRepo, $scheduleQueries
             ))->filter()->values();
         } else {
@@ -113,7 +118,7 @@ class DailyReport extends Component {
         $assignments = WeeklyScheduleAssignment::with('schedule')
             ->where('employee_id', $employee->id)
             ->where('day_of_week', $dayOfWeek)
-            ->whereHas('weeklySchedule', fn($q) => $q
+            ->whereHas('weeklySchedule', fn ($q) => $q
                 ->where('week_start_date', '<=', $today)
                 ->where('week_end_date', '>=', $today)
             )
@@ -139,8 +144,8 @@ class DailyReport extends Component {
 
         // 3. Transitions hoy (para calcular tiempo acumulado por estado)
         $transitions = $realtimeRepo->getBatchStateTransitions([$employee->id], $today);
-        $timeByState = $transitions->groupBy(fn($t) => strtoupper(trim($t->agent_state)))
-            ->map(fn($group) => $group->sum('duration'));
+        $timeByState = $transitions->groupBy(fn ($t) => strtoupper(trim($t->agent_state)))
+            ->map(fn ($group) => $group->sum('duration'));
 
         $loggedInSeconds = $timeByState->sum();
 

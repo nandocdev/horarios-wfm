@@ -7,38 +7,44 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class WebexService {
+class WebexService
+{
     protected string $token;
 
     protected string $roomId;
 
     protected string $apiUrl;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->token = config('services.webex.bot_token', '');
         $this->roomId = config('services.webex.room_id', '');
         $this->apiUrl = 'https://webexapis.com/v1/messages';
     }
 
-    public function sendText(string $message, ?string $roomId = null): ?array {
+    public function sendText(string $message, ?string $roomId = null): ?array
+    {
         return $this->send([
             'roomId' => $roomId ?? $this->roomId,
             'text' => $message,
         ]);
     }
 
-    public function sendMarkdown(string $markdown, ?string $roomId = null): ?array {
+    public function sendMarkdown(string $markdown, ?string $roomId = null): ?array
+    {
         return $this->send([
             'roomId' => $roomId ?? $this->roomId,
             'markdown' => $markdown,
         ]);
     }
 
-    public function sendToAll(string $message, ?string $roomId = null): ?array {
+    public function sendToAll(string $message, ?string $roomId = null): ?array
+    {
         return $this->sendMarkdown("**<@all>** {$message}", $roomId);
     }
 
-    private function send(array $payload): ?array {
+    private function send(array $payload): ?array
+    {
         if (empty($this->token) || empty($this->roomId)) {
             Log::warning('WebexService: Token o Room ID no configurados.');
 
@@ -47,7 +53,7 @@ class WebexService {
 
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->token,
+                'Authorization' => 'Bearer '.$this->token,
                 'Content-Type' => 'application/json',
             ])->post($this->apiUrl, $payload);
 

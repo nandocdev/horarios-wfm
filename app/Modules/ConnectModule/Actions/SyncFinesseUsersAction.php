@@ -14,20 +14,21 @@ use Illuminate\Support\Facades\Log;
  * Utiliza loginId/loginName de Cisco como llave para buscar el 'username' local.
  * Actualiza first_name y last_name con los valores oficiales de Cisco.
  */
-final class SyncFinesseUsersAction {
+final class SyncFinesseUsersAction
+{
     public function __construct(
         private readonly FinesseService $finesse
-    ) {
-    }
+    ) {}
 
-    public function execute(): array {
+    public function execute(): array
+    {
         $finesseUsers = $this->finesse->getUsers();
         $stats = ['updated' => 0, 'skipped' => 0, 'not_found' => 0];
 
         foreach ($finesseUsers as $userData) {
             $loginId = $userData['loginId'] ?? $userData['loginName'] ?? null;
 
-            if (!$loginId) {
+            if (! $loginId) {
                 $stats['skipped']++;
 
                 continue;
@@ -35,7 +36,7 @@ final class SyncFinesseUsersAction {
 
             $employee = Employee::where('username', strtolower((string) $loginId))->first();
 
-            if (!$employee) {
+            if (! $employee) {
                 $stats['not_found']++;
 
                 continue;

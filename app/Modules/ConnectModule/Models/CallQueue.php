@@ -7,7 +7,8 @@ namespace App\Modules\ConnectModule\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class CallQueue extends Model {
+class CallQueue extends Model
+{
     protected $table = 'call_queues';
 
     protected $fillable = [
@@ -21,19 +22,23 @@ class CallQueue extends Model {
         'is_active' => 'boolean',
     ];
 
-    public function subtypes(): HasMany {
+    public function subtypes(): HasMany
+    {
         return $this->hasMany(CaseSubtype::class, 'queue_id', 'id');
     }
 
-    public function channel() {
+    public function channel()
+    {
         return $this->belongsTo(Channel::class, 'channel_id', 'id');
     }
 
-    public function scopeActive($query) {
+    public function scopeActive($query)
+    {
         return $query->where('is_active', true);
     }
 
-    public static function activeNames(): array {
+    public static function activeNames(): array
+    {
         return self::active()->orderBy('name')->pluck('name')->toArray();
     }
 }

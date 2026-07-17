@@ -7,8 +7,10 @@ namespace App\Modules\ConnectModule\Actions;
 use App\Modules\ConnectModule\Models\CallQueue;
 use Illuminate\Support\Facades\DB;
 
-final class DeleteCallQueueAction {
-    public function execute(CallQueue $queue): void {
+final class DeleteCallQueueAction
+{
+    public function execute(CallQueue $queue): void
+    {
         DB::transaction(function () use ($queue) {
             if ($queue->subtypes()->exists()) {
                 throw new \LogicException('No se puede eliminar una cola con tipos de consulta asociados.');

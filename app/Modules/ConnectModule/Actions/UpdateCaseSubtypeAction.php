@@ -8,8 +8,10 @@ use App\Modules\ConnectModule\DTOs\CaseSubtypeDTO;
 use App\Modules\ConnectModule\Models\CaseSubtype;
 use Illuminate\Support\Facades\DB;
 
-final class UpdateCaseSubtypeAction {
-    public function execute(CaseSubtype $subtype, CaseSubtypeDTO $dto): CaseSubtype {
+final class UpdateCaseSubtypeAction
+{
+    public function execute(CaseSubtype $subtype, CaseSubtypeDTO $dto): CaseSubtype
+    {
         return DB::transaction(function () use ($subtype, $dto) {
             $subtype->update([
                 'queue_id' => $dto->queueId,

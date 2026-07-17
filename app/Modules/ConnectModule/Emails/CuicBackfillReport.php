@@ -8,7 +8,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class CuicBackfillReport extends Mailable {
+class CuicBackfillReport extends Mailable
+{
     use Queueable, SerializesModels;
 
     /**
@@ -17,10 +18,10 @@ class CuicBackfillReport extends Mailable {
     public function __construct(
         public string $date,
         public array $stats
-    ) {
-    }
+    ) {}
 
-    public function build(): self {
+    public function build(): self
+    {
         return $this->subject("Reporte de Backfill CUIC - {$this->date}")
             ->view('connect::emails.backfill-report');
     }

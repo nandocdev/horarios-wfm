@@ -8,14 +8,16 @@ use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
 
-class MenuDataService {
+class MenuDataService
+{
     /**
      * Centraliza las consultas necesarias para los badges del menú.
      *
      * @return array<string, int>
      */
-    public function getCounts(?User $user): array {
-        if (!$user) {
+    public function getCounts(?User $user): array
+    {
+        if (! $user) {
             return $this->empty();
         }
 
@@ -33,7 +35,7 @@ class MenuDataService {
         $pendingLeaves = 0;
         $pendingSwaps = 0;
 
-        if (!empty($managedIds)) {
+        if (! empty($managedIds)) {
             $pendingLeaves = LeaveRequest::whereIn('employee_id', $managedIds)
                 ->where('status', 'pending')
                 ->count();
@@ -56,7 +58,8 @@ class MenuDataService {
         ];
     }
 
-    private function empty(): array {
+    private function empty(): array
+    {
         return [
             'pending_leaves' => 0,
             'pending_swaps' => 0,

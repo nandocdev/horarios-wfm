@@ -13,26 +13,30 @@ use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
-class Dashboard extends Component {
+class Dashboard extends Component
+{
     public string $selectedDate;
 
     public string $scope = 'all';
 
     public int $refreshInterval = 60;
 
-    protected function getCurrentUser() {
+    protected function getCurrentUser()
+    {
         return auth()->user();
     }
 
-    protected function getEmployee() {
+    protected function getEmployee()
+    {
         return $this->getCurrentUser()?->employee;
     }
 
-    protected function resolveEmployeeIds(): array {
+    protected function resolveEmployeeIds(): array
+    {
         $employee = $this->getEmployee();
         $user = $this->getCurrentUser();
 
-        if (!$employee) {
+        if (! $employee) {
             return [];
         }
 
@@ -65,7 +69,8 @@ class Dashboard extends Component {
         return [$employee->id];
     }
 
-    public function mount(): void {
+    public function mount(): void
+    {
         $this->selectedDate = now()->toDateString();
     }
 
@@ -98,8 +103,8 @@ class Dashboard extends Component {
 
         $currentWeek = $scheduleQueries->getCurrentWeek($today);
         $weekRange = $currentWeek
-            ? $currentWeek->week_start_date->format('d M') . ' - ' . $currentWeek->week_end_date->format('d M')
-            : $now->startOfWeek()->format('d M') . ' - ' . $now->endOfWeek()->format('d M');
+            ? $currentWeek->week_start_date->format('d M').' - '.$currentWeek->week_end_date->format('d M')
+            : $now->startOfWeek()->format('d M').' - '.$now->endOfWeek()->format('d M');
 
         $scheduledToday = $scheduleQueries->getScheduledCount(null, $today, $now->dayOfWeekIso);
 
@@ -125,8 +130,8 @@ class Dashboard extends Component {
 
         $incidentQuery = AttendanceIncident::query();
         $incidents = [
-            ['label' => 'Tardanzas', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn($q) => $q->where('code', 'LATE'))->count()],
-            ['label' => 'Ausencias', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn($q) => $q->where('code', 'ABSENT'))->count()],
+            ['label' => 'Tardanzas', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn ($q) => $q->where('code', 'LATE'))->count()],
+            ['label' => 'Ausencias', 'value' => (clone $incidentQuery)->whereDate('incident_date', $today)->whereHas('type', fn ($q) => $q->where('code', 'ABSENT'))->count()],
             ['label' => 'Incapacidades', 'value' => $exceptionsToday],
             ['label' => 'Vacaciones', 'value' => $leaveCounts['approved']],
             ['label' => 'Cambios turno', 'value' => $states->where('current_state', 'SWAP')->count()],
@@ -144,7 +149,7 @@ class Dashboard extends Component {
         ];
 
         $teams = Team::withCount([
-            'employees' => fn($q) => $q->where('is_active', true),
+            'employees' => fn ($q) => $q->where('is_active', true),
         ])->get()->map(function ($team) use ($now, $today) {
             $teamIds = [$team->id];
             $teamEmployeeIds = Employee::whereIn('team_id', $teamIds)->pluck('id');
@@ -185,14 +190,14 @@ class Dashboard extends Component {
             $today,
         );
         $maxCalls = $dailyCalls->max() ?: 1;
-        $callSparkline = $dailyCalls->map(fn($c) => max(1, round(($c / $maxCalls) * 8)))->values();
+        $callSparkline = $dailyCalls->map(fn ($c) => max(1, round(($c / $maxCalls) * 8)))->values();
 
         $dailyAbsences = $scheduleQueries->getAbsenceTrends(
             $now->copy()->subDays(6)->toDateString(),
             $today,
         );
         $maxAbsences = $dailyAbsences->max() ?: 1;
-        $absenceSparkline = $dailyAbsences->map(fn($a) => max(1, round(($a / $maxAbsences) * 8)))->values();
+        $absenceSparkline = $dailyAbsences->map(fn ($a) => max(1, round(($a / $maxAbsences) * 8)))->values();
 
         $trends = [
             ['label' => 'Ausentismo', 'data' => $absenceSparkline->toArray()],
@@ -217,8 +222,8 @@ class Dashboard extends Component {
         });
 
         $nextRisk = $coverageSeries->sortBy('available')->first();
-        $nextRiskTime = $nextRisk ? $nextRisk['hour'] . ':00' : '--:--';
-        $nextRiskCoverage = $nextRisk ? $nextRisk['available'] . '%' : '--%';
+        $nextRiskTime = $nextRisk ? $nextRisk['hour'].':00' : '--:--';
+        $nextRiskCoverage = $nextRisk ? $nextRisk['available'].'%' : '--%';
 
         $stateDistribution = $realtimeRepo->getStateDistribution($employeeIds);
         $distribution = [
@@ -245,7 +250,7 @@ class Dashboard extends Component {
             'kpis' => [
                 ['label' => 'Personal Programado', 'value' => (string) $scheduledToday, 'hint' => ''],
                 ['label' => 'Conectados', 'value' => (string) $connected, 'hint' => "{$connectedPct}%"],
-                ['label' => 'Ausentes', 'value' => (string) $exceptionsToday, 'hint' => $totalStates > 0 ? round(($exceptionsToday / max($totalStates, 1)) * 100, 1) . '%' : '0%'],
+                ['label' => 'Ausentes', 'value' => (string) $exceptionsToday, 'hint' => $totalStates > 0 ? round(($exceptionsToday / max($totalStates, 1)) * 100, 1).'%' : '0%'],
                 ['label' => 'Permisos hoy', 'value' => (string) ($leaveCounts['approved'] + $leaveCounts['pending']), 'hint' => "{$leaveCounts['approved']} aprobados · {$leaveCounts['pending']} pendientes"],
                 ['label' => 'Actividades intradía', 'value' => (string) $intradayToday, 'hint' => "{$intradayActive} en ejecución"],
                 ['label' => 'Cobertura', 'value' => "{$coverage}%", 'hint' => "Objetivo {$coverageGoal}%"],

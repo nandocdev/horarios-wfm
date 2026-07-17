@@ -3,8 +3,8 @@
 set -e
 
 SRC="/home/ferncastillo/Proyectos/php/horarios-wfm/"
-#DEST="ferncastillo@10.19.15.240:/var/www/wfm-scheduler/"
-DEST="ferncastillo@10.19.14.31:/var/www/opsis/"
+DEST="ferncastillo@10.19.15.240:/var/www/wfm-scheduler/"
+# DEST="ferncastillo@10.19.14.31:/var/www/opsis/"
 
 # Validar que estamos en la rama develop
 cd "$SRC"

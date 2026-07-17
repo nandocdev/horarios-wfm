@@ -96,7 +96,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->foreignId('activity_type_id')->constrained('activity_types');
-            $table->foreignId('approved_period_id')->nullable()->after('activity_type_id')->constrained('approved_intraday_periods')->nullOnDelete();
+            $table->unsignedBigInteger('approved_period_id')->nullable()->after('activity_type_id');
             $table->text('notes')->nullable();
             $table->index('approved_period_id');
             $table->timestampsTz();
@@ -138,15 +138,15 @@ return new class extends Migration
             });
         }
 
-        // Columns for swap traceability (added after initial creation)
+        // Columns for swap traceability (no FK constraint - shift_swap_requests created in later migration)
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement('ALTER TABLE weekly_schedule_assignments ADD COLUMN swap_request_id BIGINT NULL REFERENCES shift_swap_requests(id) ON DELETE SET NULL');
+            DB::statement('ALTER TABLE weekly_schedule_assignments ADD COLUMN swap_request_id BIGINT NULL');
             DB::statement('ALTER TABLE weekly_schedule_assignments ADD COLUMN is_replaced BOOLEAN NOT NULL DEFAULT false');
             DB::statement('ALTER TABLE weekly_schedule_assignments ADD COLUMN replaced_at TIMESTAMPTZ NULL');
             DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS ws_assignments_active_unique ON weekly_schedule_assignments (weekly_schedule_id, employee_id, day_of_week) WHERE (is_replaced = false)');
         } else {
             Schema::table('weekly_schedule_assignments', function (Blueprint $table) {
-                $table->foreignId('swap_request_id')->nullable()->constrained('shift_swap_requests')->nullOnDelete();
+                $table->unsignedBigInteger('swap_request_id')->nullable();
                 $table->boolean('is_replaced')->default(false);
                 $table->timestampTz('replaced_at')->nullable();
             });
@@ -168,7 +168,7 @@ return new class extends Migration
             DB::statement('DROP INDEX IF EXISTS ws_assignments_active_unique');
         }
         Schema::table('weekly_schedule_assignments', function (Blueprint $table) {
-            $table->dropIndex(['weekly_schedule_id', 'employee_id', 'day_of_week']);
+            $table->dropIndex('idx_weekly_schedule_assignments_lookup');
             $table->dropColumn(['swap_request_id', 'is_replaced', 'replaced_at']);
         });
 

@@ -97,8 +97,9 @@ If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is 
 
 Available across `.agents/skills/`, `.claude/skills/`, and `.ai/skills/`:
 ```
-fluxui-development    livewire-development    pest-testing
-fortify-development   laravel-best-practices  tailwindcss-development
-configure-horizon     pulse-development       echo-development
+fluxui-development        livewire-development         pest-testing
+fortify-development       laravel-best-practices       tailwindcss-development
+configure-horizon         pulse-development            echo-development
 medialibrary-development  laravel-permission-development  deploying-laravel-cloud
+laravel-developer         software-architect           ui-engineer
 ```

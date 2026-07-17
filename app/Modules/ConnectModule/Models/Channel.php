@@ -7,8 +7,7 @@ namespace App\Modules\ConnectModule\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Channel extends Model
-{
+class Channel extends Model {
     protected $table = 'channels';
 
     public $incrementing = false;
@@ -26,18 +25,15 @@ class Channel extends Model
         'is_active' => 'boolean',
     ];
 
-    public function queues()
-    {
+    public function queues() {
         return $this->hasMany(CallQueue::class, 'channel_id', 'id');
     }
 
-    public function scopeActive($query)
-    {
+    public function scopeActive($query) {
         return $query->where('is_active', true);
     }
 
-    protected static function booted(): void
-    {
+    protected static function booted(): void {
         static::creating(function (Channel $channel) {
             if (empty($channel->id)) {
                 $channel->id = (string) Str::ulid();

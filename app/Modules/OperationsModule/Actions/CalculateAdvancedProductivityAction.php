@@ -11,16 +11,15 @@ use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use Carbon\CarbonInterface;
 
-final class CalculateAdvancedProductivityAction
-{
+final class CalculateAdvancedProductivityAction {
     public function __construct(
         private readonly AgentPerformanceRepositoryInterface $performanceRepo,
         private readonly TelemetryServiceInterface $telemetryService,
         private readonly TelemetryRealtimeRepositoryInterface $realtimeRepo,
-    ) {}
+    ) {
+    }
 
-    public function execute(EmployeeInterface $employee, CarbonInterface $date): AgentDailyMetric
-    {
+    public function execute(EmployeeInterface $employee, CarbonInterface $date): AgentDailyMetric {
         // 1. Obtener datos de llamadas
         $calls = $this->performanceRepo->getCallRecords($employee->getId(), $date);
 
@@ -53,9 +52,9 @@ final class CalculateAdvancedProductivityAction
         // 3. Obtener Tiempos de Telemetría (Capa 2)
         $transitions = $this->telemetryService->getStateTransitions($employee->getId(), $date->copy()->startOfDay(), $date->copy()->endOfDay());
 
-        $loginSeconds = (int) $transitions->sum(fn ($t) => $t->metadata['duration'] ?? 0);
-        $productiveSeconds = (int) $transitions->filter(fn ($t) => $t->metadata['is_productive'] ?? false)
-            ->sum(fn ($t) => $t->metadata['duration'] ?? 0);
+        $loginSeconds = (int) $transitions->sum(fn($t) => $t->metadata['duration'] ?? 0);
+        $productiveSeconds = (int) $transitions->filter(fn($t) => $t->metadata['is_productive'] ?? false)
+            ->sum(fn($t) => $t->metadata['duration'] ?? 0);
 
         // 4. Capacidad Teórica (Capa 3)
         $capacityCalls = 0;

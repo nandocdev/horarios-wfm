@@ -15,17 +15,16 @@ use Carbon\CarbonInterface;
 /**
  * Acción para calcular la adherencia real e histórica cruzando cronogramas vs telemetría.
  */
-final class CalculateRealAdherenceAction
-{
+final class CalculateRealAdherenceAction {
     public function __construct(
         private readonly ScheduleServiceInterface $scheduleService
-    ) {}
+    ) {
+    }
 
     /**
      * Calcula la adherencia para un empleado en un rango de fechas.
      */
-    public function execute(EmployeeInterface $employee, CarbonInterface $startDate, ?CarbonInterface $endDate = null): array
-    {
+    public function execute(EmployeeInterface $employee, CarbonInterface $startDate, ?CarbonInterface $endDate = null): array {
         $endDate = $endDate ?? $startDate;
         $current = $startDate->copy();
 
@@ -59,8 +58,7 @@ final class CalculateRealAdherenceAction
     /**
      * Calcula la adherencia para un grupo de empleados en una fecha.
      */
-    public function executeBatch(array $employees, CarbonInterface $date): array
-    {
+    public function executeBatch(array $employees, CarbonInterface $date): array {
         $totalScheduled = 0;
         $totalAdherent = 0;
 
@@ -80,8 +78,7 @@ final class CalculateRealAdherenceAction
     /**
      * Lógica central de cálculo por día.
      */
-    private function calculateForDay(EmployeeInterface|int $employee, CarbonInterface $date): array
-    {
+    private function calculateForDay(EmployeeInterface|int $employee, CarbonInterface $date): array {
         // Normalizar ID del empleado
         $employeeId = is_numeric($employee) ? (int) $employee : $employee->id;
 
@@ -128,12 +125,11 @@ final class CalculateRealAdherenceAction
     /**
      * Construye los segmentos de tiempo esperados, manejando prioridades (Exception > Intraday > Shift).
      */
-    private function getExpectedTimeline(int $employeeId, CarbonInterface $date, CarbonInterface $limitTime): array
-    {
+    private function getExpectedTimeline(int $employeeId, CarbonInterface $date, CarbonInterface $limitTime): array {
         $dayInfo = $this->scheduleService->getScheduleForEmployee($employeeId, $date);
         $segments = [];
 
-        if ($dayInfo->is_off || ! $dayInfo->start_time) {
+        if ($dayInfo->is_off || !$dayInfo->start_time) {
             return [];
         }
 
@@ -196,14 +192,13 @@ final class CalculateRealAdherenceAction
     /**
      * Aplica lógica de capas para que los segmentos de mayor prioridad sobrescriban a los de menor.
      */
-    private function flattenSegments(array $segments): array
-    {
+    private function flattenSegments(array $segments): array {
         if (empty($segments)) {
             return [];
         }
 
         // Ordenar por inicio y luego por prioridad
-        usort($segments, fn ($a, $b) => $a['start'] <=> $b['start'] ?: $b['priority'] <=> $a['priority']);
+        usort($segments, fn($a, $b) => $a['start'] <=> $b['start'] ?: $b['priority'] <=> $a['priority']);
 
         $flattened = [];
         // Esta es una simplificación. Un algoritmo robusto de "interval tree" o "time slicing" es ideal.
@@ -226,7 +221,7 @@ final class CalculateRealAdherenceAction
             $best = null;
             foreach ($segments as $s) {
                 if ($s['start']->getTimestamp() <= $points[$i] && $s['end']->getTimestamp() >= $points[$i + 1]) {
-                    if (! $best || $s['priority'] > $best['priority']) {
+                    if (!$best || $s['priority'] > $best['priority']) {
                         $best = $s;
                     }
                 }
@@ -244,8 +239,7 @@ final class CalculateRealAdherenceAction
         return $flattened;
     }
 
-    private function getRealTimeline(int $employeeId, CarbonInterface $date): array
-    {
+    private function getRealTimeline(int $employeeId, CarbonInterface $date): array {
         $transitions = AgentStateTransition::where('employee_id', $employeeId)
             ->whereDate('transition_time', $date->toDateString())
             ->orderBy('transition_time')
@@ -291,8 +285,7 @@ final class CalculateRealAdherenceAction
     /**
      * Aplica lógica de capas para datos reales en caso de traslapes accidentales.
      */
-    private function flattenRealSegments(array $segments): array
-    {
+    private function flattenRealSegments(array $segments): array {
         if (empty($segments)) {
             return [];
         }
@@ -313,7 +306,7 @@ final class CalculateRealAdherenceAction
             $best = null;
             foreach ($segments as $s) {
                 if ($s['start']->getTimestamp() <= $tsStart && $s['end']->getTimestamp() >= $tsEnd) {
-                    if (! $best || $s['priority'] > $best['priority']) {
+                    if (!$best || $s['priority'] > $best['priority']) {
                         $best = $s;
                     }
                 }

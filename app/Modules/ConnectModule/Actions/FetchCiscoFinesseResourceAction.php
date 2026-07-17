@@ -9,18 +9,17 @@ use Illuminate\Http\Client\RequestException;
 use RuntimeException;
 use SimpleXMLElement;
 
-class FetchCiscoFinesseResourceAction
-{
+class FetchCiscoFinesseResourceAction {
     public function __construct(
         private readonly HttpFactory $http,
-    ) {}
+    ) {
+    }
 
     /**
      * @param  array<string, scalar|array<int, scalar>|null>  $query
      * @return array<string, mixed>
      */
-    public function execute(string $resource, array $query = []): array
-    {
+    public function execute(string $resource, array $query = []): array {
         $baseUrl = rtrim((string) config('contact-center.cisco.base_url', ''), '/');
         $username = (string) config('contact-center.cisco.username', '');
         $password = (string) config('contact-center.cisco.password', '');
@@ -31,7 +30,7 @@ class FetchCiscoFinesseResourceAction
             throw new RuntimeException('La configuración de Cisco Finesse está incompleta.');
         }
 
-        $endpoint = $baseUrl.'/'.ltrim($resource, '/');
+        $endpoint = $baseUrl . '/' . ltrim($resource, '/');
 
         $response = $this->http
             ->accept('application/xml')
@@ -72,20 +71,19 @@ class FetchCiscoFinesseResourceAction
     /**
      * @return array<string, mixed>
      */
-    private function parseXml(string $body): array
-    {
+    private function parseXml(string $body): array {
         libxml_use_internal_errors(true);
 
         $xml = simplexml_load_string($body, SimpleXMLElement::class, LIBXML_NONET | LIBXML_NOCDATA);
 
-        if (! $xml instanceof SimpleXMLElement) {
+        if (!$xml instanceof SimpleXMLElement) {
             $errors = array_map(
-                static fn ($error) => trim($error->message),
+                static fn($error) => trim($error->message),
                 libxml_get_errors(),
             );
             libxml_clear_errors();
 
-            throw new RuntimeException('No fue posible interpretar la respuesta XML de Cisco Finesse: '.implode(' | ', $errors));
+            throw new RuntimeException('No fue posible interpretar la respuesta XML de Cisco Finesse: ' . implode(' | ', $errors));
         }
 
         libxml_clear_errors();
@@ -100,8 +98,7 @@ class FetchCiscoFinesseResourceAction
     /**
      * @return array<string, mixed>|list<mixed>|string
      */
-    private function xmlNodeToArray(SimpleXMLElement $node): array|string
-    {
+    private function xmlNodeToArray(SimpleXMLElement $node): array|string {
         $children = [];
 
         foreach ($node->attributes() as $attributeName => $attributeValue) {
@@ -130,7 +127,7 @@ class FetchCiscoFinesseResourceAction
             return $text;
         }
 
-        if ($text !== '' && ! array_key_exists('value', $children)) {
+        if ($text !== '' && !array_key_exists('value', $children)) {
             $children['value'] = $text;
         }
 

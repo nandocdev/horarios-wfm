@@ -29,21 +29,20 @@ use Illuminate\Support\Facades\Log;
  * - upsert() sin transacción explícita: cada sync-type es atómica en sí misma pero
  *   el conjunto de 4 syncs no es transaccional entre sí.
  */
-final class SyncCuicDataAction
-{
+final class SyncCuicDataAction {
     /** @var array<string, int> */
     private array $queueCache = [];
 
     public function __construct(
         private readonly CuicReportService $cuic,
         private readonly EmployeeLookupRepositoryInterface $employees,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array<string, int> Resumen de registros procesados por tipo
      */
-    public function execute(CarbonInterface $start, CarbonInterface $end): array
-    {
+    public function execute(CarbonInterface $start, CarbonInterface $end): array {
         $stats = [
             'transitions' => 0,
             'performance' => 0,
@@ -59,7 +58,7 @@ final class SyncCuicDataAction
                 $stats['transitions'] = $this->syncTransitions($start, $end);
             }
         } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncTransitions: '.$e->getMessage());
+            Log::error('[CUIC-ETL] Error en syncTransitions: ' . $e->getMessage());
         }
 
         try {
@@ -67,14 +66,14 @@ final class SyncCuicDataAction
                 $stats['performance'] = $this->syncPerformance($start, $end);
             }
         } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncPerformance: '.$e->getMessage());
+            Log::error('[CUIC-ETL] Error en syncPerformance: ' . $e->getMessage());
         }
 
         try {
             // Este reporte se registra TODO (sin restricción de ventana) según solicitud
             $stats['calls'] = $this->syncCalls($start, $end);
         } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncCalls: '.$e->getMessage());
+            Log::error('[CUIC-ETL] Error en syncCalls: ' . $e->getMessage());
             Log::warning('[CUIC-ETL] Es posible que el usuario no tenga permisos para el reporte agent_csq_detail.');
         }
 
@@ -83,7 +82,7 @@ final class SyncCuicDataAction
                 $stats['chats'] = $this->syncChats($start, $end);
             }
         } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncChats: '.$e->getMessage());
+            Log::error('[CUIC-ETL] Error en syncChats: ' . $e->getMessage());
         }
 
         Log::info('[CUIC-ETL] Sincronización finalizada', $stats);
@@ -94,11 +93,10 @@ final class SyncCuicDataAction
     /**
      * Sincroniza Estados y Transiciones (Voz).
      */
-    private function syncTransitions(CarbonInterface $start, CarbonInterface $end): int
-    {
+    private function syncTransitions(CarbonInterface $start, CarbonInterface $end): int {
         $rows = $this->cuic->executeReportWithFilter('agent_detail', $start, $end);
 
-        $upserts = $rows->map(fn (array $row) => [
+        $upserts = $rows->map(fn(array $row) => [
             'agent_login_id' => $row['agent_login_id'],
             'employee_id' => $this->employees->resolve($row['agent_login_id'], $row['agent_name'] ?? null),
             'transition_time' => Carbon::createFromTimestampMs((int) $row['transition_time'], 'UTC')->tz(config('app.timezone')),
@@ -107,7 +105,7 @@ final class SyncCuicDataAction
             'duration' => (int) ($row['duration'] ?? 0),
             'created_at' => now(),
             'updated_at' => now(),
-        ])->unique(fn ($item) => $item['agent_login_id'].$item['transition_time']->toDateTimeString().$item['agent_state'])
+        ])->unique(fn($item) => $item['agent_login_id'] . $item['transition_time']->toDateTimeString() . $item['agent_state'])
             ->values()
             ->toArray();
 
@@ -127,11 +125,10 @@ final class SyncCuicDataAction
     /**
      * Sincroniza Desempeño y AHT.
      */
-    private function syncPerformance(CarbonInterface $start, CarbonInterface $end): int
-    {
+    private function syncPerformance(CarbonInterface $start, CarbonInterface $end): int {
         $rows = $this->cuic->executeReportWithFilter('agent_performance_detail', $start, $end);
 
-        $upserts = $rows->map(fn (array $row) => [
+        $upserts = $rows->map(fn(array $row) => [
             'agent_login_id' => $row['agent_login_id'],
             'employee_id' => $this->employees->resolve($row['agent_login_id'], $row['agent_name'] ?? null),
             'agent_ext' => $row['agent_extension'] ?? null,
@@ -149,7 +146,7 @@ final class SyncCuicDataAction
             'raw_agent_name' => $row['agent_name'] ?? null,
             'created_at' => now(),
             'updated_at' => now(),
-        ])->unique(fn ($item) => $item['agent_login_id'].$item['start_time']->toDateTimeString())
+        ])->unique(fn($item) => $item['agent_login_id'] . $item['start_time']->toDateTimeString())
             ->values()
             ->toArray();
 
@@ -169,10 +166,9 @@ final class SyncCuicDataAction
     /**
      * Sincroniza Registros Técnicos de Llamadas (CSQ).
      */
-    private function syncCalls(CarbonInterface $start, CarbonInterface $end): int
-    {
+    private function syncCalls(CarbonInterface $start, CarbonInterface $end): int {
         $rows = $this->cuic->executeReportWithFilter('agent_csq_detail', $start, $end);
-        Log::info('[CUIC-ETL] Datos de llamadas: '.count($rows));
+        Log::info('[CUIC-ETL] Datos de llamadas: ' . count($rows));
 
         $upserts = $rows->map(function (array $row) {
             // En algunos CUIC la columna es 'resource_name', en otros es 'agent_name' o simplemente no existe si no hubo agente
@@ -205,10 +201,10 @@ final class SyncCuicDataAction
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-        })->unique(fn ($item) => $item['cisco_call_id'].$item['sequence_number'])
+        })->unique(fn($item) => $item['cisco_call_id'] . $item['sequence_number'])
             ->values()
             ->toArray();
-        Log::info('[CUIC-ETL] Intentando upsert de '.count($upserts).' registros en call_records');
+        Log::info('[CUIC-ETL] Intentando upsert de ' . count($upserts) . ' registros en call_records');
 
         if (empty($upserts)) {
             return 0;
@@ -226,11 +222,10 @@ final class SyncCuicDataAction
     /**
      * Sincroniza Registros de Chat e Interacciones.
      */
-    private function syncChats(CarbonInterface $start, CarbonInterface $end): int
-    {
+    private function syncChats(CarbonInterface $start, CarbonInterface $end): int {
         $rows = $this->cuic->executeReportWithFilter('agent_chat_detail', $start, $end);
 
-        $upserts = $rows->map(fn (array $row) => [
+        $upserts = $rows->map(fn(array $row) => [
             'conversation_id' => $row['chat_originator'],
             'agent_login_id' => $row['agent_login_id'],
             'employee_id' => $this->employees->resolve($row['agent_login_id'], $row['agent_name'] ?? null),
@@ -267,8 +262,7 @@ final class SyncCuicDataAction
     /**
      * Resuelve el ID de la cola a partir de su nombre raw de CUIC.
      */
-    private function resolveQueueId(?string $rawName): ?int
-    {
+    private function resolveQueueId(?string $rawName): ?int {
         if (empty($rawName)) {
             return null;
         }
@@ -294,8 +288,7 @@ final class SyncCuicDataAction
     /**
      * Determina si el intervalo de tiempo tiene solapamiento con la ventana operativa (05:00 - 18:00).
      */
-    private function isWithinOperatingWindow(CarbonInterface $start, CarbonInterface $end): bool
-    {
+    private function isWithinOperatingWindow(CarbonInterface $start, CarbonInterface $end): bool {
         $hourStart = (int) $start->format('H');
         $hourEnd = (int) $end->format('H');
 

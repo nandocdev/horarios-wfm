@@ -22,11 +22,11 @@ use Illuminate\Support\Collection;
  * - `transition_time` es epoch ms (13 dígitos) → SIEMPRE dividir entre 1000.
  * - Si CUIC no tiene datos del día, retorna Collection vacía (manejado).
  */
-final class FetchAgentStateTransitionsAction
-{
+final class FetchAgentStateTransitionsAction {
     public function __construct(
         private readonly CuicReportService $cuic
-    ) {}
+    ) {
+    }
 
     /**
      * Ejecuta el reporte CUIC y retorna las transiciones normalizadas del día.
@@ -36,14 +36,13 @@ final class FetchAgentStateTransitionsAction
      * @param  string|null  $loginId  Si se provee, filtra por login_id del agente
      * @return Collection<int, array<string, mixed>>
      */
-    public function execute(Carbon $date, ?string $loginId = null): Collection
-    {
+    public function execute(Carbon $date, ?string $loginId = null): Collection {
         $rows = $this->cuic->executeReport('agent_state_transitions');
 
         return $rows
-            ->filter(fn (array $row) => $this->isOnDate($row, $date))
-            ->when($loginId, fn ($col) => $col->where('agent_login_id', $loginId))
-            ->map(fn (array $row) => $this->normalize($row))
+            ->filter(fn(array $row) => $this->isOnDate($row, $date))
+            ->when($loginId, fn($col) => $col->where('agent_login_id', $loginId))
+            ->map(fn(array $row) => $this->normalize($row))
             ->values();
     }
 
@@ -53,8 +52,7 @@ final class FetchAgentStateTransitionsAction
      *
      * @param  array<string, mixed>  $row
      */
-    private function isOnDate(array $row, Carbon $date): bool
-    {
+    private function isOnDate(array $row, Carbon $date): bool {
         $transitionMs = (int) ($row['transition_time'] ?? 0);
 
         if ($transitionMs === 0) {
@@ -83,8 +81,7 @@ final class FetchAgentStateTransitionsAction
      * @param  array<string, mixed>  $row
      * @return array<string, mixed>
      */
-    private function normalize(array $row): array
-    {
+    private function normalize(array $row): array {
         $transitionMs = (int) ($row['transition_time'] ?? 0);
 
         return [

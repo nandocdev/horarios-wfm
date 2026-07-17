@@ -6,8 +6,7 @@ namespace App\Modules\ConnectModule\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CaseSubtype extends Model
-{
+class CaseSubtype extends Model {
     protected $table = 'case_subtypes';
 
     protected $fillable = [
@@ -22,16 +21,14 @@ class CaseSubtype extends Model
         'is_active' => 'boolean',
     ];
 
-    public function queue()
-    {
+    public function queue() {
         return $this->belongsTo(CallQueue::class, 'queue_id', 'id');
     }
 
     /**
      * Scope by queue: accepts either queue id or queue name.
      */
-    public function scopeByQueue($query, $queue)
-    {
+    public function scopeByQueue($query, $queue) {
         if (empty($queue)) {
             return $query->where('is_active', true);
         }

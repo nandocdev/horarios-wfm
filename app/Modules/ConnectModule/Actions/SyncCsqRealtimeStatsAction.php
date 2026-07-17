@@ -9,14 +9,13 @@ use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use App\Modules\ConnectModule\Services\CuicReportService;
 use Illuminate\Support\Facades\Log;
 
-class SyncCsqRealtimeStatsAction
-{
+class SyncCsqRealtimeStatsAction {
     public function __construct(
         private readonly CuicReportService $cuic
-    ) {}
+    ) {
+    }
 
-    public function execute(): int
-    {
+    public function execute(): int {
         $queues = CallQueue::activeNames();
 
         if (empty($queues)) {
@@ -37,8 +36,8 @@ class SyncCsqRealtimeStatsAction
                     }
                 }
 
-                if (! is_array($row)) {
-                    Log::warning('[CUIC-REALTIME] Fila inválida recibida (no es array ni JSON): '.gettype($row));
+                if (!is_array($row)) {
+                    Log::warning('[CUIC-REALTIME] Fila inválida recibida (no es array ni JSON): ' . gettype($row));
 
                     return null;
                 }
@@ -87,7 +86,7 @@ class SyncCsqRealtimeStatsAction
             return count($upserts);
 
         } catch (\Exception $e) {
-            Log::error('[CUIC-REALTIME] Error sincronizando CSQ stats: '.$e->getMessage());
+            Log::error('[CUIC-REALTIME] Error sincronizando CSQ stats: ' . $e->getMessage());
 
             return 0;
         }

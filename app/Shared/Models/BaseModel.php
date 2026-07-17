@@ -7,8 +7,7 @@ namespace App\Shared\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class BaseModel extends Model
-{
+abstract class BaseModel extends Model {
     use HasUlids;
 
     /**

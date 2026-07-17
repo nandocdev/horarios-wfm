@@ -12,8 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Modelo para el estado en tiempo real de los agentes.
  * Esta tabla es UNLOGGED en PostgreSQL para maximizar el rendimiento de escritura.
  */
-class AgentRealtimeState extends Model
-{
+class AgentRealtimeState extends Model {
     protected $table = 'agent_realtime_states';
 
     protected $fillable = [
@@ -35,8 +34,7 @@ class AgentRealtimeState extends Model
     /**
      * Relación con el empleado.
      */
-    public function employee(): BelongsTo
-    {
+    public function employee(): BelongsTo {
         return $this->belongsTo(Employee::class);
     }
 }

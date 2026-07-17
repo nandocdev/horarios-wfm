@@ -8,8 +8,7 @@ use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CallRecord extends Model
-{
+class CallRecord extends Model {
     protected $table = 'call_records';
 
     protected $fillable = [
@@ -46,34 +45,28 @@ class CallRecord extends Model
         'contact_disposition' => 'integer',
     ];
 
-    public function employee(): BelongsTo
-    {
+    public function employee(): BelongsTo {
         return $this->belongsTo(Employee::class);
     }
 
-    public function caseSubtype(): BelongsTo
-    {
+    public function caseSubtype(): BelongsTo {
         return $this->belongsTo(CaseSubtype::class, 'case_subtype_id');
     }
 
-    public function queue(): BelongsTo
-    {
+    public function queue(): BelongsTo {
         return $this->belongsTo(CallQueue::class, 'queue_id');
     }
 
-    public function scopePendingOperator($query)
-    {
+    public function scopePendingOperator($query) {
         return $query->where('status', 'pending_operator');
     }
 
-    public function scopeOpen($query)
-    {
+    public function scopeOpen($query) {
         return $query->where('status', 'open');
     }
 
-    public function getDurationMinutesAttribute(): ?float
-    {
-        if (! $this->ivr_ended_at) {
+    public function getDurationMinutesAttribute(): ?float {
+        if (!$this->ivr_ended_at) {
             return null;
         }
 

@@ -79,7 +79,8 @@
                     $svgGrid = '';
                     $svgLines = '';
                     $svgLabels = '';
-                    foreach ([80, 90, 100] as $pct) {
+                    $gridSteps = collect([50, 60, 70, 80, 90, 100])->filter(fn ($v) => $v <= $maxVal);
+                    foreach ($gridSteps as $pct) {
                         $gy = $padT + $chartH - (($pct / $maxVal) * $chartH);
                         $svgGrid .= '<line x1="'.$padL.'" y1="'.$gy.'" x2="'.($svgW - $padR).'" y2="'.$gy.'" stroke="#e2e8f0" stroke-width="1" />';
                         $svgGrid .= '<text x="'.($padL - 5).'" y="'.($gy + 4).'" text-anchor="end" fill="#94a3b8" font-size="10">'.$pct.'%</text>';

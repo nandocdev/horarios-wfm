@@ -8,8 +8,7 @@ use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AgentCallPerformance extends Model
-{
+class AgentCallPerformance extends Model {
     protected $table = 'agent_call_performance';
 
     protected $fillable = [
@@ -40,8 +39,7 @@ class AgentCallPerformance extends Model
         'employee_id' => 'integer',
     ];
 
-    public function employee(): BelongsTo
-    {
+    public function employee(): BelongsTo {
         return $this->belongsTo(Employee::class);
     }
 }

@@ -31,11 +31,11 @@ use Illuminate\Support\Collection;
  * - Si $agentNames está vacío, CUIC retorna TODOS los agentes del servidor.
  * - Si $endDateTime es null, se asume fin del día (23:59:59) de $startDateTime.
  */
-final class FetchAgentDetailAction
-{
+final class FetchAgentDetailAction {
     public function __construct(
         private readonly CuicReportService $cuic
-    ) {}
+    ) {
+    }
 
     /**
      * Ejecuta el reporte con filtro de rango horario y agentes opcionales.

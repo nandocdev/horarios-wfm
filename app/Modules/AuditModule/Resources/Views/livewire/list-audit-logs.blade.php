@@ -58,9 +58,13 @@
                             </flux:table.cell>
                             <flux:table.cell class="py-2">
                                 <div class="flex items-center gap-2">
-                                    @if($log->user)
+                                    @if($log->user->exists)
                                         <flux:avatar :initials="$log->user->initials()" size="xs" />
                                         <flux:text size="sm">{{ $log->user->name }}</flux:text>
+                                    @elseif($log->actor_name)
+                                        <flux:icon name="user" class="w-4 h-4 text-slate-400" />
+                                        <flux:text size="sm" class="text-slate-500">{{ $log->actor_name }}</flux:text>
+                                        <flux:badge size="xs" color="orange" inset="top">eliminado</flux:badge>
                                     @else
                                         <flux:icon name="cpu-chip" class="w-4 h-4 text-slate-400" />
                                         <flux:text size="sm" class="text-slate-400 italic">Sistema</flux:text>
@@ -99,7 +103,7 @@
                 </div>
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Usuario</span>
-                    <p class="text-sm">{{ $selectedLog->user?->name ?? 'Sistema' }}</p>
+                    <p class="text-sm">{{ $selectedLog->actor_label }}</p>
                     <p class="text-xs text-slate-400">IP: {{ $selectedLog->ip_address ?? 'N/A' }}</p>
                 </div>
             </div>

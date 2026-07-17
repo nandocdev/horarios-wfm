@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedInteger('duration')->default(0);
             $table->timestamps();
 
+            $table->index(['employee_id', 'transition_time']);
             $table->unique(['agent_login_id', 'transition_time', 'agent_state'], 'agent_transition_unique');
         });
     }

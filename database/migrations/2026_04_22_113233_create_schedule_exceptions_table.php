@@ -26,6 +26,7 @@ return new class extends Migration
             $table->foreignId('created_by')->nullable()->constrained('employees')->nullOnDelete();
 
             $table->jsonb('metadata')->nullable();
+            $table->nullableMorphs('origin');
             $table->timestampsTz();
 
             $table->index(['employee_id', 'start_at', 'end_at']);

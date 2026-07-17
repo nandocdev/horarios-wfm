@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('mentioned_user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('mentioner_user_id')->constrained('users')->onDelete('cascade');
             $table->string('mentionable_type');
-            $table->string('mentionable_id');
+            $table->unsignedBigInteger('mentionable_id');
             $table->index(['mentionable_type', 'mentionable_id']);
             $table->string('context')->nullable(); // Texto donde se hizo la mención
             $table->boolean('is_read')->default(false);

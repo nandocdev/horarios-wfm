@@ -37,7 +37,8 @@ return new class extends Migration
             $table->string('raw_agent_name')->nullable();
             $table->timestamps();
 
-            $table->index(['agent_login_id', 'start_time']);
+            $table->index(['employee_id', 'start_time']);
+            $table->unique(['agent_login_id', 'start_time'], 'agent_performance_unique');
         });
     }
 

@@ -17,16 +17,19 @@ return new class extends Migration
             $table->id();
             $table->foreignId('requester_id')->constrained('employees')->onDelete('cascade');
             $table->foreignId('recipient_id')->constrained('employees')->onDelete('cascade');
-            $table->date('requested_date');
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
             $table->enum('status', ['pending', 'accepted', 'rejected', 'approved', 'cancelled'])->default('pending');
             $table->text('reason')->nullable();
+            $table->jsonb('requester_assignment_snapshot')->nullable();
+            $table->jsonb('recipient_assignment_snapshot')->nullable();
             $table->text('rejection_reason')->nullable();
             $table->timestampsTz();
 
             // Index para búsquedas rápidas
             $table->index(['requester_id', 'status']);
             $table->index(['recipient_id', 'status']);
-            $table->index('requested_date');
+            $table->index('start_date');
         });
 
         Schema::create('shift_swap_approvals', function (Blueprint $table) {

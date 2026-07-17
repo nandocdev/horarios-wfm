@@ -12,6 +12,7 @@ use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
 use App\Modules\WfmModule\Notifications\IntradayActivityNotification;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use App\Shared\DTOs\NotificationDTO;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -112,13 +113,23 @@ class AssignIntradayActivityAction
                     }
                 }
 
-                $activity = IntradayActivity::create([
-                    'employee_id' => $employeeId,
-                    'activity_type_id' => $definition->activity_type_id,
-                    'approved_period_id' => $approvedPeriod?->id,
-                    'time_range' => $tstzRange,
-                    'notes' => $dto->notes,
-                ]);
+                try {
+                    $activity = IntradayActivity::create([
+                        'employee_id' => $employeeId,
+                        'activity_type_id' => $definition->activity_type_id,
+                        'approved_period_id' => $approvedPeriod?->id,
+                        'time_range' => $tstzRange,
+                        'notes' => $dto->notes,
+                    ]);
+                } catch (QueryException $e) {
+                    if ($e->getCode() === '23P01') {
+                        throw ValidationException::withMessages([
+                            'startTime' => ["El empleado ID {$employeeId} ya tiene una actividad programada en este horario (conflicto detectado a nivel de base de datos)."],
+                        ]);
+                    }
+
+                    throw $e;
+                }
 
                 // Notificar al empleado
                 $employeeNotify = $this->employeeRepo->find($employeeId);

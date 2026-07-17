@@ -104,7 +104,7 @@ return new class extends Migration
 
         if (DB::getDriverName() === 'pgsql') {
             DB::statement('ALTER TABLE intraday_activities ADD COLUMN time_range TSTZRANGE NOT NULL');
-            DB::statement('CREATE INDEX idx_intraday_activities_range ON intraday_activities USING GIST (employee_id, time_range)');
+            DB::statement('ALTER TABLE intraday_activities ADD CONSTRAINT intraday_no_overlap EXCLUDE USING GIST (employee_id WITH =, time_range WITH &&)');
         } else {
             Schema::table('intraday_activities', function (Blueprint $table) {
                 $table->string('time_range')->nullable();

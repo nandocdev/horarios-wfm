@@ -35,7 +35,7 @@
             </thead>
             <tbody class="divide-y dark:divide-slate-800">
                 @forelse($requests as $request)
-                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
+                    <tr wire:key="{{ $request->id }}" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
                         <td class="py-2 px-4 text-sm font-medium">
                             {{ $request->start_date->format('d/m/Y') }}
                             @if($request->end_date && $request->end_date->ne($request->start_date))
@@ -85,12 +85,12 @@
                                     @if($currentTab === 'pending' && $request->status === 'accepted')
                                         <flux:button wire:click="approveSwap({{ $request->id }})"
                                             wire:confirm="¿Estás seguro de aprobar este cambio? Se aplicará el intercambio de turnos en el horario inmediatamente."
-                                            variant="primary" size="sm" icon="check">
+                                            :loading="false" variant="primary" size="sm" icon="check">
                                             Aprobar
                                         </flux:button>
                                         <flux:button wire:click="rejectSwap({{ $request->id }})"
-                                            wire:confirm="¿Deseas rechazar esta solicitud?" variant="subtle" size="sm"
-                                            icon="x-mark">
+                                            wire:confirm="¿Deseas rechazar esta solicitud?" :loading="false"
+                                            variant="subtle" size="sm" icon="x-mark">
                                             Rechazar
                                         </flux:button>
                                     @endif
@@ -218,11 +218,13 @@
                     @can('wfm.swaps.manage')
                         @if($selectedRequest->status === 'accepted')
                             <flux:button wire:click="approveSwap({{ $selectedRequest->id }})"
-                                wire:confirm="¿Estás seguro de aprobar este cambio?" variant="primary" size="sm">
+                                wire:confirm="¿Estás seguro de aprobar este cambio?" :loading="false"
+                                variant="primary" size="sm">
                                 Aprobar
                             </flux:button>
                             <flux:button wire:click="rejectSwap({{ $selectedRequest->id }})"
-                                wire:confirm="¿Deseas rechazar esta solicitud?" variant="subtle" size="sm">
+                                wire:confirm="¿Deseas rechazar esta solicitud?" :loading="false"
+                                variant="subtle" size="sm">
                                 Rechazar
                             </flux:button>
                         @endif

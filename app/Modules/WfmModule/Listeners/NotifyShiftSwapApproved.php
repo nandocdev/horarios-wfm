@@ -10,6 +10,7 @@ use App\Modules\WfmModule\Notifications\ShiftSwapApprovedNotification;
 use App\Shared\DTOs\NotificationDTO;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class NotifyShiftSwapApproved implements ShouldQueue
@@ -57,18 +58,32 @@ class NotifyShiftSwapApproved implements ShouldQueue
         foreach ($recipients as $recipient) {
             // Notificación interna (solo para usuarios del sistema)
             if ($recipient->user) {
-                $dto = new NotificationDTO(
-                    title: 'Cambio de Turno Aprobado',
-                    message: "El cambio de turno para el periodo {$dateRange} ha sido procesado.",
-                    actionUrl: route('schedules.my-schedule'),
-                    icon: 'check-circle',
-                    level: 'success'
-                );
-                $recipient->user->notify(new ShiftSwapApprovedNotification($dto));
+                try {
+                    $dto = new NotificationDTO(
+                        title: 'Cambio de Turno Aprobado',
+                        message: "El cambio de turno para el periodo {$dateRange} ha sido procesado.",
+                        actionUrl: route('schedules.my-schedule'),
+                        icon: 'check-circle',
+                        level: 'success'
+                    );
+                    $recipient->user->notify(new ShiftSwapApprovedNotification($dto));
+                } catch (\Throwable $e) {
+                    Log::warning('Error al notificar aprobación de swap: '.$e->getMessage(), [
+                        'recipient_id' => $recipient->id,
+                        'request_id' => $request->id,
+                    ]);
+                }
             }
 
             // Enviar Correo Electrónico
-            Mail::to($recipient->email)->send(new ShiftSwapApprovedMail($request, $approver, $recipient));
+            try {
+                Mail::to($recipient->email)->send(new ShiftSwapApprovedMail($request, $approver, $recipient));
+            } catch (\Throwable $e) {
+                Log::warning('Error al enviar correo de aprobación de swap: '.$e->getMessage(), [
+                    'recipient_id' => $recipient->id,
+                    'request_id' => $request->id,
+                ]);
+            }
         }
     }
 }

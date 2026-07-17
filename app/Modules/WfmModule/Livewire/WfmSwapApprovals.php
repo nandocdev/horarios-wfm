@@ -71,7 +71,7 @@ class WfmSwapApprovals extends Component
         $this->dispatch('modal-show', name: 'swap-details');
     }
 
-    public function approveSwap($requestId, ApproveShiftSwapAction $action)
+    public function approveSwap($requestId)
     {
         $this->authorize('wfm.swaps.manage');
 
@@ -80,43 +80,56 @@ class WfmSwapApprovals extends Component
             if (! $employee) {
                 throw new \RuntimeException('El usuario autenticado debe tener un perfil de empleado asociado para aprobar solicitudes.');
             }
+
+            $action = app(ApproveShiftSwapAction::class);
             $action->execute((int) $requestId, $employee->id);
+
             \Flux::toast('Cambio de turno aprobado y aplicado correctamente.', variant: 'success');
             $this->dispatch('modal-hide', name: 'swap-details');
+            $this->selectedRequest = null;
         } catch (\Throwable $e) {
             \Flux::toast('Error al aprobar: '.$e->getMessage(), variant: 'danger');
+            $this->dispatch('modal-hide', name: 'swap-details');
+            $this->selectedRequest = null;
         }
     }
 
-    public function rejectSwap($requestId, RejectShiftSwapAction $action, $reason = 'Rechazado por WFM')
+    public function rejectSwap($requestId, $reason = 'Rechazado por WFM')
     {
         $this->authorize('wfm.swaps.manage');
 
-        $employee = Auth::user()->employee;
-        if (! $employee) {
-            throw new \RuntimeException('El usuario autenticado debe tener un perfil de empleado asociado para rechazar solicitudes.');
+        try {
+            $employee = Auth::user()->employee;
+            if (! $employee) {
+                throw new \RuntimeException('El usuario autenticado debe tener un perfil de empleado asociado para rechazar solicitudes.');
+            }
+
+            $action = app(RejectShiftSwapAction::class);
+            $request = $action->execute((int) $requestId, $employee->id, $reason);
+
+            $dto = new NotificationDTO(
+                title: 'Intercambio de Turno Rechazado',
+                message: "Tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')} ha sido rechazada por el supervisor. Motivo: {$reason}",
+                actionUrl: route('schedules.swap-history'),
+                level: 'danger'
+            );
+
+            if ($request->requester?->user) {
+                $request->requester->user->notify(new SwapStatusChangedNotification($dto));
+            }
+
+            if ($request->recipient?->user) {
+                $request->recipient->user->notify(new SwapStatusChangedNotification($dto));
+            }
+
+            \Flux::toast('Cambio de turno rechazado.');
+            $this->dispatch('modal-hide', name: 'swap-details');
+            $this->selectedRequest = null;
+        } catch (\Throwable $e) {
+            \Flux::toast('Error al rechazar: '.$e->getMessage(), variant: 'danger');
+            $this->dispatch('modal-hide', name: 'swap-details');
+            $this->selectedRequest = null;
         }
-
-        $request = $action->execute((int) $requestId, $employee->id, $reason);
-
-        // Notificar a ambas partes
-        $dto = new NotificationDTO(
-            title: 'Intercambio de Turno Rechazado',
-            message: "Tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')} ha sido rechazada por el supervisor. Motivo: {$reason}",
-            actionUrl: route('schedules.swap-history'),
-            level: 'danger'
-        );
-
-        if ($request->requester?->user) {
-            $request->requester->user->notify(new SwapStatusChangedNotification($dto));
-        }
-
-        if ($request->recipient?->user) {
-            $request->recipient->user->notify(new SwapStatusChangedNotification($dto));
-        }
-
-        \Flux::toast('Cambio de turno rechazado.');
-        $this->dispatch('modal-hide', name: 'swap-details');
     }
 
     public function render()

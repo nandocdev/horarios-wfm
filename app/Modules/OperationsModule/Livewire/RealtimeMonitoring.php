@@ -9,10 +9,10 @@ use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
-use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
+use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -61,6 +61,7 @@ class RealtimeMonitoring extends Component
         DashboardScheduleQueriesInterface $scheduleQueries,
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
+        $this->authorize('monitorRealtime');
         $this->authorize('viewAny', AttendanceIncident::class);
 
         $user = auth()->user();
@@ -131,7 +132,7 @@ class RealtimeMonitoring extends Component
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
         $telemetryService = app(TelemetryServiceInterface::class);
-        $expectedStateAction = app(GetExpectedAgentStateAction::class);
+        $expectedStateAction = app(ExpectedAgentStateInterface::class);
 
         $employee = Employee::with(['team', 'position'])->find($empId);
 
@@ -173,7 +174,7 @@ class RealtimeMonitoring extends Component
     public function loadData()
     {
         $telemetryService = app(TelemetryServiceInterface::class);
-        $expectedStateAction = app(GetExpectedAgentStateAction::class);
+        $expectedStateAction = app(ExpectedAgentStateInterface::class);
 
         $employee = auth()->user()->employee;
         $isPowerUser = auth()->user()->can('viewAny', CallRecord::class);

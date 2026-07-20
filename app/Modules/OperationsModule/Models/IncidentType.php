@@ -8,6 +8,15 @@ use App\Shared\Models\BaseModel;
 
 class IncidentType extends BaseModel
 {
+    public $incrementing = true;
+
+    protected $keyType = 'int';
+
+    public function usesUniqueIds(): bool
+    {
+        return false;
+    }
+
     protected $fillable = [
         'code', 'name', 'color', 'requires_justification',
         'affects_availability', 'is_active',

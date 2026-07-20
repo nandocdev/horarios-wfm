@@ -15,7 +15,7 @@ final class AgentCallRecordDTO extends Data
         public int $talk_time,
         public int $hold_time,
         public int $work_time,
-        public string $phone_number,
+        public ?string $phone_number,
         public ?string $csq_name,
         public ?string $call_type,
     ) {}

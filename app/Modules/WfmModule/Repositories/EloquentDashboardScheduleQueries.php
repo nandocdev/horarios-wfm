@@ -12,6 +12,7 @@ use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -74,11 +75,22 @@ final class EloquentDashboardScheduleQueries implements DashboardScheduleQueries
 
     public function getActiveIntradayCount(?array $employeeIds, string $nowIso): int
     {
-        $query = IntradayActivity::whereRaw('time_range @> ?::timestamptz', [$nowIso]);
+        $now = CarbonImmutable::parse($nowIso);
 
-        if ($employeeIds !== null) {
-            $query->whereIn('employee_id', $employeeIds);
+        if (DB::getDriverName() === 'pgsql') {
+            $query = IntradayActivity::whereRaw('time_range @> ?::timestamptz', [$nowIso]);
+
+            if ($employeeIds !== null) {
+                $query->whereIn('employee_id', $employeeIds);
+            }
+
+            return $query->count();
         }
+
+        $query = IntradayActivity::whereIn('employee_id', $employeeIds ?? [])
+            ->get()
+            ->filter(fn ($ia) => $ia->getRangeStart() && $ia->getRangeEnd()
+                && $now->between($ia->getRangeStart(), $ia->getRangeEnd()));
 
         return $query->count();
     }

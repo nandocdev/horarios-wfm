@@ -44,5 +44,8 @@ return [
         App\Modules\FilesystemModule\Providers\ModuleServiceProvider::class,    // FilesystemModule: Archivos, carpetas, descargas, cuotas
         App\Modules\KnowledgeModule\Providers\ModuleServiceProvider::class,     // KnowledgeModule: Base de conocimiento operativo
         App\Modules\QualityModule\Providers\ModuleServiceProvider::class,       // QualityModule: Evaluación de calidad de llamadas
+
+        // ─── Módulo de Aprobaciones (Workflows) ───
+        App\Modules\WorkflowsModule\Providers\ModuleServiceProvider::class,     // WorkflowsModule: Motor de aprobaciones multinivel
     ],
 ];

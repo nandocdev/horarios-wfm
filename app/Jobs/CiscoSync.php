@@ -10,6 +10,7 @@ use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -92,9 +93,11 @@ class CiscoSync implements ShouldQueue
      */
     protected function syncStates(CiscoFinesseClient $client): void
     {
-        $employees = Employee::where('is_active', true)
-            ->whereNotNull('username')
-            ->get();
+        $employees = Cache::remember('cisco_active_employees', 3600, function () {
+            return Employee::where('is_active', true)
+                ->whereNotNull('username')
+                ->get(['id', 'username', 'metadata']);
+        });
 
         $successCount = 0;
         $errorCount = 0;

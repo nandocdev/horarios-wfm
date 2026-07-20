@@ -18,6 +18,7 @@ Lee antes de evaluar, priorizar o documentar cualquier requerimiento:
 - `docs/USE_CASES.md` — catálogo de módulos y casos de uso con su responsabilidad declarada.
 - `docs/ARCHITECTURE.md` — para no proponer requerimientos que violen principios ya decididos (ej. RNF-16: sin dependencias directas entre módulos).
 - `docs/DATA_MODEL.md` — para verificar si un requerimiento nuevo ya tiene soporte de datos o implica modelo nuevo.
+- `AGENTS.md` — para conocer el contexto del proyecto y las reglas de arquitectura.
 
 ---
 

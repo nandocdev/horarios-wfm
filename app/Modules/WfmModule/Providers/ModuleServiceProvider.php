@@ -23,28 +23,37 @@ use App\Modules\WfmModule\Livewire\WeeklyPlanningTeams;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ActivityType;
 use App\Modules\WfmModule\Models\AgentState;
+use App\Modules\WfmModule\Models\ApprovedIntradayPeriod;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\OperationalSetting;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
+use App\Modules\WfmModule\Models\ScheduleException;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Observers\LeaveRequestObserver;
 use App\Modules\WfmModule\Policies\AbsenceReasonCodePolicy;
 use App\Modules\WfmModule\Policies\ActivityTypePolicy;
 use App\Modules\WfmModule\Policies\AgentStatePolicy;
+use App\Modules\WfmModule\Policies\ApprovedIntradayPeriodPolicy;
+use App\Modules\WfmModule\Policies\LeaveRequestPolicy;
 use App\Modules\WfmModule\Policies\OperationalSettingPolicy;
 use App\Modules\WfmModule\Policies\ScheduledActivityDefinitionPolicy;
+use App\Modules\WfmModule\Policies\ScheduleExceptionPolicy;
 use App\Modules\WfmModule\Policies\SchedulePolicy;
+use App\Modules\WfmModule\Policies\ShiftSwapRequestPolicy;
 use App\Modules\WfmModule\Policies\WeeklyScheduleAssignmentPolicy;
 use App\Modules\WfmModule\Policies\WeeklySchedulePolicy;
 use App\Modules\WfmModule\Repositories\EloquentDashboardScheduleQueries;
+use App\Modules\WfmModule\Repositories\EloquentScheduleRepository;
 use App\Modules\WfmModule\Services\LeaveRequestService;
 use App\Modules\WfmModule\Services\ScheduleService;
 use App\Modules\WfmModule\Services\ScheduleValidationService;
 use App\Modules\WfmModule\Services\ShiftSwapService;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Schedules\LeaveRequestServiceInterface;
+use App\Shared\Contracts\Schedules\ScheduleRepositoryInterface;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Contracts\Schedules\ShiftSwapServiceInterface;
 use App\Shared\Events\ShiftSwapApproved;
@@ -64,6 +73,10 @@ class ModuleServiceProvider extends ServiceProvider
         ScheduledActivityDefinition::class => ScheduledActivityDefinitionPolicy::class,
         WeeklySchedule::class => WeeklySchedulePolicy::class,
         WeeklyScheduleAssignment::class => WeeklyScheduleAssignmentPolicy::class,
+        LeaveRequest::class => LeaveRequestPolicy::class,
+        ShiftSwapRequest::class => ShiftSwapRequestPolicy::class,
+        ScheduleException::class => ScheduleExceptionPolicy::class,
+        ApprovedIntradayPeriod::class => ApprovedIntradayPeriodPolicy::class,
     ];
 
     /**

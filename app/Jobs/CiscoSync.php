@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Modules\ConnectModule\Actions\SyncFinesseAgentStatesAction;
 use App\Modules\PersonnelModule\Actions\SyncEmployeeDataWithCiscoAction;
-use App\Modules\PersonnelModule\Models\Employee;
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CiscoSync implements ShouldQueue
@@ -53,19 +50,19 @@ class CiscoSync implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(CiscoFinesseClient $client, SyncEmployeeDataWithCiscoAction $syncDataAction): void
-    {
+    public function handle(
+        CiscoFinesseClient $client,
+        SyncFinesseAgentStatesAction $syncStatesAction,
+        SyncEmployeeDataWithCiscoAction $syncDataAction,
+    ): void {
         $hour = now()->hour;
 
-        // Se ejecutará solo entre las 5 de la mañana y las 7 de la noche (19 hrs)
         if ($hour < 5 || $hour > 19) {
             Log::info('CiscoSync: Fuera de horario de trabajo. El Job se detendrá. (Debe ser reactivado por el Scheduler a las 5 AM)');
 
             return;
-            // Salimos sin volver a despachar el Job.
         }
 
-        // 1. Sincronizar perfiles y equipos (Solo si se envía el flag como true)
         if ($this->syncMasterData) {
             try {
                 $dataStats = $syncDataAction->execute();
@@ -75,135 +72,12 @@ class CiscoSync implements ShouldQueue
             }
         }
 
-        // 2. Sincronización de estados en Tiempo Real
         try {
-            $this->syncStates($client);
+            $syncStatesAction->execute();
         } catch (\Exception $e) {
             Log::error('CiscoSync Failure: '.$e->getMessage());
         }
 
-        // 3. Self-Dispatch (Ciclo de vida asíncrono en reemplazo del while-loop)
-        // Volvemos a colocar este Job en la cola con 5 segundos de retraso.
-        // Pasamos 'false' para no sobrecargar el API sincronizando los datos maestros cada 5 segundos.
         self::dispatch(false)->delay(now()->addSeconds(5));
-    }
-
-    /**
-     * Lógica principal de sincronización de estados UCCX.
-     */
-    protected function syncStates(CiscoFinesseClient $client): void
-    {
-        $employees = Cache::remember('cisco_active_employees', 3600, function () {
-            return Employee::where('is_active', true)
-                ->whereNotNull('username')
-                ->get(['id', 'username', 'metadata']);
-        });
-
-        $successCount = 0;
-        $errorCount = 0;
-
-        foreach ($employees as $employee) {
-            $uccxId = $employee->metadata['uccx_id'] ?? $employee->username;
-
-            try {
-                $data = $client->getAgentInfo($uccxId);
-
-                if (empty($data)) {
-                    continue;
-                }
-
-                $dialogInfo = [];
-                if (($data['state'] ?? '') === 'TALKING') {
-                    try {
-                        $dialogs = $client->getAgentDialogs($uccxId);
-                        $dialog = $dialogs['Dialog'] ?? null;
-
-                        if ($dialog && isset($dialog[0])) {
-                            $dialog = $dialog[0];
-                        }
-
-                        if ($dialog) {
-                            $dialogInfo = [
-                                'call_type' => $dialog['callType'] ?? 'N/A',
-                                'from_address' => $dialog['fromAddress'] ?? 'N/A',
-                                'queue_name' => $dialog['mediaProperties']['DNIS'] ?? ($dialog['mediaProperties']['callControlVariables']['Variable'][0]['value'] ?? 'N/A'),
-                            ];
-
-                            if (isset($dialog['mediaProperties']['queueName'])) {
-                                $dialogInfo['queue_name'] = $dialog['mediaProperties']['queueName'];
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        Log::debug("No se pudo obtener Dialogs para agente {$uccxId}: ".$e->getMessage());
-                    }
-                }
-
-                $this->updateAgentRealtimeState($employee->id, $uccxId, $data, $dialogInfo);
-                $successCount++;
-
-            } catch (\Exception $e) {
-                $errorCount++;
-            }
-        }
-
-        // Opcional: Descomentar si requieres ver el conteo cada 5 segundos en el log.
-        // if ($errorCount > 0) {
-        //     Log::info("Sincronización de Cisco completada: {$successCount} registros correctos, {$errorCount} errores.");
-        // }
-    }
-
-    /**
-     * Actualiza la tabla agent_realtime_states (UNLOGGED para performance).
-     */
-    protected function updateAgentRealtimeState(int $employeeId, string $externalId, array $data, array $dialogInfo = []): void
-    {
-        $state = strtoupper($data['state'] ?? 'UNKNOWN');
-        $reasonCode = $data['reasonCode'] ?? null;
-        $stateChangeTime = $data['stateChangeTime'] ?? null;
-
-        if (is_array($reasonCode)) {
-            $reasonCode = $reasonCode['label'] ?? ($reasonCode['id'] ?? 'N/A');
-        }
-
-        if ($reasonCode !== null) {
-            $reasonCode = strtoupper((string) $reasonCode);
-        }
-
-        $lastChangedAt = now()->utc();
-
-        // Obtener el estado previo para preservar el tiempo si no hay stateChangeTime
-        $existingState = DB::table('agent_realtime_states')->where('employee_id', $employeeId)->first();
-
-        if ($stateChangeTime) {
-            try {
-                $lastChangedAt = Carbon::parse($stateChangeTime)->utc();
-                if ($lastChangedAt->isFuture()) {
-                    $lastChangedAt = now()->utc();
-                }
-            } catch (\Exception $e) {
-                Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: ".$e->getMessage());
-            }
-        } else {
-            if ($existingState && strtoupper((string) $existingState->current_state) === $state && strtoupper((string) ($existingState->reason_code ?? '')) === ($reasonCode ?? '')) {
-                $lastChangedAt = Carbon::parse($existingState->last_changed_at)->utc();
-            }
-        }
-
-        DB::table('agent_realtime_states')->updateOrInsert(
-            ['employee_id' => $employeeId],
-            [
-                'external_id' => $externalId,
-                'current_state' => $state,
-                'reason_code' => $reasonCode,
-                'last_changed_at' => $lastChangedAt->toIso8601String(),
-                'metadata' => json_encode(array_merge($data, [
-                    'state_change_time_original' => $stateChangeTime,
-                    'last_sync_at' => now()->utc()->toIso8601String(),
-                    'parsed_at_utc' => $lastChangedAt->toIso8601String(),
-                    'call_info' => $dialogInfo,
-                ])),
-                'updated_at' => now(),
-            ]
-        );
     }
 }

@@ -24,6 +24,8 @@ class AuditLog extends Model
         'after',
         'ip_address',
         'user_id',
+        'actor_name',
+        'actor_email',
     ];
 
     protected $casts = [
@@ -36,7 +38,16 @@ class AuditLog extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withDefault();
+    }
+
+    public function getActorLabelAttribute(): string
+    {
+        if ($this->user->exists) {
+            return $this->user->name;
+        }
+
+        return $this->actor_name ?? 'Usuario eliminado';
     }
 
     protected static function newFactory(): AuditLogFactory
@@ -58,6 +69,8 @@ class AuditLog extends Model
             $before = $model->getOriginal();
         }
 
+        $user = auth()->user();
+
         return static::create([
             'entity_type' => get_class($model),
             'entity_id' => $model->getKey(),
@@ -65,7 +78,9 @@ class AuditLog extends Model
             'before' => $before,
             'after' => $after,
             'ip_address' => request()?->ip(),
-            'user_id' => auth()->id(),
+            'user_id' => $user?->id,
+            'actor_name' => $user?->name,
+            'actor_email' => $user?->email,
         ]);
     }
 

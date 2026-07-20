@@ -24,6 +24,8 @@ return new class extends Migration
             $table->jsonb('after')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('actor_name')->nullable();
+            $table->string('actor_email')->nullable();
             $table->timestamps();
 
             $table->index(['entity_type', 'entity_id']);

@@ -33,9 +33,9 @@ return new class extends Migration
             $table->decimal('work_units', 10, 2)->default(0); // Minutos equivalentes
 
             // Porcentajes (0-100)
-            $table->decimal('availability_pct', 5, 2)->default(0);
-            $table->decimal('efficiency_pct', 5, 2)->default(0);
-            $table->decimal('pwi_pct', 5, 2)->default(0);
+            $table->decimal('availability_pct', 10, 2)->default(0);
+            $table->decimal('efficiency_pct', 10, 2)->default(0);
+            $table->decimal('pwi_pct', 10, 2)->default(0);
 
             $table->jsonb('queue_distribution')->nullable(); // Metadata de distribución por cola
 

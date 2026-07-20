@@ -2,301 +2,187 @@
 trigger: always_on
 ---
 
-# Proyecto: Antigravity (Monolito Modular)
-# Stack: Laravel + Livewire + FluxUI + PostgreSQL
-# Versión: 2.0
+---
+trigger: always_on
+---
+
+# horarios-wfm — Instrucciones Generales
+
+Stack confirmado (fuente: `docs/PRD.md` §6.1): PHP 8.3+, Laravel 13, Livewire 4, FluxUI 2, TailwindCSS 4, PostgreSQL 16, Redis, Laravel Horizon, Reverb, Fortify, Pest 4.
+
+**Nota:** si tu editor traía un archivo previo referenciando "Antigravity", PHP 8.2 o Livewire 3 — era una versión desalineada con el PRD actual. Este archivo es la única fuente de convenciones de stack/arquitectura para autocompletado en editor.
 
 ---
 
-## 🎯 Contexto del Proyecto
+## Precedencia
 
-**Antigravity** es un **Monolito Modular** construido con Laravel, Livewire, FluxUI y PostgreSQL. Cada módulo es una unidad autónoma de negocio. Copilot debe respetar estos lineamientos arquitectónicos en **cada sugerencia de código**, sin excepción. El frontend está impulsado íntegramente por Livewire 3 y componentes de FluxUI.
-
----
-
-## 🔀 Precedencia de instrucciones
-
-- Este archivo define convenciones de **arquitectura, stack y calidad de código**.
-- El flujo de trabajo conversacional se rige por `/.github/instructions/main.instructions.md`.
-- Conflictos: prevalece `main.instructions.md` para flujo, este archivo para diseño/implementación, y políticas de plataforma por encima de ambos.
+1. Políticas de plataforma.
+2. Flujo conversacional: `/.github/instructions/main.instructions.md` (si existe).
+3. Este archivo: arquitectura, stack, calidad de código, siempre activo.
+4. Para decisiones que este archivo no resuelve (clasificación Core/Supporting, diseño de un módulo nuevo, priorización de negocio), consulta los skills: `wfm-software-architect`, `wfm-laravel-developer`, `wfm-ui-engineer`, `wfm-product-owner`. Este archivo no los reemplaza — les da la base común de convenciones que todos comparten.
 
 ---
 
-## Configuración de Perfil: Senior Software Architect (Pragmatic & Critical)
+## Arquitectura: Monolito Modular + DDD Parcial
 
-### 1. Directrices de Comunicación
-* **Tono:** Estrictamente profesional, seco y directo. Elimina cortesías, frases de relleno y validaciones emocionales.
-* **Concisión:** Respuestas breves. Código exacto, sin sobreexplicaciones.
-* **Cero "Hype":** Usa la herramienta correcta. En este caso: Laravel, Livewire, FluxUI y Postgres. No sugieras React, Vue ni bases de datos NoSQL.
+15 módulos documentados en `docs/USE_CASES.md`: CoreModule, OrganizationModule, GeoModule, PersonnelModule, WfmModule, ConnectModule, OperationsModule, CommunicationsModule, QualityModule, AuditModule, WorkflowsModule, HelpdeskModule, KnowledgeModule, DocumentationModule, FilesystemModule.
 
-### 2. Estándares Técnicos y Arquitectura
-* **Guerra a la Sobreingeniería:** Si la solución puede resolverse con componentes nativos de Livewire y un Action, no propongas patrones complejos innecesarios. Complejidad algorítmica $O(n)$ como meta.
-* **PostgreSQL Nativo:** Usa capacidades de Postgres (JSONB, transacciones estrictas, UUIDs/ULIDs, índices parciales). Evita código específico de MySQL.
-* **Mentalidad de Producción:** Identifica bloqueos de I/O, condiciones de carrera, N+1 queries y vulnerabilidades.
+**La mayoría usa transaction script + Eloquent anémico** (reglas de abajo, sin excepción). Un subconjunto de módulos Core opera bajo tactical DDD (Eloquent enriquecido con invariantes propias) — esa clasificación la define `wfm-software-architect` en ADR, no se infiere en el editor. **Si vas a modificar un Model y no sabes si su módulo es Core o Supporting, pregunta antes de asumir que es anémico.**
 
-### 3. Estructura de Respuesta Obligatoria
-* **Resumen Ejecutivo:** Una sola frase técnica de la solución.
-* **Bloque de Código:** Código "Production-Ready", tipado estricto (PHP 8.2+), autodocumentado.
-* **Análisis de Trade-offs & Riesgos:** Puntos críticos de falla bajo estrés o concurrencia.
+### Estructura canónica de módulo
 
----
-
-## 1. ESTRUCTURA DE CARPETAS — REGLA ABSOLUTA
-
-### ✅ Estructura canónica de un módulo (Antigravity)
-
-Se crea con `php artisan make:module {Modulo}`. Estructura estricta:
+Creado con `php artisan make:module {Modulo}`:
 
 ```text
 app/Modules/{Modulo}/
-├── Actions/                          # Lógica de negocio (un archivo por acción)
-├── DTOs/                             # Objetos de transferencia de datos (Inmutables)
-├── Events/                           # Eventos del dominio
-├── Listeners/                        # Manejadores de eventos
-├── Models/                           # Modelos Eloquent
-├── Observers/                        # Efectos secundarios de modelos
-├── Policies/                         # Autorización por recurso
-├── Livewire/                         # Componentes UI (Controladores Frontend)
-│   └── Forms/                        # Livewire Form Objects (Validación)
+├── Actions/                # Casos de uso, un método execute()
+├── Console/Commands/
+├── Database/Migrations/
+├── DTOs/                   # Inmutables (readonly class)
+├── Emails/
+├── Enums/
+├── Events/
 ├── Http/
-│   ├── Controllers/                  # Solo para APIs o webhooks (Orquestadores)
-│   └── Requests/                     # Form Requests (Solo APIs)
-├── Providers/
-│   └── ModuleServiceProvider.php     # Registro del módulo
-├── Resources/
-│   └── Views/                        # Vistas Blade/Livewire (usando FluxUI)
-└── Routes/
-    ├── web.php                       # Rutas web (apuntan a Livewire Componentes)
-    └── api.php                       # Rutas API
+│   ├── Controllers/        # Solo APIs/webhooks
+│   └── Requests/
+├── Jobs/
+├── Listeners/               # ShouldQueue
+├── Livewire/
+│   └── Forms/
+├── Mail/
+├── Models/
+├── Notifications/
+├── Observers/
+├── Policies/
+├── Providers/               # ModuleServiceProvider
+├── Repositories/            # No usar por defecto en Supporting
+├── Resources/Views/
+├── Routes/                  # web.php, api.php
+└── Services/                # Solo si hay reutilización real entre Actions
 ```
 
-### ❌ Prohibiciones absolutas
-* **NUNCA** colocar lógica de negocio fuera de `app/Modules/`.
-* **NUNCA** cruzar módulos con dependencias directas de Modelos. Comunícalos vía `Events` o `DTOs`.
-* **NUNCA** usar lógica de negocio en componentes Livewire. Livewire = Orquestador UI.
+### Prohibiciones absolutas
+
+* Nunca lógica de negocio fuera de `app/Modules/`.
+* Nunca dependencia directa a Models de otro módulo. Comunicación vía Events, DTOs o Actions públicas.
+* Nunca lógica de negocio en Livewire — Livewire es orquestador UI, delega todo a una Action.
+* Nunca `$table->json()` en Postgres — usar `jsonb()`.
+* Nunca `DB::raw()` con sintaxis MySQL (`DATE_FORMAT`, etc.) — usar `TO_CHAR` o casting de Eloquent.
 
 ---
 
-## 2. CONVENCIONES DE NAMING Y RESPONSABILIDADES
+## Naming
 
-| Tipo             | Regla de Nomenclatura                    | Ejemplo                                        |
-| ---------------- | ---------------------------------------- | ---------------------------------------------- |
-| Action           | Sufijo `Action` (Un solo método público) | `CreateUserAction.php`                         |
-| DTO              | Sufijo `DTO` (Readonly/Inmutable)        | `UserDTO.php`                                  |
-| Livewire         | Verbo/Sustantivo descriptivo             | `CreateUser.php`, `ListUsers.php`              |
-| Livewire Form    | Sufijo `Form`                            | `UserForm.php`                                 |
-| Event / Listener | Acción pasada / Sufijo `Listener`        | `UserRegistered.php` / `SendEmailListener.php` |
+| Tipo          | Regla                                          | Ejemplo                 |
+| ------------- | ---------------------------------------------- | ----------------------- |
+| Action        | Sufijo `Action`, un método público (`execute`) | `CreateUserAction.php`  |
+| DTO           | Sufijo `DTO`, readonly                         | `UserDTO.php`           |
+| Livewire      | Verbo/sustantivo descriptivo                   | `CreateUser.php`        |
+| Livewire Form | Sufijo `Form`                                  | `UserForm.php`          |
+| Event         | Acción en pasado                               | `UserRegistered.php`    |
+| Listener      | Sufijo `Listener`, `ShouldQueue`               | `SendEmailListener.php` |
 
 ---
 
-## 3. PATRONES OBLIGATORIOS Y STACK (Antigravity)
-
-### 3.1 Livewire como "Controller" UI + Livewire Forms
-
-**Livewire reemplaza a los Controllers tradicionales para la web. Valida vía Livewire Forms y delega a Actions.**
+## Patrón obligatorio: Livewire → Form → Action
 
 ```php
-<?php
-
-namespace App\Modules\Users\Livewire;
-
-use Livewire\Component;
-use App\Modules\Users\Livewire\Forms\UserForm;
-use App\Modules\Users\Actions\CreateUserAction;
-use App\Modules\Users\Models\User;
-
 class CreateUser extends Component
 {
     public UserForm $form;
 
-    public function save(CreateUserAction $action)
+    public function save(CreateUserAction $action): void
     {
         $this->authorize('create', User::class);
         $this->form->validate();
-
-        // El componente NO tiene lógica, pasa un DTO al Action
         $action->execute($this->form->toDTO());
-
-        \Flux::toast('Usuario creado exitosamente.');
-        
+        \Flux::toast('Usuario creado.');
         $this->redirectRoute('users.index', navigate: true);
-    }
-
-    public function render()
-    {
-        return view('users::livewire.create-user');
     }
 }
 ```
 
-### 3.2 Actions — Lógica de negocio (Transacciones en Postgres)
-
-**Las Actions ejecutan la lógica pura. Todo dentro de transacciones de base de datos.**
-
 ```php
-<?php
-
-namespace App\Modules\Users\Actions;
-
-use App\Modules\Users\DTOs\UserDTO;
-use App\Modules\Users\Models\User;
-use Illuminate\Support\Facades\DB;
-
 class CreateUserAction
 {
     public function execute(UserDTO $dto): User
     {
         return DB::transaction(function () use ($dto) {
-            $user = User::create([
-                'name'  => $dto->name,
-                'email' => $dto->email,
-                'preferences' => $dto->preferences, // JSONB en Postgres
-            ]);
-
-            // Disparar evento
-            event(new \App\Modules\Users\Events\UserRegistered($user));
-
+            $user = User::create([...]);
+            event(new UserRegistered($user));
             return $user;
         });
     }
 }
 ```
 
-### 3.3 Base de Datos: PostgreSQL
-* Usa `$table->jsonb()` en lugar de `$table->json()`.
-* Usa índices parciales y compuestos donde la cardinalidad lo requiera.
-* Nunca uses `DB::raw()` con funciones de MySQL (como `DATE_FORMAT`), usa sintaxis de Postgres (`TO_CHAR`) o casteo de Eloquent.
+En módulos Core clasificados como tal, el Action orquesta contra un Aggregate (Model con invariantes propias) en vez de `User::create([...])` plano — confirma la clasificación antes de generar el Action.
 
 ---
 
-## 4. FRONTEND: LIVEWIRE + FLUXUI — REGLAS ESTRICTAS
+## PostgreSQL
 
-**Prohibido usar HTML puro para formularios o componentes UI comunes si FluxUI tiene una contraparte.**
+* `jsonb()`, índices parciales y compuestos según cardinalidad.
+* Transacciones estrictas en toda escritura multi-entidad (`DB::transaction()`).
+* ULID como PK en modelos de negocio (ver `docs/DATA_MODEL.md` §1.1).
 
-### ✅ Vistas Livewire usando FluxUI
+## Frontend: Livewire + FluxUI
 
-```blade
-{{-- resources/views/livewire/create-user.blade.php --}}
-<div>
-    <flux:heading size="xl">Crear Nuevo Usuario</flux:heading>
+* Prohibido HTML plano si FluxUI tiene contraparte (`flux:input`, `flux:button`, `flux:modal`, `flux:table`, `flux:toast`).
+* `wire:navigate` en enlaces internos; `navigate: true` en redirects.
+* Errores y estados los maneja Livewire Forms + FluxUI automáticamente vía `wire:model`.
+* El estado "sin permisos" se renderiza desde una Policy ya evaluada (`@can`), nunca evaluado dentro del componente.
 
-    <form wire:submit="save" class="mt-6 space-y-4">
-        <flux:input 
-            wire:model="form.name" 
-            label="Nombre Completo" 
-            placeholder="Ej. Jane Doe" 
-        />
-        
-        <flux:input 
-            wire:model="form.email" 
-            type="email" 
-            label="Correo Electrónico" 
-        />
+## Seguridad
 
-        <div class="flex justify-end gap-3">
-            <flux:button href="{{ route('users.index') }}" variant="ghost">
-                Cancelar
-            </flux:button>
-            <flux:button type="submit" variant="primary">
-                Guardar Usuario
-            </flux:button>
-        </div>
-    </form>
-</div>
-```
+* Toda acción en Livewire/Controller/Request valida contra una Policy (Spatie Permission).
+* Eager loading estricto; `Model::preventLazyLoading(!app()->isProduction())` activo.
+* Nunca confiar en input del cliente sin Form Request, Livewire Form o DTO tipado.
 
-### Reglas de Vistas:
-* **Navegación SPA:** Siempre usa `wire:navigate` en enlaces internos o pasa `navigate: true` en redirecciones de Livewire.
-* **Componentes:** Usa `<flux:xxx>` siempre que sea posible (`flux:modal`, `flux:table`, `flux:toast`, etc.).
-* **Errores:** FluxUI y Livewire Forms manejan los errores automáticamente si usas `wire:model`.
+## Module Service Provider
+
+Cada módulo registra rutas, vistas y componentes Livewire de forma aislada en su propio `ModuleServiceProvider`. No registrar nada de un módulo en el provider de otro.
 
 ---
 
-## 5. SEGURIDAD Y AUTORIZACIÓN
+## Checklist antes de generar código
 
-### 5.1 Policies y Autorización
-Todo componente Livewire, Controller de API o Request DEBE validar contra una Policy de Laravel.
+- [ ] ¿El archivo va en `app/Modules/{Modulo}/` correcto?
+- [ ] ¿Se confirmó si el módulo es Core o Supporting (si aplica)?
+- [ ] ¿Livewire delega la lógica a una Action, no la ejecuta?
+- [ ] ¿La validación usa Livewire Form (v4), no reglas inline?
+- [ ] ¿El frontend usa componentes FluxUI, no HTML plano?
+- [ ] ¿Las queries evitan N+1 y usan sintaxis Postgres?
+- [ ] ¿La escritura está envuelta en `DB::transaction()`?
+- [ ] ¿Se validó la Policy antes de ejecutar la acción?
+- [ ] ¿Los cambios de estado disparan Events para desacoplar módulos?
+
+---
+
+## Antipatrones — nunca sugerir
 
 ```php
-// En Livewire Component
-$this->authorize('update', $user);
-
-// En App\Modules\Users\Policies\UserPolicy
-public function update(User $authUser, User $target): bool
-{
-    return $authUser->hasPermissionTo('users.edit'); // Estándar Spatie
-}
-```
-
-### 5.2 N+1 Queries (Postgres)
-Cualquier carga de relaciones en Livewire o Controladores debe usar Eager Loading estricto (`Model::with()`).
-Validar siempre en entorno de desarrollo con `Model::preventLazyLoading(!app()->isProduction())`.
-
----
-
-## 6. MODULE SERVICE PROVIDER
-
-Cada módulo registra sus componentes, rutas, políticas y vistas de forma aislada.
-
-```php
-<?php
-
-namespace App\Modules\Users\Providers;
-
-use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
-
-class ModuleServiceProvider extends ServiceProvider
-{
-    public function boot(): void
-    {
-        // Rutas
-        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
-        
-        // Vistas (Livewire y Blade)
-        $this->loadViewsFrom(__DIR__ . '/../Resources/Views', 'users');
-
-        // Registro explícito de componentes Livewire (si no se auto-descubren)
-        Livewire::component('users::create', \App\Modules\Users\Livewire\CreateUser::class);
-    }
-}
-```
-
----
-
-## 7. CHECKLIST DE GENERACIÓN DE CÓDIGO (Copilot)
-
-Antes de emitir cualquier bloque de código, verifica:
-
-- [ ] ¿El archivo va en `app/Modules/{Modulo}/`?
-- [ ] ¿El componente Livewire delega la lógica pesada a una `Action`?
-- [ ] ¿La validación en Livewire usa un `Livewire\Form` (v3)?
-- [ ] ¿La respuesta del frontend implementa `FluxUI` (`<flux:button>`, `<flux:input>`, etc.)?
-- [ ] ¿La interacción a base de datos aprovecha PostgreSQL (evita anti-patrones de bases NoSQL o MySQL)?
-- [ ] ¿La acción de escritura está envuelta en `DB::transaction()`?
-- [ ] ¿Se verificó la política de permisos (`Policy`) antes de ejecutar?
-- [ ] ¿Las transiciones de estado disparan `Events` para desacoplar otros módulos?
-
----
-
-## 8. ANTIPATRONES — NUNCA SUGERIR EN ANTIGRAVITY
-
-```php
-// ❌ Componente Livewire "Dios" (Lógica mezclada con UI)
+// ❌ Livewire con lógica mezclada
 public function save() {
     $user = User::create([...]);
-    Mail::send(...); // ← Debe ser un Evento/Listener
-    $this->redirect(...);
+    Mail::send(...);   // debe ser Event/Listener
 }
 
-// ❌ Formularios HTML estándar cuando existe FluxUI
-<input type="text" wire:model="name" class="border p-2"> <!-- INCORRECTO -->
-<flux:input wire:model="name" /> <!-- CORRECTO -->
+// ❌ Dependencia directa entre módulos
+$product = \App\Modules\Inventory\Models\Product::find($id);
+// ✅ Usar DTO + Action pública del módulo dueño
 
-// ❌ Dependencias directas entre módulos Eloquent
-$product = \App\Modules\Inventory\Models\Product::find($id); // INCORRECTO
-// CORRECTO: Usar un DTO y un contrato o invocar un Action público del otro módulo.
+// ❌ HTML plano existiendo FluxUI
+<input wire:model="name" class="border p-2">
+// ✅ <flux:input wire:model="name" />
 
-// ❌ Json de MySQL en Postgres
-$table->json('data'); // INCORRECTO -> usar jsonb() en Postgres.
+// ❌ json() en Postgres
+$table->json('data');
+// ✅ $table->jsonb('data');
 ```
+
+---
+
+## Documentación de referencia
+
+`docs/PRD.md` (requerimientos, prioridades, alcance) · `docs/ARCHITECTURE.md` (principios, integraciones, seguridad) · `docs/DATA_MODEL.md` (esquema, convenciones de datos) · `docs/USE_CASES.md` (catálogo de módulos y responsabilidades). Ante cualquier conflicto entre este archivo y esos documentos, los documentos ganan — este archivo es un resumen operativo, no la fuente de verdad.

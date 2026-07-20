@@ -62,8 +62,6 @@ return new class extends Migration
             $table->time('break_start_time')->nullable();
             $table->time('break_end_time')->nullable();
             $table->timestampsTz();
-
-            $table->unique(['weekly_schedule_id', 'employee_id', 'day_of_week'], 'ws_assignments_unique');
         });
 
         // 5. ASIGNACIONES DE EQUIPO (MACRO)
@@ -98,12 +96,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->foreignId('activity_type_id')->constrained('activity_types');
+            $table->unsignedBigInteger('approved_period_id')->nullable()->after('activity_type_id');
+            $table->text('notes')->nullable();
+            $table->index('approved_period_id');
             $table->timestampsTz();
         });
 
         if (DB::getDriverName() === 'pgsql') {
             DB::statement('ALTER TABLE intraday_activities ADD COLUMN time_range TSTZRANGE NOT NULL');
-            DB::statement('CREATE INDEX idx_intraday_activities_range ON intraday_activities USING GIST (employee_id, time_range)');
+            DB::statement('ALTER TABLE intraday_activities ADD CONSTRAINT intraday_no_overlap EXCLUDE USING GIST (employee_id WITH =, time_range WITH &&)');
         } else {
             Schema::table('intraday_activities', function (Blueprint $table) {
                 $table->string('time_range')->nullable();
@@ -136,6 +137,25 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
+
+        // Columns for swap traceability (no FK constraint - shift_swap_requests created in later migration)
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE weekly_schedule_assignments ADD COLUMN swap_request_id BIGINT NULL');
+            DB::statement('ALTER TABLE weekly_schedule_assignments ADD COLUMN is_replaced BOOLEAN NOT NULL DEFAULT false');
+            DB::statement('ALTER TABLE weekly_schedule_assignments ADD COLUMN replaced_at TIMESTAMPTZ NULL');
+            DB::statement('CREATE UNIQUE INDEX IF NOT EXISTS ws_assignments_active_unique ON weekly_schedule_assignments (weekly_schedule_id, employee_id, day_of_week) WHERE (is_replaced = false)');
+        } else {
+            Schema::table('weekly_schedule_assignments', function (Blueprint $table) {
+                $table->unsignedBigInteger('swap_request_id')->nullable();
+                $table->boolean('is_replaced')->default(false);
+                $table->timestampTz('replaced_at')->nullable();
+            });
+        }
+
+        // Index for schedule assignment lookups
+        Schema::table('weekly_schedule_assignments', function (Blueprint $table) {
+            $table->index(['weekly_schedule_id', 'employee_id', 'day_of_week'], 'idx_weekly_schedule_assignments_lookup');
+        });
     }
 
     /**
@@ -143,6 +163,15 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop swap columns from weekly_schedule_assignments
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('DROP INDEX IF EXISTS ws_assignments_active_unique');
+        }
+        Schema::table('weekly_schedule_assignments', function (Blueprint $table) {
+            $table->dropIndex('idx_weekly_schedule_assignments_lookup');
+            $table->dropColumn(['swap_request_id', 'is_replaced', 'replaced_at']);
+        });
+
         DB::statement('DROP TABLE IF EXISTS agent_realtime_states');
         Schema::dropIfExists('intraday_activities');
         Schema::dropIfExists('activity_types');

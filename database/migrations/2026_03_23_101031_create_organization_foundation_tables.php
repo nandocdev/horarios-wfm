@@ -55,7 +55,7 @@ return new class extends Migration
             $table->id();
             $table->string('code', 20)->unique();
             $table->string('name');
-            $table->enum('color', ['red', 'blue', 'white'])->default('blue');
+            $table->string('color', 50)->nullable()->default('#3b82f6');
             $table->boolean('requires_justification')->default(false);
             $table->boolean('affects_availability')->default(false);
             $table->boolean('is_active')->default(true);

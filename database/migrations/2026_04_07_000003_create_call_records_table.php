@@ -51,6 +51,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['cisco_call_id', 'sequence_number'], 'call_records_session_sequence_unique');
+            $table->index('ivr_started_at');
             $table->index(['employee_id', 'ivr_started_at']);
             $table->index(['queue_id', 'ivr_started_at']);
             $table->index(['case_subtype_id']);

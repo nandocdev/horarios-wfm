@@ -6,6 +6,7 @@ namespace App\Modules\CommunicationsModule\Models;
 
 use App\Modules\CoreModule\Concerns\Auditable;
 use App\Modules\CoreModule\Models\User;
+use App\Shared\Support\Communications\HasContentState;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -23,7 +24,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  */
 class News extends Model implements HasMedia
 {
-    use Auditable, InteractsWithMedia;
+    use Auditable, HasContentState, InteractsWithMedia;
 
     protected $fillable = [
         'title',
@@ -159,64 +160,6 @@ class News extends Model implements HasMedia
     public function moderator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
-    }
-
-    /**
-     * Verifica si el contenido puede ser editado.
-     */
-    public function canBeEdited(): bool
-    {
-        return in_array($this->status, ['draft', 'pending_review']);
-    }
-
-    /**
-     * Verifica si el contenido está publicado.
-     */
-    public function isPublished(): bool
-    {
-        return $this->status === 'published';
-    }
-
-    /**
-     * Envía a revisión.
-     */
-    public function submitForReview(): void
-    {
-        $this->update(['status' => 'pending_review']);
-    }
-
-    /**
-     * Aprueba el contenido.
-     */
-    public function approve(User $moderator, ?string $notes = null): void
-    {
-        $this->update([
-            'status' => 'published',
-            'approved_by' => $moderator->id,
-            'approved_at' => now(),
-            'moderation_notes' => $notes,
-        ]);
-    }
-
-    /**
-     * Rechaza el contenido.
-     */
-    public function reject(User $moderator, string $notes): void
-    {
-        $this->update([
-            'status' => 'draft',
-            'approved_by' => $moderator->id,
-            'approved_at' => now(),
-            'moderation_notes' => $notes,
-        ]);
-    }
-
-    /**
-     * Archiva el contenido.
-     */
-    public function archive(): void
-    {
-        $this->update(['status' => 'archived']);
     }
 
     /**

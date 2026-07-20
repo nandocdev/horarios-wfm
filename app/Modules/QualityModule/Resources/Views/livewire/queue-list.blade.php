@@ -7,8 +7,8 @@
     <flux:card>
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <flux:input wire:model="code" label="Código" placeholder="CM-Tr" maxlength="20" />
-                <flux:input wire:model="name" label="Nombre" placeholder="Citas Médicas - Trámite" />
+                <flux:input wire:model="form.code" label="Código" placeholder="CM-Tr" maxlength="20" />
+                <flux:input wire:model="form.name" label="Nombre" placeholder="Citas Médicas - Trámite" />
                 <flux:button wire:click="createQueue" icon="plus" class="self-end">Agregar Cola</flux:button>
             </div>
         </div>

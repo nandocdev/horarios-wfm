@@ -144,11 +144,10 @@
 
 
             {{ $slot }}
+        <livewire:core.toast />
+        @fluxScripts
         </div>
     </div>
-
-    <livewire:core.toast />
-    @fluxScripts
 </body>
 
 </html>

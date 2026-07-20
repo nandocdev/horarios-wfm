@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\OperationsModule\Models\Schedule;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -60,7 +59,7 @@ class RealtimeMonitoring extends Component
         DashboardScheduleQueriesInterface $scheduleQueries,
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
-        $this->authorize('monitorRealtime', Schedule::class);
+        $this->authorize('monitorRealtime');
 
         $user = auth()->user();
         $employee = $user->employee;

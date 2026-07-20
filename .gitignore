@@ -30,3 +30,4 @@ package-lock.json
 .gemini/
 gha-creds-*.json
 scripts/*.excalidraw:Zone.Identifier
+/docs/TMP.md

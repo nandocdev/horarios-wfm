@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Livewire;
 
+use App\Modules\ConnectModule\Actions\GetGeneralDashboardDataAction;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Services\CallCenterAnalyticsService;
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Support\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-/**
- * Componente interactivo para el Dashboard General (Vista Supervisor/Admin).
- * Muestra métricas agregadas de la operación aplicando filtros de seguridad jerárquica.
- */
 class GeneralDashboard extends Component
 {
-    public string $dateRange = 'today'; // today, this_week, this_month
+    public string $dateRange = 'today';
 
     public function mount(): void
     {
-        // En producción: $this->authorize('viewGeneralDashboard', CallRecord::class);
+        $this->authorize('viewAny', CallRecord::class);
     }
 
     #[Computed]
@@ -31,84 +27,25 @@ class GeneralDashboard extends Component
     }
 
     #[Computed]
-    public function dateBoundaries(): array
-    {
-        return match ($this->dateRange) {
-            'today' => [Carbon::today()->toDateString(), Carbon::tomorrow()->toDateString()],
-            'this_week' => [Carbon::now()->startOfWeek()->toDateString(), Carbon::now()->endOfWeek()->addDay()->toDateString()],
-            'this_month' => [Carbon::now()->startOfMonth()->toDateString(), Carbon::now()->endOfMonth()->addDay()->toDateString()],
-            default => [Carbon::today()->toDateString(), Carbon::tomorrow()->toDateString()],
-        };
-    }
-
-    /**
-     * Obtiene los IDs de los empleados que este usuario tiene permiso para ver.
-     * Si es Admin/Director, devuelve null (sin filtro). Si es Coordinador, devuelve sus subordinados.
-     */
-    #[Computed]
-    public function allowedEmployeeIds(): ?array
-    {
-        if (! $this->employee) {
-            return [];
-        }
-
-        // Si el usuario tiene un rol global de director/admin, ver todo
-        if (auth()->user()?->hasRole(['super-admin', 'director'])) {
-            return null; // Null significa "sin restricción"
-        }
-
-        // Obtener subordinados recursivos usando el Adjacency List
-        $subordinateIds = $this->employee->getAllSubordinateIds();
-
-        // Incluirse a sí mismo por si atiende llamadas
-        $subordinateIds[] = $this->employee->id;
-
-        return $subordinateIds;
-    }
-
-    #[Computed]
     public function metrics(): array
     {
-        [$start, $end] = $this->dateBoundaries();
-        $allowedIds = $this->allowedEmployeeIds();
-
-        if (is_array($allowedIds) && empty($allowedIds)) {
+        if (! $this->employee) {
             return $this->emptyMetrics();
         }
 
-        $service = app(CallCenterAnalyticsService::class);
-
-        return $service->getSummaryMetrics(
-            dateFrom: $start,
-            dateTo: $end,
-            employeeIds: $allowedIds,
-        );
+        return app(GetGeneralDashboardDataAction::class)
+            ->getMetrics($this->employee, $this->dateRange, app(CallCenterAnalyticsService::class));
     }
 
     #[Computed]
     public function topPerformers(): array
     {
-        [$start, $end] = $this->dateBoundaries();
-        $allowedIds = $this->allowedEmployeeIds();
-
-        if (is_array($allowedIds) && empty($allowedIds)) {
+        if (! $this->employee) {
             return [];
         }
 
-        $service = app(CallCenterAnalyticsService::class);
-
-        $rows = $service->getTopAgentsToday(
-            limit: 5,
-            dateFrom: $start,
-            dateTo: $end,
-            employeeIds: $allowedIds,
-        );
-
-        return array_map(fn ($row) => (object) [
-            'employee' => (object) ['full_name' => $row->agent_name],
-            'total_calls' => (int) $row->total_calls,
-            'avg_tmo' => (float) $row->avg_talk_time,
-        ], $rows);
+        return app(GetGeneralDashboardDataAction::class)
+            ->getTopPerformers($this->employee, $this->dateRange, app(CallCenterAnalyticsService::class));
     }
 
     private function emptyMetrics(): array

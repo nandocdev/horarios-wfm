@@ -42,13 +42,20 @@ class ListCallRecords extends Component
         }
     }
 
+    public function updated($property): void
+    {
+        if (in_array($property, ['search', 'statusFilter', 'dateFrom', 'dateTo', 'employeeFilter'])) {
+            $this->resetPage();
+        }
+    }
+
     public function getFilteredRecordsProperty()
     {
+        $user = auth()->user();
+
         return CallRecord::with(['employee', 'caseSubtype.queue', 'queue'])
             ->when($this->employeeFilter, fn ($query) => $query->where('employee_id', $this->employeeFilter))
-            ->when(! $this->employeeFilter && ! auth()->user()?->hasRole('admin'), function ($query) {
-                $query->where('employee_id', auth()->user()?->employee?->id ?? 0);
-            })
+            ->when(! $this->employeeFilter && ! $user?->can('viewAny', CallRecord::class), fn ($query) => $query->where('employee_id', $user?->employee?->id ?? 0))
             ->when($this->search, fn ($query) => $query->where(function ($query) {
                 $query->where('phone_number', 'ilike', "%{$this->search}%")
                     ->orWhere('citizen_identifier', 'ilike', "%{$this->search}%");
@@ -77,7 +84,6 @@ class ListCallRecords extends Component
 
     public function render(): mixed
     {
-
         return view('connect::livewire.list-call-records', [
             'records' => $this->filteredRecords,
             'queues' => $this->queues,

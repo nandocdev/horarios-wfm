@@ -11,6 +11,94 @@ If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is 
 
 ---
 
+<!-- START_WORKFLOW -->
+# Flujo General de Trabajo — horarios-wfm
+
+Para cada solicitud, sigue este flujo sin omitir pasos.
+
+---
+
+## 1. Analizar el requerimiento
+
+- Objetivo funcional y técnico, riesgos, dependencias, alcance.
+- Si toca alcance de negocio, verificar contra `docs/PRD.md` §11 (Fuera de Alcance) antes de proceder.
+- Preguntar solo si la ambigüedad impide implementar correctamente.
+
+## 2. Analizar el proyecto
+
+- Identificar el módulo responsable (de los 15 en `docs/USE_CASES.md`).
+- Si el módulo no tiene ADR de clasificación Core/Supporting, preguntar antes de asumir el patrón de Model — no tratar como anémico ni como Aggregate por defecto.
+- Revisar `docs/ARCHITECTURE.md` y `docs/DATA_MODEL.md` para el contexto técnico.
+- Localizar componentes/Actions reutilizables antes de crear nuevos.
+
+## 3. Crear rama de trabajo
+
+Desde `develop`, nunca sobre `develop` o `main` directamente.
+
+```text
+feature/{modulo}-descripcion
+fix/{modulo}-descripcion
+refactor/{modulo}-descripcion
+docs/{modulo}-descripcion
+test/{modulo}-descripcion
+chore/{modulo}-descripcion
+```
+
+`{modulo}` = nombre corto del módulo (`wfm`, `connect`, `personnel`, `operations`, etc.), no el nombre de la feature.
+
+## 4. Planificar
+
+- Tareas, archivos afectados, impacto cross-módulo (vía Events/DTOs, nunca dependencia directa).
+- La solución más simple que resuelve el problema — no la más extensible.
+
+## 5. Implementar
+
+Solo los cambios necesarios.
+
+- Livewire → Form → Action → Model, sin lógica de negocio en Livewire.
+- FluxUI antes que HTML plano; Postgres nativo (`jsonb`, no `json`).
+- Sin duplicación, sin acoplamiento nuevo entre módulos, sin deuda técnica no señalada.
+
+## 6. Validar
+
+- Ejecutar `composer test` (incluye lint + suite completa) o `php artisan test --filter=` para el caso puntual.
+- Verificar N+1, transacciones, Policy aplicada.
+- Confirmar que cumple el requerimiento completo, sin regresiones.
+
+## 7. Commits atómicos
+
+Conventional Commits en español, un commit = una responsabilidad. Scope = módulo.
+
+```text
+feat(wfm): agregar validación de colisión de turnos
+fix(connect): corregir timeout en getAllUsers
+refactor(operations): simplificar cálculo de adherencia
+docs(architecture): documentar clasificación Core/Supporting
+test(personnel): agregar pruebas de importación masiva
+chore(ci): actualizar workflow de GitHub Actions
+```
+
+Prohibido: `cambios`, `update`, `fixes`, `varios cambios`.
+
+## 8. Integración
+
+- Rebase/merge con `develop` antes de integrar; resolver conflictos.
+- Merge a `develop` solo con validación del paso 6 completa.
+- Confirmar que el proyecto sigue funcionando post-integración (`composer test`).
+
+---
+
+## Principios generales
+
+- Simplicidad sobre complejidad; no implementar nada no solicitado.
+- No romper Monolito Modular ni la clasificación Core/Supporting ya decidida para un módulo.
+- Consistencia con `docs/*.md` y con los skills de rol (`wfm-software-architect`, `wfm-laravel-developer`, `wfm-ui-engineer`, `wfm-product-owner`).
+- Mantenibilidad y calidad por encima de velocidad de entrega.
+- 
+<!-- END_WORKFLOW -->
+
+---
+
 ## Project Overview
 
 **horarios-wfm** — Workforce Management system for the Contact Center of the Caja de Seguro Social de Panamá. Laravel Modular Monolith. No multi-tenancy — single institution.
@@ -140,3 +228,4 @@ Skills de rol (dominio del proyecto):
 ```
 wfm-software-architect   wfm-laravel-developer   wfm-ui-engineer   wfm-product-owner
 ```
+

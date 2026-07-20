@@ -56,6 +56,8 @@ use App\Shared\Contracts\Schedules\LeaveRequestServiceInterface;
 use App\Shared\Contracts\Schedules\ScheduleRepositoryInterface;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Contracts\Schedules\ShiftSwapServiceInterface;
+use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
+use App\Shared\Contracts\WfmModule\ScheduleValidationInterface;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -161,7 +163,8 @@ class ModuleServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(
-            ScheduleValidationService::class
+            ScheduleValidationInterface::class,
+            ScheduleValidationService::class,
         );
 
         $this->app->singleton(
@@ -170,7 +173,8 @@ class ModuleServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(
-            GetExpectedAgentStateAction::class
+            ExpectedAgentStateInterface::class,
+            GetExpectedAgentStateAction::class,
         );
 
         $this->app->singleton(

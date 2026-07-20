@@ -7,10 +7,11 @@ namespace App\Modules\WfmModule\Services;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Contracts\WfmModule\ScheduleValidationInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
-final class ScheduleValidationService
+final class ScheduleValidationService implements ScheduleValidationInterface
 {
     /**
      * Valida que una hora de inicio sea anterior a la hora de fin.

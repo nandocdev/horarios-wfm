@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Actions\Realtime;
 
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
+use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
  * Acción para determinar el estado esperado de un agente en tiempo real.
  * DESACOPLADO: Utiliza ScheduleServiceInterface para obtener la programación.
  */
-final class GetExpectedAgentStateAction
+final class GetExpectedAgentStateAction implements ExpectedAgentStateInterface
 {
     public function __construct(
         private readonly ScheduleServiceInterface $scheduleService

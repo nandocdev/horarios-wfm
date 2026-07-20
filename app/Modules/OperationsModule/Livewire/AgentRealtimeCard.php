@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
+use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use App\Shared\DTOs\AdherenceStatusDTO;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -24,7 +24,7 @@ class AgentRealtimeCard extends Component
         // El trabajador en segundo plano ya mantiene actualizada la tabla agent_realtime_states.
 
         // 2. Obtener Estados
-        $expected = app(GetExpectedAgentStateAction::class)->execute((int) $this->employeeId, $now);
+        $expected = app(ExpectedAgentStateInterface::class)->execute((int) $this->employeeId, $now);
 
         $realtime = DB::table('agent_realtime_states as ars')
             ->leftJoin('agent_states as as', 'ars.current_state', '=', 'as.external_code')

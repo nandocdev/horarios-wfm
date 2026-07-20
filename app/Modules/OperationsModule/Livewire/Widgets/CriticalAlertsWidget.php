@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire\Widgets;
 
-use App\Modules\WfmModule\Services\ScheduleValidationService;
+use App\Shared\Contracts\WfmModule\ScheduleValidationInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
@@ -27,7 +27,7 @@ class CriticalAlertsWidget extends Component
         HTML;
     }
 
-    public function render(ScheduleValidationService $validationService)
+    public function render(ScheduleValidationInterface $validationService)
     {
         $date = Carbon::parse($this->selectedDate);
 

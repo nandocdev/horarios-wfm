@@ -10,6 +10,7 @@ use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Events\CriteriaVersionCreated;
 use App\Modules\QualityModule\Events\EvaluationCreated;
 use App\Modules\QualityModule\Events\FeedbackAdded;
+use App\Modules\QualityModule\Listeners\LogCriteriaVersionCreated;
 use App\Modules\QualityModule\Listeners\LogEvaluationAudit;
 use App\Modules\QualityModule\Listeners\LogFeedbackAudit;
 use App\Modules\QualityModule\Listeners\SendEvaluationNotification;
@@ -124,7 +125,7 @@ class ModuleServiceProvider extends ServiceProvider
         );
         Event::listen(
             CriteriaVersionCreated::class,
-            UpdateQueueScoreAverages::class,
+            LogCriteriaVersionCreated::class,
         );
     }
 

@@ -215,6 +215,8 @@ class MyTeam extends Component
             'weeklySchedule' => $weeklySchedule,
             'teams' => $availableTeams,
             'reasons' => AbsenceReasonCode::all(),
+            'recentSwaps' => $recentSwaps,
+            'upcomingExceptions' => $upcomingExceptions,
         ]);
     }
 

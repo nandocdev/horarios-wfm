@@ -1,58 +1,38 @@
-<div class="p-6 lg:p-8 space-y-8 flex-1 flex flex-col">
-    <div class="flex justify-between items-center mb-6">
-        <flux:heading size="xl">Administración de Turnos</flux:heading>
-        <flux:button wire:click="create" variant="primary" icon="plus">Nuevo Turno</flux:button>
-    </div>
+<div class="space-y-6">
+    <x-wfm.page-header title="Administración de Turnos" description="Gestión de los turnos base del sistema.">
+        <x-slot:actions>
+            <flux:button wire:click="create" variant="primary" icon="plus">Nuevo Turno</flux:button>
+        </x-slot:actions>
+    </x-wfm.page-header>
 
-    <flux:table :paginate="$schedules">
-        <flux:table.columns class="sticky top-0 z-10 bg-white">
-            <flux:table.column>Nombre</flux:table.column>
-            <flux:table.column>Horario</flux:table.column>
-            <flux:table.column>Días</flux:table.column>
-            <flux:table.column>Duración (Min)</flux:table.column>
-            <flux:table.column>Break/Lunch</flux:table.column>
-            <flux:table.column>Estado</flux:table.column>
-            <flux:table.column align="end">Acciones</flux:table.column>
-        </flux:table.columns>
-
-        <flux:table.rows>
-            @foreach ($schedules as $schedule)
-                <flux:table.row :key="$schedule->id" class="hover:bg-slate-50">
-                    <flux:table.cell class="py-2" class="font-medium">{{ $schedule->name }}</flux:table.cell>
-                    <flux:table.cell class="py-2">{{ $schedule->start_time }} - {{ $schedule->end_time }}</flux:table.cell>
-                    <flux:table.cell class="py-2">
-                        <div class="flex gap-1">
-                            @php
-                                $dayLabels = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
-                                $allowed = $schedule->allowed_days ?? [];
-                            @endphp
-                            @foreach($dayLabels as $dayNum => $label)
-                                <span class="text-xs font-bold {{ in_array($dayNum, $allowed) ? 'text-blue-600 dark:text-blue-400' : 'text-slate-300 dark:text-slate-700' }}">
-                                    {{ $label }}
-                                </span>
-                            @endforeach
-                        </div>
-                    </flux:table.cell>
-                    <flux:table.cell class="py-2">{{ $schedule->total_minutes }}</flux:table.cell>
-                    <flux:table.cell class="py-2">
-                        <div class="text-xs text-slate-500">
-                            B: {{ $schedule->break_minutes }}m ({{ $schedule->is_break_paid ? 'P' : 'NP' }}) / 
-                            L: {{ $schedule->lunch_minutes }}m ({{ $schedule->is_lunch_paid ? 'P' : 'NP' }})
-                        </div>
-                    </flux:table.cell>
-                    <flux:table.cell class="py-2">
-                        <flux:badge :color="$schedule->is_active ? 'green' : 'red'" >
-                            {{ $schedule->is_active ? 'Activo' : 'Inactivo' }}
-                        </flux:badge>
-                    </flux:table.cell>
-                    <flux:table.cell class="py-2" align="end">
-                        <flux:button wire:click="edit({{ $schedule->id }})" variant="ghost" size="sm" icon="pencil" />
-                        <flux:button wire:click="delete({{ $schedule->id }})" variant="ghost" size="sm" icon="trash" color="red" wire:confirm="¿Estás seguro de eliminar este turno?" />
-                    </flux:table.cell>
-                </flux:table.row>
-            @endforeach
-        </flux:table.rows>
-    </flux:table>
+    <x-wfm.table :headers="['Nombre', 'Horario', 'Días', 'Duración', 'Break/Lunch', 'Estado', 'Acciones']" compact>
+        @foreach ($schedules as $schedule)
+            @php
+                $dayLabels = [1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'];
+                $allowed = $schedule->allowed_days ?? [];
+            @endphp
+            <flux:table.row :key="$schedule->id">
+                <flux:table.cell class="font-medium">{{ $schedule->name }}</flux:table.cell>
+                <flux:table.cell><span class="font-mono">{{ $schedule->start_time }} - {{ $schedule->end_time }}</span></flux:table.cell>
+                <flux:table.cell>
+                    <div class="flex gap-0.5">
+                        @foreach($dayLabels as $dayNum => $label)
+                            <span class="text-[10px] font-bold {{ in_array($dayNum, $allowed) ? 'text-wfm-info' : 'text-wfm-surface-muted/40' }}">{{ $label }}</span>
+                        @endforeach
+                    </div>
+                </flux:table.cell>
+                <flux:table.cell>{{ $schedule->total_minutes }} min</flux:table.cell>
+                <flux:table.cell class="text-xs text-wfm-surface-muted">B: {{ $schedule->break_minutes }}m / L: {{ $schedule->lunch_minutes }}m</flux:table.cell>
+                <flux:table.cell>
+                    <x-wfm.agent-status :status="$schedule->is_active ? 'available' : 'offline'" :label="$schedule->is_active ? 'Activo' : 'Inactivo'" size="xs" />
+                </flux:table.cell>
+                <flux:table.cell class="text-right">
+                    <flux:button wire:click="edit({{ $schedule->id }})" variant="ghost" size="sm" icon="pencil" />
+                    <flux:button wire:click="delete({{ $schedule->id }})" variant="ghost" size="sm" icon="trash" wire:confirm="¿Eliminar este turno?" />
+                </flux:table.cell>
+            </flux:table.row>
+        @endforeach
+    </x-wfm.table>
 
     <flux:modal wire:model="showModal" class="w-full max-w-lg">
         <form wire:submit="save" class="space-y-4">
@@ -66,25 +46,20 @@
             </div>
 
             <div class="grid grid-cols-3 gap-4">
-                <flux:input wire:model="form.total_minutes" type="number" label="Minutos Totales" readonly help="Calculado automáticamente" />
+                <flux:input wire:model="form.total_minutes" type="number" label="Minutos Totales" readonly />
                 <flux:input wire:model="form.break_minutes" type="number" label="Minutos Break" />
                 <flux:input wire:model="form.lunch_minutes" type="number" label="Minutos Lunch" />
             </div>
 
-            <div class="space-y-3">
-                <flux:label>Días con alcance</flux:label>
+            <flux:field label="Días con alcance">
                 <div class="flex flex-wrap gap-4">
-                    <flux:checkbox wire:model="form.allowed_days" value="1" label="L" />
-                    <flux:checkbox wire:model="form.allowed_days" value="2" label="M" />
-                    <flux:checkbox wire:model="form.allowed_days" value="3" label="X" />
-                    <flux:checkbox wire:model="form.allowed_days" value="4" label="J" />
-                    <flux:checkbox wire:model="form.allowed_days" value="5" label="V" />
-                    <flux:checkbox wire:model="form.allowed_days" value="6" label="S" />
-                    <flux:checkbox wire:model="form.allowed_days" value="7" label="D" />
+                    @foreach([1 => 'L', 2 => 'M', 3 => 'X', 4 => 'J', 5 => 'V', 6 => 'S', 7 => 'D'] as $num => $label)
+                        <flux:checkbox wire:model="form.allowed_days" value="{{ $num }}" label="{{ $label }}" />
+                    @endforeach
                 </div>
-            </div>
+            </flux:field>
 
-            <div class="space-y-3">
+            <div class="space-y-2">
                 <flux:checkbox wire:model="form.is_break_paid" label="¿Break pagado?" />
                 <flux:checkbox wire:model="form.is_lunch_paid" label="¿Lunch pagado?" />
                 <flux:checkbox wire:model="form.is_active" label="¿Turno activo?" />

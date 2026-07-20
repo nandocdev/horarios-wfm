@@ -41,7 +41,7 @@
                 @elseif(count($rows) === 0)
                     <tr>
                         <td colspan="{{ count($headers) ?: 1 }}">
-                            <x-wfm-empty :message="$empty" />
+                            <x-wfm.empty :message="$empty" />
                         </td>
                     </tr>
                 @else

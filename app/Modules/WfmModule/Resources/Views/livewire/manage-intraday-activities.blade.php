@@ -1,21 +1,10 @@
-<div class="p-6 lg:p-8 space-y-8 flex-1 flex flex-col">
-
-    {{-- CABECERA --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <flux:heading size="xl">Actividades Intradía</flux:heading>
-            <flux:subheading class="mt-1">
-                @if($isWfm)
-                    Gestiona los periodos aprobados por equipo y supervisa las asignaciones.
-                @else
-                    Asigna a tus operadores en los periodos autorizados por WFM.
-                @endif
-            </flux:subheading>
-        </div>
-        <div class="flex items-center gap-3">
-            <flux:input type="date" wire:model.live="date" class="w-44" />
-            @if($isWfm)
-                <flux:select wire:model.live="selectedTeamId" placeholder="Todos los equipos" class="w-48">
+<div class="space-y-6">
+    <x-wfm.page-header title="Actividades Intradía"
+        description="{{ $isWfm ? 'Gestiona los periodos aprobados por equipo y supervisa las asignaciones.' : 'Asigna a tus operadores en los periodos autorizados por WFM.' }}">
+        <x-slot:actions>
+            <flux:input type="date" wire:model.live="date" class="!w-40" />
+            @can('wfm.intraday.periods.manage')
+                <flux:select wire:model.live="selectedTeamId" placeholder="Todos los equipos" class="!w-48">
                     @foreach($teams as $team)
                         <flux:select.option :value="$team->id">{{ $team->name }}</flux:select.option>
                     @endforeach
@@ -23,9 +12,9 @@
                 <flux:button wire:click="openPeriodModal()" variant="primary" icon="plus">
                     Nuevo Periodo
                 </flux:button>
-            @endif
-        </div>
-    </div>
+            @endcan
+        </x-slot:actions>
+    </x-wfm.page-header>
 
     {{-- =====================================================
          SECCIÓN 1: PERIODOS APROBADOS
@@ -98,11 +87,14 @@
                         @endif
 
                         {{-- Botón asignar --}}
-                        @if(auth()->user()->can('wfm.intraday.assign') && !$isFull)
-                            <flux:button wire:click="openAssignmentModal({{ $period->id }})" variant="filled" class="w-full" size="sm" icon="user-plus">
-                                Asignar Operador
-                            </flux:button>
-                        @elseif($isFull)
+                        @can('wfm.intraday.assign')
+                            @if(!$isFull)
+                                <flux:button wire:click="openAssignmentModal({{ $period->id }})" variant="filled" class="w-full" size="sm" icon="user-plus">
+                                    Asignar Operador
+                                </flux:button>
+                            @endif
+                        @endcan
+                        @if($isFull)
                             <div class="text-center text-xs text-red-500 font-medium py-1">
                                 <flux:icon name="exclamation-triangle" class="inline w-3 h-3 mr-1" /> Capacidad máxima alcanzada
                             </div>
@@ -191,7 +183,7 @@
     {{-- =====================================================
          MODAL: CREAR / EDITAR PERIODO APROBADO (WFM)
          ===================================================== --}}
-    @if($isWfm)
+    @can('wfm.intraday.periods.manage')
     <flux:modal wire:model="showPeriodModal" class="w-full max-w-lg">
         <form wire:submit="savePeriod" class="space-y-5">
             <flux:heading size="lg">
@@ -249,7 +241,7 @@
             </div>
         </form>
     </flux:modal>
-    @endif
+    @endcan
 
     {{-- =====================================================
          MODAL: ASIGNAR OPERADOR A PERIODO
@@ -306,3 +298,4 @@
     </flux:modal>
 
 </div>
+

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\WfmModule\Livewire\Forms\ShiftSwapForm;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
@@ -12,22 +13,19 @@ use App\Modules\WfmModule\Notifications\SwapRequestNotification;
 use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Rule;
 use Livewire\Component;
 
 class RequestShiftSwap extends Component
 {
-    #[Rule('required|date|after:today')]
-    public $requestedDate;
+    public ShiftSwapForm $form;
 
-    #[Rule('nullable|date|after_or_equal:requestedDate')]
-    public $endDate;
+    public ?string $requestedDate = null;
 
-    #[Rule('required|exists:employees,id')]
-    public $recipientId;
+    public ?string $endDate = null;
 
-    #[Rule('nullable|string|max:255')]
-    public $reason;
+    public int $recipientId = 0;
+
+    public ?string $reason = null;
 
     // Propiedades para mostrar los horarios en la vista
     public $requesterAssignment = null;
@@ -36,7 +34,6 @@ class RequestShiftSwap extends Component
 
     public function mount()
     {
-        // Por defecto, sugerir mañana
         $this->requestedDate = now()->addDay()->format('Y-m-d');
         $this->endDate = now()->addDay()->format('Y-m-d');
         $this->loadAssignments();
@@ -70,7 +67,6 @@ class RequestShiftSwap extends Component
         $date = Carbon::parse($this->requestedDate);
         $dayOfWeek = $date->dayOfWeekIso;
 
-        // Buscar la semana que contiene la fecha (independientemente del estado para permitir pruebas)
         $week = WeeklySchedule::whereDate('week_start_date', '<=', $date->toDateString())
             ->whereDate('week_end_date', '>=', $date->toDateString())
             ->first();
@@ -101,7 +97,12 @@ class RequestShiftSwap extends Component
 
     public function submit()
     {
-        $this->validate();
+        $this->form->requestedDate = $this->requestedDate ?? '';
+        $this->form->endDate = $this->endDate;
+        $this->form->recipientId = $this->recipientId;
+        $this->form->reason = $this->reason;
+
+        $this->form->validate();
 
         $requester = Auth::user()->employee;
 
@@ -113,14 +114,12 @@ class RequestShiftSwap extends Component
 
         $recipient = Employee::with('position')->find($this->recipientId);
 
-        // 1. Validar que tenga el mismo cargo
         if ($recipient->position_id !== $requester->position_id) {
             $this->addError('recipientId', "Solo puedes solicitar cambios de turno a compañeros con tu mismo cargo ({$requester->position?->name}).");
 
             return;
         }
 
-        // 2. Validar que los turnos existan y sean distintos
         if (! $this->requesterAssignment || ! $this->recipientAssignment) {
             $this->addError('general', 'Ambos empleados deben tener turnos asignados ese día para realizar un intercambio (swap).');
 
@@ -164,13 +163,9 @@ class RequestShiftSwap extends Component
             $date = Carbon::parse($this->requestedDate);
             $dayOfWeek = $date->dayOfWeekIso;
 
-            // Asegurar que tenemos el horario cargado
             $this->loadAssignments();
 
             if ($this->requesterAssignment) {
-                $assignmentTable = (new WeeklyScheduleAssignment)->getTable();
-                $weekTable = (new WeeklySchedule)->getTable();
-
                 $hasAssignmentSubquery = WeeklyScheduleAssignment::select('employee_id')
                     ->whereColumn('employee_id', 'employees.id')
                     ->where('day_of_week', $dayOfWeek)

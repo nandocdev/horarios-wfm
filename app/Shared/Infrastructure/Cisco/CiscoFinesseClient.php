@@ -18,6 +18,8 @@ class CiscoFinesseClient
 
     protected int $timeout;
 
+    protected int $batchTimeout;
+
     protected bool $verifySsl;
 
     public function __construct()
@@ -26,24 +28,25 @@ class CiscoFinesseClient
         $this->username = config('services.uccx.username', env('UCCX_USERNAME'));
         $this->password = config('services.uccx.password', env('UCCX_PASSWORD'));
         $this->timeout = (int) config('services.uccx.timeout', env('UCCX_TIMEOUT', 15));
+        $this->batchTimeout = (int) config('services.uccx.batch_timeout', env('UCCX_BATCH_TIMEOUT', 45));
         $this->verifySsl = (bool) config('services.uccx.verify_ssl', env('UCCX_VERIFY_SSL', false));
     }
 
     /**
      * Realiza una petición GET al API de Finesse.
      */
-    public function get(string $endpoint): array
+    public function get(string $endpoint, ?int $timeout = null): array
     {
         try {
             $response = Http::withBasicAuth($this->username, $this->password)
-                ->timeout($this->timeout)
+                ->timeout($timeout ?? $this->timeout)
                 ->withHeaders(['Accept' => 'application/xml'])
                 ->when(! $this->verifySsl, fn ($http) => $http->withoutVerifying())
                 ->get("{$this->baseUrl}/{$endpoint}");
 
-            // if ($response->failed()) {
-            //     // throw new Exception("Error en UCCX API: {$response->status()} - {$response->body()}");
-            // }
+            if ($response->failed()) {
+                Log::warning("Cisco Finesse respondió con error {$response->status()} en {$endpoint}");
+            }
 
             return $this->parseXml($response->body());
         } catch (Exception $e) {
@@ -70,10 +73,11 @@ class CiscoFinesseClient
 
     /**
      * Obtiene la lista de todos los usuarios (agentes) en Finesse.
+     * Usa batchTimeout (más largo) para manejar respuestas con muchos registros.
      */
     public function getAllUsers(): array
     {
-        return $this->get('Users');
+        return $this->get('Users', $this->batchTimeout);
     }
 
     /**

@@ -11,10 +11,12 @@ use App\Modules\ConnectModule\Console\Commands\CuicSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\FinesseSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\ImportUccxDataCommand;
 use App\Modules\ConnectModule\Console\Commands\TestCuicAgentDetailCommand;
+use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Models\CaseSubtype;
 use App\Modules\ConnectModule\Models\Channel;
+use App\Modules\ConnectModule\Policies\AgentRealtimeStatePolicy;
 use App\Modules\ConnectModule\Policies\CallQueuePolicy;
 use App\Modules\ConnectModule\Policies\CallRecordPolicy;
 use App\Modules\ConnectModule\Policies\CaseSubtypePolicy;
@@ -68,11 +70,7 @@ class ModuleServiceProvider extends ServiceProvider
         Gate::policy(CallRecord::class, CallRecordPolicy::class);
         Gate::policy(CallQueue::class, CallQueuePolicy::class);
         Gate::policy(CaseSubtype::class, CaseSubtypePolicy::class);
-    }
-
-    private function registerPolicies(): void
-    {
-        Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Channel::class, ChannelPolicy::class);
+        Gate::policy(AgentRealtimeState::class, AgentRealtimeStatePolicy::class);
     }
 }

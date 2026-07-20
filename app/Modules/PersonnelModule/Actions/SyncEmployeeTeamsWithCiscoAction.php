@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Actions;
 
-use App\Modules\ConnectModule\Services\CiscoFinesseService;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\PersonnelModule\Models\TeamMember;
+use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SyncEmployeeTeamsWithCiscoAction
 {
     public function __construct(
-        protected CiscoFinesseService $finesseService
+        protected CiscoFinesseClient $finesseService
     ) {}
 
     /**

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Actions;
 
-use App\Modules\ConnectModule\Services\FinesseService;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 final class SyncFinesseUsersAction
 {
     public function __construct(
-        private readonly FinesseService $finesse
+        private readonly CiscoFinesseClient $finesse
     ) {}
 
     public function execute(): array

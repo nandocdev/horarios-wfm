@@ -10,10 +10,61 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    /* typography */
+    /* typography — compact, monospace for data, sans for UI */
     --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-family-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
-    /* neutral palette (slate as zinc/neutral mapping for Flux compatibility) */
+    /* ── WFM Color Palette ────────────────────────────── */
+    /* Primary: Institutional Navy */
+    --color-wfm-navy-50: #e8edf3;
+    --color-wfm-navy-100: #c5d1e2;
+    --color-wfm-navy-200: #9eb2cf;
+    --color-wfm-navy-300: #7793bb;
+    --color-wfm-navy-400: #5a7bac;
+    --color-wfm-navy-500: #3d639d;
+    --color-wfm-navy-600: #315c8a;
+    --color-wfm-navy-700: #1e3a5f;
+    --color-wfm-navy-800: #162e4a;
+    --color-wfm-navy-900: #0f1f33;
+    --color-wfm-navy-950: #08101a;
+
+    /* Accent: crisp blue for interactive elements */
+    --color-wfm-blue-50: #eff6ff;
+    --color-wfm-blue-100: #dbeafe;
+    --color-wfm-blue-200: #bfdbfe;
+    --color-wfm-blue-300: #93c5fd;
+    --color-wfm-blue-400: #60a5fa;
+    --color-wfm-blue-500: #3b82f6;
+    --color-wfm-blue-600: #2563eb;
+    --color-wfm-blue-700: #1d4ed8;
+
+    /* Semantic */
+    --color-wfm-success: #16a34a;
+    --color-wfm-warning: #f59e0b;
+    --color-wfm-danger: #dc2626;
+    --color-wfm-info: #3b82f6;
+
+    /* Surface */
+    --color-wfm-surface: #f4f6f8;
+    --color-wfm-surface-card: #ffffff;
+    --color-wfm-surface-hover: #eef1f4;
+    --color-wfm-surface-border: #d1d5db;
+    --color-wfm-surface-muted: #9ca3af;
+
+    /* ── Flux mapping ─────────────────────────────────── */
+    --color-accent: var(--color-wfm-navy-700);
+    --color-accent-content: var(--color-wfm-navy-900);
+    --color-accent-foreground: var(--color-white);
+
+    --color-success: var(--color-wfm-success);
+    --color-warning: var(--color-wfm-warning);
+    --color-danger: var(--color-wfm-danger);
+    --color-info: var(--color-wfm-info);
+
+    --color-app: var(--color-wfm-surface);
+    --color-card: var(--color-wfm-surface-card);
+
+    /* neutral palette (slate as zinc for Flux compatibility) */
     --color-zinc-50: var(--color-slate-50);
     --color-zinc-100: var(--color-slate-100);
     --color-zinc-200: var(--color-slate-200);
@@ -26,40 +77,157 @@
     --color-zinc-900: var(--color-slate-900);
     --color-zinc-950: var(--color-slate-950);
 
-    /* accent - primary #000000 */
-    --color-accent: var(--color-black);
-    --color-accent-content: var(--color-neutral-950);
-    --color-accent-foreground: var(--color-white);
-
-    /* semantic colors */
-    --color-success: var(--color-green-600);
-    --color-warning: var(--color-amber-500);
-    --color-danger: var(--color-red-600);
-    --color-info: var(--color-blue-600);
-
-    /* surface tokens */
-    --color-app: var(--color-slate-50);
-    --color-card: var(--color-white);
-
-    /* border radius constraint: max 6px */
-    --radius-sm: 4px;
-    --radius-md: 6px;
+    /* ── Radius constraint: max 6px ────────────────────── */
+    --radius-sm: 3px;
+    --radius-md: 4px;
     --radius-lg: 6px;
     --radius-xl: 6px;
     --radius-2xl: 6px;
     --radius-3xl: 6px;
 
-    /* transition/motion defaults */
+    /* ── Motion ────────────────────────────────────────── */
     --transition-duration-default: 150ms;
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-neutral-100);
-        --color-accent-foreground: var(--color-black);
+        --color-accent: var(--color-wfm-blue-400);
+        --color-accent-content: var(--color-wfm-blue-200);
+        --color-accent-foreground: var(--color-wfm-navy-900);
 
-        --color-app: var(--color-slate-950);
-        --color-card: var(--color-slate-900);
+        --color-app: #0f1117;
+        --color-card: #1a1d2e;
+
+        --color-wfm-surface: #0f1117;
+        --color-wfm-surface-card: #1a1d2e;
+        --color-wfm-surface-hover: #252840;
+        --color-wfm-surface-border: #2d3148;
+        --color-wfm-surface-muted: #6b7294;
     }
+}
+
+/* ── Agent status dots ───────────────────────────────── */
+@utility status-dot {
+    @apply inline-block w-2 h-2 rounded-full flex-shrink-0;
+}
+@utility status-dot-available {
+    @apply status-dot bg-wfm-success;
+}
+@utility status-dot-busy {
+    @apply status-dot bg-wfm-danger;
+}
+@utility status-dot-break {
+    @apply status-dot bg-wfm-warning;
+}
+@utility status-dot-training {
+    @apply status-dot bg-wfm-info;
+}
+@utility status-dot-offline {
+    @apply status-dot bg-wfm-surface-muted;
+}
+
+/* ── Density utilities ───────────────────────────────── */
+@utility density-sm {
+    @apply p-1.5 text-xs;
+}
+@utility density-md {
+    @apply p-2 text-sm;
+}
+@utility density-lg {
+    @apply p-3 text-sm;
+}
+
+/* ── Card defaults ───────────────────────────────────── */
+@utility card-wfm {
+    @apply rounded-md border border-wfm-surface-border bg-wfm-surface-card shadow-sm;
+}
+@utility card-wfm-hover {
+    @apply card-wfm transition-shadow hover:shadow-md;
+}
+
+/* ── KPI value ───────────────────────────────────────── */
+@utility kpi-value {
+    @apply text-2xl font-bold tracking-tight text-wfm-navy-800 dark:text-white;
+}
+@utility kpi-label {
+    @apply text-xs font-medium text-wfm-surface-muted uppercase tracking-wider;
+}
+@utility kpi-trend-up {
+    @apply text-xs font-semibold text-wfm-success;
+}
+@utility kpi-trend-down {
+    @apply text-xs font-semibold text-wfm-danger;
+}
+@utility kpi-target {
+    @apply text-xs text-wfm-surface-muted;
+}
+
+/* ── Compact Sidebar overrides (Flux) ─────────────────── */
+@layer components {
+    [data-flx-sidebar] {
+        --sidebar-width: 14rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-nav] {
+        gap: 0.125rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-item] {
+        padding-block: 0.375rem;
+        padding-inline: 0.625rem;
+        font-size: 0.75rem;
+        border-radius: 0.25rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-group] {
+        margin-bottom: 0.125rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-group] > [data-flx-sidebar-group-heading] {
+        font-size: 0.625rem;
+        padding-block: 0.25rem;
+        padding-inline: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-wfm-surface-muted);
+    }
+    [data-flx-sidebar] [data-flx-sidebar-item] [data-flx-icon] {
+        width: 1rem;
+        height: 1rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-header] {
+        padding: 0.5rem 0.625rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-brand] {
+        gap: 0.5rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-profile] {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.75rem;
+    }
+    [data-flx-sidebar] [data-flx-sidebar-profile] [data-flx-avatar] {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+/* ── Live pulse ──────────────────────────────────────── */
+@utility live-pulse {
+    @apply relative flex h-2 w-2;
+}
+@utility live-pulse-dot {
+    @apply absolute inline-flex h-full w-full rounded-full bg-wfm-success opacity-75 motion-safe:animate-ping;
+}
+@utility live-pulse-ring {
+    @apply relative inline-flex h-2 w-2 rounded-full bg-wfm-success;
+}
+
+/* ── Compact sidebar ─────────────────────────────────── */
+@utility wfm-sidebar-item {
+    @apply flex items-center gap-2.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors;
+}
+@utility wfm-sidebar-item-active {
+    @apply bg-wfm-navy-100 text-wfm-navy-800 dark:bg-wfm-navy-800 dark:text-wfm-blue-200;
+}
+@utility wfm-sidebar-item-inactive {
+    @apply text-wfm-surface-muted hover:bg-wfm-surface-hover hover:text-wfm-navy-700 dark:hover:text-white;
+}
+@utility wfm-sidebar-group {
+    @apply text-[10px] font-semibold uppercase tracking-widest text-wfm-surface-muted px-2.5 pb-1 pt-3;
 }

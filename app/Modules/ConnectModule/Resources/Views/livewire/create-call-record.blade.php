@@ -1,53 +1,41 @@
-<div class="space-y-8  mx-auto">
-    <div class="flex items-center justify-between">
-        <div>
-            <flux:heading size="xl">Nuevo Registro de Llamada</flux:heading>
-            <flux:subheading>Ingresa los detalles de la interacción recibida.</flux:subheading>
-        </div>
-        <flux:button href="{{ route('contact-center.calls.index') }}" wire:navigate variant="subtle" icon="arrow-left">
-            Volver al Listado
-        </flux:button>
-    </div>
+<div class="space-y-6">
+    <x-wfm.page-header title="Nuevo Registro de Llamada" description="Ingresa los detalles de la interacción recibida.">
+        <x-slot:actions>
+            <flux:button href="{{ route('contact-center.calls.index') }}" wire:navigate variant="ghost" icon="arrow-left">Volver al Listado</flux:button>
+        </x-slot:actions>
+    </x-wfm.page-header>
 
-    {{-- Cápsulas de Calidad (Slider) --}}
     @if(count($qualityCapsules) > 0)
         <div x-data="{ current: 0, count: {{ count($qualityCapsules) }} }"
             x-init="setInterval(() => { current = (current + 1) % count }, 8000)"
-            class="w-full relative overflow-hidden rounded-md border border-blue-200 dark:border-blue-800/50 bg-blue-50/50 dark:bg-blue-900/10">
-            <div class="flex transition-transform duration-150 ease-in-out"
-                :style="`transform: translateX(-${current * 100}%)`">
-                @foreach($qualityCapsules as $index => $capsule)
-                    <div class="w-full flex-shrink-0 p-4">
-                        <div class="flex items-center gap-4">
-                            <div class="flex-shrink-0 p-2 bg-blue-100 dark:bg-blue-800/50 rounded-md">
-                                <flux:icon icon="{{ $capsule['icon'] }}" class="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            class="w-full relative overflow-hidden rounded-md border border-wfm-info/20 bg-wfm-info/5">
+            <div class="flex transition-transform duration-150 ease-in-out" :style="`transform: translateX(-${current * 100}%)`">
+                @foreach($qualityCapsules as $capsule)
+                    <div class="w-full flex-shrink-0 p-3">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-shrink-0 p-1.5 bg-wfm-info/10 rounded-md">
+                                <flux:icon :name="$capsule['icon']" class="w-5 h-5 text-wfm-info" />
                             </div>
                             <div class="flex-1">
-                                <flux:heading size="sm" class="text-blue-800 dark:text-blue-300">{{ $capsule['title'] }}
-                                </flux:heading>
-                                <flux:text size="sm" class="text-blue-700/80 dark:text-blue-400/80">{{ $capsule['content'] }}
-                                </flux:text>
+                                <p class="text-xs font-semibold text-wfm-navy-800 dark:text-white">{{ $capsule['title'] }}</p>
+                                <p class="text-[10px] text-wfm-surface-muted">{{ $capsule['content'] }}</p>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
-
-            {{-- Controles del slider --}}
-            <div class="absolute bottom-2 right-4 flex items-center gap-1.5">
+            <div class="absolute bottom-2 right-3 flex items-center gap-1">
                 @foreach($qualityCapsules as $index => $capsule)
-                    <button @click="current = {{ $index }}" class="h-1.5 rounded-full transition-opacity duration-150"
-                        :class="current === {{ $index }} ? 'w-4 bg-blue-500' : 'w-1.5 bg-blue-200 dark:bg-blue-800'">
-                    </button>
+                    <button @click="current = {{ $index }}" class="h-1 rounded-full transition-all duration-150"
+                        :class="current === {{ $index }} ? 'w-4 bg-wfm-info' : 'w-1.5 bg-wfm-info/30'"></button>
                 @endforeach
             </div>
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {{-- Formulario --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
-            <flux:card>
+            <x-wfm.section>
                 <form wire:submit="save" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <flux:field>
@@ -59,7 +47,6 @@
                             </flux:select>
                             <flux:error name="form.channel_id" />
                         </flux:field>
-
                         <flux:field>
                             <flux:label>Cola / Servicio</flux:label>
                             <flux:select wire:model.live="form.queue_id" placeholder="Selecciona cola...">
@@ -70,30 +57,24 @@
                             <flux:error name="form.queue_id" />
                         </flux:field>
                     </div>
-
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <flux:field>
                             <flux:label>Número de Teléfono</flux:label>
-                            <flux:input wire:model.live.debounce.500ms="form.phone_number" icon="phone"
-                                placeholder="Ej. 22334455" />
+                            <flux:input wire:model.live.debounce.500ms="form.phone_number" placeholder="Ej. 22334455" />
                             <flux:error name="form.phone_number" />
                         </flux:field>
-
                         <flux:field>
-                            <flux:label>Identificación (Cédula o Pasaporte)</flux:label>
-                            <flux:input wire:model.live.debounce.500ms="form.citizen_identifier" icon="identification"
-                                placeholder="Ej. 8-725-927 o PA123456"
-                                helper="Se aceptan guiones y caracteres alfanuméricos.">
+                            <flux:label>Identificación</flux:label>
+                            <flux:input wire:model.live.debounce.500ms="form.citizen_identifier" placeholder="Ej. 8-725-927">
                                 <x-slot name="append">
                                     <div wire:loading wire:target="form.citizen_identifier">
-                                        <flux:icon icon="arrow-path" class="animate-spin text-slate-400" size="sm" />
+                                        <flux:icon.arrow-path class="animate-spin text-wfm-surface-muted w-4 h-4" />
                                     </div>
                                 </x-slot>
                             </flux:input>
                             <flux:error name="form.citizen_identifier" />
                         </flux:field>
                     </div>
-
                     <flux:field>
                         <flux:label>Tipificación del Caso</flux:label>
                         <flux:select wire:model="form.case_subtype_id" placeholder="Selecciona el motivo...">
@@ -104,181 +85,98 @@
                         </flux:select>
                         <flux:error name="form.case_subtype_id" />
                     </flux:field>
-
                     <flux:field>
                         <flux:label>Observaciones / Detalles</flux:label>
-                        <flux:textarea wire:model="form.description" rows="4"
-                            placeholder="Describe brevemente la solicitud del ciudadano..." />
+                        <flux:textarea wire:model="form.description" rows="4" placeholder="Describe brevemente la solicitud del ciudadano..." />
                         <flux:error name="form.description" />
                     </flux:field>
-
-                    <div class="flex justify-end gap-3 pt-4 border-t dark:border-slate-800">
+                    <div class="flex justify-end gap-3 pt-4 border-t border-wfm-surface-border">
                         <flux:button type="submit" variant="primary" icon="check">Guardar Registro</flux:button>
                     </div>
                 </form>
-            </flux:card>
+            </x-wfm.section>
         </div>
 
-        {{-- Información Lateral / Ayuda --}}
         <div class="space-y-4">
-            <flux:card class="bg-primary-50/50 dark:bg-primary-900/10 border-primary-200 dark:border-primary-800/50">
-                <flux:heading size="sm" class="mb-2">Información del Sistema</flux:heading>
-                <flux:text size="sm" class="mb-4">
-                    Estás registrando una llamada de forma manual. Asegúrate de tipificar correctamente para mantener la
-                    calidad de los reportes.
-                </flux:text>
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2 text-xs">
-                        <flux:icon icon="clock" size="sm" class="text-slate-400" />
+            <x-wfm.section title="Información del Sistema">
+                <p class="text-xs text-wfm-surface-muted mb-3">Estás registrando una llamada de forma manual. Asegúrate de tipificar correctamente.</p>
+                <div class="space-y-2 text-xs">
+                    <div class="flex items-center gap-2 text-wfm-surface-muted">
+                        <flux:icon.clock class="w-3.5 h-3.5" />
                         <span>Hora Actual: {{ now()->format('H:i') }}</span>
                     </div>
-                    <div class="flex items-center gap-2 text-xs">
-                        <flux:icon icon="user" size="sm" class="text-slate-400" />
+                    <div class="flex items-center gap-2 text-wfm-surface-muted">
+                        <flux:icon.user class="w-3.5 h-3.5" />
                         <span>Agente: {{ auth()->user()->name }}</span>
                     </div>
                 </div>
-            </flux:card>
+            </x-wfm.section>
 
-            {{-- Script de Llamada --}}
             @if(count($callScript) > 0)
-                <flux:card class="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
-                    <div class="flex items-center gap-2 mb-4">
-                        <flux:icon icon="clipboard-document-list" size="sm" class="text-slate-500" />
-                        <flux:heading size="sm">Script de Atención</flux:heading>
-                    </div>
-
-                    <div class="space-y-3" x-data="{ checked: [] }">
+                <x-wfm.section title="Script de Atención" icon="clipboard-document-list">
+                    <div class="space-y-2" x-data="{ checked: [] }">
                         @foreach($callScript as $index => $step)
-                            <div class="flex items-start gap-3 group">
-                                <div class="pt-0.5">
-                                    <flux:checkbox wire:key="script-step-{{ $index }}" x-model="checked" value="{{ $index }}"
-                                        id="step-{{ $index }}" />
-                                </div>
+                            <div class="flex items-start gap-2">
+                                <flux:checkbox wire:key="script-step-{{ $index }}" x-model="checked" value="{{ $index }}" id="step-{{ $index }}" />
                                 <label for="step-{{ $index }}"
-                                    class="text-sm cursor-pointer select-none transition-opacity duration-200"
-                                    :class="checked.includes('{{ $index }}') ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100'">
+                                    class="text-xs cursor-pointer select-none"
+                                    :class="checked.includes('{{ $index }}') ? 'line-through text-wfm-surface-muted' : 'text-wfm-navy-700 dark:text-white/80'">
                                     {{ $step }}
                                 </label>
                             </div>
                         @endforeach
                     </div>
-                </flux:card>
+                </x-wfm.section>
             @endif
 
-            {{-- Validación de Derechos --}}
             @if($citizenData)
-                <flux:card
-                    class="overflow-hidden p-0 border-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-200 dark:border-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-800/50">
-                    <div
-                        class="p-4 bg-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-50/50 dark:bg-{{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red' }}-900/10 border-b dark:border-slate-800">
-                        <div class="flex items-center justify-between">
-                            <flux:heading size="sm">Validación de Derechos</flux:heading>
-                            <flux:badge size="sm"
-                                :color="($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'green' : 'red'">
-                                {{ ($citizenData['tiene_derecho'] ?? 'false') === 'true' ? 'CON DERECHO' : 'SIN DERECHO' }}
-                            </flux:badge>
+                @php $hasRight = ($citizenData['tiene_derecho'] ?? 'false') === 'true'; @endphp
+                <x-wfm.section :title="$hasRight ? 'CON DERECHO' : 'SIN DERECHO'" :icon="$hasRight ? 'check-circle' : 'x-circle'">
+                    @if(isset($citizenData['asegurado']))
+                        <p class="text-xs font-medium text-wfm-navy-800 dark:text-white">{{ $citizenData['asegurado']['nombre'] ?? 'N/A' }}</p>
+                        <div class="flex justify-between text-[10px] text-wfm-surface-muted mt-1">
+                            <span>Cuota: {{ $citizenData['asegurado']['cuota_pagada'] ?? 'N/A' }}</span>
+                            <span>Vence: {{ $citizenData['asegurado']['valido_hasta'] ?? 'N/A' }}</span>
                         </div>
-                    </div>
-
-                    <div class="p-4 space-y-4">
-                        {{-- Asegurado --}}
-                        @if(isset($citizenData['asegurado']))
-                            <div class="space-y-1">
-                                <flux:text size="xs" class="uppercase font-bold text-slate-400">Asegurado</flux:text>
-                                <flux:text size="sm" class="font-medium">{{ $citizenData['asegurado']['nombre'] ?? 'N/A' }}
-                                </flux:text>
-                                <div class="flex justify-between text-xs text-slate-500">
-                                    <span>Cuota: {{ $citizenData['asegurado']['cuota_pagada'] ?? 'N/A' }}</span>
-                                    <span>Vence: {{ $citizenData['asegurado']['valido_hasta'] ?? 'N/A' }}</span>
-                                </div>
-                            </div>
-                        @endif
-
-                        {{-- Beneficiario (Solo si existe y es el que se está validando) --}}
-                        @if(isset($citizenData['beneficiario']) && ($citizenData['beneficiario']['documento'] ?? '') === $form->citizen_identifier)
-                            <div class="pt-3 border-t dark:border-slate-800 space-y-1">
-                                <flux:text size="xs" class="uppercase font-bold text-slate-400">Beneficiario</flux:text>
-                                <flux:text size="sm" class="font-medium text-blue-600 dark:text-blue-400">
-                                    {{ $citizenData['beneficiario']['nombre'] ?? 'N/A' }}</flux:text>
-                                <flux:text size="xs" class="text-slate-500">{{ $citizenData['beneficiario']['tipo'] ?? 'N/A' }}
-                                </flux:text>
-                            </div>
-                        @endif
-                    </div>
-                </flux:card>
+                    @endif
+                </x-wfm.section>
             @elseif($isValidating)
-                <flux:card class="animate-pulse py-8 text-center space-y-2">
-                    <flux:icon icon="arrow-path" class="animate-spin text-slate-400 mx-auto" />
-                    <flux:text size="xs">Validando derechos en tiempo real...</flux:text>
-                </flux:card>
+                <div class="card-wfm p-4 text-center space-y-2 motion-safe:animate-pulse">
+                    <flux:icon.arrow-path class="animate-spin text-wfm-surface-muted mx-auto w-5 h-5" />
+                    <p class="text-xs text-wfm-surface-muted">Validando derechos en tiempo real...</p>
+                </div>
             @endif
         </div>
     </div>
 
-    {{-- Historial Reciente --}}
-    <div class="space-y-4">
-        <flux:heading size="lg">Historial Reciente del Ciudadano</flux:heading>
-        <flux:subheading>Últimas 10 interacciones asociadas al número telefónico ingresado.</flux:subheading>
+    <x-wfm.section title="Historial Reciente del Ciudadano" description="Últimas 10 interacciones asociadas al número telefónico ingresado.">
+        <x-wfm.table :headers="['Fecha / Hora', 'Teléfono', 'Cola', 'Tipificación', 'Estado', 'Acciones']" compact>
+            @forelse($history as $record)
+                <flux:table.row :key="$record->id">
+                    <flux:table.cell class="text-xs">
+                        <span class="font-medium">{{ $record->ivr_started_at?->format('d/m/Y') ?? 'Hoy' }}</span>
+                        <span class="text-wfm-surface-muted ml-1">{{ $record->ivr_started_at?->format('H:i:s') ?? '' }}</span>
+                    </flux:table.cell>
+                    <flux:table.cell class="text-xs font-medium">{{ $record->phone_number }}</flux:table.cell>
+                    <flux:table.cell><flux:badge size="sm" color="slate">{{ $record->queue?->name ?? 'N/A' }}</flux:badge></flux:table.cell>
+                    <flux:table.cell class="text-xs">{{ $record->caseSubtype?->name ?? 'Sin tipificar' }}</flux:table.cell>
+                    <flux:table.cell>
+                        <x-wfm.agent-status :status="match($record->status) { 'open' => 'available', 'closed' => 'training', default => 'break' }" :label="$record->status" size="xs" />
+                    </flux:table.cell>
+                    <flux:table.cell>
+                        <flux:button wire:click="showRecordDetails({{ $record->id }})" variant="ghost" size="sm" icon="eye" />
+                    </flux:table.cell>
+                </flux:table.row>
+            @empty
+                <flux:table.row>
+                    <flux:table.cell colspan="6">
+                        <x-wfm.empty icon="phone" message="No has realizado registros recientemente." />
+                    </flux:table.cell>
+                </flux:table.row>
+            @endforelse
+        </x-wfm.table>
+    </x-wfm.section>
 
-        <flux:card class="p-0 overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
-                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Fecha / Hora</th>
-                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Teléfono</th>
-                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Cola</th>
-                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500">Tipificación</th>
-                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Estado</th>
-                        <th class="p-2 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Acciones
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y dark:divide-slate-800">
-                    @forelse($history as $record)
-                        <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
-                            <td class="p-2 text-xs">
-                                <div class="flex flex-col">
-                                    <span class="font-bold">{{ $record->ivr_started_at?->format('d/m/Y') ?? 'Hoy' }}</span>
-                                    <span
-                                        class="text-slate-500">{{ $record->ivr_started_at?->format('H:i:s') ?? now()->format('H:i:s') }}</span>
-                                </div>
-                            </td>
-                            <td class="p-2 text-sm font-medium">{{ $record->phone_number }}</td>
-                            <td class="p-2 text-xs">
-                                <flux:badge size="sm" color="slate">{{ $record->queue?->name ?? 'N/A' }}</flux:badge>
-                            </td>
-                            <td class="p-2 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                {{ $record->caseSubtype?->name ?? 'Sin tipificar' }}
-                            </td>
-                            <td class="p-2 text-right">
-                                @php
-                                    $statusColor = match ($record->status) {
-                                        'open' => 'blue',
-                                        'closed' => 'green',
-                                        'pending_operator' => 'amber',
-                                        default => 'slate'
-                                    };
-                                @endphp
-                                <flux:badge size="sm" :color="$statusColor">{{ $record->status }}</flux:badge>
-                            </td>
-                            <td class="p-2 text-right">
-                                <flux:button wire:click="showRecordDetails({{ $record->id }})" variant="subtle" size="sm"
-                                    icon="eye" />
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="p-2 text-center text-slate-500 italic">
-                                No has realizado registros recientemente.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </flux:card>
-    </div>
-
-    {{-- Modal de Detalles --}}
     <flux:modal name="record-details" class="min-w-[500px]">
         @if($selectedRecord)
             <div class="space-y-4">
@@ -286,68 +184,54 @@
                     <flux:heading size="lg">Detalles del Registro #{{ $selectedRecord->id }}</flux:heading>
                     <flux:subheading>Información completa de la interacción seleccionada.</flux:subheading>
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Canal / Cola</flux:text>
-                        <flux:text size="sm">{{ $selectedRecord->queue?->channel?->name ?? 'N/A' }} -
-                            {{ $selectedRecord->queue?->name ?? 'N/A' }}</flux:text>
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <p class="kpi-label">Canal / Cola</p>
+                        <p class="font-medium text-wfm-navy-800 dark:text-white">{{ $selectedRecord->queue?->channel?->name ?? 'N/A' }} - {{ $selectedRecord->queue?->name ?? 'N/A' }}</p>
                     </div>
-                    <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Estado / Fecha</flux:text>
-                        <div class="flex items-center gap-2">
-                            <flux:badge size="sm" color="slate">{{ $selectedRecord->status }}</flux:badge>
-                            <flux:text size="sm">{{ $selectedRecord->ivr_started_at?->format('d/m/Y H:i') }}</flux:text>
+                    <div>
+                        <p class="kpi-label">Estado / Fecha</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <x-wfm.agent-status :status="match($selectedRecord->status) { 'closed' => 'available', default => 'break' }" :label="$selectedRecord->status" size="xs" />
+                            <span class="text-wfm-surface-muted">{{ $selectedRecord->ivr_started_at?->format('d/m/Y H:i') }}</span>
                         </div>
                     </div>
-                    <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Agente</flux:text>
-                        <flux:text size="sm">
-                            {{ $selectedRecord->employee?->full_name ?? $selectedRecord->raw_agent_name ?? 'N/A' }}
-                        </flux:text>
+                    <div>
+                        <p class="kpi-label">Agente</p>
+                        <p class="font-medium text-wfm-navy-800 dark:text-white">{{ $selectedRecord->employee?->full_name ?? $selectedRecord->raw_agent_name ?? 'N/A' }}</p>
                     </div>
-                    <div class="space-y-1">
-                        <flux:text size="xs" class="uppercase font-bold text-slate-400">Tipificación</flux:text>
-                        <flux:text size="sm">{{ $selectedRecord->caseSubtype?->name ?? 'Sin tipificar' }}</flux:text>
+                    <div>
+                        <p class="kpi-label">Tipificación</p>
+                        <p class="font-medium text-wfm-navy-800 dark:text-white">{{ $selectedRecord->caseSubtype?->name ?? 'Sin tipificar' }}</p>
                     </div>
                 </div>
-
-                <div class="space-y-1">
-                    <flux:text size="xs" class="uppercase font-bold text-slate-400">Descripción / Observaciones</flux:text>
-                    <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border dark:border-slate-800 text-sm italic">
+                <div>
+                    <p class="kpi-label mb-1">Descripción</p>
+                    <div class="p-3 bg-wfm-surface rounded-md border border-wfm-surface-border text-xs italic">
                         {{ $selectedRecord->description ?: 'No se ingresaron detalles adicionales.' }}
                     </div>
                 </div>
-
-                <div class="border-t dark:border-slate-800 pt-4">
-                    <flux:heading size="sm" class="mb-3">Tiempos de Interacción (Segundos)</flux:heading>
+                <div class="border-t border-wfm-surface-border pt-4">
+                    <p class="text-xs font-semibold text-wfm-navy-800 dark:text-white mb-3">Tiempos de Interacción</p>
                     <div class="grid grid-cols-4 gap-2">
-                        <div
-                            class="text-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-100 dark:border-blue-800/50">
-                            <flux:text size="xs" color="blue">Habla</flux:text>
-                            <div class="font-bold text-blue-700 dark:text-blue-400">{{ $selectedRecord->talk_time ?? 0 }}s
-                            </div>
+                        <div class="text-center p-2 bg-wfm-info/5 rounded border border-wfm-info/20">
+                            <p class="text-[10px] text-wfm-info">Habla</p>
+                            <p class="text-sm font-bold text-wfm-info">{{ $selectedRecord->talk_time ?? 0 }}s</p>
                         </div>
-                        <div
-                            class="text-center p-2 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-100 dark:border-amber-800/50">
-                            <flux:text size="xs" color="amber">Espera</flux:text>
-                            <div class="font-bold text-amber-700 dark:text-amber-400">{{ $selectedRecord->ring_time ?? 0 }}s
-                            </div>
+                        <div class="text-center p-2 bg-wfm-warning/5 rounded border border-wfm-warning/20">
+                            <p class="text-[10px] text-wfm-warning">Espera</p>
+                            <p class="text-sm font-bold text-wfm-warning">{{ $selectedRecord->ring_time ?? 0 }}s</p>
                         </div>
-                        <div
-                            class="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-100 dark:border-green-800/50">
-                            <flux:text size="xs" color="green">Trabajo</flux:text>
-                            <div class="font-bold text-green-700 dark:text-green-400">{{ $selectedRecord->work_time ?? 0 }}s
-                            </div>
+                        <div class="text-center p-2 bg-wfm-success/5 rounded border border-wfm-success/20">
+                            <p class="text-[10px] text-wfm-success">Trabajo</p>
+                            <p class="text-sm font-bold text-wfm-success">{{ $selectedRecord->work_time ?? 0 }}s</p>
                         </div>
-                        <div
-                            class="text-center p-2 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800">
-                            <flux:text size="xs">Cola</flux:text>
-                            <div class="font-bold">{{ $selectedRecord->queue_time ?? 0 }}s</div>
+                        <div class="text-center p-2 bg-wfm-surface rounded border border-wfm-surface-border">
+                            <p class="text-[10px] text-wfm-surface-muted">Cola</p>
+                            <p class="text-sm font-bold">{{ $selectedRecord->queue_time ?? 0 }}s</p>
                         </div>
                     </div>
                 </div>
-
                 <div class="flex justify-end pt-2">
                     <flux:modal.close>
                         <flux:button variant="primary">Entendido</flux:button>

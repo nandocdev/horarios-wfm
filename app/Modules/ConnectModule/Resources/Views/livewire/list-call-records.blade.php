@@ -1,98 +1,63 @@
-<div class="space-y-8">
-    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-            <flux:heading size="xl">Tus Registros de Hoy</flux:heading>
-            <flux:subheading>Resumen de llamadas gestionadas durante la jornada actual.</flux:subheading>
-        </div>
-        <div>
-            <flux:button href="{{ route('contact-center.calls.create') }}" variant="primary" wire:navigate icon="plus">
-                Nuevo registro
-            </flux:button>
-        </div>
-    </div>
-
-    <flux:card>
-        <flux:input icon="magnifying-glass" wire:model.live.debounce.300ms="search"
-            placeholder="Buscar teléfono o identificador" />
-    </flux:card>
-
-    <flux:card>
-        <div class="grid gap-4 md:grid-cols-4">
-            <flux:select wire:model.live="statusFilter" placeholder="Filtrar por estado">
-                <flux:select.option value="">Todos</flux:select.option>
-                <flux:select.option value="open">Abierto</flux:select.option>
-                <flux:select.option value="pending_operator">Pendiente Operador</flux:select.option>
-                <flux:select.option value="closed">Cerrado</flux:select.option>
-            </flux:select>
-
-            <flux:input wire:model.live="dateFrom" type="date" placeholder="Desde" />
-            <flux:input wire:model.live="dateTo" type="date" placeholder="Hasta" />
-
-            <flux:select wire:model.live="employeeFilter" placeholder="Filtrar por empleado">
-                <flux:select.option value="">Todos</flux:select.option>
-                @foreach($employees as $employee)
-                    <flux:select.option value="{{ $employee->id }}">{{ $employee->name }}</flux:select.option>
-                @endforeach
-            </flux:select>
-        </div>
-    </flux:card>
+<div class="space-y-6">
+    <x-wfm.page-header title="Registro de Llamadas" description="Resumen de llamadas gestionadas." search searchWire="search" searchPlaceholder="Buscar teléfono o identificador...">
+        <x-slot:actions>
+            <flux:button href="{{ route('contact-center.calls.create') }}" variant="primary" icon="plus" wire:navigate>Nuevo registro</flux:button>
+        </x-slot:actions>
+        <x-slot:filters>
+            <x-wfm.filter-bar>
+                <flux:select wire:model.live="statusFilter" placeholder="Estado" class="!w-36">
+                    <flux:select.option value="">Todos</flux:select.option>
+                    <flux:select.option value="open">Abierto</flux:select.option>
+                    <flux:select.option value="pending_operator">Pendiente</flux:select.option>
+                    <flux:select.option value="closed">Cerrado</flux:select.option>
+                </flux:select>
+                <flux:input type="date" wire:model.live="dateFrom" class="!w-36" />
+                <flux:input type="date" wire:model.live="dateTo" class="!w-36" />
+                <flux:select wire:model.live="employeeFilter" placeholder="Empleado" class="!w-44">
+                    <flux:select.option value="">Todos</flux:select.option>
+                    @foreach($employees as $employee)
+                        <flux:select.option value="{{ $employee->id }}">{{ $employee->name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+            </x-wfm.filter-bar>
+        </x-slot:filters>
+    </x-wfm.page-header>
 
     @if (session()->has('success'))
-        <flux:card color="green" class="border-green-200 bg-green-50 text-green-600">
-            <flux:text>{{ session('success') }}</flux:text>
-        </flux:card>
+        <div class="rounded-md bg-wfm-success/10 border border-wfm-success/20 px-3 py-2 text-xs text-wfm-success">
+            {{ session('success') }}
+        </div>
     @endif
 
-    <flux:card>
-        <flux:table :paginate="$records">
-            <flux:table.columns>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">ID</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Teléfono</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Asegurado</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Estado</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Tipo</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Subtipo</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Atiende</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Creado</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Cerrado</flux:table.column>
-                <flux:table.column align="end" class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
-            </flux:table.columns>
-
-            <flux:table.rows>
+    <x-wfm.section>
+        <div wire:loading.delay.class="opacity-50" class="transition-opacity">
+            <x-wfm.table :headers="['ID', 'Teléfono', 'Asegurado', 'Estado', 'Tipo', 'Subtipo', 'Atiende', 'Creado', 'Cerrado', 'Acciones']" compact>
                 @forelse($records as $record)
-                    <flux:table.row :key="$record->id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 py-2">
-                        <flux:table.cell class="py-2">{{ $record->id }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $record->phone_number }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $record->citizen_identifier ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="py-2">
-                            <flux:badge
-                                :color="['open' => 'green', 'pending_operator' => 'amber', 'closed' => 'blue'][$record->status] ?? 'slate'"
-                                size="sm">
-                                {{ ucfirst(str_replace('_', ' ', $record->status)) }}
-                            </flux:badge>
+                    <flux:table.row :key="$record->id">
+                        <flux:table.cell>{{ $record->id }}</flux:table.cell>
+                        <flux:table.cell class="font-mono text-xs">{{ $record->phone_number }}</flux:table.cell>
+                        <flux:table.cell class="text-xs">{{ $record->citizen_identifier ?? '—' }}</flux:table.cell>
+                        <flux:table.cell>
+                            <x-wfm.agent-status :status="match($record->status) { 'open' => 'available', 'pending_operator' => 'break', 'closed' => 'training', default => 'offline' }" :label="ucfirst(str_replace('_', ' ', $record->status))" size="xs" />
                         </flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $record->queue?->name ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $record->caseSubtype?->name ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $record->employee?->full_name ?? 'Sin asignar' }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $record->ivr_started_at?->format('Y-m-d H:i') }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $record->closed_at?->format('Y-m-d H:i') ?? '—' }}</flux:table.cell>
-                        <flux:table.cell align="end" class="py-2">
-                            <flux:button href="{{ route('contact-center.calls.edit', $record) }}" variant="ghost" size="sm"
-                                wire:navigate>
-                                Editar
-                            </flux:button>
+                        <flux:table.cell class="text-xs">{{ $record->queue?->name ?? '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-xs">{{ $record->caseSubtype?->name ?? '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-xs">{{ $record->employee?->full_name ?? 'Sin asignar' }}</flux:table.cell>
+                        <flux:table.cell class="text-xs">{{ $record->ivr_started_at?->format('Y-m-d H:i') }}</flux:table.cell>
+                        <flux:table.cell class="text-xs">{{ $record->closed_at?->format('Y-m-d H:i') ?? '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-right">
+                            <flux:button href="{{ route('contact-center.calls.edit', $record) }}" variant="ghost" size="sm" wire:navigate>Editar</flux:button>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell class="py-2" colspan="10" align="center">
-                            <flux:text>No hay registros que coincidan con el filtro.</flux:text>
+                        <flux:table.cell colspan="10">
+                            <x-wfm.empty icon="phone" message="No hay registros que coincidan con el filtro." />
                         </flux:table.cell>
                     </flux:table.row>
                 @endforelse
-            </flux:table.rows>
-        </flux:table>
-
+            </x-wfm.table>
+        </div>
         <div class="mt-4">{{ $records->links() }}</div>
-    </flux:card>
+    </x-wfm.section>
 </div>

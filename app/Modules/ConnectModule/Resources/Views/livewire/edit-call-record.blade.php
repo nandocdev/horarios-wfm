@@ -1,15 +1,17 @@
-<div class="space-y-8">
-    <flux:card>
-        <flux:heading size="lg">Completar registro de llamada</flux:heading>
-    </flux:card>
+<div class="space-y-6">
+    <x-wfm.page-header title="Completar Registro de Llamada #{{ $callRecord->id }}">
+        <x-slot:actions>
+            <flux:button href="{{ route('contact-center.calls.index') }}" variant="ghost" wire:navigate>Volver</flux:button>
+        </x-slot:actions>
+    </x-wfm.page-header>
 
     @if (session()->has('success'))
-        <flux:card color="green" class="border-green-200 bg-green-50 text-green-600">
-            <flux:text>{{ session('success') }}</flux:text>
-        </flux:card>
+        <div class="rounded-md bg-wfm-success/10 border border-wfm-success/20 px-3 py-2 text-xs text-wfm-success">
+            {{ session('success') }}
+        </div>
     @endif
 
-    <flux:card class="">
+    <x-wfm.section>
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-2">
             <flux:select wire:model="form.channel_id" label="Canal">
                 <flux:select.option value="">Seleccionar</flux:select.option>
@@ -27,8 +29,7 @@
             </flux:select>
             <flux:error name="form.queue_id" />
 
-            <flux:input wire:model.defer="form.citizen_identifier" label="Identificación (Cédula o Pasaporte)"
-                helper="Se aceptan guiones y caracteres alfanuméricos." placeholder="Ej. 8-725-927 o PA123456" />
+            <flux:input wire:model.defer="form.citizen_identifier" label="Identificación" placeholder="Ej. 8-725-927" />
             <flux:error name="form.citizen_identifier" />
 
             <flux:select wire:model="form.case_subtype_id" label="Tipo de consulta">
@@ -39,14 +40,13 @@
             </flux:select>
             <flux:error name="form.case_subtype_id" />
 
-            <flux:textarea wire:model.defer="form.description" label="Descripción" rows="4" />
+            <flux:textarea wire:model.defer="form.description" label="Descripción" rows="4" class="md:col-span-2" />
             <flux:error name="form.description" />
 
-            <div class="md:col-span-2 flex justify-end">
+            <div class="md:col-span-2 flex justify-end gap-2">
+                <flux:button href="{{ route('contact-center.calls.index') }}" variant="ghost" wire:navigate>Volver</flux:button>
                 <flux:button type="submit" variant="primary">Guardar</flux:button>
-                <flux:button href="{{ route('contact-center.calls.index') }}" variant="ghost" class="ml-3"
-                    wire:navigate>Volver</flux:button>
             </div>
         </form>
-    </flux:card>
+    </x-wfm.section>
 </div>

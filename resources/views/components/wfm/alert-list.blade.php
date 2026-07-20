@@ -47,9 +47,9 @@
                 @endif
             </div>
         @empty
-            <div class="px-3 py-6 text-center text-xs text-wfm-surface-muted">
+            <div class="px-3 py-6 text-center">
                 <flux:icon.check-circle class="w-4 h-4 mx-auto mb-1 text-wfm-success" />
-                {{ $empty }}
+                <p class="text-xs text-wfm-surface-muted">{{ $empty }}</p>
             </div>
         @endforelse
     </div>

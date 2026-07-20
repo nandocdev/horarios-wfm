@@ -5,19 +5,30 @@ declare(strict_types=1);
 namespace Tests;
 
 use Database\Seeders\RolesAndPermissionsSeeder;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
 
 abstract class TestCase extends BaseTestCase
 {
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // En entornos de test de feature, aseguramos que los permisos existan
-        // para evitar que el layout (sidebar) falle al renderizar.
         if (! $this instanceof Unit\TestCase) {
-            $this->seed(RolesAndPermissionsSeeder::class);
+            static $initialized = false;
+
+            if (! $initialized) {
+                $this->artisan('migrate:fresh', [
+                    '--seeder' => RolesAndPermissionsSeeder::class,
+                    '--seed' => true,
+                ]);
+
+                $initialized = true;
+            }
         }
     }
 

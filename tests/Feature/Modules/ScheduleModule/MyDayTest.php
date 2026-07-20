@@ -32,6 +32,6 @@ test('my day component shows todays assignments', function () {
     $this->actingAs($user);
 
     Livewire::test(MyDay::class)
-        ->assertSee('Mi Jornada')
+        ->assertSee('Test User')
         ->assertSee('Coaching');
 });

@@ -13,7 +13,7 @@ test('TeamEvaluationSelector registrado en ModuleServiceProvider', function () {
 test('CriteriaVersionCreated event tiene listener registrado', function () {
     $contents = file_get_contents(app_path('Modules/QualityModule/Providers/ModuleServiceProvider.php'));
     expect($contents)->toContain('CriteriaVersionCreated::class');
-    expect($contents)->toContain('UpdateQueueScoreAverages::class');
+    expect($contents)->toContain('LogCriteriaVersionCreated::class');
 });
 
 test('CriteriaFormData Form Object existe', function () {

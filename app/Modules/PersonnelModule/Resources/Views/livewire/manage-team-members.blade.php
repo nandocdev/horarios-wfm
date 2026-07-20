@@ -10,7 +10,7 @@
         </x-slot:actions>
     </x-wfm.page-header>
 
-    <x-wfm-section title="Miembros Actuales ({{ $team->users->count() }})">
+    <x-wfm.section title="Miembros Actuales ({{ $team->users->count() }})">
         @if($team->users->isNotEmpty())
             <div class="space-y-2">
                 @foreach($team->users as $employee)
@@ -30,11 +30,11 @@
                 @endforeach
             </div>
         @else
-            <x-wfm-empty icon="users" message="No hay miembros en este equipo" description="Haz clic en 'Agregar Miembro' para asignar empleados." />
+            <x-wfm.empty icon="users" message="No hay miembros en este equipo" description="Haz clic en 'Agregar Miembro' para asignar empleados." />
         @endif
-    </x-wfm-section>
+    </x-wfm.section>
 
-    <x-wfm-section title="Historial de Asignaciones">
+    <x-wfm.section title="Historial de Asignaciones">
         @if($team->members->isNotEmpty())
             <x-wfm.table :headers="['Empleado', 'Fecha Inicio', 'Fecha Fin', 'Estado']" compact>
                 @foreach($team->members->sortByDesc('start_date') as $member)
@@ -61,9 +61,9 @@
                 @endforeach
             </x-wfm.table>
         @else
-            <x-wfm-empty icon="clock" message="No hay historial de asignaciones" />
+            <x-wfm.empty icon="clock" message="No hay historial de asignaciones" />
         @endif
-    </x-wfm-section>
+    </x-wfm.section>
 
     <flux:modal wire:model="showAssignModal" class="md:w-96">
         <div class="space-y-4">

@@ -102,13 +102,13 @@
                         @endforeach
                     </div>
                 @else
-                    <x-wfm-empty icon="users" message="No hay miembros asignados a este equipo.">
+                    <x-wfm.empty icon="users" message="No hay miembros asignados a este equipo.">
                         <x-slot:action>
                             <flux:modal.trigger name="add-member-modal">
                                 <flux:button wire:click="loadAvailableEmployees" variant="subtle" size="sm">Añadir el primero</flux:button>
                             </flux:modal.trigger>
                         </x-slot:action>
-                    </x-wfm-empty>
+                    </x-wfm.empty>
                 @endif
             </x-wfm.section>
         </div>

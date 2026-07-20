@@ -27,7 +27,7 @@
                     </div>
                 </div>
             @empty
-                <x-wfm-empty icon="users" message="Sin datos de equipos" />
+                <x-wfm.empty icon="users" message="Sin datos de equipos" />
             @endforelse
         </x-wfm.section>
 
@@ -60,7 +60,7 @@
                 @endif
             @empty
                 <div class="col-span-3">
-                    <x-wfm-empty icon="briefcase" message="Sin datos de posiciones" />
+                    <x-wfm.empty icon="briefcase" message="Sin datos de posiciones" />
                 </div>
             @endforelse
         </div>

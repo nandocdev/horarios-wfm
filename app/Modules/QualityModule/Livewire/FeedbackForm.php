@@ -6,15 +6,16 @@ namespace App\Modules\QualityModule\Livewire;
 
 use App\Modules\QualityModule\Actions\StoreFeedbackAction;
 use App\Modules\QualityModule\DTOs\CreateFeedbackDTO;
+use App\Modules\QualityModule\Livewire\Forms\FeedbackFormData;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\Feedback;
 use Livewire\Component;
 
 class FeedbackForm extends Component
 {
-    public Evaluation $evaluation;
+    public FeedbackFormData $form;
 
-    public string $obsfeed = '';
+    public Evaluation $evaluation;
 
     public function mount(Evaluation $evaluation): void
     {
@@ -25,16 +26,15 @@ class FeedbackForm extends Component
     {
         $this->authorize('create', [Feedback::class, $this->evaluation]);
 
-        $this->validate(['obsfeed' => 'required|string|max:2500']);
+        $this->form->validate();
 
         $action->execute(new CreateFeedbackDTO(
             evaluation_id: $this->evaluation->id,
-            obsfeed: $this->obsfeed,
+            obsfeed: $this->form->obsfeed,
             created_by: (int) auth()->id(),
         ));
 
         session()->flash('message', 'Feedback agregado correctamente.');
-
         $this->redirectRoute('quality.evaluations.show', $this->evaluation->id);
     }
 

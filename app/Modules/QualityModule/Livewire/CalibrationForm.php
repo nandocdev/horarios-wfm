@@ -6,42 +6,37 @@ namespace App\Modules\QualityModule\Livewire;
 
 use App\Modules\QualityModule\Actions\StoreCalibrationAction;
 use App\Modules\QualityModule\DTOs\CreateCalibrationDTO;
+use App\Modules\QualityModule\Livewire\Forms\CalibrationFormData;
 use App\Modules\QualityModule\Models\CalibrationLog;
 use App\Modules\QualityModule\Models\Evaluation;
 use Livewire\Component;
 
 class CalibrationForm extends Component
 {
+    public CalibrationFormData $form;
+
     public Evaluation $evaluation;
-
-    public int $score_nuevo = 0;
-
-    public ?string $obs = null;
 
     public function mount(Evaluation $evaluation): void
     {
         $this->evaluation = $evaluation;
-        $this->score_nuevo = $this->evaluation->score ?? 0;
+        $this->form->score_nuevo = $this->evaluation->score ?? 0;
     }
 
     public function submit(StoreCalibrationAction $action): void
     {
         $this->authorize('create', [CalibrationLog::class, $this->evaluation]);
 
-        $this->validate([
-            'score_nuevo' => 'required|integer|min:0|max:100',
-            'obs' => 'nullable|string|max:2500',
-        ]);
+        $this->form->validate();
 
         $action->execute(new CreateCalibrationDTO(
             evaluation_id: $this->evaluation->id,
-            score_nuevo: $this->score_nuevo,
+            score_nuevo: $this->form->score_nuevo,
             created_by: (int) auth()->id(),
-            obs: $this->obs,
+            obs: $this->form->obs,
         ));
 
         session()->flash('message', 'Calibración registrada correctamente.');
-
         $this->redirectRoute('quality.evaluations.show', $this->evaluation->id);
     }
 

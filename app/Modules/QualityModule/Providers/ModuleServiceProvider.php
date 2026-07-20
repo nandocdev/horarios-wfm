@@ -7,6 +7,7 @@ namespace App\Modules\QualityModule\Providers;
 use App\Modules\QualityModule\Console\Commands\ImportCsvCriteriaCommand;
 use App\Modules\QualityModule\Console\Commands\SeedQualityData;
 use App\Modules\QualityModule\Events\CalibrationCreated;
+use App\Modules\QualityModule\Events\CriteriaVersionCreated;
 use App\Modules\QualityModule\Events\EvaluationCreated;
 use App\Modules\QualityModule\Events\FeedbackAdded;
 use App\Modules\QualityModule\Listeners\LogEvaluationAudit;
@@ -22,6 +23,7 @@ use App\Modules\QualityModule\Livewire\EvaluationIndex;
 use App\Modules\QualityModule\Livewire\FeedbackForm;
 use App\Modules\QualityModule\Livewire\ManageQueueCriteria;
 use App\Modules\QualityModule\Livewire\QueueList;
+use App\Modules\QualityModule\Livewire\TeamEvaluationSelector;
 use App\Modules\QualityModule\Models\CalibrationLog;
 use App\Modules\QualityModule\Models\Criteria;
 use App\Modules\QualityModule\Models\Evaluation;
@@ -87,6 +89,7 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('quality.criteria-form', CriteriaForm::class);
         Livewire::component('quality.queue-list', QueueList::class);
         Livewire::component('quality.manage-queue-criteria', ManageQueueCriteria::class);
+        Livewire::component('quality.team-evaluation-selector', TeamEvaluationSelector::class);
     }
 
     private function registerPolicies(): void
@@ -118,6 +121,10 @@ class ModuleServiceProvider extends ServiceProvider
         Event::listen(
             FeedbackAdded::class,
             LogFeedbackAudit::class,
+        );
+        Event::listen(
+            CriteriaVersionCreated::class,
+            UpdateQueueScoreAverages::class,
         );
     }
 

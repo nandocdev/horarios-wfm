@@ -1,28 +1,23 @@
 <div class="space-y-8">
+    <x-wfm.page-header title="Importar Empleados" description="Validación por filas, importación por chunks y procesamiento en cola." />
+
     <flux:card class="space-y-4">
-        <div>
-            <flux:heading size="md">Carga de archivo CSV</flux:heading>
-            <flux:subheading>Validación por filas, importación por chunks y procesamiento en cola.</flux:subheading>
-        </div>
+        <form wire:submit="import" class="space-y-4">
+            <flux:field label="Archivo CSV *" hint="Archivo CSV con datos de empleados (máx. 20MB)">
+                <flux:input type="file" wire:model="form.csv" accept=".csv,text/csv" />
+                <flux:error name="form.csv" />
+            </flux:field>
 
-        <form wire:submit="import" class="space-y-4  mx-auto">
-            <!-- TODO: Refactor to FluxUI -->
-            <div class="space-y-2">
-                <label for="csv" class="text-sm font-medium text-slate-700">Archivo CSV</label>
-                <input id="csv" type="file" wire:model="form.csv" accept=".csv,text/csv"
-                    class="block w-full rounded-md border-slate-300" />
-                @error('form.csv')
-                    <p class="text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <flux:input type="number" min="100" max="1000" wire:model="form.chunk_size" label="Tamaño de chunk" />
-            @error('form.chunk_size')
-                <p class="text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <flux:input type="number" min="100" max="1000" wire:model="form.chunk_size" label="Tamaño de chunk" hint="Registros por lote de procesamiento (100-1000)" />
 
             <div class="flex justify-end">
-                <flux:button type="submit" variant="primary">Importar CSV</flux:button>
+                <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="import">
+                    <span wire:loading.remove wire:target="import">Importar CSV</span>
+                    <span wire:loading wire:target="import">
+                        <flux:icon.arrow-path class="w-4 h-4 motion-safe:animate-spin inline" />
+                        Importando...
+                    </span>
+                </flux:button>
             </div>
         </form>
     </flux:card>
@@ -33,42 +28,42 @@
         </div>
 
         <flux:table :paginate="$importBatches">
-            <flux:table.columns class="sticky top-0 z-10 bg-white">
-                <flux:table.column class="sticky top-0 z-10 bg-white">Lote</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-white">Archivo</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-white">Estado</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-white">Procesadas</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-white">Importadas</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-white">Rechazadas</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-white">Creado por</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-white">Fecha</flux:table.column>
+            <flux:table.columns>
+                <flux:table.column>Lote</flux:table.column>
+                <flux:table.column>Archivo</flux:table.column>
+                <flux:table.column>Estado</flux:table.column>
+                <flux:table.column>Procesadas</flux:table.column>
+                <flux:table.column>Importadas</flux:table.column>
+                <flux:table.column>Rechazadas</flux:table.column>
+                <flux:table.column>Creado por</flux:table.column>
+                <flux:table.column>Fecha</flux:table.column>
             </flux:table.columns>
 
-            <flux:table.rows class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
+            <flux:table.rows>
                 @forelse($importBatches as $batch)
-                    <flux:table.row :key="$batch->id" class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
-                        <flux:table.cell class="py-2">{{ $batch->id }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $batch->original_filename }}</flux:table.cell>
-                        <flux:table.cell class="py-2">
+                    <flux:table.row :key="$batch->id">
+                        <flux:table.cell>{{ $batch->id }}</flux:table.cell>
+                        <flux:table.cell>{{ $batch->original_filename }}</flux:table.cell>
+                        <flux:table.cell>
                             <flux:badge :variant="match($batch->status) {
-                                        'completed' => 'success',
-                                        'completed_with_errors' => 'warning',
-                                        'failed' => 'danger',
-                                        default => 'ghost'
-                                    }">
+                                'completed' => 'success',
+                                'completed_with_errors' => 'warning',
+                                'failed' => 'danger',
+                                default => 'ghost'
+                            }">
                                 {{ $batch->status }}
                             </flux:badge>
                         </flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $batch->processed_rows }}/{{ $batch->total_rows }}
-                        </flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $batch->imported_rows }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $batch->rejected_rows }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $batch->creator?->name ?? 'Sistema' }}</flux:table.cell>
-                        <flux:table.cell class="py-2">{{ $batch->created_at?->format('Y-m-d H:i') }}</flux:table.cell>
+                        <flux:table.cell>{{ $batch->processed_rows }}/{{ $batch->total_rows }}</flux:table.cell>
+                        <flux:table.cell>{{ $batch->imported_rows }}</flux:table.cell>
+                        <flux:table.cell>{{ $batch->rejected_rows }}</flux:table.cell>
+                        <flux:table.cell>{{ $batch->creator?->name ?? 'Sistema' }}</flux:table.cell>
+                        <flux:table.cell>{{ $batch->created_at?->format('Y-m-d H:i') }}</flux:table.cell>
                     </flux:table.row>
                 @empty
-                    <flux:table.row class="hover:bg-slate-50/50 transition-colors duration-150 ease-out">
-                        <flux:table.cell colspan="8" class="text-center py-8">No hay importaciones registradas.
+                    <flux:table.row>
+                        <flux:table.cell colspan="8">
+                            <x-wfm.empty icon="document-arrow-up" message="No hay importaciones registradas" />
                         </flux:table.cell>
                     </flux:table.row>
                 @endforelse

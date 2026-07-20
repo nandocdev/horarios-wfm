@@ -21,12 +21,12 @@ class ImportEmployees extends Component
 
     public function mount(): void
     {
-        abort_unless(auth()->user()?->can('import', Employee::class), 403);
+        $this->authorize('import', Employee::class);
     }
 
     public function import(ImportEmployeesAction $action): void
     {
-        abort_unless(auth()->user()?->can('import', Employee::class), 403);
+        $this->authorize('import', Employee::class);
         $this->form->validate();
 
         $storedPath = $this->form->csv?->storeAs(

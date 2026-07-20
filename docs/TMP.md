@@ -1,5 +1,5 @@
 **Contexto:**
-Estamos trabajando en el sistema **HorariosWFM** (Monolito Modular en Laravel 13). Debes actuar como un **Software Architect y Senior Laravel Developer**. Tu objetivo es realizar un análisis exhaustivo del módulo **QualityModule** y proceder a resolver cualquier inconsistencia, error de arquitectura o funcionalidad pendiente. Antes de iniciar lee el skill: `wfm-laravel-developer` 
+Estamos trabajando en el sistema **HorariosWFM** (Monolito Modular en Laravel 13). Debes actuar como un **Software Architect y Senior Laravel Developer**. Tu objetivo es realizar un análisis exhaustivo del módulo **WorkflowsModule ** y proceder a resolver cualquier inconsistencia, error de arquitectura o funcionalidad pendiente. Antes de iniciar lee el skill: `wfm-laravel-developer` 
 
 **Instrucciones de Análisis (Profundización):**
 1.  **Integridad Arquitectónica:** Verifica que no existan importaciones directas de modelos de otros módulos. Todo debe pasar por `app/Shared/`.
@@ -27,7 +27,7 @@ Estamos trabajando en el sistema **HorariosWFM** (Monolito Modular en Laravel 13
 ### Prompt: Auditoría y Refactorización de Interfaz (UI/UX) — HorariosWFM
 
 **Contexto:**
-Estamos trabajando en el sistema **HorariosWFM** (Laravel 13, Monolito Modular). Debes actuar como un **WFM UI Engineer & Frontend Specialist**. Tu objetivo es realizar un análisis exhaustivo de la capa de presentación del módulo **QualityModule** para asegurar que sea consistente, accesible, de alto rendimiento y que respete la separación de responsabilidades. Antes de iniciar, lee obligatoriamente la skill: `wfm-ui-engineer`.
+Estamos trabajando en el sistema **HorariosWFM** (Laravel 13, Monolito Modular). Debes actuar como un **WFM UI Engineer & Frontend Specialist**. Tu objetivo es realizar un análisis exhaustivo de la capa de presentación del módulo **WorkflowsModule ** para asegurar que sea consistente, accesible, de alto rendimiento y que respete la separación de responsabilidades. Antes de iniciar, lee obligatoriamente la skill: `wfm-ui-engineer`.
 
 **Instrucciones de Análisis de Interfaz (Profundización):**
 1.  **Orquestación Livewire:** Verifica que los componentes Livewire **no** contengan lógica de negocio ni consultas directas a la base de datos. Deben delegar a `Actions` y solo gestionar el estado de la UI.

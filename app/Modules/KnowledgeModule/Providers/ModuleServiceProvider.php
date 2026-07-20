@@ -8,8 +8,12 @@ use App\Modules\KnowledgeModule\Livewire\KnowledgeArticleDetail;
 use App\Modules\KnowledgeModule\Livewire\ManageKnowledgeArticles;
 use App\Modules\KnowledgeModule\Livewire\OperatorView;
 use App\Modules\KnowledgeModule\Livewire\UpsertKnowledgeArticle;
+use App\Modules\KnowledgeModule\Models\ArticleVersion;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
+use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Policies\ArticlePolicy;
+use App\Modules\KnowledgeModule\Policies\ArticleVersionPolicy;
+use App\Modules\KnowledgeModule\Policies\KnowledgeCategoryPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +31,8 @@ class ModuleServiceProvider extends ServiceProvider
     {
         // Registrar políticas de seguridad
         Gate::policy(KnowledgeArticle::class, ArticlePolicy::class);
+        Gate::policy(KnowledgeCategory::class, KnowledgeCategoryPolicy::class);
+        Gate::policy(ArticleVersion::class, ArticleVersionPolicy::class);
 
         // Cargar rutas
         if (file_exists(__DIR__.'/../Routes/web.php')) {

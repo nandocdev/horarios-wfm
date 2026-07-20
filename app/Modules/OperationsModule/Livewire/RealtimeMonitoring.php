@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\ConnectModule\Models\CallRecord;
+use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -59,11 +61,11 @@ class RealtimeMonitoring extends Component
         DashboardScheduleQueriesInterface $scheduleQueries,
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
-        $this->authorize('monitorRealtime');
+        $this->authorize('viewAny', AttendanceIncident::class);
 
         $user = auth()->user();
         $employee = $user->employee;
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser']);
+        $isPowerUser = $user->can('viewAny', CallRecord::class);
 
         if ($this->teamId && ! $isPowerUser) {
             $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
@@ -174,7 +176,7 @@ class RealtimeMonitoring extends Component
         $expectedStateAction = app(GetExpectedAgentStateAction::class);
 
         $employee = auth()->user()->employee;
-        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
+        $isPowerUser = auth()->user()->can('viewAny', CallRecord::class);
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 
         $query = Employee::query()
@@ -435,7 +437,7 @@ class RealtimeMonitoring extends Component
         $this->stats['worker_last_update'] = $lastUpdateCarbon ? $lastUpdateCarbon->diffForHumans() : 'Nunca';
 
         $employee = auth()->user()->employee;
-        $isPowerUser = auth()->user()->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
+        $isPowerUser = auth()->user()->can('viewAny', CallRecord::class);
 
         return view('operations::livewire.realtime-monitoring', [
             'agents' => $this->loadData(),

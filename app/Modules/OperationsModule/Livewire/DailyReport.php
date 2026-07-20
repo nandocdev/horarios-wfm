@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -52,7 +53,7 @@ class DailyReport extends Component
         $user = auth()->user();
         $empModel = $user->employee;
         $employee = $empModel ? Employee::with('team', 'position')->find($empModel->id) : null;
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser', 'chief', 'director']);
+        $isPowerUser = $user->can('viewAny', CallRecord::class);
         $now = Carbon::parse($this->date);
         $today = $now->toDateString();
 

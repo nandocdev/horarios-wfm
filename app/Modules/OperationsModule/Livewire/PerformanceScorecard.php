@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -74,7 +75,7 @@ class PerformanceScorecard extends Component
         $carbonDate = Carbon::parse($this->date);
         $user = auth()->user();
         $me = $user->employee;
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director', 'chief']);
+        $isPowerUser = $user->can('viewAny', CallRecord::class);
 
         $data = [];
 
@@ -155,7 +156,7 @@ class PerformanceScorecard extends Component
     {
         $user = auth()->user();
         $employee = $user->employee;
-        $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'director', 'chief']);
+        $isPowerUser = $user->can('viewAny', CallRecord::class);
 
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 

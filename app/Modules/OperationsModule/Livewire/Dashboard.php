@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
+use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -40,7 +41,7 @@ class Dashboard extends Component
             return [];
         }
 
-        $isWfmOrAdmin = $user->hasAnyRole(['admin', 'wfm', 'director']);
+        $isWfmOrAdmin = $user->can('viewAny', CallRecord::class);
         $isChief = $user->hasRole('chief') || $employee->hasCoordinatorRights();
         $isSupervisor = $employee->is_manager || $user->hasRole(['supervisor', 'coordinator']);
 

@@ -24,10 +24,17 @@ use App\Modules\OperationsModule\Livewire\Widgets\QueueStatsWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\RecentIncidentsWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\StateDistributionWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\VolumeComparisonWidget;
+use App\Modules\OperationsModule\Models\AgentDailyMetric;
+use App\Modules\OperationsModule\Models\AttendanceIncident;
+use App\Modules\OperationsModule\Models\IncidentType;
+use App\Modules\OperationsModule\Policies\AgentDailyMetricPolicy;
+use App\Modules\OperationsModule\Policies\AttendanceIncidentPolicy;
+use App\Modules\OperationsModule\Policies\IncidentTypePolicy;
 use App\Modules\OperationsModule\Repositories\EloquentAgentPerformanceRepository;
 use App\Modules\OperationsModule\Services\AgentPerformanceService;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
@@ -90,5 +97,9 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('operations.widgets.volume-comparison-widget', VolumeComparisonWidget::class);
         Livewire::component('operations.widgets.critical-alerts-widget', CriticalAlertsWidget::class);
         Livewire::component('operations.widgets.recent-incidents-widget', RecentIncidentsWidget::class);
+
+        Gate::policy(AttendanceIncident::class, AttendanceIncidentPolicy::class);
+        Gate::policy(AgentDailyMetric::class, AgentDailyMetricPolicy::class);
+        Gate::policy(IncidentType::class, IncidentTypePolicy::class);
     }
 }

@@ -49,5 +49,5 @@ Route::group(['prefix' => 'personnel', 'as' => 'personnel.'], function () {
 
     Route::get('/reports/staffing', StaffingSummary::class)
         ->name('staffing-summary')
-        ->can('reports.staffing');
+        ->can('viewAny', Employee::class);
 });

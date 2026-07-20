@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Models;
 
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Database\Eloquent\Model;
+use App\Shared\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AgentDailyMetric extends Model
+class AgentDailyMetric extends BaseModel
 {
     protected $fillable = [
         'employee_id',

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Shared\Models\BaseModel;
 
-class IncidentType extends Model
+class IncidentType extends BaseModel
 {
     protected $fillable = [
         'code', 'name', 'color', 'requires_justification',

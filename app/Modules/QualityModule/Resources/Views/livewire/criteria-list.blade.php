@@ -1,46 +1,30 @@
-<div class="space-y-8">
-    <div class="flex items-center justify-between">
-        <div>
-            <flux:heading size="xl" level="1">Criterios de Evaluación</flux:heading>
-            <flux:subheading>Gestión de criterios con versionado automático</flux:subheading>
-        </div>
-        <flux:button href="{{ route('quality.criteria.create') }}" icon="plus">Nuevo Criterio</flux:button>
-    </div>
+<div class="space-y-6">
+    <x-wfm.page-header title="Criterios de Evaluación" description="Gestión de criterios con versionado automático.">
+        <x-slot:actions>
+            <flux:button href="{{ route('quality.criteria.create') }}" icon="plus" variant="primary">Nuevo Criterio</flux:button>
+        </x-slot:actions>
+    </x-wfm.page-header>
 
-    <flux:card>
-        <flux:table>
-            <flux:table.columns>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Código</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Texto del Criterio</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Versión</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Pts</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Descripción</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
-            </flux:table.columns>
-
-            <flux:table.rows>
-                @forelse($criterias as $criteria)
-                    <flux:table.row :key="$criteria->id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                        <flux:table.cell class="py-2">
-                            <flux:badge size="sm" color="indigo" inset="top">{{ $criteria->code }}</flux:badge>
-                        </flux:table.cell>
-                        <flux:table.cell class="py-2 text-sm max-w-xs truncate">{{ $criteria->currentVersion?->criterio_text ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="py-2 text-sm">v{{ $criteria->currentVersion?->version ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="py-2 text-sm font-mono">{{ $criteria->currentVersion?->puntaje ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="py-2 text-sm max-w-xs truncate text-slate-500">{{ $criteria->currentVersion?->descripcion ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="py-2">
-                            <flux:button href="{{ route('quality.criteria.edit', $criteria) }}" variant="ghost" size="sm" icon="pencil" />
-                        </flux:table.cell>
-                    </flux:table.row>
-                @empty
-                    <flux:table.row>
-                        <flux:table.cell colspan="6" class="text-center py-12">
-                            <flux:icon name="clipboard-list" class="w-12 h-12 text-slate-200 mx-auto mb-3" />
-                            <flux:text class="text-slate-400">No hay criterios registrados</flux:text>
-                        </flux:table.cell>
-                    </flux:table.row>
-                @endforelse
-            </flux:table.rows>
-        </flux:table>
-    </flux:card>
+    <x-wfm.table :headers="['Código', 'Texto del Criterio', 'Versión', 'Pts', 'Descripción', 'Acciones']" compact>
+        @forelse($criterias as $criteria)
+            <flux:table.row :key="$criteria->id">
+                <flux:table.cell>
+                    <flux:badge size="sm" color="indigo">{{ $criteria->code }}</flux:badge>
+                </flux:table.cell>
+                <flux:table.cell class="text-sm max-w-xs truncate">{{ $criteria->currentVersion?->criterio_text ?? '—' }}</flux:table.cell>
+                <flux:table.cell class="text-sm">v{{ $criteria->currentVersion?->version ?? '—' }}</flux:table.cell>
+                <flux:table.cell class="text-sm font-mono">{{ $criteria->currentVersion?->puntaje ?? '—' }}</flux:table.cell>
+                <flux:table.cell class="text-sm max-w-xs truncate text-wfm-surface-muted">{{ $criteria->currentVersion?->descripcion ?? '—' }}</flux:table.cell>
+                <flux:table.cell>
+                    <flux:button href="{{ route('quality.criteria.edit', $criteria) }}" variant="ghost" size="sm" icon="pencil" />
+                </flux:table.cell>
+            </flux:table.row>
+        @empty
+            <flux:table.row>
+                <flux:table.cell colspan="6">
+                    <x-wfm.empty icon="clipboard-list" message="No hay criterios registrados." />
+                </flux:table.cell>
+            </flux:table.row>
+        @endforelse
+    </x-wfm.table>
 </div>

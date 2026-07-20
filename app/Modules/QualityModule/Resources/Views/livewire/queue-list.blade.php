@@ -1,48 +1,30 @@
-<div class="space-y-8">
-    <div>
-        <flux:heading size="xl" level="1">Colas de Atención</flux:heading>
-        <flux:subheading>Administración de las colas de calidad disponibles</flux:subheading>
-    </div>
+<div class="space-y-6">
+    <x-wfm.page-header title="Colas de Atención" description="Administración de las colas de calidad disponibles." />
 
-    <flux:card>
-        <div class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <flux:input wire:model="form.code" label="Código" placeholder="CM-Tr" maxlength="20" />
-                <flux:input wire:model="form.name" label="Nombre" placeholder="Citas Médicas - Trámite" />
-                <flux:button wire:click="createQueue" icon="plus" class="self-end">Agregar Cola</flux:button>
-            </div>
+    <x-wfm.section title="Nueva Cola">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <flux:input wire:model="form.code" label="Código" placeholder="CM-Tr" />
+            <flux:input wire:model="form.name" label="Nombre" placeholder="Citas Médicas - Trámite" />
+            <flux:button wire:click="createQueue" icon="plus">Agregar Cola</flux:button>
         </div>
-    </flux:card>
+    </x-wfm.section>
 
-    <flux:card>
-        <flux:table>
-            <flux:table.columns>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Código</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Nombre</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Estado</flux:table.column>
-                <flux:table.column class="sticky top-0 z-10 bg-slate-50 dark:bg-slate-900">Acciones</flux:table.column>
-            </flux:table.columns>
-
-            <flux:table.rows>
-                @foreach($queues as $queue)
-                    <flux:table.row :key="$queue->id" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                        <flux:table.cell class="py-2">
-                            <flux:badge size="sm" color="slate" inset="top">{{ $queue->code }}</flux:badge>
-                        </flux:table.cell>
-                        <flux:table.cell class="py-2 text-sm">{{ $queue->name }}</flux:table.cell>
-                        <flux:table.cell class="py-2">
-                            <flux:badge size="sm" color="{{ $queue->is_active ? 'green' : 'zinc' }}" inset="top">
-                                {{ $queue->is_active ? 'Activa' : 'Inactiva' }}
-                            </flux:badge>
-                        </flux:table.cell>
-                        <flux:table.cell class="py-2">
-                            <flux:button wire:click="toggleActive('{{ $queue->id }}')" variant="ghost" size="sm" icon="{{ $queue->is_active ? 'pause' : 'play' }}">
-                                {{ $queue->is_active ? 'Desactivar' : 'Activar' }}
-                            </flux:button>
-                        </flux:table.cell>
-                    </flux:table.row>
-                @endforeach
-            </flux:table.rows>
-        </flux:table>
-    </flux:card>
+    <x-wfm.table :headers="['Código', 'Nombre', 'Estado', 'Acciones']" compact>
+        @foreach($queues as $queue)
+            <flux:table.row :key="$queue->id">
+                <flux:table.cell>
+                    <flux:badge size="sm" color="slate">{{ $queue->code }}</flux:badge>
+                </flux:table.cell>
+                <flux:table.cell class="text-sm">{{ $queue->name }}</flux:table.cell>
+                <flux:table.cell>
+                    <x-wfm.agent-status :status="$queue->is_active ? 'available' : 'offline'" :label="$queue->is_active ? 'Activa' : 'Inactiva'" size="xs" />
+                </flux:table.cell>
+                <flux:table.cell>
+                    <flux:button wire:click="toggleActive('{{ $queue->id }}')" variant="ghost" size="sm" icon="{{ $queue->is_active ? 'pause' : 'play' }}">
+                        {{ $queue->is_active ? 'Desactivar' : 'Activar' }}
+                    </flux:button>
+                </flux:table.cell>
+            </flux:table.row>
+        @endforeach
+    </x-wfm.table>
 </div>

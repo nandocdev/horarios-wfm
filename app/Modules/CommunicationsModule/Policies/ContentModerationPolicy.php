@@ -59,6 +59,7 @@ class ContentModerationPolicy
      */
     public function moderateContent(User $user, Model $content): bool
     {
-        return $user->hasPermissionTo('communications.moderate');
+        return $user->hasPermissionTo('communications.moderate')
+            && $user->hasRole(['admin', 'moderator', 'owner']);
     }
 }

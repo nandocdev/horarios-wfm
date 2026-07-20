@@ -6,75 +6,38 @@ namespace App\Modules\PersonnelModule\Livewire;
 
 use App\Modules\PersonnelModule\Actions\CreateTeamAction;
 use App\Modules\PersonnelModule\DTOs\TeamDTO;
+use App\Modules\PersonnelModule\Livewire\Forms\TeamForm;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use Livewire\Component;
 
-/**
- * Componente Livewire para crear un nuevo equipo.
- *
- * Maneja validación del formulario y delega creación a CreateTeamAction.
- */
 class CreateTeam extends Component
 {
-    public string $name = '';
+    public TeamForm $form;
 
-    public ?string $description = '';
-
-    public ?int $supervisor_id = null;
-
-    public bool $is_active = true;
-
-    /**
-     * Reglas de validación del formulario.
-     */
-    protected function rules(): array
-    {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'supervisor_id' => ['nullable', 'exists:employees,id'],
-            'is_active' => ['boolean'],
-        ];
-    }
-
-    /**
-     * Mensajes de validación personalizados.
-     */
-    protected function validationAttributes(): array
-    {
-        return [
-            'name' => 'nombre',
-            'description' => 'descripción',
-            'supervisor_id' => 'supervisor',
-            'is_active' => 'estado activo',
-        ];
-    }
-
-    /**
-     * Maneja el envío del formulario.
-     */
     public function save(): void
     {
         $this->authorize('create', Team::class);
 
-        $validated = $this->validate();
+        $this->form->validate();
 
-        $dto = TeamDTO::fromArray($validated);
+        $dto = TeamDTO::fromArray([
+            'name' => $this->form->name,
+            'description' => $this->form->description,
+            'supervisor_id' => $this->form->supervisor_id,
+            'cisco_team_id' => $this->form->cisco_team_id,
+            'is_active' => $this->form->is_active,
+        ]);
+
         $action = new CreateTeamAction;
         $team = $action->execute($dto);
 
         session()->flash('success', 'Equipo creado exitosamente.');
-
         $this->dispatch('teamCreated', teamId: $team->id);
 
-        // Resetear formulario
-        $this->reset();
+        $this->form->reset();
     }
 
-    /**
-     * Obtiene la lista de empleados disponibles como supervisores.
-     */
     public function getAvailableSupervisorsProperty()
     {
         return Employee::where('is_active', true)

@@ -29,6 +29,7 @@ class CreateTeamAction
                 'name' => $dto->name,
                 'description' => $dto->description,
                 'supervisor_id' => $dto->supervisor_id,
+                'cisco_team_id' => $dto->cisco_team_id,
                 'is_active' => $dto->is_active,
             ]);
         });

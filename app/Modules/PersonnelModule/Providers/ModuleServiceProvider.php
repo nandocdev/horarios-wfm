@@ -22,6 +22,7 @@ use App\Modules\PersonnelModule\Observers\EmployeeObserver;
 use App\Modules\PersonnelModule\Observers\EmploymentStatusObserver;
 use App\Modules\PersonnelModule\Observers\TeamObserver;
 use App\Modules\PersonnelModule\Policies\EmployeePolicy;
+use App\Modules\PersonnelModule\Policies\EmploymentStatusPolicy;
 use App\Modules\PersonnelModule\Policies\TeamPolicy;
 use App\Modules\PersonnelModule\Repositories\EloquentEmployeeLookupRepository;
 use App\Modules\PersonnelModule\Repositories\EloquentEmployeeRepository;
@@ -92,6 +93,7 @@ class ModuleServiceProvider extends ServiceProvider
     {
         Gate::policy(Employee::class, EmployeePolicy::class);
         Gate::policy(Team::class, TeamPolicy::class);
+        Gate::policy(EmploymentStatus::class, EmploymentStatusPolicy::class);
     }
 
     protected function registerObservers(): void

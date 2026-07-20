@@ -26,24 +26,24 @@ class PositionForm extends Form
         $uniqueRule = 'unique:positions,position_code';
 
         return [
-            'form.name' => ['required', 'string', 'max:255'],
-            'form.position_code' => ['required', 'string', 'max:20', $uniqueRule],
-            'form.description' => ['nullable', 'string', 'max:1000'],
-            'form.department_id' => ['required', 'integer', 'exists:departments,id'],
-            'form.is_active' => ['boolean'],
-            'form.salary' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
+            'name' => ['required', 'string', 'max:255'],
+            'position_code' => ['required', 'string', 'max:20', $uniqueRule],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'department_id' => ['required', 'integer', 'exists:departments,id'],
+            'is_active' => ['boolean'],
+            'salary' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
         ];
     }
 
     public function validationAttributes(): array
     {
         return [
-            'form.name' => 'nombre',
-            'form.position_code' => 'código de posición',
-            'form.description' => 'descripción',
-            'form.department_id' => 'departamento',
-            'form.is_active' => 'estado activo',
-            'form.salary' => 'salario',
+            'name' => 'nombre',
+            'position_code' => 'código de posición',
+            'description' => 'descripción',
+            'department_id' => 'departamento',
+            'is_active' => 'estado activo',
+            'salary' => 'salario',
         ];
     }
 }

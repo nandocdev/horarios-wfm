@@ -8,7 +8,6 @@ use App\Modules\CoreModule\Models\User;
 use App\Modules\GeoModule\Models\Township;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
-use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use Database\Factories\Modules\PersonnelModule\Models\EmployeeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -176,11 +175,6 @@ class Employee extends Model implements EmployeeInterface
     public function currentTeamMember()
     {
         return $this->hasOne(TeamMember::class)->where('is_active', true);
-    }
-
-    public function assignments(): HasMany
-    {
-        return $this->hasMany(WeeklyScheduleAssignment::class);
     }
 
     // Detalles del Empleado

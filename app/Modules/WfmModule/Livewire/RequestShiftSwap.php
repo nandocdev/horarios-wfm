@@ -168,26 +168,31 @@ class RequestShiftSwap extends Component
             $this->loadAssignments();
 
             if ($this->requesterAssignment) {
+                $assignmentTable = (new WeeklyScheduleAssignment)->getTable();
+                $weekTable = (new WeeklySchedule)->getTable();
+
+                $hasAssignmentSubquery = WeeklyScheduleAssignment::select('employee_id')
+                    ->whereColumn('employee_id', 'employees.id')
+                    ->where('day_of_week', $dayOfWeek)
+                    ->whereHas('weeklySchedule', function ($q) use ($date) {
+                        $q->whereDate('week_start_date', '<=', $date->toDateString())
+                            ->whereDate('week_end_date', '>=', $date->toDateString());
+                    });
+
+                $diffAssignmentSubquery = WeeklyScheduleAssignment::select('employee_id')
+                    ->whereColumn('employee_id', 'employees.id')
+                    ->where('day_of_week', $dayOfWeek)
+                    ->where('schedule_id', $this->requesterAssignment->schedule_id)
+                    ->whereHas('weeklySchedule', function ($q) use ($date) {
+                        $q->whereDate('week_start_date', '<=', $date->toDateString())
+                            ->whereDate('week_end_date', '>=', $date->toDateString());
+                    });
+
                 $peers = Employee::with(['team', 'position'])
                     ->where('position_id', $currentEmployee->position_id)
                     ->where('id', '!=', $currentEmployee->id)
-                    // 1. Debe tener un turno asignado ese día en la misma semana
-                    ->whereHas('assignments', function ($query) use ($dayOfWeek, $date) {
-                        $query->where('day_of_week', $dayOfWeek)
-                            ->whereHas('weeklySchedule', function ($q) use ($date) {
-                                $q->whereDate('week_start_date', '<=', $date->toDateString())
-                                    ->whereDate('week_end_date', '>=', $date->toDateString());
-                            });
-                    })
-                    // 2. Ese turno debe ser distinto al del solicitante
-                    ->whereDoesntHave('assignments', function ($query) use ($dayOfWeek, $date) {
-                        $query->where('day_of_week', $dayOfWeek)
-                            ->where('schedule_id', $this->requesterAssignment->schedule_id)
-                            ->whereHas('weeklySchedule', function ($q) use ($date) {
-                                $q->whereDate('week_start_date', '<=', $date->toDateString())
-                                    ->whereDate('week_end_date', '>=', $date->toDateString());
-                            });
-                    })
+                    ->whereExists($hasAssignmentSubquery)
+                    ->whereNotExists($diffAssignmentSubquery)
                     ->get();
             }
         }

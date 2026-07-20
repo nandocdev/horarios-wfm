@@ -45,6 +45,8 @@ class EmployeeController extends Controller
      */
     public function create(): View
     {
+        $this->authorize('create', Employee::class);
+
         return view('employees::create');
     }
 
@@ -95,6 +97,8 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee): View
     {
+        $this->authorize('update', $employee);
+
         return view('employees::edit', compact('employee'));
     }
 

@@ -14,15 +14,18 @@ use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
-class AgentPerformanceDashboardTest extends TestCase {
+class AgentPerformanceDashboardTest extends TestCase
+{
     use RefreshDatabase;
 
-    protected function setUp(): void {
+    protected function setUp(): void
+    {
         parent::setUp();
         $this->seed(IncidentTypeSeeder::class);
     }
 
-    public function test_agent_can_view_own_dashboard(): void {
+    public function test_agent_can_view_own_dashboard(): void
+    {
         $employee = Employee::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
         $user = User::factory()->create(['employee_id' => $employee->id]);
 
@@ -34,7 +37,8 @@ class AgentPerformanceDashboardTest extends TestCase {
             ->assertDontSeeHtml('Seleccionar Agente'); // No tiene permisos de supervisor
     }
 
-    public function test_supervisor_can_view_and_switch_agents_via_selector(): void {
+    public function test_supervisor_can_view_and_switch_agents_via_selector(): void
+    {
         $supervisorEmployee = Employee::factory()->create(['first_name' => 'Boss']);
         $supervisorUser = User::factory()->create(['employee_id' => $supervisorEmployee->id]);
 
@@ -54,7 +58,8 @@ class AgentPerformanceDashboardTest extends TestCase {
             ->assertSee('Boss');
     }
 
-    public function test_service_returns_correct_empty_dto_structure(): void {
+    public function test_service_returns_correct_empty_dto_structure(): void
+    {
         $employee = Employee::factory()->create();
         $service = resolve(AgentPerformanceService::class);
 

@@ -11,20 +11,20 @@
         <form wire:submit="save" class="space-y-4">
             <div class="grid grid-cols-1 gap-4">
                 <flux:input 
-                    wire:model="name" 
+                    wire:model="form.name" 
                     label="Nombre *" 
                     placeholder="Ej. Soporte Nivel 1"
                     required 
                 />
 
                 <flux:textarea 
-                    wire:model="description" 
+                    wire:model="form.description" 
                     label="Descripción"
                     placeholder="Describe las funciones y objetivos del equipo" 
                     rows="3" 
                 />
 
-                <flux:select wire:model="supervisor_id" label="Supervisor" placeholder="Selecciona un responsable">
+                <flux:select wire:model="form.supervisor_id" label="Supervisor" placeholder="Selecciona un responsable">
                     <flux:select.option value="">Sin supervisor asignado</flux:select.option>
                     @foreach($this->availableSupervisors as $employee)
                         <flux:select.option value="{{ $employee->id }}">
@@ -33,7 +33,13 @@
                     @endforeach
                 </flux:select>
 
-                <flux:checkbox wire:model="is_active" label="Equipo habilitado para operaciones" />
+                <flux:input
+                    wire:model="form.cisco_team_id"
+                    label="ID Cisco Finesse"
+                    placeholder="Ej. team_12345"
+                />
+
+                <flux:checkbox wire:model="form.is_active" label="Equipo habilitado para operaciones" />
             </div>
 
             <div class="flex justify-end gap-4 pt-8 border-t border-slate-200 dark:border-slate-700">

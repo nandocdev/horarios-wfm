@@ -17,18 +17,18 @@ class DepartmentForm extends Form
     public function rules(): array
     {
         return [
-            'form.name' => ['required', 'string', 'max:255'],
-            'form.description' => ['nullable', 'string', 'max:1000'],
-            'form.directorate_id' => ['required', 'integer', 'exists:directorates,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'directorate_id' => ['required', 'integer', 'exists:directorates,id'],
         ];
     }
 
     public function validationAttributes(): array
     {
         return [
-            'form.name' => 'nombre',
-            'form.description' => 'descripción',
-            'form.directorate_id' => 'dirección',
+            'name' => 'nombre',
+            'description' => 'descripción',
+            'directorate_id' => 'dirección',
         ];
     }
 }

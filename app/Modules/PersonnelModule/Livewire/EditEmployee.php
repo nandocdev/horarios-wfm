@@ -12,109 +12,62 @@ use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Actions\UpdateEmployeeAction;
 use App\Modules\PersonnelModule\DTOs\UpdateEmployeeDTO;
+use App\Modules\PersonnelModule\Livewire\Forms\EmployeeForm;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use Livewire\Component;
 
 class EditEmployee extends Component
 {
+    public EmployeeForm $form;
+
     public Employee $employee;
-
-    // Campos del formulario
-    public string $employee_number = '';
-
-    public string $username = '';
-
-    public ?int $user_id = null;
-
-    public string $first_name = '';
-
-    public string $last_name = '';
-
-    public string $email = '';
-
-    public ?string $phone = null;
-
-    public ?string $mobile_phone = null;
-
-    public ?string $birth_date = null;
-
-    public string $gender = '';
-
-    public ?string $blood_type = null;
-
-    public int $department_id = 0;
-
-    public int $position_id = 0;
-
-    public int $employment_status_id = 0;
-
-    public ?int $parent_id = null;
-
-    public string $hire_date = '';
-
-    public float $salary = 0;
-
-    public bool $is_active = true;
-
-    public bool $is_manager = false;
-
-    public string $address = '';
-
-    public int $township_id = 0;
-
-    public ?int $district_id = null;
 
     public ?int $province_id = null;
 
-    // Opciones para selects
+    public ?int $district_id = null;
+
     public array $selectOptions = [];
 
-    /**
-     * Inicializa el componente con los datos del empleado.
-     */
     public function mount(Employee $employee): void
     {
+        $this->authorize('update', $employee);
+
         $this->employee = $employee;
 
-        // Cargar datos del empleado
-        $this->employee_number = $employee->employee_number;
-        $this->username = $employee->username ?? '';
-        $this->user_id = $employee->user_id;
-        $this->first_name = $employee->first_name;
-        $this->last_name = $employee->last_name;
-        $this->email = $employee->email;
-        $this->phone = $employee->phone;
-        $this->mobile_phone = $employee->mobile_phone;
-        $this->birth_date = $employee->birth_date?->format('Y-m-d');
-        $this->gender = $employee->gender;
-        $this->blood_type = $employee->blood_type;
-        $this->department_id = $employee->department_id;
-        $this->position_id = $employee->position_id;
-        $this->employment_status_id = $employee->employment_status_id;
-        $this->parent_id = $employee->parent_id;
-        $this->hire_date = $employee->hire_date->format('Y-m-d');
-        $this->salary = (float) $employee->salary;
-        $this->is_active = $employee->is_active;
-        $this->is_manager = $employee->is_manager;
-        $this->address = $employee->address ?? '';
-        $this->township_id = $employee->township_id;
+        $township = $employee->township_id ? Township::find($employee->township_id) : null;
+        $district = $township ? District::find($township->district_id) : null;
 
-        // Cargar jerarquía de ubicación
-        if ($this->township_id) {
-            $township = Township::find($this->township_id);
-            if ($township) {
-                $this->district_id = $township->district_id;
-                $this->province_id = District::find($this->district_id)?->province_id;
-            }
-        }
+        $this->province_id = $district?->province_id;
+        $this->district_id = $township?->district_id;
+
+        $this->form->fill([
+            'employee_number' => $employee->employee_number,
+            'username' => $employee->username ?? '',
+            'user_id' => $employee->user_id,
+            'first_name' => $employee->first_name,
+            'last_name' => $employee->last_name,
+            'email' => $employee->email,
+            'phone' => $employee->phone,
+            'mobile_phone' => $employee->mobile_phone,
+            'birth_date' => $employee->birth_date?->format('Y-m-d'),
+            'gender' => $employee->gender,
+            'blood_type' => $employee->blood_type,
+            'department_id' => $employee->department_id,
+            'position_id' => $employee->position_id,
+            'employment_status_id' => $employee->employment_status_id,
+            'parent_id' => $employee->parent_id,
+            'hire_date' => $employee->hire_date->format('Y-m-d'),
+            'salary' => (float) ($employee->salary ?? 0),
+            'is_active' => $employee->is_active,
+            'is_manager' => $employee->is_manager,
+            'address' => $employee->address ?? '',
+            'township_id' => $employee->township_id,
+        ]);
 
         $this->loadOptions();
     }
 
-    /**
-     * Carga las opciones para los selects.
-     */
     protected function loadOptions(): void
     {
         $this->selectOptions = [
@@ -137,55 +90,50 @@ class EditEmployee extends Component
         ];
     }
 
-    /**
-     * Actualiza distritos cuando cambia la provincia.
-     */
     public function updatedProvinceId($value): void
     {
         $this->district_id = null;
-        $this->township_id = 0;
+        $this->form->township_id = null;
         $this->loadOptions();
     }
 
-    /**
-     * Actualiza comunas cuando cambia el distrito.
-     */
     public function updatedDistrictId($value): void
     {
-        $this->township_id = 0;
+        $this->form->township_id = null;
         $this->loadOptions();
     }
 
-    /**
-     * Valida y actualiza el empleado.
-     */
     public function update(): void
     {
-        $validatedData = $this->validate([
-            'employee_number' => 'required|string|unique:employees,employee_number,'.$this->employee->id,
-            'username' => 'required|string|unique:employees,username,'.$this->employee->id,
-            'user_id' => 'required|exists:users,id',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:employees,email,'.$this->employee->id,
-            'phone' => 'nullable|string',
-            'mobile_phone' => 'nullable|string',
-            'birth_date' => 'nullable|date',
-            'gender' => 'required|string|in:M,F,O',
-            'blood_type' => 'nullable|string',
-            'department_id' => 'required|exists:departments,id',
-            'position_id' => 'required|exists:positions,id',
-            'employment_status_id' => 'required|exists:employment_statuses,id',
-            'parent_id' => 'nullable|exists:employees,id',
-            'hire_date' => 'required|date',
-            'salary' => 'required|numeric|min:0',
-            'is_active' => 'boolean',
-            'is_manager' => 'boolean',
-            'address' => 'required|string',
-            'township_id' => 'required|exists:townships,id',
+        $this->authorize('update', $this->employee);
+
+        $this->form->validate();
+
+        $dto = UpdateEmployeeDTO::fromArray([
+            'employee_number' => $this->form->employee_number,
+            'username' => $this->form->username,
+            'first_name' => $this->form->first_name,
+            'last_name' => $this->form->last_name,
+            'email' => $this->form->email,
+            'birth_date' => $this->form->birth_date,
+            'gender' => $this->form->gender,
+            'blood_type' => $this->form->blood_type,
+            'phone' => $this->form->phone,
+            'mobile_phone' => $this->form->mobile_phone,
+            'address' => $this->form->address,
+            'township_id' => $this->form->township_id,
+            'department_id' => $this->form->department_id,
+            'position_id' => $this->form->position_id,
+            'employment_status_id' => $this->form->employment_status_id,
+            'parent_id' => $this->form->parent_id,
+            'user_id' => $this->form->user_id,
+            'hire_date' => $this->form->hire_date,
+            'salary' => $this->form->salary,
+            'is_active' => $this->form->is_active,
+            'is_manager' => $this->form->is_manager,
+            'metadata' => $this->form->metadata,
         ]);
 
-        $dto = UpdateEmployeeDTO::fromArray($validatedData);
         $action = new UpdateEmployeeAction;
         $updatedEmployee = $action->execute($this->employee, $dto);
 

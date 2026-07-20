@@ -17,18 +17,18 @@ class DirectorateForm extends Form
     public function rules(): array
     {
         return [
-            'form.name' => ['required', 'string', 'max:255'],
-            'form.description' => ['nullable', 'string', 'max:1000'],
-            'form.is_active' => ['boolean'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'is_active' => ['boolean'],
         ];
     }
 
     public function validationAttributes(): array
     {
         return [
-            'form.name' => 'nombre',
-            'form.description' => 'descripción',
-            'form.is_active' => 'estado activo',
+            'name' => 'nombre',
+            'description' => 'descripción',
+            'is_active' => 'estado activo',
         ];
     }
 }

@@ -13,6 +13,7 @@ readonly class TeamDTO
         public string $name,
         public ?string $description = null,
         public ?int $supervisor_id = null,
+        public ?string $cisco_team_id = null,
         public bool $is_active = true,
     ) {}
 
@@ -27,6 +28,7 @@ readonly class TeamDTO
             name: $data['name'],
             description: $data['description'] ?? null,
             supervisor_id: $data['supervisor_id'] ?? null,
+            cisco_team_id: $data['cisco_team_id'] ?? null,
             is_active: $data['is_active'] ?? true,
         );
     }

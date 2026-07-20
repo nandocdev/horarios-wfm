@@ -42,27 +42,27 @@ it('validates required fields', function () {
     Livewire::test(CreateEmployee::class)
         ->call('save')
         ->assertHasErrors([
-            'employee_number' => 'required',
-            'first_name' => 'required',
-            'last_name' => 'required',
+            'form.employee_number' => 'required',
+            'form.first_name' => 'required',
+            'form.last_name' => 'required',
         ]);
 });
 
 it('creates an employee with valid data', function () {
     Livewire::test(CreateEmployee::class)
-        ->set('employee_number', 'EMP001')
-        ->set('username', 'jdoe')
-        ->set('first_name', 'John')
-        ->set('last_name', 'Doe')
-        ->set('email', 'john@example.com')
-        ->set('birth_date', '1990-01-01')
-        ->set('gender', 'male')
-        ->set('user_id', $this->user->id)
-        ->set('hire_date', now()->toDateString())
-        ->set('department_id', 1)
-        ->set('position_id', 1)
-        ->set('employment_status_id', 1)
-        ->set('township_id', 1)
+        ->set('form.employee_number', 'EMP001')
+        ->set('form.username', 'jdoe')
+        ->set('form.first_name', 'John')
+        ->set('form.last_name', 'Doe')
+        ->set('form.email', 'john@example.com')
+        ->set('form.birth_date', '1990-01-01')
+        ->set('form.gender', 'M')
+        ->set('form.user_id', $this->user->id)
+        ->set('form.hire_date', now()->toDateString())
+        ->set('form.department_id', 1)
+        ->set('form.position_id', 1)
+        ->set('form.employment_status_id', 1)
+        ->set('form.township_id', 1)
         ->call('save')
         ->assertHasNoErrors()
         ->assertRedirect();
@@ -90,19 +90,19 @@ it('validates unique employee_number', function () {
     ]);
 
     Livewire::test(CreateEmployee::class)
-        ->set('employee_number', 'EMP001')
-        ->set('username', 'jdoe2')
-        ->set('first_name', 'John')
-        ->set('last_name', 'Doe')
-        ->set('email', 'john2@example.com')
-        ->set('birth_date', '1990-01-01')
-        ->set('gender', 'male')
-        ->set('user_id', $this->user->id)
-        ->set('hire_date', now()->toDateString())
-        ->set('department_id', 1)
-        ->set('position_id', 1)
-        ->set('employment_status_id', 1)
-        ->set('township_id', 1)
+        ->set('form.employee_number', 'EMP001')
+        ->set('form.username', 'jdoe2')
+        ->set('form.first_name', 'John')
+        ->set('form.last_name', 'Doe')
+        ->set('form.email', 'john2@example.com')
+        ->set('form.birth_date', '1990-01-01')
+        ->set('form.gender', 'M')
+        ->set('form.user_id', $this->user->id)
+        ->set('form.hire_date', now()->toDateString())
+        ->set('form.department_id', 1)
+        ->set('form.position_id', 1)
+        ->set('form.employment_status_id', 1)
+        ->set('form.township_id', 1)
         ->call('save')
-        ->assertHasErrors(['employee_number']);
+        ->assertHasErrors(['form.employee_number']);
 });

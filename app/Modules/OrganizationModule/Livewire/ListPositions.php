@@ -88,7 +88,6 @@ class ListPositions extends Component
     public function render()
     {
         $positions = $this->getPositionsQuery()
-            ->withCount('users')
             ->paginate($this->perPage);
 
         return view('organization::livewire.list-positions', [

@@ -9,8 +9,7 @@
                     <h1 class="text-3xl font-bold text-slate-900">{{ $department->name }}</h1>
                 </div>
                 <div class="flex space-x-2">
-                    <flux:link href="{{ route('organization.departments.edit', $department) }}" variant="outline"
-                        size="sm">
+                    <flux:link href="{{ route('organization.departments.edit', $department) }}" variant="outline" size="sm">
                         Editar
                     </flux:link>
                     <flux:button wire:click="toggleStatus"
@@ -33,8 +32,7 @@
                         <div>
                             <dt class="text-sm font-medium text-slate-500">Dirección</dt>
                             <dd class="text-sm text-slate-900">
-                                <flux:link
-                                    href="{{ route('organization.directorates.show', $department->directorate) }}"
+                                <flux:link href="{{ route('organization.directorates.show', $department->directorate) }}"
                                     variant="link" class="text-blue-600 hover:text-blue-800">
                                     {{ $department->directorate->name }}
                                 </flux:link>
@@ -48,14 +46,12 @@
                             <dt class="text-sm font-medium text-slate-500">Estado</dt>
                             <dd class="text-sm">
                                 @if($department->is_active)
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 border border-green-200 text-green-600">
-                                        Activo
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 border border-green-200 text-green-600">
+                                        Activa
                                     </span>
                                 @else
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-50 border border-red-200 text-red-600">
-                                        Inactivo
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-50 border border-red-200 text-red-600">
+                                        Inactiva
                                     </span>
                                 @endif
                             </dd>
@@ -72,19 +68,16 @@
                 </div>
 
                 <div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-4">Posiciones
-                        ({{ $department->positions->count() }})</h3>
+                    <h3 class="text-xl font-semibold text-slate-900 mb-4">Posiciones ({{ $department->positions->count() }})</h3>
                     @if($department->positions->isNotEmpty())
                         <div class="space-y-2">
                             @foreach($department->positions as $position)
                                 <div class="flex items-center justify-between p-4 bg-slate-50 rounded-md">
                                     <div>
                                         <div class="font-medium text-slate-900">{{ $position->name }}</div>
-                                        <div class="text-sm text-slate-500">{{ $position->description ?: 'Sin descripción' }}
-                                        </div>
+                                        <div class="text-sm text-slate-500">{{ $position->position_code }}</div>
                                     </div>
-                                    <flux:link href="{{ route('organization.positions.show', $position) }}" variant="ghost"
-                                        size="sm">
+                                    <flux:link href="{{ route('organization.positions.show', $position) }}" variant="ghost" size="sm">
                                         Ver
                                     </flux:link>
                                 </div>

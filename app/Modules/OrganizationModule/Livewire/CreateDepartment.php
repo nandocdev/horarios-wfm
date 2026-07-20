@@ -6,57 +6,27 @@ namespace App\Modules\OrganizationModule\Livewire;
 
 use App\Modules\OrganizationModule\Actions\CreateDepartmentAction;
 use App\Modules\OrganizationModule\DTOs\DepartmentDTO;
+use App\Modules\OrganizationModule\Livewire\Forms\DepartmentForm;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Directorate;
 use Livewire\Component;
 
-/**
- * Componente Livewire para crear un nuevo departamento.
- *
- * Maneja validación del formulario y delega creación a CreateDepartmentAction.
- */
 class CreateDepartment extends Component
 {
-    public string $name = '';
+    public DepartmentForm $form;
 
-    public ?string $description = '';
-
-    public int $directorate_id;
-
-    /**
-     * Reglas de validación del formulario.
-     */
-    protected function rules(): array
-    {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'directorate_id' => ['required', 'integer', 'exists:directorates,id'],
-        ];
-    }
-
-    /**
-     * Mensajes de validación personalizados.
-     */
-    protected function validationAttributes(): array
-    {
-        return [
-            'name' => 'nombre',
-            'description' => 'descripción',
-            'directorate_id' => 'dirección',
-        ];
-    }
-
-    /**
-     * Maneja el envío del formulario.
-     */
     public function save(): void
     {
         $this->authorize('create', Department::class);
 
-        $validated = $this->validate();
+        $this->form->validate();
 
-        $dto = DepartmentDTO::fromArray($validated);
+        $dto = DepartmentDTO::fromArray([
+            'directorate_id' => $this->form->directorate_id,
+            'name' => $this->form->name,
+            'description' => $this->form->description,
+        ]);
+
         $action = new CreateDepartmentAction;
         $department = $action->execute($dto);
 
@@ -64,13 +34,9 @@ class CreateDepartment extends Component
 
         $this->dispatch('departmentCreated', departmentId: $department->id);
 
-        // Resetear formulario
-        $this->reset();
+        $this->form->reset();
     }
 
-    /**
-     * Obtiene las direcciones disponibles.
-     */
     public function getDirectoratesProperty()
     {
         return Directorate::orderBy('name')->get();

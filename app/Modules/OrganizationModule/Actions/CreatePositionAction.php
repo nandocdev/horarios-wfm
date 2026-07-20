@@ -38,6 +38,8 @@ class CreatePositionAction
                 'name' => $dto->name,
                 'position_code' => $dto->position_code,
                 'description' => $dto->description,
+                'is_active' => $dto->is_active,
+                'salary' => $dto->salary,
             ]);
         });
     }

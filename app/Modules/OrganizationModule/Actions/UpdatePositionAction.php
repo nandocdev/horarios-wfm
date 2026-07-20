@@ -33,6 +33,7 @@ class UpdatePositionAction
                 'description' => $dto->description,
                 'department_id' => $dto->department_id,
                 'is_active' => $dto->is_active,
+                'salary' => $dto->salary,
             ]);
 
             event(new PositionUpdated($position));

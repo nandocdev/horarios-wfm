@@ -30,6 +30,10 @@
                             <dd class="text-sm text-slate-900">{{ $position->name }}</dd>
                         </div>
                         <div>
+                            <dt class="text-sm font-medium text-slate-500">Código</dt>
+                            <dd class="text-sm text-slate-900">{{ $position->position_code }}</dd>
+                        </div>
+                        <div>
                             <dt class="text-sm font-medium text-slate-500">Departamento</dt>
                             <dd class="text-sm text-slate-900">
                                 <flux:link href="{{ route('organization.departments.show', $position->department) }}"
@@ -41,8 +45,7 @@
                         <div>
                             <dt class="text-sm font-medium text-slate-500">Dirección</dt>
                             <dd class="text-sm text-slate-900">
-                                <flux:link
-                                    href="{{ route('organization.directorates.show', $position->department->directorate) }}"
+                                <flux:link href="{{ route('organization.directorates.show', $position->department->directorate) }}"
                                     variant="link" class="text-blue-600 hover:text-blue-800">
                                     {{ $position->department->directorate->name }}
                                 </flux:link>
@@ -53,16 +56,18 @@
                             <dd class="text-sm text-slate-900">{{ $position->description ?: 'Sin descripción' }}</dd>
                         </div>
                         <div>
+                            <dt class="text-sm font-medium text-slate-500">Salario</dt>
+                            <dd class="text-sm text-slate-900">{{ $position->salary ? '$ '.number_format((float) $position->salary, 2) : 'No especificado' }}</dd>
+                        </div>
+                        <div>
                             <dt class="text-sm font-medium text-slate-500">Estado</dt>
                             <dd class="text-sm">
                                 @if($position->is_active)
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 border border-green-200 text-green-600">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-50 border border-green-200 text-green-600">
                                         Activa
                                     </span>
                                 @else
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-50 border border-red-200 text-red-600">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-50 border border-red-200 text-red-600">
                                         Inactiva
                                     </span>
                                 @endif
@@ -77,27 +82,6 @@
                             <dd class="text-sm text-slate-900">{{ $position->updated_at->format('d/m/Y H:i') }}</dd>
                         </div>
                     </dl>
-                </div>
-
-                <div>
-                    <h3 class="text-xl font-semibold text-slate-900 mb-4">Empleados ({{ $position->users->count() }})</h3>
-                    @if($position->users->isNotEmpty())
-                        <div class="space-y-2">
-                            @foreach($position->users as $user)
-                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-md">
-                                    <div>
-                                        <div class="font-medium text-slate-900">{{ $user->name }}</div>
-                                        <div class="text-sm text-slate-500">{{ $user->email }}</div>
-                                    </div>
-                                    <flux:link href="#" {{-- TODO: route to user profile --}} variant="ghost" size="sm">
-                                        Ver
-                                    </flux:link>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-sm text-slate-500">No hay empleados asignados a esta posición.</p>
-                    @endif
                 </div>
             </div>
         </div>

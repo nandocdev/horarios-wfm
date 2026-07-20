@@ -18,7 +18,7 @@ class ShowPosition extends Component
     public function mount(Position $position): void
     {
         $this->authorize('view', $position);
-        $this->position = $position->load(['department.directorate', 'users']);
+        $this->position = $position->load(['department.directorate']);
     }
 
     /**

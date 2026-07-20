@@ -6,66 +6,40 @@ namespace App\Modules\OrganizationModule\Livewire;
 
 use App\Modules\OrganizationModule\Actions\UpdateDirectorateAction;
 use App\Modules\OrganizationModule\DTOs\DirectorateDTO;
+use App\Modules\OrganizationModule\Livewire\Forms\DirectorateForm;
 use App\Modules\OrganizationModule\Models\Directorate;
 use Livewire\Component;
 
-/**
- * Componente Livewire para editar una dirección existente.
- */
 class EditDirectorate extends Component
 {
+    public DirectorateForm $form;
+
     public Directorate $directorate;
-
-    public string $name = '';
-
-    public ?string $description = '';
-
-    public bool $is_active = true;
 
     public function mount(Directorate $directorate): void
     {
         $this->authorize('update', $directorate);
         $this->directorate = $directorate;
 
-        $this->name = $directorate->name;
-        $this->description = $directorate->description;
-        $this->is_active = (bool) $directorate->is_active;
+        $this->form->fill([
+            'name' => $directorate->name,
+            'description' => $directorate->description,
+            'is_active' => (bool) $directorate->is_active,
+        ]);
     }
 
-    /**
-     * Reglas de validación del formulario.
-     */
-    protected function rules(): array
-    {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'is_active' => ['boolean'],
-        ];
-    }
-
-    /**
-     * Mensajes de validación personalizados.
-     */
-    protected function validationAttributes(): array
-    {
-        return [
-            'name' => 'nombre',
-            'description' => 'descripción',
-            'is_active' => 'estado activo',
-        ];
-    }
-
-    /**
-     * Maneja el envío del formulario.
-     */
     public function save()
     {
         $this->authorize('update', $this->directorate);
 
-        $validated = $this->validate();
+        $this->form->validate();
 
-        $dto = DirectorateDTO::fromArray($validated);
+        $dto = DirectorateDTO::fromArray([
+            'name' => $this->form->name,
+            'description' => $this->form->description,
+            'is_active' => $this->form->is_active,
+        ]);
+
         $action = new UpdateDirectorateAction;
         $this->directorate = $action->execute($this->directorate, $dto);
 

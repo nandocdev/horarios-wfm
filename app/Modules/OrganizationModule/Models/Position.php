@@ -7,7 +7,7 @@ namespace App\Modules\OrganizationModule\Models;
 use App\Modules\CoreModule\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Modelo para Positions (Cargos).
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Position extends Model
 {
-    use Auditable;
+    use Auditable, SoftDeletes;
 
     protected $fillable = [
         'department_id',
@@ -38,23 +38,5 @@ class Position extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
-    }
-
-    /**
-     * Empleados que ocupan este cargo.
-     */
-    public function employees(): HasMany
-    {
-        return $this->hasMany(Employee::class);
-    }
-
-    /**
-     * Empleados que ocupan este cargo.
-     *
-     * @deprecated Usar employees() para consistencia.
-     */
-    public function users(): HasMany
-    {
-        return $this->hasMany(Employee::class);
     }
 }

@@ -37,6 +37,7 @@ class CreateDepartmentAction
                 'directorate_id' => $dto->directorate_id,
                 'name' => $dto->name,
                 'description' => $dto->description,
+                'is_active' => true,
             ]);
         });
     }

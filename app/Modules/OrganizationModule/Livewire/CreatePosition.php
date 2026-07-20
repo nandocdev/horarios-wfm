@@ -6,65 +6,30 @@ namespace App\Modules\OrganizationModule\Livewire;
 
 use App\Modules\OrganizationModule\Actions\CreatePositionAction;
 use App\Modules\OrganizationModule\DTOs\PositionDTO;
+use App\Modules\OrganizationModule\Livewire\Forms\PositionForm;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
 use Livewire\Component;
 
-/**
- * Componente Livewire para crear una nueva posición.
- *
- * Maneja validación del formulario y delega creación a CreatePositionAction.
- */
 class CreatePosition extends Component
 {
-    public string $name = '';
+    public PositionForm $form;
 
-    public string $position_code = '';
-
-    public ?string $description = '';
-
-    public int $department_id;
-
-    public bool $is_active = true;
-
-    /**
-     * Reglas de validación del formulario.
-     */
-    protected function rules(): array
-    {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'position_code' => ['required', 'string', 'max:20', 'unique:positions,position_code'],
-            'description' => ['nullable', 'string', 'max:1000'],
-            'department_id' => ['required', 'integer', 'exists:departments,id'],
-            'is_active' => ['boolean'],
-        ];
-    }
-
-    /**
-     * Mensajes de validación personalizados.
-     */
-    protected function validationAttributes(): array
-    {
-        return [
-            'name' => 'nombre',
-            'position_code' => 'código de posición',
-            'description' => 'descripción',
-            'department_id' => 'departamento',
-            'is_active' => 'estado activo',
-        ];
-    }
-
-    /**
-     * Maneja el envío del formulario.
-     */
     public function save(): void
     {
         $this->authorize('create', Position::class);
 
-        $validated = $this->validate();
+        $this->form->validate();
 
-        $dto = PositionDTO::fromArray($validated);
+        $dto = PositionDTO::fromArray([
+            'department_id' => $this->form->department_id,
+            'name' => $this->form->name,
+            'position_code' => $this->form->position_code,
+            'description' => $this->form->description,
+            'is_active' => $this->form->is_active,
+            'salary' => $this->form->salary,
+        ]);
+
         $action = new CreatePositionAction;
         $position = $action->execute($dto);
 
@@ -72,13 +37,9 @@ class CreatePosition extends Component
 
         $this->dispatch('positionCreated', positionId: $position->id);
 
-        // Resetear formulario
-        $this->reset();
+        $this->form->reset();
     }
 
-    /**
-     * Obtiene los departamentos disponibles.
-     */
     public function getDepartmentsProperty()
     {
         return Department::with('directorate')->orderBy('name')->get();

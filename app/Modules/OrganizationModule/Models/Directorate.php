@@ -7,6 +7,7 @@ namespace App\Modules\OrganizationModule\Models;
 use App\Modules\CoreModule\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Modelo para Directorates (Direcciones).
@@ -15,12 +16,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Directorate extends Model
 {
-    use Auditable;
+    use Auditable, SoftDeletes;
 
     protected $fillable = [
         'name',
         'description',
         'is_active',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     /**

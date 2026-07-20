@@ -12,20 +12,19 @@
         <form wire:submit="save" class="p-4 space-y-4">
             <div class="grid grid-cols-1 gap-4">
                 <flux:field>
-                    <flux:input wire:model="name" label="Nombre *" placeholder="Ingresa el nombre de la dirección"
-                        required />
-                    <flux:error name="name" />
+                    <flux:input wire:model="form.name" label="Nombre *" placeholder="Ingresa el nombre de la dirección" required />
+                    <flux:error name="form.name" />
                 </flux:field>
 
                 <flux:field>
-                    <flux:textarea wire:model="description" label="Descripción"
+                    <flux:textarea wire:model="form.description" label="Descripción"
                         placeholder="Describe las funciones de la dirección" rows="4" />
-                    <flux:error name="description" />
+                    <flux:error name="form.description" />
                 </flux:field>
 
                 <flux:field>
-                    <flux:checkbox wire:model="is_active" label="Dirección activa" />
-                    <flux:error name="is_active" />
+                    <flux:checkbox wire:model="form.is_active" label="Dirección activa" />
+                    <flux:error name="form.is_active" />
                 </flux:field>
             </div>
 

@@ -42,6 +42,7 @@ class ModuleServiceProvider extends AuthServiceProvider
 
         $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'organization');
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
 
         Livewire::component('organization.list-directorates', ListDirectorates::class);
         Livewire::component('organization.create-directorate', CreateDirectorate::class);

@@ -12,28 +12,24 @@
         <form wire:submit="save" class="p-4 space-y-4">
             <div class="grid grid-cols-1 gap-4">
                 <flux:field>
-                    <label for="directorate_id"
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Dirección *</label>
-                    <select wire:model="directorate_id" id="directorate_id" required
-                        class="block w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                    <flux:select wire:model="form.directorate_id" label="Dirección *" required>
                         <option value="">Selecciona una dirección</option>
                         @foreach($this->directorates as $directorate)
                             <option value="{{ $directorate->id }}">{{ $directorate->name }}</option>
                         @endforeach
-                    </select>
-                    <flux:error name="directorate_id" />
+                    </flux:select>
+                    <flux:error name="form.directorate_id" />
                 </flux:field>
 
                 <flux:field>
-                    <flux:input wire:model="name" label="Nombre *" placeholder="Ingresa el nombre del departamento"
-                        required />
-                    <flux:error name="name" />
+                    <flux:input wire:model="form.name" label="Nombre *" placeholder="Ingresa el nombre del departamento" required />
+                    <flux:error name="form.name" />
                 </flux:field>
 
                 <flux:field>
-                    <flux:textarea wire:model="description" label="Descripción"
+                    <flux:textarea wire:model="form.description" label="Descripción"
                         placeholder="Describe las funciones del departamento" rows="4" />
-                    <flux:error name="description" />
+                    <flux:error name="form.description" />
                 </flux:field>
             </div>
 

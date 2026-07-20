@@ -12,42 +12,43 @@
         <form wire:submit="save" class="p-4 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:field>
-                    <flux:input wire:model="name" label="Nombre *" placeholder="Ingresa el nombre de la posición"
-                        required />
-                    <flux:error name="name" />
+                    <flux:input wire:model="form.name" label="Nombre *" placeholder="Ingresa el nombre de la posición" required />
+                    <flux:error name="form.name" />
                 </flux:field>
 
                 <flux:field>
-                    <flux:input wire:model="position_code" label="Código de Posición *" placeholder="Ej. OP-001"
-                        required />
-                    <flux:error name="position_code" />
+                    <flux:input wire:model="form.position_code" label="Código de Posición *" placeholder="Ej. OP-001" required />
+                    <flux:error name="form.position_code" />
                 </flux:field>
-            </div>
 
-            <div class="grid grid-cols-1 gap-4">
-                <flux:field>                    <label for="department_id"
-                        class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Departamento *</label>
-                    <select wire:model="department_id" id="department_id" required
-                        class="block w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+                <flux:field>
+                    <flux:select wire:model="form.department_id" label="Departamento *" required>
                         <option value="">Selecciona un departamento</option>
                         @foreach($this->departments as $department)
                             <option value="{{ $department->id }}">
                                 {{ $department->name }} ({{ $department->directorate->name }})
                             </option>
                         @endforeach
-                    </select>
-                    <flux:error name="department_id" />
+                    </flux:select>
+                    <flux:error name="form.department_id" />
                 </flux:field>
 
                 <flux:field>
-                    <flux:textarea wire:model="description" label="Descripción"
+                    <flux:input wire:model="form.salary" label="Salario" placeholder="Ej. 1500.00" type="number" step="0.01" min="0" />
+                    <flux:error name="form.salary" />
+                </flux:field>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4">
+                <flux:field>
+                    <flux:textarea wire:model="form.description" label="Descripción"
                         placeholder="Describe las responsabilidades de la posición" rows="4" />
-                    <flux:error name="description" />
+                    <flux:error name="form.description" />
                 </flux:field>
 
                 <flux:field>
-                    <flux:checkbox wire:model="is_active" label="Posición activa" />
-                    <flux:error name="is_active" />
+                    <flux:checkbox wire:model="form.is_active" label="Posición activa" />
+                    <flux:error name="form.is_active" />
                 </flux:field>
             </div>
 

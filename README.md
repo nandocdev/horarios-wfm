@@ -1,104 +1,204 @@
 <p align="center">
-  <img src="public/img/logo_full.png" alt="Antigravity Logo" width="480"/>
+  <img src="public/img/logo_full.png" alt="HorariosWFM Logo" width="480"/>
 </p>
 
 <p align="center">
-  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel 11"/></a>
-  <a href="https://livewire.laravel.com"><img src="https://img.shields.io/badge/Livewire-v3-4e56a6?style=for-the-badge&logo=livewire" alt="Livewire 3"/></a>
-  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/TailwindCSS-v3-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS"/></a>
-  <a href="https://postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql" alt="PostgreSQL"/></a>
+  <a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-13.x-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel 13"/></a>
+  <a href="https://livewire.laravel.com"><img src="https://img.shields.io/badge/Livewire-4.x-FB70A9?style=for-the-badge&logo=livewire" alt="Livewire 4"/></a>
+  <a href="https://fluxui.dev"><img src="https://img.shields.io/badge/Flux_UI-2.x-3B82F6?style=for-the-badge" alt="Flux UI 2"/></a>
+  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/TailwindCSS-4.x-38B2AC?style=for-the-badge&logo=tailwind-css" alt="TailwindCSS 4"/></a>
+  <a href="https://postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql" alt="PostgreSQL 16"/></a>
+  <a href="https://redis.io"><img src="https://img.shields.io/badge/Redis-7.x-DC382D?style=for-the-badge&logo=redis" alt="Redis"/></a>
 </p>
 
 <h3 align="center">
-  <strong>El motor inteligente de optimización operativa para el Contact Center institucional</strong>
+  Workforce Management System — Call Center de la Caja de Seguro Social de Panamá
 </h3>
 
 <p align="center">
-  Planificación relámpago, telemetría en tiempo real y flujos de autogestión sin fricción unificados en una sola verdad operacional.
+  Planificación de horarios, telemetría en tiempo real, adherencia, calidad y autogestión en un Monolito Modular.
 </p>
 
-<br>
+---
 
+## Stack Tecnológico
 
+| Componente         | Tecnología                                |
+| ------------------ | ----------------------------------------- |
+| Backend            | PHP 8.3+, Laravel 13                      |
+| Frontend           | Livewire 4, Flux UI 2, TailwindCSS 4      |
+| Base de datos      | PostgreSQL 16                             |
+| Cache              | Redis (vía predis/predis)                 |
+| Colas              | Redis (Laravel Horizon 5)                 |
+| WebSockets         | Laravel Reverb 1 + Laravel Echo 2         |
+| Auth               | Laravel Fortify 1 (2FA, email verification) |
+| Testing            | Pest 4 + PHPUnit (SQLite in-memory)       |
+| Assets             | Vite 8                                    |
+| Monitoreo          | Laravel Pulse 1                           |
 
 ---
 
-## ⚡ La Revolución en la Gestión de Fuerza de Trabajo
+## Arquitectura
 
-**Antigravity** es más que un gestor de horarios; es una plataforma de **Product Engineering** diseñada para erradicar el caos de las mallas horarias manuales y las hojas de cálculo dispersas. Construido bajo los pilares del alto rendimiento y la seguridad institucional, Antigravity orquesta la planificación y la ejecución diaria del Contact Center de la **Caja de Seguro Social de Panamá**.
+**Monolito Modular** con 15 módulos en `app/Modules/`. La comunicación entre módulos es exclusivamente vía eventos de dominio (Shared Events), DTOs y contratos (Shared Contracts). No se permiten dependencias directas entre módulos.
 
----
-
-## ✨ Características Estelares
-
-```mermaid
-graph TD
-    A[Personnel Module: Agentes] -->|Asignación| B(WFM Module: Horarios)
-    C[Connect Module: Cisco CTI] -->|Telemetría Real| D(Operations Module: KPIs)
-    B -->|Planificado| D
-    D -->|Desviación| E{Workflows: Aprobaciones}
+```
+app/Modules/{Module}/
+├── Actions/           → Lógica de negocio (un archivo = un caso de uso)
+├── Database/Migrations/
+├── DTOs/              → Objetos de transferencia inmutables
+├── Enums/
+├── Events/            → Eventos de dominio
+├── Listeners/         → Manejadores de eventos
+├── Livewire/          → Componentes UI (sin lógica de negocio)
+│   └── Forms/         → Livewire Form Objects
+├── Models/            → Eloquent models (heredan de BaseModel con ULID)
+├── Policies/          → Autorización (Spatie Permission)
+├── Providers/
+│   └── ModuleServiceProvider.php
+├── Resources/Views/
+└── Routes/
 ```
 
-### 📅 Planificación Semanal Relámpago
-Genera, valida y publica mallas horarias para cientos de operadores en segundos. 
-*   Importación masiva mediante CSV inteligente con pre-validación de agentes.
-*   Motor matemático que impide solapamientos y colisiones horarias en *preflight*.
-*   Publicación y distribución instantánea de turnos con un solo clic.
+### Módulos
 
-### 👁️ Adherencia y Telemetría en Tiempo Real
-Visualiza la realidad operativa al instante con nuestro tablero de monitoreo en vivo.
-*   Sincronización nativa con la telefonía y estados de **Cisco Finesse**.
-*   Diagrama de Gantt dinámico: Horario Planificado vs. Estados Reales del Agente.
-*   Alertas instantáneas de desadherencia y excesos en tiempos auxiliares (baño, breaks).
+| Módulo                | Responsabilidad                                        | Clasificación  |
+| --------------------- | ------------------------------------------------------ | -------------- |
+| CoreModule            | Auth, RBAC, configuración global                       | —              |
+| OrganizationModule    | Direcciones, departamentos, puestos                    | Supporting     |
+| GeoModule             | Catálogo geográfico de Panamá                          | Supporting     |
+| PersonnelModule       | Empleados, equipos, importación masiva                 | Supporting     |
+| WfmModule             | Planificación de horarios, swaps, permisos, intradía   | Core (DDD)     |
+| ConnectModule         | Integración Cisco UCCX/Finesse/CUIC                    | Core (DDD)     |
+| OperationsModule      | KPIs, adherencia, dashboards, scorecards               | Core (DDD)     |
+| CommunicationsModule  | Noticias, encuestas, shoutouts, reacciones             | Supporting     |
+| QualityModule         | Evaluación de calidad, rúbricas, feedback              | Supporting     |
+| AuditModule           | Trazabilidad y auditoría de cambios                    | Supporting     |
+| WorkflowsModule       | Motor de aprobaciones multinivel                       | Supporting     |
+| HelpdeskModule        | Tickets de soporte interno                             | Supporting     |
+| KnowledgeModule       | Base de conocimiento operativo                         | Supporting     |
+| DocumentationModule   | Wiki del sistema                                       | Supporting     |
+| FilesystemModule      | Gestión de archivos y cuotas                           | Supporting     |
 
-### 🤝 Autogestión Transparente (Employee Hub)
-Descentraliza la administración del tiempo libre y empodera a los agentes.
-*   Solicitudes y validación dinámica de saldo de permisos trimestrales y compensatorios.
-*   Intercambios de turnos (*Shift Swaps*) directos entre agentes con validación síncrona de coincidencia horaria.
-*   Flujo de firmas L1/L2 automatizado para supervisores sin papeleos.
+### Integraciones Externas
 
-### 📊 Cerebro Analítico y Scorecards
-Métricas de rendimiento estandarizadas para el análisis gerencial y de nómina.
-*   Cálculo automático de KPIs: TMO (Tiempo Medio de Operación), SLA por cola y productividad.
-*   Reconciliación automática nocturna de asistencia y generación de incidencias (tardanzas/faltas).
-*   Inventario de Staffing unificado para análisis de cobertura y capacidad operativa.
-
----
-
-## 📈 La Transformación Operativa
-
-| Característica | Antes (Caos Operativo) | Ahora con Antigravity |
-| :--- | :--- | :--- |
-| **Generación de Horarios** | Días de trabajo en Excel propensos a errores. | Segundos de procesamiento con validación matemática. |
-| **Solicitud de Permisos** | Formularios en papel y correos cruzados. | Solicitudes y flujos de aprobación L1/L2 en línea. |
-| **Control de Asistencia** | Verificación manual contra logs del CTI. | Reconciliación automatizada nocturna con alertas. |
-| **Monitoreo Diario** | Supervisión ciega o reactiva. | Telemetría en vivo de estados Cisco Finesse. |
-| **Fuente de Información** | Datos dispersos en múltiples sistemas. | Una sola verdad operacional unificada. |
+| Sistema          | Propósito                               | Tipo                        |
+| ---------------- | --------------------------------------- | --------------------------- |
+| Cisco UCCX       | Base de datos de llamadas (CDRs)        | Lectura SQL vía ODBC        |
+| Cisco Finesse    | Estados de agente en tiempo real        | API REST XML (5s polling)   |
+| Cisco CUIC       | Reportes históricos de colas y agentes  | API REST con UUIDs          |
+| Webex            | Notificaciones a equipos IT/operaciones | API REST (Markdown messages)|
 
 ---
 
-## 💬 Testimonios de la Operación
+## Requisitos
 
-> ❝**Antigravity redujo a cero el tiempo muerto de validación horaria.** Lo que antes nos tomaba un fin de semana entero de planificación en Excel, hoy lo resolvemos e importamos en menos de 5 minutos con total certeza de que no hay solapamientos.❞
-> <br>*— Coordinador de Workforce Management (WFM)*
-
-> ❝Solicitar un cambio de turno con mi compañero ahora es cuestión de tres clics. El sistema valida automáticamente que nuestros horarios coincidan y notifica a mi supervisor al instante. Adiós a los correos sin respuesta.❞
-> <br>*— Operadora del Contact Center CSS*
-
----
-
-## 🛠️ Stack Tecnológico de Alto Rendimiento
-
-Antigravity está construido como un **Monolito Modular** de alta robustez, asegurando bajo acoplamiento y máxima cohesión entre unidades de negocio:
-
-*   **Backend Principal:** PHP 8.2+ con tipado estricto & Laravel 11.
-*   **Frontend Interactivo:** Livewire 3 + TailwindCSS + FluxUI (Navegación SPA rápida con `wire:navigate`).
-*   **Persistencia y Datos:** PostgreSQL (aprovechando tipos avanzados como `jsonb` y rangos `tstzrange` para colisiones).
-*   **Manejo de Tareas y Colas:** Redis para procesamiento diferido asíncrono y encolamiento de notificaciones.
-*   **Seguridad y Permisos:** Control de acceso basado en roles (RBAC) con Spatie Laravel-Permission.
+- PHP 8.3+
+- Composer 2.x
+- Node.js 20+
+- NPM 10+
+- PostgreSQL 16
+- Redis 7+
+- Extensiones PHP: `pdo_pgsql`, `redis`, `xml`, `bcmath`, `intl`
 
 ---
 
-## 🔒 Licencia y Seguridad
+## Instalación
 
-Desarrollo y software propietario &mdash; **Caja de Seguro Social de Panamá**. Todos los derechos reservados. Entorno corporativo privado y de alta seguridad. 2026.
+```bash
+# 1. Clonar el repositorio
+git clone <repo-url> horarios-wfm
+cd horarios-wfm
+
+# 2. Instalar dependencias PHP
+composer install
+
+# 3. Instalar dependencias frontend
+npm install
+
+# 4. Configurar variables de entorno
+cp .env.example .env
+php artisan key:generate
+
+# 5. Configurar .env (base de datos, redis, cisco, etc.)
+#    DB_CONNECTION=pgsql
+#    DB_HOST=127.0.0.1
+#    DB_PORT=5432
+#    DB_DATABASE=horarios_wfm
+#    DB_USERNAME=postgres
+#    DB_PASSWORD=
+
+# 6. Ejecutar migraciones y seeders
+php artisan migrate --seed
+
+# 7. Compilar assets frontend
+npm run build
+
+# 8. Iniciar servidor de desarrollo
+composer dev
+```
+
+### Credenciales por defecto
+
+| Email                          | Rol    |
+| ------------------------------ | ------ |
+| `ferncastillo@css.gob.pa`      | admin  |
+
+El seeder asigna el rol `admin` a este usuario forzosamente al final del seeding.
+
+---
+
+## Comandos de Desarrollo
+
+| Comando                    | Descripción                                               |
+| -------------------------- | --------------------------------------------------------- |
+| `composer dev`             | Servidor + cola + logs + Vite (concurrente)                |
+| `composer dev:uploads`     | Igual con límite de 20MB en uploads                        |
+| `composer test`            | `config:clear` → `lint:check` → `php artisan test`         |
+| `composer lint`            | Pinta formato automático                                   |
+| `composer lint:check`      | Solo verificar formato                                     |
+| `npm run build`            | Compilar assets frontend                                   |
+| `npm run dev`              | Servidor Vite HMR                                          |
+
+### Sincronización Cisco (producción)
+
+| Comando                                              | Propósito                 |
+| ---------------------------------------------------- | ------------------------- |
+| `php artisan cisco:sync --loop --interval=5`         | Estados Finesse en vivo   |
+| `php artisan cuic:sync --loop --interval=300`        | ETL histórico CUIC        |
+| `php artisan cuic:sync-realtime --loop --interval=15`| CSQ en tiempo real        |
+
+---
+
+## Testing
+
+```bash
+# Suite completa
+composer test
+
+# Test específico
+php artisan test --compact --filter=NombreTest
+```
+
+- **Framework:** Pest 4 + `pestphp/pest-plugin-laravel`
+- **Base de datos:** SQLite in-memory
+- **Colas:** `QUEUE_CONNECTION=sync`
+- **Caché:** `CACHE_STORE=array`
+
+---
+
+## Convenciones del Proyecto
+
+- `declare(strict_types=1)` requerido en todo archivo PHP
+- ULID como identidad lógica en todos los modelos (via `BaseModel`)
+- Una Action = un caso de uso, método `execute()`, operaciones de escritura en `DB::transaction()`
+- Políticas (Spatie Permission) para toda entidad
+- Livewire sin lógica de base de datos; delega a Actions
+- Navegación SPA con `wire:navigate`
+- Componentes Flux UI preferidos sobre HTML plano
+
+---
+
+## Licencia
+
+Software propietario — **Caja de Seguro Social de Panamá**. Todos los derechos reservados.

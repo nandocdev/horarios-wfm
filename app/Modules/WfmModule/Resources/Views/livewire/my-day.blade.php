@@ -52,8 +52,8 @@
             $nowMin = $isToday ? (now()->hour * 60 + now()->minute) : 0;
             $startMin = $startH * 60;
             $endMin = $endH * 60;
-            $pctW = max($endMin - $startMin, 480);
-            $nowPct = $isToday ? max(0, min(100, (($nowMin - $startMin) / $pctW) * 100)) : 0;
+            $shiftDuration = max($endMin - $startMin, 1);
+            $nowPct = $isToday ? max(0, min(100, (($nowMin - $startMin) / $shiftDuration) * 100)) : 0;
             // State colors map
             $stateColorMap = [
                 'READY' => 'bg-wfm-success', 'TALKING' => 'bg-wfm-info',
@@ -93,17 +93,14 @@
                     $intervalPct = $totalIntervals > 0 ? 100 / $totalIntervals : 0;
                 @endphp
                 <div class="relative h-16">
-                    <div class="absolute inset-x-0 top-0 flex" style="height: 8px;">
-                        @for($h = $startH; $h <= $endH; $h++)
-                            <div class="flex-1 border-r border-wfm-surface-border/20 last:border-r-0"></div>
-                        @endfor
-                    </div>
-                    {{-- Hour labels --}}
-                    <div class="absolute inset-x-0 top-[2px] flex text-[10px] text-wfm-surface-muted font-mono">
-                        @for($h = $startH; $h <= $endH; $h++)
-                            <span class="flex-1">{{ sprintf('%02d:00', $h) }}</span>
-                        @endfor
-                    </div>
+                    {{-- Hour grid lines + labels --}}
+                    @for($i = 0; $i <= ($endH - $startH); $i++)
+                        @php $hPos = ($endH - $startH) > 0 ? ($i / ($endH - $startH)) * 100 : 0; @endphp
+                        <div class="absolute top-0 bottom-0 border-l border-wfm-surface-border/20" style="left: {{ $hPos }}%"></div>
+                        <span class="absolute text-[10px] text-wfm-surface-muted font-mono -ml-2" style="left: {{ $hPos }}%; top: 2px;">{{ sprintf('%02d:00', $startH + $i) }}</span>
+                    @endfor
+                    {{-- Right edge line --}}
+                    <div class="absolute top-0 bottom-0 right-0 border-l border-wfm-surface-border/20"></div>
                     {{-- State bars --}}
                     <div class="absolute top-5 left-0 right-0 flex gap-px">
                         @foreach($d['adherence_intervals'] as $interval)
@@ -135,13 +132,12 @@
                 </div>
             @else
                 <div class="relative h-6">
-                    <div class="absolute inset-0 flex">
-                        @for($h = $startH; $h <= $endH; $h++)
-                            <div class="flex-1 border-r border-wfm-surface-border/30 last:border-r-0 relative">
-                                <span class="absolute -bottom-4 left-0 text-[10px] text-wfm-surface-muted font-mono">{{ sprintf('%02d:00', $h) }}</span>
-                            </div>
-                        @endfor
-                    </div>
+                    @for($i = 0; $i <= ($endH - $startH); $i++)
+                        @php $hPos = ($endH - $startH) > 0 ? ($i / ($endH - $startH)) * 100 : 0; @endphp
+                        <div class="absolute top-0 bottom-0 border-l border-wfm-surface-border/20" style="left: {{ $hPos }}%"></div>
+                        <span class="absolute -bottom-4 text-[10px] text-wfm-surface-muted font-mono -ml-2" style="left: {{ $hPos }}%">{{ sprintf('%02d:00', $startH + $i) }}</span>
+                    @endfor
+                    <div class="absolute top-0 bottom-0 right-0 border-l border-wfm-surface-border/20"></div>
                     @if($isToday)
                         <div class="absolute top-0 bottom-0 w-0.5 bg-wfm-danger z-10" style="left: {{ $nowPct }}%">
                             <span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] text-wfm-danger font-bold whitespace-nowrap">Ahora</span>

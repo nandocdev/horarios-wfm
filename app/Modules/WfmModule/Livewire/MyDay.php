@@ -12,6 +12,7 @@ use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -367,8 +368,8 @@ class MyDay extends Component
         }
 
         $todayCarbon = Carbon::parse($today);
-        $start = $assignment->start_time->copy()->setDateFrom($todayCarbon);
-        $end = $assignment->end_time->copy()->setDateFrom($todayCarbon);
+        $start = Carbon::instance($assignment->start_time)->setDateFrom($todayCarbon);
+        $end = Carbon::instance($assignment->end_time)->setDateFrom($todayCarbon);
         $intervals = [];
 
         $windowStart = $start->copy();
@@ -405,8 +406,10 @@ class MyDay extends Component
         return $intervals;
     }
 
-    private function getActualStateForWindow(Collection|array $transitions, Carbon $windowStart, Carbon $windowEnd): string
+    private function getActualStateForWindow(Collection|array $transitions, Carbon|CarbonInterface $windowStart, Carbon|CarbonInterface $windowEnd): string
     {
+        $windowStart = Carbon::instance($windowStart);
+        $windowEnd = Carbon::instance($windowEnd);
         $windowTransitions = collect($transitions)->filter(function ($t) use ($windowStart, $windowEnd) {
             $tTime = Carbon::parse($t['transition_time'] ?? $t->transition_time ?? now());
 

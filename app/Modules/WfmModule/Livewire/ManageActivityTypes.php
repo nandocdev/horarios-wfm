@@ -8,7 +8,6 @@ use App\Modules\WfmModule\Actions\SaveActivityTypeAction;
 use App\Modules\WfmModule\Livewire\Forms\ActivityTypeForm;
 use App\Modules\WfmModule\Models\ActivityType;
 use App\Shared\Support\ManageCatalog;
-use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
 
 class ManageActivityTypes extends Component
@@ -47,7 +46,7 @@ class ManageActivityTypes extends Component
         $this->form->resetForm();
     }
 
-    protected function loadForm(Model $record): void
+    protected function loadForm(object $record): void
     {
         $this->form->setActivityType($record);
     }

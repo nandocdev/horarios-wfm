@@ -45,8 +45,7 @@ class MenuHelper
                 'icon' => 'user',
                 'submenu' => [
                     ['label' => __('Mi Horario'), 'route' => 'schedules.my-schedule', 'pattern' => '/schedules/my-schedule*', 'icon' => 'calendar'],
-                    ['label' => __('Mi Día'), 'route' => 'schedules.my-day', 'pattern' => 'schedules/my-day*', 'icon' => 'clock'],
-                    ['label' => __('Mis Métricas'), 'route' => 'schedules.my-metrics', 'pattern' => 'schedules/my-metrics*', 'icon' => 'chart-bar'],
+                    ['label' => __('Mi Jornada'), 'route' => 'schedules.my-day', 'pattern' => 'schedules/my-day*', 'icon' => 'clock'],
                     ['label' => __('Solicitar Permiso'), 'route' => 'schedules.leave-request', 'pattern' => 'schedules/leave-request*', 'icon' => 'document-plus'],
                     ['label' => __('Solicitar Cambio de Turno'), 'route' => 'schedules.swap-request', 'pattern' => 'schedules/swap-request*', 'icon' => 'arrows-right-left'],
                     ['label' => __('Mis Solicitudes'), 'route' => 'schedules.swap-history', 'pattern' => 'schedules/swap-history*', 'icon' => 'inbox'],

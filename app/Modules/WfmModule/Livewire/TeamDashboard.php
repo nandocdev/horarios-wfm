@@ -291,15 +291,18 @@ class TeamDashboard extends Component
         $alerts = [];
         $realtimeRepo = app(TelemetryRealtimeRepositoryInterface::class);
         $states = $realtimeRepo->getRealtimeStates($employeeIds);
+        $employees = Employee::whereIn('id', $employeeIds)->get()->keyBy('id');
 
         foreach ($states as $state) {
             $stateName = strtoupper($state->current_state);
+
+            $agentName = $employees->get($state->employee_id)?->full_name ?? "Agente #{$state->employee_id}";
 
             if ($stateName === 'NOT_READY' && $state->reason_code) {
                 $alerts[] = [
                     'level' => 'warning',
                     'type' => 'not_ready',
-                    'message' => "{$state->employee?->full_name} en NOT_READY: {$state->reason_code}",
+                    'message' => "{$agentName} en NOT_READY: {$state->reason_code}",
                 ];
             }
 
@@ -307,7 +310,7 @@ class TeamDashboard extends Component
                 $alerts[] = [
                     'level' => 'danger',
                     'type' => 'offline',
-                    'message' => "{$state->employee?->full_name} desconectado",
+                    'message' => "{$agentName} desconectado",
                 ];
             }
         }

@@ -6,12 +6,17 @@
         $d = $employeeData;
     @endphp
 
+    @if(!$employeeData)
+        <x-wfm.empty icon="user" message="Seleccione un empleado para ver su jornada" />
+    @else
+    @php $transMaxDur = max(array_map(fn($t) => $t['duration'] ?? 0, $d['transitions'] ?? []) ?: [1]); @endphp
+
     {{-- Header: shift selector + estado actual --}}
-    <div class="flex flex-wrap items-center justify-between gap-3 p-4 bg-white dark:bg-zinc-900 border border-wfm-surface-border rounded-xl">
+    <div class="card-wfm p-4 flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
             <flux:button wire:click="previousDay" variant="ghost" icon="chevron-left" size="xs" />
             <div>
-                <div class="text-sm font-bold text-wfm-navy-800 dark:text-white">{{ $d['name'] ?? 'Mi Jornada' }}</div>
+                <div class="text-sm font-bold text-wfm-navy-800 dark:text-white">{{ $d['name'] }}</div>
                 <div class="flex items-center gap-2">
                     <flux:text class="font-mono text-xs {{ $isToday ? 'text-wfm-info font-semibold' : 'text-wfm-surface-muted' }}">
                         {{ $selDate->locale('es')->translatedFormat('l d F Y') }}
@@ -19,22 +24,22 @@
                             <span class="text-[10px] bg-wfm-info/10 text-wfm-info px-1.5 py-0.5 rounded font-mono">Hoy</span>
                         @endif
                     </flux:text>
-                    <span class="text-xs text-wfm-surface-muted">{{ $d['team'] ?? '' }}</span>
+                    <span class="text-xs text-wfm-surface-muted">{{ $d['team'] }}</span>
                 </div>
             </div>
             <flux:button wire:click="nextDay" variant="ghost" icon="chevron-right" size="xs" @if($isToday) disabled @endif />
         </div>
         <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full {{ ($d['is_connected'] ?? false) ? 'bg-wfm-success animate-pulse' : 'bg-wfm-danger' }}"></span>
-                <span class="text-sm font-bold">{{ $d['current_state'] ?? 'OFFLINE' }}</span>
-                @if($d['reason'] ?? null)
+                <span class="w-2.5 h-2.5 rounded-full {{ $d['is_connected'] ? 'bg-wfm-success animate-pulse' : 'bg-wfm-danger' }}"></span>
+                <span class="text-sm font-bold">{{ $d['current_state'] }}</span>
+                @if($d['reason'])
                     <span class="text-xs text-wfm-surface-muted">({{ $d['reason'] }})</span>
                 @endif
             </div>
             <span class="text-xs text-wfm-surface-muted border-l border-wfm-surface-border pl-4">
-                {{ gmdate('H:i:s', $d['total_seconds'] ?? 0) }} conectado ·
-                {{ gmdate('H:i:s', $d['productive_seconds'] ?? 0) }} productivo
+                {{ gmdate('H:i:s', $d['total_seconds']) }} conectado ·
+                {{ gmdate('H:i:s', $d['productive_seconds']) }} productivo
             </span>
         </div>
     </div>
@@ -97,7 +102,7 @@
     {{-- Tráfico y Calidad --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <x-wfm.kpi :value="$d['total_calls'] ?? 0" :label="'Llamadas · SLA ' . ($d['sla'] ?? 0) . '%'" icon="phone" color="info" />
-        <x-wfm.kpi :value="($d['avg_handle_time'] ?? 0) . 's'" label="AHT" :comparison="'T ' . ($d['avg_talk_time'] ?? 0) . 's · ACW ' . ($d['avg_acw_time'] ?? 0) . 's'" icon="clock" color="success" />
+        <x-wfm.kpi :value="($d['avg_handle_time'] ? number_format($d['avg_handle_time'], 1) . 's' : '--')" label="AHT" :comparison="($d['avg_talk_time'] ? 'T ' . number_format($d['avg_talk_time'], 1) . 's' : '') . ($d['avg_talk_time'] && $d['avg_acw_time'] ? ' · ' : '') . ($d['avg_acw_time'] ? 'ACW ' . number_format($d['avg_acw_time'], 1) . 's' : '')" icon="clock" color="success" />
         @php $adhVal = is_numeric($d['adherence'] ?? null) ? (float) $d['adherence'] : 0; @endphp
         <x-wfm.kpi :value="$adhVal . '%'" label="Adherencia" :trend="$adhVal . '%'" trend-direction="{{ $adhVal >= 80 ? 'up' : 'down' }}" icon="check-badge" :color="$adhVal >= 80 ? 'success' : ($adhVal >= 60 ? 'warning' : 'danger')" />
         <x-wfm.kpi :value="($d['occupancy'] ?? 0) . '%'" label="Ocupación" icon="cpu-chip" />
@@ -126,7 +131,7 @@
                         <span class="font-medium flex-1">{{ $st }}</span>
                         <div class="flex items-center gap-1">
                             <div class="h-1.5 bg-wfm-surface rounded-full w-16 overflow-hidden">
-                                <div class="h-full rounded-full {{ $stColor }}" style="width: {{ min(100, ($dur / 600) * 100) }}%"></div>
+                                <div class="h-full rounded-full {{ $stColor }}" style="width: {{ min(100, ($dur / $transMaxDur) * 100) }}%"></div>
                             </div>
                             <span class="font-mono text-wfm-surface-muted w-12 text-right">{{ gmdate('i:s', $dur) }}</span>
                         </div>
@@ -160,7 +165,10 @@
                 @endforeach
             </x-wfm.table>
             @if($d['has_exceptions'] ?? false)
-                <div class="mt-2 text-xs text-wfm-warning">⚠ Con excepción de horario</div>
+                <div class="mt-2 flex items-center gap-1.5 text-xs text-wfm-warning">
+    <flux:icon.exclamation-triangle class="w-3.5 h-3.5" />
+    <span>Con excepción de horario</span>
+</div>
             @endif
         </x-wfm.section>
     </div>
@@ -207,18 +215,18 @@
                         @php $qTotalCalls = 0; $qTotalAht = 0; $qCount = 0; @endphp
                         @foreach($queueData as $q)
                             @php
-                                $qc = (int) ($q['total_calls'] ?? $q['handled'] ?? $q['total'] ?? 0);
-                                $qaht = (float) ($q['avg_handle_time'] ?? $q['aht'] ?? 0);
-                                $qTalk = (float) ($q['avg_talk_time'] ?? $q['talk_time'] ?? 0);
+                                $qc = (int) ($q['handled'] ?? $q['total_offered'] ?? 0);
+                                $qaht = (float) ($q['avg_aht'] ?? 0);
+                                $qTalk = (float) ($q['avg_talk'] ?? 0);
                                 $qTotalCalls += $qc;
                                 $qTotalAht += $qaht;
                                 $qCount++;
                             @endphp
                             <flux:table.row>
-                                <flux:table.cell class="font-medium text-xs">{{ $q['queue_name'] ?? $q['name'] ?? '—' }}</flux:table.cell>
+                                <flux:table.cell class="font-medium text-xs">{{ $q['queue_name'] ?? '—' }}</flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ number_format($qaht, 1) }}s</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ number_format($qTalk, 1) }}s</span></flux:table.cell>
+                                <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
+                                <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? number_format($qTalk, 1) . 's' : '—' }}</span></flux:table.cell>
                             </flux:table.row>
                         @endforeach
                         @if($qCount > 1)
@@ -235,14 +243,14 @@
                 <x-wfm.section title="Distribución AHT por Cola">
                     <div class="relative h-48">
                         @php
-                            $maxCalls = max(array_map(fn($q) => (int) ($q['total_calls'] ?? $q['handled'] ?? $q['total'] ?? 0), $queueData)) ?: 1;
-                            $maxAht = max(array_map(fn($q) => (float) ($q['avg_handle_time'] ?? $q['aht'] ?? 0), $queueData)) ?: 1;
+                            $maxCalls = max(array_map(fn($q) => (int) ($q['handled'] ?? $q['total_offered'] ?? 0), $queueData)) ?: 1;
+                            $maxAht = max(array_map(fn($q) => (float) ($q['avg_aht'] ?? 0), $queueData)) ?: 1;
                         @endphp
                         <svg viewBox="0 0 100 50" class="w-full h-full">
                             @foreach($queueData as $q)
                                 @php
-                                    $qc = (int) ($q['total_calls'] ?? $q['handled'] ?? $q['total'] ?? 0);
-                                    $qaht = (float) ($q['avg_handle_time'] ?? $q['aht'] ?? 0);
+                                    $qc = (int) ($q['handled'] ?? $q['total_offered'] ?? 0);
+                                    $qaht = (float) ($q['avg_aht'] ?? 0);
                                     $cx = 10 + (($qc / $maxCalls) * 80);
                                     $cy = 45 - (($qaht / max($maxAht, 1)) * 40);
                                     $r = max(2, min(8, $qc / $maxCalls * 8));
@@ -307,5 +315,6 @@
                 <x-wfm.kpi :value="gmdate('H:i:s', $d['aux_seconds'] ?? 0)" label="Tiempo Auxiliar" icon="clock" color="warning" />
             </div>
         </x-wfm.section>
+    @endif
     @endif
 </div>

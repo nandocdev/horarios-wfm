@@ -208,6 +208,8 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
             DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
             DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned'),
             DB::raw('AVG(talk_time + work_time) as avg_aht'),
+            DB::raw('AVG(talk_time) as avg_talk'),
+            DB::raw('AVG(work_time) as avg_work'),
             DB::raw('AVG(queue_time) as avg_asa'),
             DB::raw('MAX(queue_time) as max_wait'),
             DB::raw('SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sl_count'),

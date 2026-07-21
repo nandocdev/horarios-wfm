@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Providers;
 
 use App\Modules\WfmModule\Actions\Realtime\GetExpectedAgentStateAction;
+use App\Modules\WfmModule\Console\Commands\CalculateDailyReports;
 use App\Modules\WfmModule\Console\Commands\CleanExpiredTemporalAssignments;
 use App\Modules\WfmModule\Listeners\ApplyShiftSwapToSchedule;
 use App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved;
@@ -15,7 +16,6 @@ use App\Modules\WfmModule\Livewire\ManageAgentStates;
 use App\Modules\WfmModule\Livewire\ManageScheduledActivities;
 use App\Modules\WfmModule\Livewire\ManageSchedules;
 use App\Modules\WfmModule\Livewire\MyDay;
-use App\Modules\WfmModule\Livewire\MyMetrics;
 use App\Modules\WfmModule\Livewire\MySchedule;
 use App\Modules\WfmModule\Livewire\TeamWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\WeeklyPlanning;
@@ -115,7 +115,6 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('wfm.employee-weekly-planning', EmployeeWeeklyPlanning::class);
         Livewire::component('wfm.my-schedule', MySchedule::class);
         Livewire::component('wfm.my-day', MyDay::class);
-        Livewire::component('wfm.my-metrics', MyMetrics::class);
 
         // Registro de Observadores
         LeaveRequest::observe(LeaveRequestObserver::class);
@@ -138,6 +137,7 @@ class ModuleServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CleanExpiredTemporalAssignments::class,
+                CalculateDailyReports::class,
             ]);
         }
     }

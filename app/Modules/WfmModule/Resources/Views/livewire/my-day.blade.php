@@ -52,126 +52,100 @@
             $nowMin = $isToday ? (now()->hour * 60 + now()->minute) : 0;
             $startMin = $startH * 60;
             $endMin = $endH * 60;
-            $shiftDuration = max($endMin - $startMin, 1);
-            $nowPct = $isToday ? max(0, min(100, (($nowMin - $startMin) / $shiftDuration) * 100)) : 0;
-            // State colors map
+            $shiftMinutes = max($endMin - $startMin, 1);
+            $nowPct = $isToday ? max(0, min(100, (($nowMin - $startMin) / $shiftMinutes) * 100)) : 0;
+
             $stateColorMap = [
                 'READY' => 'bg-wfm-success', 'TALKING' => 'bg-wfm-info',
                 'WORK' => 'bg-purple-500', 'ACW' => 'bg-purple-500',
                 'RESERVED' => 'bg-cyan-500',
                 'NOT_READY' => 'bg-amber-500',
-                'NOT_READY_LUNCH' => 'bg-orange-400', 'LUNCH' => 'bg-orange-400',
-                'NOT_READY_BREAK' => 'bg-yellow-400', 'BREAK' => 'bg-yellow-400',
+                'LUNCH' => 'bg-orange-400', 'NOT_READY_LUNCH' => 'bg-orange-400', 'NOT_READY_ALMUERZO' => 'bg-orange-400',
+                'BREAK' => 'bg-yellow-400', 'NOT_READY_BREAK' => 'bg-yellow-400', 'NOT_READY_DESCANSO' => 'bg-yellow-400',
                 'LOGOUT' => 'bg-wfm-danger', 'OFFLINE' => 'bg-wfm-danger',
             ];
-            $stateBadgeColor = [
-                'READY' => 'bg-wfm-success/20 text-wfm-success',
-                'TALKING' => 'bg-wfm-info/20 text-wfm-info',
-                'WORK' => 'bg-purple-500/20 text-purple-700',
-                'ACW' => 'bg-purple-500/20 text-purple-700',
-                'RESERVED' => 'bg-cyan-500/20 text-cyan-700',
-                'NOT_READY' => 'bg-amber-500/20 text-amber-700',
-                'NOT_READY_LUNCH' => 'bg-orange-400/20 text-orange-700',
-                'LUNCH' => 'bg-orange-400/20 text-orange-700',
-                'NOT_READY_BREAK' => 'bg-yellow-400/20 text-yellow-700',
-                'BREAK' => 'bg-yellow-400/20 text-yellow-700',
-                'LOGOUT' => 'bg-wfm-danger/20 text-wfm-danger',
-                'OFFLINE' => 'bg-wfm-danger/20 text-wfm-danger',
-                'UNKNOWN' => 'bg-wfm-surface-muted/20 text-wfm-surface-muted',
+
+            $stateLabels = [
+                'TALKING' => 'TALKING', 'READY' => 'READY', 'WORK' => 'ACW', 'ACW' => 'ACW',
+                'RESERVED' => 'RESERVED', 'NOT_READY' => 'NO DISP',
+                'LUNCH' => 'ALMUERZO', 'NOT_READY_LUNCH' => 'ALMUERZO', 'NOT_READY_ALMUERZO' => 'ALMUERZO',
+                'BREAK' => 'DESCANSO', 'NOT_READY_BREAK' => 'DESCANSO', 'NOT_READY_DESCANSO' => 'DESCANSO',
+                'LOGOUT' => 'OFFLINE', 'OFFLINE' => 'OFFLINE',
             ];
+
+            $timelineSegments = collect($d['transitions'] ?? [])
+                ->sortBy('transition_time')
+                ->filter(fn($t) => ($t['duration'] ?? 0) > 0)
+                ->values();
+
+            $totalSegSecs = $timelineSegments->sum('duration') ?: 1;
         @endphp
         <div class="card-wfm p-4">
             <div class="flex items-center text-[10px] text-wfm-surface-muted mb-3">
                 <flux:icon.clock class="w-3 h-3 mr-1" />
-                Línea de Tiempo del Turno
+                Turno {{ $d['timeline_start'] }} - {{ $d['timeline_end'] }}
             </div>
 
-            {{-- Timeline con barras de estado --}}
-            @if(!empty($d['adherence_intervals']))
-                @php
-                    $totalIntervals = count($d['adherence_intervals']);
-                    $intervalPct = $totalIntervals > 0 ? 100 / $totalIntervals : 0;
-                @endphp
-                <div class="relative h-16">
-                    {{-- Hour grid lines + labels --}}
-                    @for($i = 0; $i <= ($endH - $startH); $i++)
-                        @php $hPos = ($endH - $startH) > 0 ? ($i / ($endH - $startH)) * 100 : 0; @endphp
-                        <div class="absolute top-0 bottom-0 border-l border-wfm-surface-border/20" style="left: {{ $hPos }}%"></div>
-                        <span class="absolute text-[10px] text-wfm-surface-muted font-mono -ml-2" style="left: {{ $hPos }}%; top: 2px;">{{ sprintf('%02d:00', $startH + $i) }}</span>
-                    @endfor
-                    {{-- Right edge line --}}
-                    <div class="absolute top-0 bottom-0 right-0 border-l border-wfm-surface-border/20"></div>
-                    {{-- State bars --}}
-                    <div class="absolute top-5 left-0 right-0 flex gap-px">
-                        @foreach($d['adherence_intervals'] as $interval)
+            <div class="relative h-14">
+                {{-- Hour grid lines + labels --}}
+                @for($i = 0; $i <= ($endH - $startH); $i++)
+                    @php $hPos = ($endH - $startH) > 0 ? ($i / ($endH - $startH)) * 100 : 0; @endphp
+                    <div class="absolute top-0 border-l border-wfm-surface-border/20" style="left: {{ $hPos }}%; height: 0.75rem;"></div>
+                    <span class="absolute text-[10px] text-wfm-surface-muted font-mono -ml-2" style="left: {{ $hPos }}%;">{{ sprintf('%02d:00', $startH + $i) }}</span>
+                @endfor
+                <div class="absolute top-0 right-0 border-l border-wfm-surface-border/20" style="height: 0.75rem;"></div>
+
+                {{-- Segments by state --}}
+                @if($timelineSegments->isNotEmpty())
+                    <div class="absolute flex gap-px" style="top: 14px; left: 0; right: 0; height: 1.25rem;">
+                        @foreach($timelineSegments as $t)
                             @php
-                                $actualState = strtoupper($interval['actual'] ?? 'UNKNOWN');
-                                $barColor = $stateColorMap[$actualState] ?? 'bg-wfm-surface-muted/30';
-                                $outlineClass = $interval['state'] === 'off_track' ? 'ring-1 ring-wfm-danger/60' : '';
+                                $st = strtoupper($t['agent_state'] ?? '');
+                                $color = $stateColorMap[$st] ?? 'bg-wfm-surface-muted/30';
+                                $pct = max(0.3, ($t['duration'] / $totalSegSecs) * 100);
                             @endphp
-                            <div class="h-5 rounded-sm {{ $barColor }} {{ $outlineClass }} group relative cursor-default"
-                                 style="width: {{ $intervalPct }}%"
-                                 title="{{ $interval['time'] }} - {{ $interval['actual'] }}">
+                            <div class="h-full {{ $color }} rounded-sm group relative cursor-default"
+                                 style="width: {{ $pct }}%"
+                                 title="{{ $stateLabels[$st] ?? $st }}: {{ gmdate('H:i:s', $t['duration']) }}">
                                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
                                     <div class="bg-wfm-navy-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap shadow-lg">
-                                        <strong>{{ $interval['time'] }}</strong><br>
-                                        Estado: {{ $interval['actual'] }}<br>
-                                        Esperado: {{ $interval['expected_label'] }}<br>
-                                        {{ $interval['is_adherent'] ? 'En Cumplimiento' : 'Fuera de Cumplimiento' }}
+                                        {{ $stateLabels[$st] ?? $st }}<br>
+                                        {{ \Carbon\Carbon::parse($t['transition_time'])->timezone('America/Panama')->format('H:i') }}
+                                        · {{ gmdate('H:i:s', $t['duration']) }}
                                     </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-                    {{-- Now indicator --}}
-                    @if($isToday)
-                        <div class="absolute top-0 bottom-0 w-0.5 bg-wfm-danger z-10" style="left: {{ $nowPct }}%">
-                            <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] text-wfm-danger font-bold whitespace-nowrap">Ahora</span>
-                        </div>
-                    @endif
-                </div>
-            @else
-                <div class="relative h-6">
-                    @for($i = 0; $i <= ($endH - $startH); $i++)
-                        @php $hPos = ($endH - $startH) > 0 ? ($i / ($endH - $startH)) * 100 : 0; @endphp
-                        <div class="absolute top-0 bottom-0 border-l border-wfm-surface-border/20" style="left: {{ $hPos }}%"></div>
-                        <span class="absolute -bottom-4 text-[10px] text-wfm-surface-muted font-mono -ml-2" style="left: {{ $hPos }}%">{{ sprintf('%02d:00', $startH + $i) }}</span>
-                    @endfor
-                    <div class="absolute top-0 bottom-0 right-0 border-l border-wfm-surface-border/20"></div>
-                    @if($isToday)
-                        <div class="absolute top-0 bottom-0 w-0.5 bg-wfm-danger z-10" style="left: {{ $nowPct }}%">
-                            <span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[9px] text-wfm-danger font-bold whitespace-nowrap">Ahora</span>
-                        </div>
-                    @endif
-                </div>
-            @endif
+                @else
+                    <div class="absolute bg-wfm-surface-muted/20 rounded" style="top: 14px; left: 0; right: 0; height: 1.25rem;"></div>
+                @endif
 
-            {{-- Leyenda de estados --}}
-            @if(!empty($d['adherence_intervals']))
+                {{-- Now indicator --}}
+                @if($isToday)
+                    <div class="absolute top-0 w-0.5 bg-wfm-danger z-10" style="left: {{ $nowPct }}%; height: 3rem;">
+                        <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] text-wfm-danger font-bold whitespace-nowrap">Ahora</span>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Legend --}}
+            @if($timelineSegments->isNotEmpty())
                 @php
-                    $seenLabels = [];
-                    $stateLabels = [
-                        'TALKING' => 'TALKING', 'READY' => 'READY', 'WORK' => 'ACW', 'ACW' => 'ACW',
-                        'RESERVED' => 'RESERVED', 'NOT_READY' => 'NO DISP',
-                        'LUNCH' => 'ALMUERZO', 'NOT_READY_LUNCH' => 'ALMUERZO',
-                        'NOT_READY_ALMUERZO' => 'ALMUERZO',
-                        'BREAK' => 'DESCANSO', 'NOT_READY_BREAK' => 'DESCANSO',
-                        'NOT_READY_DESCANSO' => 'DESCANSO',
-                        'LOGOUT' => 'OFFLINE', 'OFFLINE' => 'OFFLINE', 'UNKNOWN' => 'UNKNOWN',
-                    ];
-                    $legendItems = [];
-                    foreach ($d['adherence_intervals'] as $int) {
-                        $st = strtoupper($int['actual'] ?? 'UNKNOWN');
+                    $seen = [];
+                    $legend = [];
+                    foreach ($timelineSegments as $t) {
+                        $st = strtoupper($t['agent_state'] ?? '');
                         $label = $stateLabels[$st] ?? $st;
-                        if (!in_array($label, $seenLabels) && isset($stateColorMap[$st])) {
-                            $seenLabels[] = $label;
-                            $legendItems[] = ['label' => $label, 'color' => $stateColorMap[$st]];
+                        if (!in_array($label, $seen) && isset($stateColorMap[$st])) {
+                            $seen[] = $label;
+                            $legend[] = ['label' => $label, 'color' => $stateColorMap[$st]];
                         }
                     }
                 @endphp
-                @if(count($legendItems) > 0)
-                    <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-4">
-                        @foreach($legendItems as $li)
+                @if(count($legend) > 0)
+                    <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-3">
+                        @foreach($legend as $li)
                             <span class="inline-flex items-center gap-1 text-[10px] text-wfm-surface-muted">
                                 <span class="w-2 h-2 rounded-sm {{ $li['color'] }}"></span>
                                 {{ $li['label'] }}

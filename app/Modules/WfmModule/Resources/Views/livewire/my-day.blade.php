@@ -320,7 +320,7 @@
                 </x-wfm.section>
 
                 <x-wfm.section title="Distribución AHT por Cola">
-                    <div class="relative h-52">
+                    <div class="relative aspect-[2/1] w-full">
                         @php
                             $maxTalk = max(array_map(fn($q) => (int) ($q['total_talk'] ?? 0), $queueData)) ?: 1;
                             $maxAht = max(array_map(fn($q) => (float) ($q['avg_aht'] ?? 0), $queueData)) ?: 1;

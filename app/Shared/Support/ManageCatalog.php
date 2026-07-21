@@ -37,13 +37,18 @@ trait ManageCatalog
         $modelClass = $this->catalogModel();
         $record = $modelClass::findOrFail($id);
         $this->authorizeIfNeeded($record);
-        $record->delete();
+        $this->performDelete($record);
         \Flux::toast($this->catalogLabel().' eliminado.');
     }
 
     public function updatingSearch(): void
     {
         $this->resetPage();
+    }
+
+    protected function performDelete(object $record): void
+    {
+        $record->delete();
     }
 
     protected function authorizeIfNeeded(object $record): void

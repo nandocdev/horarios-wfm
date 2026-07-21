@@ -1,5 +1,11 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Catálogo de Colas" description="Gestiona las colas que pueden asignarse a registros de llamada." />
+    <x-wfm.page-header title="Catálogo de Colas" description="Gestiona las colas que pueden asignarse a registros de llamada.">
+        <x-slot:filters>
+            <x-wfm.filter-bar>
+                <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar cola..." class="!w-56" />
+            </x-wfm.filter-bar>
+        </x-slot:filters>
+    </x-wfm.page-header>
 
     <x-wfm.section>
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-3">
@@ -20,7 +26,7 @@
     </x-wfm.section>
 
     <x-wfm.section title="Colas Registradas">
-        <x-wfm.table :headers="['Nombre', 'Descripción', 'Tipos asociados', 'Activo', 'Acciones']" compact>
+        <x-wfm.table :headers="['Nombre', 'Descripción', 'Tipos asociados', 'Activo', 'Acciones']" :paginate="$queues" compact>
             @forelse($queues as $queue)
                 <flux:table.row :key="$queue->id">
                     <flux:table.cell class="font-medium">{{ $queue->name }}</flux:table.cell>

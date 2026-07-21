@@ -10,21 +10,47 @@ use App\Modules\ConnectModule\Actions\UpdateCallQueueAction;
 use App\Modules\ConnectModule\DTOs\CallQueueDTO;
 use App\Modules\ConnectModule\Livewire\Forms\CallQueueForm;
 use App\Modules\ConnectModule\Models\CallQueue;
+use App\Shared\Support\ManageCatalog;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class ListCallQueues extends Component
 {
+    use ManageCatalog;
+
     public CallQueueForm $form;
 
     public ?CallQueue $editing = null;
 
+    protected function catalogModel(): string
+    {
+        return CallQueue::class;
+    }
+
+    protected function catalogLabel(): string
+    {
+        return 'Cola';
+    }
+
     public function mount(): void
     {
         Gate::authorize('viewAny', CallQueue::class);
+    }
 
-        $this->form = new CallQueueForm($this, 'form');
+    public function create(): void
+    {
         $this->resetForm();
+        $this->editing = null;
+    }
+
+    public function edit(int $id): void
+    {
+        $queue = CallQueue::findOrFail($id);
+        Gate::authorize('update', $queue);
+        $this->editing = $queue;
+        $this->form->name = $queue->name;
+        $this->form->description = $queue->description;
+        $this->form->is_active = $queue->is_active;
     }
 
     public function save(CreateCallQueueAction $createAction, UpdateCallQueueAction $updateAction): void
@@ -51,28 +77,14 @@ class ListCallQueues extends Component
         $this->resetForm();
     }
 
-    public function edit(int $queueId): void
+    protected function performDelete(object $record): void
     {
-        $queue = CallQueue::findOrFail($queueId);
-        Gate::authorize('update', $queue);
-
-        $this->editing = $queue;
-        $this->form->name = $queue->name;
-        $this->form->description = $queue->description;
-        $this->form->is_active = $queue->is_active;
-    }
-
-    public function delete(DeleteCallQueueAction $action, int $queueId): void
-    {
-        $queue = CallQueue::findOrFail($queueId);
-        Gate::authorize('delete', $queue);
-
-        $action->execute($queue);
-        $this->resetForm();
+        $action = app(DeleteCallQueueAction::class);
+        $action->execute($record);
         session()->flash('success', 'Cola eliminada correctamente.');
     }
 
-    public function resetForm(): void
+    protected function resetForm(): void
     {
         $this->form->name = '';
         $this->form->description = null;
@@ -80,15 +92,18 @@ class ListCallQueues extends Component
         $this->editing = null;
     }
 
-    public function getQueuesProperty()
+    protected function loadForm(object $record): void
     {
-        return CallQueue::withCount('subtypes')->orderBy('name')->get();
+        // Inline form — loadForm is handled by edit()
     }
 
     public function render(): mixed
     {
         return view('connect::livewire.list-call-queues', [
-            'queues' => $this->queues,
+            'queues' => CallQueue::withCount('subtypes')
+                ->when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
+                ->orderBy('name')
+                ->paginate(10),
         ]);
     }
 }

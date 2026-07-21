@@ -10,25 +10,37 @@ use App\Modules\ConnectModule\Actions\UpdateChannelAction;
 use App\Modules\ConnectModule\DTOs\ChannelDTO;
 use App\Modules\ConnectModule\Livewire\Forms\ChannelForm;
 use App\Modules\ConnectModule\Models\Channel;
+use App\Shared\Support\ManageCatalog;
 use Livewire\Component;
 
 class ListChannels extends Component
 {
+    use ManageCatalog;
+
     public ChannelForm $form;
 
     public ?Channel $editing = null;
 
-    public function mount(): void
+    protected function catalogModel(): string
     {
-        // Instanciar el Form object correctamente vinculándolo al componente Livewire
-        $this->form = new ChannelForm($this, 'form');
+        return Channel::class;
     }
 
-    public function render()
+    protected function catalogLabel(): string
     {
-        $channels = Channel::orderBy('name')->get();
+        return 'Canal';
+    }
 
-        return view('connect::livewire.list-channels', compact('channels'));
+    public function create(): void
+    {
+        $this->editing = null;
+        $this->form->reset();
+    }
+
+    public function edit(int $id): void
+    {
+        $this->editing = Channel::findOrFail($id);
+        $this->form->fill($this->editing->toArray());
     }
 
     public function save(CreateChannelAction $createAction, UpdateChannelAction $updateAction)
@@ -49,22 +61,30 @@ class ListChannels extends Component
         $this->form->reset();
     }
 
-    public function edit(Channel $channel)
+    protected function performDelete(object $record): void
     {
-        $this->editing = $channel;
-        $this->form->fill($channel->toArray());
+        $action = app(DeleteChannelAction::class);
+        $action->execute($record);
+        $this->dispatch('notify', 'Canal eliminado');
     }
 
-    public function resetForm(): void
+    protected function resetForm(): void
     {
         $this->editing = null;
         $this->form->reset();
     }
 
-    public function delete(Channel $channel, DeleteChannelAction $action)
+    protected function loadForm(object $record): void
     {
-        $this->authorize('manage', Channel::class);
-        $action->execute($channel);
-        $this->dispatch('notify', 'Canal eliminado');
+        // Inline form — loadForm is handled by edit()
+    }
+
+    public function render()
+    {
+        return view('connect::livewire.list-channels', [
+            'channels' => Channel::when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
+                ->orderBy('name')
+                ->paginate(10),
+        ]);
     }
 }

@@ -1,5 +1,11 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Canales" description="Gestiona los canales top-level del Contact Center." />
+    <x-wfm.page-header title="Canales" description="Gestiona los canales top-level del Contact Center.">
+        <x-slot:filters>
+            <x-wfm.filter-bar>
+                <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar canal..." class="!w-56" />
+            </x-wfm.filter-bar>
+        </x-slot:filters>
+    </x-wfm.page-header>
 
     <x-wfm.section>
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-3">
@@ -20,7 +26,7 @@
     </x-wfm.section>
 
     <x-wfm.section title="Canales Registrados">
-        <x-wfm.table :headers="['Nombre', 'Descripción', 'Activo', 'Acciones']" compact>
+        <x-wfm.table :headers="['Nombre', 'Descripción', 'Activo', 'Acciones']" :paginate="$channels" compact>
             @forelse($channels as $channel)
                 <flux:table.row :key="$channel->id">
                     <flux:table.cell class="font-medium">{{ $channel->name }}</flux:table.cell>
@@ -29,8 +35,8 @@
                         <x-wfm.agent-status :status="$channel->is_active ? 'available' : 'offline'" :label="$channel->is_active ? 'Activo' : 'Inactivo'" size="xs" />
                     </flux:table.cell>
                     <flux:table.cell class="text-right">
-                        <flux:button wire:click="edit('{{ $channel->id }}')" size="sm" variant="ghost">Editar</flux:button>
-                        <flux:button wire:click="delete('{{ $channel->id }}')" size="sm" variant="danger">Eliminar</flux:button>
+                        <flux:button wire:click="edit({{ $channel->id }})" size="sm" variant="ghost">Editar</flux:button>
+                        <flux:button wire:click="delete({{ $channel->id }})" size="sm" variant="danger">Eliminar</flux:button>
                     </flux:table.cell>
                 </flux:table.row>
             @empty

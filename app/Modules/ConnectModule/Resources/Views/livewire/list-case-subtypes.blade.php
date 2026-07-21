@@ -1,5 +1,11 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Tipos de Consulta" description="Administra los tipos de consulta por cola del Contact Center." />
+    <x-wfm.page-header title="Tipos de Consulta" description="Administra los tipos de consulta por cola del Contact Center.">
+        <x-slot:filters>
+            <x-wfm.filter-bar>
+                <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar tipo de consulta..." class="!w-56" />
+            </x-wfm.filter-bar>
+        </x-slot:filters>
+    </x-wfm.page-header>
 
     <x-wfm.section>
         <form wire:submit.prevent="save" class="grid gap-4 md:grid-cols-3">
@@ -27,7 +33,7 @@
     </x-wfm.section>
 
     <x-wfm.section title="Tipos de Consulta Registrados">
-        <x-wfm.table :headers="['Cola', 'Código', 'Nombre', 'Activo', 'Acciones']" compact>
+        <x-wfm.table :headers="['Cola', 'Código', 'Nombre', 'Activo', 'Acciones']" :paginate="$subtypes" compact>
             @forelse($subtypes as $subtype)
                 <flux:table.row :key="$subtype->id">
                     <flux:table.cell>{{ $subtype->queue->name ?? '-' }}</flux:table.cell>

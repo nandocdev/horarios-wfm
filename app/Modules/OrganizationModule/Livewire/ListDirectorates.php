@@ -5,18 +5,13 @@ declare(strict_types=1);
 namespace App\Modules\OrganizationModule\Livewire;
 
 use App\Modules\OrganizationModule\Models\Directorate;
+use App\Shared\Support\ManageCatalog;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
-use Livewire\WithPagination;
 
-/**
- * Componente Livewire para listar direcciones.
- *
- * Incluye filtros por nombre y estado, paginación y acciones básicas.
- */
 class ListDirectorates extends Component
 {
-    use WithPagination;
+    use ManageCatalog;
 
     public string $search = '';
 
@@ -30,12 +25,14 @@ class ListDirectorates extends Component
         'activeFilter' => ['except' => null],
     ];
 
-    /**
-     * Resetea la paginación cuando cambian los filtros.
-     */
-    public function updatedSearch(): void
+    protected function catalogModel(): string
     {
-        $this->resetPage();
+        return Directorate::class;
+    }
+
+    protected function catalogLabel(): string
+    {
+        return 'Dirección';
     }
 
     public function updatedActiveFilter(): void
@@ -48,28 +45,29 @@ class ListDirectorates extends Component
         $this->resetPage();
     }
 
-    /**
-     * Obtiene la consulta base con filtros aplicados.
-     */
     public function getDirectoratesQuery(): Builder
     {
         return Directorate::query()
-            ->when($this->search, function (Builder $query) {
-                $query->where('name', 'ilike', '%'.$this->search.'%')
-                    ->orWhere('description', 'ilike', '%'.$this->search.'%');
-            })
-            ->when($this->activeFilter !== null, function (Builder $query) {
-                $query->where('is_active', $this->activeFilter);
-            })
+            ->when($this->search, fn (Builder $query) => $query->where('name', 'ilike', '%'.$this->search.'%')
+                ->orWhere('description', 'ilike', '%'.$this->search.'%'))
+            ->when($this->activeFilter !== null, fn (Builder $query) => $query->where('is_active', $this->activeFilter))
             ->orderBy('name');
+    }
+
+    protected function resetForm(): void
+    {
+        // No inline form — resets handled by separate CRUD routes
+    }
+
+    protected function loadForm(object $record): void
+    {
+        // No inline form — editing handled by separate CRUD routes
     }
 
     public function render()
     {
-        $directorates = $this->getDirectoratesQuery()->paginate($this->perPage);
-
         return view('organization::livewire.list-directorates', [
-            'directorates' => $directorates,
+            'directorates' => $this->getDirectoratesQuery()->paginate($this->perPage),
         ]);
     }
 }

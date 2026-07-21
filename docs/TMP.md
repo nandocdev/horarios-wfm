@@ -49,3 +49,5 @@ Estamos trabajando en el sistema **HorariosWFM** (Laravel 13, Monolito Modular).
 - **Componentes y Vistas:** Código completo de los componentes Livewire, Form Objects y vistas Blade refactorizadas.
 - **Acciones (si aplica):** Si el componente contenía lógica de negocio, muévela a una `Action` y entrega el código de dicha clase para mantener la pureza del frontend.
 - **Validación visual:** Breve descripción de cómo se manejaron los estados de carga y errores.
+
+---

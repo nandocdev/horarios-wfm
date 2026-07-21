@@ -6,18 +6,13 @@ namespace App\Modules\OrganizationModule\Livewire;
 
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Directorate;
+use App\Shared\Support\ManageCatalog;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
-use Livewire\WithPagination;
 
-/**
- * Componente Livewire para listar departamentos.
- *
- * Incluye filtros por nombre y dirección, paginación y acciones básicas.
- */
 class ListDepartments extends Component
 {
-    use WithPagination;
+    use ManageCatalog;
 
     public string $search = '';
 
@@ -31,12 +26,14 @@ class ListDepartments extends Component
         'directorateFilter' => ['except' => null],
     ];
 
-    /**
-     * Resetea la paginación cuando cambian los filtros.
-     */
-    public function updatedSearch(): void
+    protected function catalogModel(): string
     {
-        $this->resetPage();
+        return Department::class;
+    }
+
+    protected function catalogLabel(): string
+    {
+        return 'Departamento';
     }
 
     public function updatedDirectorateFilter(): void
@@ -49,37 +46,35 @@ class ListDepartments extends Component
         $this->resetPage();
     }
 
-    /**
-     * Obtiene la consulta base con filtros aplicados.
-     */
     public function getDepartmentsQuery(): Builder
     {
         return Department::query()
             ->with('directorate')
-            ->when($this->search, function (Builder $query) {
-                $query->where('name', 'ilike', '%'.$this->search.'%')
-                    ->orWhere('description', 'ilike', '%'.$this->search.'%');
-            })
-            ->when($this->directorateFilter, function (Builder $query) {
-                $query->where('directorate_id', $this->directorateFilter);
-            })
+            ->when($this->search, fn (Builder $query) => $query->where('name', 'ilike', '%'.$this->search.'%')
+                ->orWhere('description', 'ilike', '%'.$this->search.'%'))
+            ->when($this->directorateFilter, fn (Builder $query) => $query->where('directorate_id', $this->directorateFilter))
             ->orderBy('name');
     }
 
-    /**
-     * Obtiene las direcciones para el filtro.
-     */
     public function getDirectoratesProperty()
     {
         return Directorate::orderBy('name')->get();
     }
 
+    protected function resetForm(): void
+    {
+        // No inline form
+    }
+
+    protected function loadForm(object $record): void
+    {
+        // No inline form
+    }
+
     public function render()
     {
-        $departments = $this->getDepartmentsQuery()->paginate($this->perPage);
-
         return view('organization::livewire.list-departments', [
-            'departments' => $departments,
+            'departments' => $this->getDepartmentsQuery()->paginate($this->perPage),
         ]);
     }
 }

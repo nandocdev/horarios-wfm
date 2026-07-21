@@ -6,18 +6,13 @@ namespace App\Modules\OrganizationModule\Livewire;
 
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
+use App\Shared\Support\ManageCatalog;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
-use Livewire\WithPagination;
 
-/**
- * Componente Livewire para listar posiciones.
- *
- * Incluye filtros por nombre, departamento y estado, paginación y acciones básicas.
- */
 class ListPositions extends Component
 {
-    use WithPagination;
+    use ManageCatalog;
 
     public string $search = '';
 
@@ -34,12 +29,14 @@ class ListPositions extends Component
         'activeFilter' => ['except' => null],
     ];
 
-    /**
-     * Resetea la paginación cuando cambian los filtros.
-     */
-    public function updatedSearch(): void
+    protected function catalogModel(): string
     {
-        $this->resetPage();
+        return Position::class;
+    }
+
+    protected function catalogLabel(): string
+    {
+        return 'Posición';
     }
 
     public function updatedDepartmentFilter(): void
@@ -57,41 +54,36 @@ class ListPositions extends Component
         $this->resetPage();
     }
 
-    /**
-     * Obtiene la consulta base con filtros aplicados.
-     */
     public function getPositionsQuery(): Builder
     {
         return Position::query()
             ->with('department.directorate')
-            ->when($this->search, function (Builder $query) {
-                $query->where('name', 'ilike', '%'.$this->search.'%')
-                    ->orWhere('description', 'ilike', '%'.$this->search.'%');
-            })
-            ->when($this->departmentFilter, function (Builder $query) {
-                $query->where('department_id', $this->departmentFilter);
-            })
-            ->when($this->activeFilter !== null, function (Builder $query) {
-                $query->where('is_active', $this->activeFilter);
-            })
+            ->when($this->search, fn (Builder $query) => $query->where('name', 'ilike', '%'.$this->search.'%')
+                ->orWhere('description', 'ilike', '%'.$this->search.'%'))
+            ->when($this->departmentFilter, fn (Builder $query) => $query->where('department_id', $this->departmentFilter))
+            ->when($this->activeFilter !== null, fn (Builder $query) => $query->where('is_active', $this->activeFilter))
             ->orderBy('name');
     }
 
-    /**
-     * Obtiene los departamentos para el filtro.
-     */
     public function getDepartmentsProperty()
     {
         return Department::orderBy('name')->get();
     }
 
+    protected function resetForm(): void
+    {
+        // No inline form
+    }
+
+    protected function loadForm(object $record): void
+    {
+        // No inline form
+    }
+
     public function render()
     {
-        $positions = $this->getPositionsQuery()
-            ->paginate($this->perPage);
-
         return view('organization::livewire.list-positions', [
-            'positions' => $positions,
+            'positions' => $this->getPositionsQuery()->paginate($this->perPage),
         ]);
     }
 }

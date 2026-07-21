@@ -11,21 +11,48 @@ use App\Modules\ConnectModule\DTOs\CaseSubtypeDTO;
 use App\Modules\ConnectModule\Livewire\Forms\CaseSubtypeForm;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CaseSubtype;
+use App\Shared\Support\ManageCatalog;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class ListCaseSubtypes extends Component
 {
+    use ManageCatalog;
+
     public CaseSubtypeForm $form;
 
     public ?CaseSubtype $editing = null;
 
-    public function mount(): void
+    protected function catalogModel(): string
     {
-        Gate::authorize('viewAny', CaseSubtype::class);
+        return CaseSubtype::class;
+    }
 
-        $this->form = new CaseSubtypeForm($this, 'form');
-        $this->resetForm();
+    protected function catalogLabel(): string
+    {
+        return 'Tipo de consulta';
+    }
+
+    public function create(): void
+    {
+        $this->editing = null;
+        $this->form->queue_id = CallQueue::active()->orderBy('name')->value('id') ?? 0;
+        $this->form->code = '';
+        $this->form->name = '';
+        $this->form->description = null;
+        $this->form->is_active = true;
+    }
+
+    public function edit(int $id): void
+    {
+        $subtype = CaseSubtype::findOrFail($id);
+        Gate::authorize('update', $subtype);
+        $this->editing = $subtype;
+        $this->form->queue_id = $subtype->queue_id;
+        $this->form->code = $subtype->code;
+        $this->form->name = $subtype->name;
+        $this->form->description = $subtype->description;
+        $this->form->is_active = $subtype->is_active;
     }
 
     public function save(CreateCaseSubtypeAction $createAction, UpdateCaseSubtypeAction $updateAction): void
@@ -59,30 +86,14 @@ class ListCaseSubtypes extends Component
         $this->resetForm();
     }
 
-    public function edit(int $subtypeId): void
+    protected function performDelete(object $record): void
     {
-        $subtype = CaseSubtype::findOrFail($subtypeId);
-        Gate::authorize('update', $subtype);
-
-        $this->editing = $subtype;
-        $this->form->queue_id = $subtype->queue_id;
-        $this->form->code = $subtype->code;
-        $this->form->name = $subtype->name;
-        $this->form->description = $subtype->description;
-        $this->form->is_active = $subtype->is_active;
-    }
-
-    public function delete(DeleteCaseSubtypeAction $action, int $subtypeId): void
-    {
-        $subtype = CaseSubtype::findOrFail($subtypeId);
-        Gate::authorize('delete', $subtype);
-
-        $action->execute($subtype);
-        $this->resetForm();
+        $action = app(DeleteCaseSubtypeAction::class);
+        $action->execute($record);
         session()->flash('success', 'Tipo de consulta eliminado correctamente.');
     }
 
-    public function resetForm(): void
+    protected function resetForm(): void
     {
         $this->form->queue_id = CallQueue::active()->orderBy('name')->value('id') ?? 0;
         $this->form->code = '';
@@ -92,21 +103,20 @@ class ListCaseSubtypes extends Component
         $this->editing = null;
     }
 
-    public function getQueuesProperty()
+    protected function loadForm(object $record): void
     {
-        return CallQueue::active()->orderBy('name')->get();
-    }
-
-    public function getSubtypesProperty()
-    {
-        return CaseSubtype::with('queue')->orderBy('queue_id')->orderBy('name')->get();
+        // Inline form — loadForm is handled by edit()
     }
 
     public function render(): mixed
     {
         return view('connect::livewire.list-case-subtypes', [
-            'queues' => $this->queues,
-            'subtypes' => $this->subtypes,
+            'queues' => CallQueue::active()->orderBy('name')->get(),
+            'subtypes' => CaseSubtype::with('queue')
+                ->when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
+                ->orderBy('queue_id')
+                ->orderBy('name')
+                ->paginate(10),
         ]);
     }
 }

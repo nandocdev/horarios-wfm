@@ -293,7 +293,7 @@ class MyDay extends Component
             ->toArray();
 
         $callsByQueue = app(TelemetryRealtimeRepositoryInterface::class)
-            ->getQueuePerformanceReport($today);
+            ->getQueuePerformanceReport($today, [$targetEmployee->id]);
 
         $firstLunch = $transitions
             ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['LUNCH', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO']))

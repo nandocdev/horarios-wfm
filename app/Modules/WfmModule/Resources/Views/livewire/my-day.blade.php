@@ -73,10 +73,18 @@
                 'LOGOUT' => 'OFFLINE', 'OFFLINE' => 'OFFLINE',
             ];
 
+            $sincePct = 0;
+            $windowWidth = 100;
             $timelineSegments = collect($d['transitions'] ?? [])
                 ->sortBy('transition_time')
                 ->filter(fn($t) => ($t['duration'] ?? 0) > 0)
-                ->when($isToday, fn($col) => $col->filter(fn($t) => \Carbon\Carbon::parse($t['transition_time'])->lessThanOrEqualTo(now())))
+                ->when($isToday, function ($col) use (&$sincePct, &$windowWidth, $startMin, $shiftMinutes) {
+                    $since = now()->subMinutes(60);
+                    $sincePct = max(0, min(100, (($since->hour * 60 + $since->minute - $startMin) / $shiftMinutes) * 100));
+                    $windowWidth = max(1, (60 / $shiftMinutes) * 100);
+
+                    return $col->filter(fn($t) => \Carbon\Carbon::parse($t['transition_time'])->greaterThanOrEqualTo($since));
+                })
                 ->values();
 
             $totalSegSecs = $timelineSegments->sum('duration') ?: 1;
@@ -96,9 +104,14 @@
                 @endfor
                 <div class="absolute top-0 right-0 border-l border-wfm-surface-border/20" style="height: 0.75rem;"></div>
 
-                {{-- Segments by state --}}
+                {{-- 60-min window background --}}
+                @if($isToday)
+                    <div class="absolute bg-wfm-surface/80 rounded-sm" style="top: 14px; height: 1.25rem; left: {{ $sincePct }}%; width: {{ $windowWidth }}%; border: 1px dashed var(--color-wfm-surface-border);"></div>
+                @endif
+
+                {{-- Segments by state (ultimos 60 min) --}}
                 @if($timelineSegments->isNotEmpty())
-                    <div class="absolute flex gap-px" style="top: 14px; left: 0; right: 0; height: 1.25rem;">
+                    <div class="absolute flex gap-px" style="top: 14px; height: 1.25rem; left: {{ $sincePct }}%; width: {{ $windowWidth }}%;">
                         @foreach($timelineSegments as $t)
                             @php
                                 $st = strtoupper($t['agent_state'] ?? '');
@@ -118,8 +131,6 @@
                             </div>
                         @endforeach
                     </div>
-                @else
-                    <div class="absolute bg-wfm-surface-muted/20 rounded" style="top: 14px; left: 0; right: 0; height: 1.25rem;"></div>
                 @endif
 
                 {{-- Now indicator --}}

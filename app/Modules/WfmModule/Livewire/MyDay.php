@@ -206,6 +206,15 @@ class MyDay extends Component
             'shrinkage' => null,
             'productivity_pct' => $report->productivity_pct,
             'avg_handle_time' => $report->avg_handle_time,
+            'avg_talk_time' => $report->handled_calls > 0
+                ? round($report->talk_seconds / $report->handled_calls, 1) : 0,
+            'avg_acw_time' => $report->handled_calls > 0
+                ? round($report->acw_seconds / $report->handled_calls, 1) : 0,
+            'aux_seconds' => $report->lunch_seconds + $report->break_seconds + $report->not_ready_seconds,
+            'not_ready_by_reason' => [],
+            'calls_by_queue' => [],
+            'timeline_start' => $report->scheduled_start?->format('H:i') ?? '06:00',
+            'timeline_end' => $report->scheduled_end?->format('H:i') ?? '18:00',
         ];
     }
 
@@ -272,6 +281,16 @@ class MyDay extends Component
         $avgTalkTime = $handledCalls > 0 ? round($talkSeconds / $handledCalls, 1) : 0;
         $avgAcwTime = $handledCalls > 0 ? round($acwSeconds / $handledCalls, 1) : 0;
 
+        $notReadyByReason = $transitions
+            ->whereIn('agent_state', ['NOT_READY'])
+            ->groupBy(fn ($t) => $t->reason_code ?? 'SIN_MOTIVO')
+            ->map(fn ($group) => $group->sum('duration'))
+            ->sortDesc()
+            ->toArray();
+
+        $callsByQueue = app(TelemetryRealtimeRepositoryInterface::class)
+            ->getQueuePerformanceReport($today);
+
         $hasRecentActivity = $productiveSeconds > 0 || $talkSeconds > 0;
         $disconnectedWithActivity = ! $isConnected && $hasRecentActivity;
 
@@ -319,6 +338,10 @@ class MyDay extends Component
             'avg_talk_time' => $avgTalkTime,
             'avg_acw_time' => $avgAcwTime,
             'aux_seconds' => $lunchSeconds + $breakSeconds + $notReadySeconds,
+            'not_ready_by_reason' => $notReadyByReason,
+            'calls_by_queue' => $callsByQueue,
+            'timeline_start' => $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '06:00',
+            'timeline_end' => $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '18:00',
         ];
     }
 

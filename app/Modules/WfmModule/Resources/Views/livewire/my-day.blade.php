@@ -44,7 +44,7 @@
             <x-wfm.kpi :value="gmdate('H:i', $d['total_seconds'])" label="T. Conectado" icon="clock" />
             <x-wfm.kpi :value="gmdate('H:i', $d['productive_seconds'])" label="T. Productivo" icon="chart-bar" />
             <x-wfm.kpi :value="$d['total_calls']" label="Llamadas" :comparison="'SLA ' . $d['sla'] . '%'" icon="phone" />
-            <x-wfm.kpi :value="($d['productivity_pct'] ?? 0) . '%" label="Productividad" icon="chart-pie" :comparison="$d['avg_handle_time'] !== null ? 'AHT ' . number_format($d['avg_handle_time'], 1) . 's' : ''" />
+            <x-wfm.kpi :value="($d['productivity_pct'] ?? 0) . '%'" label="Productividad" icon="chart-pie" :comparison="$d['avg_handle_time'] !== null ? 'AHT ' . number_format($d['avg_handle_time'], 1) . 's' : ''" />
         </div>
 
         @if(!$isHistorical)

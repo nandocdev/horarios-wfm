@@ -7,27 +7,24 @@ namespace App\Modules\WfmModule\Livewire;
 use App\Modules\WfmModule\Actions\SaveActivityTypeAction;
 use App\Modules\WfmModule\Livewire\Forms\ActivityTypeForm;
 use App\Modules\WfmModule\Models\ActivityType;
+use App\Shared\Support\ManageCatalog;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class ManageActivityTypes extends Component
 {
-    use WithPagination;
+    use ManageCatalog;
 
     public ActivityTypeForm $form;
 
-    public bool $showModal = false;
-
-    public function create(): void
+    protected function catalogModel(): string
     {
-        $this->form->resetForm();
-        $this->showModal = true;
+        return ActivityType::class;
     }
 
-    public function edit(ActivityType $activityType): void
+    protected function catalogLabel(): string
     {
-        $this->form->setActivityType($activityType);
-        $this->showModal = true;
+        return 'Tipo de actividad';
     }
 
     public function save(SaveActivityTypeAction $action): void
@@ -38,16 +35,20 @@ class ManageActivityTypes extends Component
         \Flux::toast('Tipo de actividad guardado.');
     }
 
-    public function delete(ActivityType $activityType): void
-    {
-        $activityType->delete();
-        \Flux::toast('Tipo de actividad eliminado.');
-    }
-
     public function render()
     {
         return view('wfm::livewire.manage-activity-types', [
             'activityTypes' => ActivityType::paginate(10),
         ]);
+    }
+
+    protected function resetForm(): void
+    {
+        $this->form->resetForm();
+    }
+
+    protected function loadForm(Model $record): void
+    {
+        $this->form->setActivityType($record);
     }
 }

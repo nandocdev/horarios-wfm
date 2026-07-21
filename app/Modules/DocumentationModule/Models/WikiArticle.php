@@ -6,6 +6,7 @@ namespace App\Modules\DocumentationModule\Models;
 
 use App\Modules\CommunicationsModule\Models\Category;
 use App\Modules\CoreModule\Models\User;
+use App\Shared\Support\HasContentPublishing;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -13,6 +14,8 @@ use Illuminate\Support\Str;
 
 class WikiArticle extends Model
 {
+    use HasContentPublishing;
+
     protected $table = 'documentation_articles';
 
     protected $fillable = [

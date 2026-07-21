@@ -1,5 +1,10 @@
 <div class="space-y-6">
     <x-wfm.page-header title="Evaluaciones de Calidad" description="Registro y consulta de evaluaciones de llamadas por cola.">
+        <x-slot:actions>
+            @can('create', App\Modules\QualityModule\Models\Evaluation::class)
+                <flux:button href="{{ route('quality.evaluations.create') }}" variant="primary" icon="plus" wire:navigate>Nueva Evaluación</flux:button>
+            @endcan
+        </x-slot:actions>
         <x-slot:filters>
             <x-wfm.filter-bar>
                 <flux:input wire:model.live.debounce.250ms="search" placeholder="Empleado, evaluador..." class="!w-48" />

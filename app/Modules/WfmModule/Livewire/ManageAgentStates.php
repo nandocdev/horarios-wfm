@@ -7,27 +7,23 @@ namespace App\Modules\WfmModule\Livewire;
 use App\Modules\WfmModule\Actions\SaveAgentStateAction;
 use App\Modules\WfmModule\Livewire\Forms\AgentStateForm;
 use App\Modules\WfmModule\Models\AgentState;
+use App\Shared\Support\ManageCatalog;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class ManageAgentStates extends Component
 {
-    use WithPagination;
+    use ManageCatalog;
 
     public AgentStateForm $form;
 
-    public bool $showModal = false;
-
-    public function create(): void
+    protected function catalogModel(): string
     {
-        $this->form->resetForm();
-        $this->showModal = true;
+        return AgentState::class;
     }
 
-    public function edit(AgentState $model): void
+    protected function catalogLabel(): string
     {
-        $this->form->setAgentState($model);
-        $this->showModal = true;
+        return 'Estado de agente';
     }
 
     public function save(SaveAgentStateAction $action): void
@@ -38,16 +34,20 @@ class ManageAgentStates extends Component
         \Flux::toast('Estado de agente guardado.');
     }
 
-    public function delete(AgentState $model): void
-    {
-        $model->delete();
-        \Flux::toast('Estado eliminado.');
-    }
-
     public function render()
     {
         return view('wfm::livewire.manage-agent-states', [
             'states' => AgentState::paginate(10),
         ]);
+    }
+
+    protected function resetForm(): void
+    {
+        $this->form->resetForm();
+    }
+
+    protected function loadForm(object $record): void
+    {
+        $this->form->setAgentState($record);
     }
 }

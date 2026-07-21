@@ -19,7 +19,7 @@ use App\Modules\CommunicationsModule\Listeners\SendWeeklySchedulePublishedNotifi
 use App\Modules\CommunicationsModule\Livewire\CreateNews;
 use App\Modules\CommunicationsModule\Livewire\EditNews;
 use App\Modules\CommunicationsModule\Livewire\Home;
-use App\Modules\CommunicationsModule\Livewire\ListNews;
+use App\Modules\CommunicationsModule\Livewire\ManageContent;
 use App\Modules\CommunicationsModule\Models\Category;
 use App\Modules\CommunicationsModule\Models\Comment;
 use App\Modules\CommunicationsModule\Models\Mention;
@@ -117,7 +117,7 @@ class ModuleServiceProvider extends ServiceProvider
 
     private function registerLivewireComponents(): void
     {
-        Livewire::component('communications.list-news', ListNews::class);
+        Livewire::component('communications.manage-content', ManageContent::class);
         Livewire::component('communications.create-news', CreateNews::class);
         Livewire::component('communications.edit-news', EditNews::class);
         Livewire::component('communications.home', Home::class);

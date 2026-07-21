@@ -12,9 +12,7 @@ use App\Modules\CommunicationsModule\Livewire\CreatePoll;
 use App\Modules\CommunicationsModule\Livewire\CreateShoutout;
 use App\Modules\CommunicationsModule\Livewire\EditNews;
 use App\Modules\CommunicationsModule\Livewire\EditShoutout;
-use App\Modules\CommunicationsModule\Livewire\ListNews;
-use App\Modules\CommunicationsModule\Livewire\ListPolls;
-use App\Modules\CommunicationsModule\Livewire\ListShoutouts;
+use App\Modules\CommunicationsModule\Livewire\ManageContent;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('admin/communications')->name('communications.')->group(function () {
@@ -25,8 +23,8 @@ Route::middleware(['auth'])->prefix('admin/communications')->name('communication
     Route::post('/moderation/archive', [ContentModerationController::class, 'archive'])->name('moderation.archive');
     Route::post('/moderation/submit-review', [ContentModerationController::class, 'submitForReview'])->name('moderation.submit-review');
 
-    // Noticias
-    Route::get('/news', ListNews::class)->name('news.index');
+    // Noticias (unificado)
+    Route::get('/news', ManageContent::class)->name('news.index');
     Route::get('/news/create', CreateNews::class)->name('news.create');
     Route::get('/news/{news}/edit', EditNews::class)->name('news.edit');
 
@@ -52,12 +50,12 @@ Route::middleware(['auth'])->prefix('admin/communications')->name('communication
         'destroy' => 'admin.tags.destroy',
     ]);
 
-    // Encuestas
-    Route::get('polls', ListPolls::class)->name('polls.index');
+    // Encuestas (unificado)
+    Route::get('polls', ManageContent::class)->name('polls.index');
     Route::get('polls/create', CreatePoll::class)->name('polls.create');
 
-    // Reconocimientos
-    Route::get('/shoutouts', ListShoutouts::class)->name('shoutouts.index');
+    // Reconocimientos (unificado)
+    Route::get('/shoutouts', ManageContent::class)->name('shoutouts.index');
     Route::get('/shoutouts/create', CreateShoutout::class)->name('shoutouts.create');
     Route::get('/shoutouts/{shoutout}/edit', EditShoutout::class)->name('shoutouts.edit');
 });

@@ -7,27 +7,23 @@ namespace App\Modules\WfmModule\Livewire;
 use App\Modules\WfmModule\Actions\SaveAbsenceReasonAction;
 use App\Modules\WfmModule\Livewire\Forms\AbsenceReasonForm;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
+use App\Shared\Support\ManageCatalog;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class ManageAbsenceReasons extends Component
 {
-    use WithPagination;
+    use ManageCatalog;
 
     public AbsenceReasonForm $form;
 
-    public bool $showModal = false;
-
-    public function create(): void
+    protected function catalogModel(): string
     {
-        $this->form->resetForm();
-        $this->showModal = true;
+        return AbsenceReasonCode::class;
     }
 
-    public function edit(AbsenceReasonCode $model): void
+    protected function catalogLabel(): string
     {
-        $this->form->setAbsenceReason($model);
-        $this->showModal = true;
+        return 'Motivo de ausencia';
     }
 
     public function save(SaveAbsenceReasonAction $action): void
@@ -38,16 +34,20 @@ class ManageAbsenceReasons extends Component
         \Flux::toast('Motivo de ausencia guardado.');
     }
 
-    public function delete(AbsenceReasonCode $model): void
-    {
-        $model->delete();
-        \Flux::toast('Motivo eliminado.');
-    }
-
     public function render()
     {
         return view('wfm::livewire.manage-absence-reasons', [
             'reasons' => AbsenceReasonCode::paginate(10),
         ]);
+    }
+
+    protected function resetForm(): void
+    {
+        $this->form->resetForm();
+    }
+
+    protected function loadForm(object $record): void
+    {
+        $this->form->setAbsenceReason($record);
     }
 }

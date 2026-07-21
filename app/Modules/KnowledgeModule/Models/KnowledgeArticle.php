@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Models;
 
 use App\Modules\CoreModule\Models\User;
+use App\Shared\Support\HasContentPublishing;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,8 @@ use Illuminate\Support\Str;
  */
 class KnowledgeArticle extends Model
 {
+    use HasContentPublishing;
+
     protected $table = 'knowledge_articles';
 
     protected $fillable = [

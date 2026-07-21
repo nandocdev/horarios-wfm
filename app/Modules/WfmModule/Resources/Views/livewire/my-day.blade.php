@@ -76,6 +76,7 @@
             $timelineSegments = collect($d['transitions'] ?? [])
                 ->sortBy('transition_time')
                 ->filter(fn($t) => ($t['duration'] ?? 0) > 0)
+                ->when($isToday, fn($col) => $col->filter(fn($t) => \Carbon\Carbon::parse($t['transition_time'])->lessThanOrEqualTo(now())))
                 ->values();
 
             $totalSegSecs = $timelineSegments->sum('duration') ?: 1;

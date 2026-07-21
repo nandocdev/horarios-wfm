@@ -211,13 +211,13 @@
                     @endphp
                     <div class="flex items-center gap-2 py-1 px-2 rounded hover:bg-wfm-surface/50 text-xs">
                         <span class="w-2 h-2 rounded-full {{ $stColor }} flex-shrink-0"></span>
-                        <span class="font-mono text-wfm-surface-muted w-10">{{ \Carbon\Carbon::parse($t['transition_time'])->format('H:i') }}</span>
+                        <span class="font-mono text-wfm-surface-muted w-10">{{ \Carbon\Carbon::parse($t['transition_time'])->timezone('America/Panama')->format('H:i') }}</span>
                         <span class="font-medium flex-1">{{ $st }}</span>
                         <div class="flex items-center gap-1">
                             <div class="h-1.5 bg-wfm-surface rounded-full w-16 overflow-hidden">
                                 <div class="h-full rounded-full {{ $stColor }}" style="width: {{ min(100, ($dur / $transMaxDur) * 100) }}%"></div>
                             </div>
-                            <span class="font-mono text-wfm-surface-muted w-12 text-right">{{ gmdate('i:s', $dur) }}</span>
+                            <span class="font-mono text-wfm-surface-muted w-12 text-right">{{ $dur >= 3600 ? gmdate('H:i:s', $dur) : gmdate('i:s', $dur) }}</span>
                         </div>
                     </div>
                 @empty

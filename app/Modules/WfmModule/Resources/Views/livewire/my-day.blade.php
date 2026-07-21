@@ -320,25 +320,73 @@
                 </x-wfm.section>
 
                 <x-wfm.section title="Distribución AHT por Cola">
-                    <div class="relative h-48">
+                    <div class="relative h-52">
                         @php
                             $maxTalk = max(array_map(fn($q) => (int) ($q['total_talk'] ?? 0), $queueData)) ?: 1;
                             $maxAht = max(array_map(fn($q) => (float) ($q['avg_aht'] ?? 0), $queueData)) ?: 1;
+                            $avgTalk = array_sum(array_map(fn($q) => (int) ($q['total_talk'] ?? 0), $queueData)) / max(count($queueData), 1);
+                            $avgAht = array_sum(array_map(fn($q) => (float) ($q['avg_aht'] ?? 0), $queueData)) / max(count($queueData), 1);
+                            $padL = 12; $padR = 4; $padT = 6; $padB = 10;
+                            $plotW = 100 - $padL - $padR; $plotH = 50 - $padT - $padB;
                         @endphp
-                        <svg viewBox="0 0 100 50" class="w-full h-full">
+                        <svg viewBox="0 0 100 50" class="w-full h-full font-mono">
+                            <defs>
+                                <marker id="arrow-x" markerWidth="3" markerHeight="3" refX="2" refY="1.5" orient="auto">
+                                    <polygon points="0 0, 3 1.5, 0 3" fill="#9ca3af" />
+                                </marker>
+                            </defs>
+
+                            {{-- Grid lines Y (AHT) --}}
+                            @for($i = 0; $i <= 4; $i++)
+                                @php $y = $padT + ($plotH * $i / 4); $val = round($maxAht - ($maxAht * $i / 4)); @endphp
+                                <line x1="{{ $padL }}" y1="{{ $y }}" x2="{{ 100 - $padR }}" y2="{{ $y }}" stroke="#e5e7eb" stroke-width="0.2" />
+                                <text x="{{ $padL - 0.5 }}" y="{{ $y + 0.8 }}" font-size="2.5" fill="#9ca3af" text-anchor="end">{{ $val }}s</text>
+                            @endfor
+
+                            {{-- Grid lines X (Talk time) --}}
+                            @for($i = 0; $i <= 4; $i++)
+                                @php $x = $padL + ($plotW * $i / 4); $val = round($maxTalk * $i / 4); @endphp
+                                <line x1="{{ $x }}" y1="{{ $padT }}" x2="{{ $x }}" y2="{{ 50 - $padB }}" stroke="#e5e7eb" stroke-width="0.2" />
+                                <text x="{{ $x }}" y="{{ 50 - $padB + 2.5 }}" font-size="2" fill="#9ca3af" text-anchor="middle">{{ $val > 0 ? gmdate('H:i', $val) : '0' }}</text>
+                            @endfor
+
+                            {{-- Reference lines --}}
+                            <line x1="{{ $padL }}" y1="{{ $padT + $plotH - (($avgAht / $maxAht) * $plotH) }}" x2="{{ 100 - $padR }}" y2="{{ $padT + $plotH - (($avgAht / $maxAht) * $plotH) }}" stroke="#f59e0b" stroke-width="0.4" stroke-dasharray="1,0.8" />
+                            <rect x="{{ 100 - $padR - 6 }}" y="{{ $padT + $plotH - (($avgAht / $maxAht) * $plotH) - 1.5 }}" width="6" height="3" fill="#f59e0b" rx="0.5" />
+                            <text x="{{ 100 - $padR - 0.5 }}" y="{{ $padT + $plotH - (($avgAht / $maxAht) * $plotH) + 0.5 }}" font-size="2" fill="#f59e0b" text-anchor="end">Prom AHT {{ round($avgAht) }}s</text>
+
+                            <line x1="{{ $padL + (($avgTalk / $maxTalk) * $plotW) }}" y1="{{ $padT }}" x2="{{ $padL + (($avgTalk / $maxTalk) * $plotW) }}" y2="{{ 50 - $padB }}" stroke="#3b82f6" stroke-width="0.4" stroke-dasharray="1,0.8" />
+                            <text x="{{ $padL + (($avgTalk / $maxTalk) * $plotW) }}" y="{{ $padT - 1 }}" font-size="2" fill="#3b82f6" text-anchor="middle">Prom Vol</text>
+
+                            {{-- Quadrant labels --}}
+                            <text x="{{ $padL + 1 }}" y="{{ $padT + 2 }}" font-size="2" fill="#d1d5db" font-weight="bold">Bajo AHT · Bajo Vol</text>
+                            <text x="{{ 100 - $padR - 1 }}" y="{{ $padT + 2 }}" font-size="2" fill="#d1d5db" text-anchor="end" font-weight="bold">Bajo AHT · Alto Vol</text>
+                            <text x="{{ $padL + 1 }}" y="{{ 50 - $padB - 1 }}" font-size="2" fill="#ef4444" font-weight="bold">Alto AHT · Bajo Vol</text>
+                            <text x="{{ 100 - $padR - 1 }}" y="{{ 50 - $padB - 1 }}" font-size="2" fill="#ef4444" text-anchor="end" font-weight="bold">Alto AHT · Alto Vol</text>
+
+                            {{-- Bubbles --}}
                             @foreach($queueData as $q)
                                 @php
                                     $qTalk = (int) ($q['total_talk'] ?? 0);
                                     $qaht = (float) ($q['avg_aht'] ?? 0);
-                                    $cx = 10 + (($qTalk / $maxTalk) * 80);
-                                    $cy = 45 - (($qaht / max($maxAht, 1)) * 40);
-                                    $r = max(2, min(8, $qTalk / $maxTalk * 8));
+                                    $cx = $padL + (($qTalk / $maxTalk) * $plotW);
+                                    $cy = $padT + $plotH - (($qaht / max($maxAht, 1)) * $plotH);
+                                    $r = max(2, min(7, 2 + ($qTalk / $maxTalk) * 5));
+                                    $name = $q['queue_name'] ?? '';
+                                    $shortName = mb_strlen($name) > 18 ? mb_substr($name, 0, 16) . '..' : $name;
                                 @endphp
-                                <circle cx="{{ $cx }}" cy="{{ $cy }}" r="{{ $r }}" fill="rgba(59,130,246,0.3)" stroke="rgb(59,130,246)" stroke-width="0.5" />
-                                <text x="{{ $cx }}" y="{{ $cy - $r - 1 }}" font-size="2" text-anchor="middle" fill="#6b7280">{{ $q['queue_name'] ?? '' }}</text>
+                                <circle cx="{{ $cx }}" cy="{{ $cy }}" r="{{ $r }}" fill="rgba(59,130,246,0.25)" stroke="rgb(59,130,246)" stroke-width="0.4" class="cursor-pointer">
+                                    <title>{{ $name }}
+Llamadas: {{ $qTalk > 0 ? $qTalk : ($q['handled'] ?? 0) }}
+AHT: {{ $qaht > 0 ? number_format($qaht, 1) . 's' : '--' }}
+T. Hablado: {{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '--' }}</title>
+                                </circle>
+                                <text x="{{ $cx }}" y="{{ $cy - $r - 0.8 }}" font-size="2" text-anchor="middle" fill="#374151" font-weight="bold">{{ $shortName }}</text>
                             @endforeach
-                            <text x="2" y="10" font-size="2.5" fill="#9ca3af">AHT ↑</text>
-                            <text x="98" y="48" font-size="2.5" text-anchor="end" fill="#9ca3af">T. Hablado Acumulado →</text>
+
+                            {{-- Axis labels --}}
+                            <text x="{{ $padL + $plotW / 2 }}" y="49" font-size="2.5" fill="#6b7280" text-anchor="middle">T. Hablado Acumulado →</text>
+                            <text x="1.5" y="{{ $padT + $plotH / 2 }}" font-size="2.5" fill="#6b7280" text-anchor="middle" transform="rotate(-90, 1.5, {{ $padT + $plotH / 2 }})">AHT ↑</text>
                         </svg>
                     </div>
                 </x-wfm.section>

@@ -95,7 +95,7 @@ class MyDay extends Component
             }
         }
 
-        $employeeData['adherence_intervals'] = $this->buildAdherenceIntervals(
+        $intervals = $this->buildAdherenceIntervals(
             $targetEmployee,
             $today,
             $dayOfWeek,
@@ -103,6 +103,15 @@ class MyDay extends Component
             $expectedState,
             $now,
         );
+
+        $employeeData['adherence_intervals'] = $intervals;
+
+        $onTrack = collect($intervals)->where('state', 'on_track')->count();
+        $offTrack = collect($intervals)->where('state', 'off_track')->count();
+        $totalTracked = $onTrack + $offTrack;
+        $employeeData['adherence'] = $totalTracked > 0
+            ? round(($onTrack / $totalTracked) * 100, 1)
+            : 0;
 
         return view('wfm::livewire.my-day', [
             'employeeData' => $employeeData,
@@ -247,14 +256,17 @@ class MyDay extends Component
         $readySeconds = $timeByState->get('READY', 0);
         $acwSeconds = $timeByState->get('WORK', 0) + $timeByState->get('ACW', 0);
         $reservedSeconds = $timeByState->get('RESERVED', 0);
-        $productiveSeconds = $talkSeconds + $readySeconds + $acwSeconds + $reservedSeconds;
-        $effectiveSeconds = $productiveSeconds + $readySeconds;
+        $handleSeconds = $talkSeconds + $acwSeconds + $reservedSeconds;
+        $readyAvailableSeconds = $handleSeconds + $readySeconds;
         $lunchSeconds = $timeByState->get('NOT_READY_LUNCH', 0) + $timeByState->get('NOT_READY_ALMUERZO', 0) + $timeByState->get('LUNCH', 0);
         $breakSeconds = $timeByState->get('NOT_READY_BREAK', 0) + $timeByState->get('NOT_READY_DESCANSO', 0) + $timeByState->get('BREAK', 0);
         $notReadySeconds = $timeByState->get('NOT_READY', 0);
         $offlineSeconds = $timeByState->get('LOGOUT', 0) + $timeByState->get('OFFLINE', 0);
 
-        $occupancy = $effectiveSeconds > 0 ? round(($productiveSeconds / $effectiveSeconds) * 100, 1) : 0;
+        $productiveSeconds = $handleSeconds + $readySeconds;
+        $occupancy = $readyAvailableSeconds > 0
+            ? round(($handleSeconds / $readyAvailableSeconds) * 100, 1)
+            : 0;
 
         $firstTransition = $transitions->sortBy('transition_time')->first();
         $realEntry = $firstTransition?->transition_time

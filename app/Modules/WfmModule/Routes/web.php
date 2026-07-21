@@ -14,7 +14,6 @@ use App\Modules\WfmModule\Livewire\ManageScheduledActivities;
 use App\Modules\WfmModule\Livewire\ManageScheduleExceptions;
 use App\Modules\WfmModule\Livewire\ManageSchedules;
 use App\Modules\WfmModule\Livewire\MyDay;
-use App\Modules\WfmModule\Livewire\MyMetrics;
 use App\Modules\WfmModule\Livewire\MySchedule;
 use App\Modules\WfmModule\Livewire\MyTeam;
 use App\Modules\WfmModule\Livewire\OperationalSettings;
@@ -32,7 +31,6 @@ Route::middleware(['web', 'auth'])->prefix('schedules')->name('schedules.')->gro
     // Autogestión (Operador)
     Route::get('/my-schedule/{week?}/{day?}', MySchedule::class)->name('my-schedule');
     Route::get('/my-day', MyDay::class)->name('my-day');
-    Route::get('/my-metrics', MyMetrics::class)->name('my-metrics');
     Route::get('/my-team', MyTeam::class)->name('my-team');
     Route::get('/swap-request', RequestShiftSwap::class)->name('swap-request');
     Route::get('/swap-history', SwapRequestHistory::class)->name('swap-history');

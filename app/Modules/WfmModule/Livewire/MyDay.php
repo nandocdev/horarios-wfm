@@ -10,7 +10,9 @@ use App\Modules\WfmModule\Models\DailyOperatorReport;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
+use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -40,6 +42,7 @@ class MyDay extends Component
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
         DashboardScheduleQueriesInterface $scheduleQueries,
         PerformanceService $performanceService,
+        ExpectedAgentStateInterface $expectedState,
     ) {
         $user = auth()->user();
         $employee = $user->employee;
@@ -90,6 +93,15 @@ class MyDay extends Component
                 );
             }
         }
+
+        $employeeData['adherence_intervals'] = $this->buildAdherenceIntervals(
+            $targetEmployee,
+            $today,
+            $dayOfWeek,
+            $employeeData['transitions'] ?? collect(),
+            $expectedState,
+            $now,
+        );
 
         return view('wfm::livewire.my-day', [
             'employeeData' => $employeeData,
@@ -257,6 +269,9 @@ class MyDay extends Component
 
         $shrinkage = $performanceService->calculateShrinkage([$targetEmployee->id], $now);
 
+        $avgTalkTime = $handledCalls > 0 ? round($talkSeconds / $handledCalls, 1) : 0;
+        $avgAcwTime = $handledCalls > 0 ? round($acwSeconds / $handledCalls, 1) : 0;
+
         $hasRecentActivity = $productiveSeconds > 0 || $talkSeconds > 0;
         $disconnectedWithActivity = ! $isConnected && $hasRecentActivity;
 
@@ -301,6 +316,129 @@ class MyDay extends Component
             'avg_handle_time' => $handledCalls > 0
                 ? round(($talkSeconds + $acwSeconds) / $handledCalls, 1)
                 : null,
+            'avg_talk_time' => $avgTalkTime,
+            'avg_acw_time' => $avgAcwTime,
+            'aux_seconds' => $lunchSeconds + $breakSeconds + $notReadySeconds,
         ];
+    }
+
+    private function buildAdherenceIntervals(
+        Employee $targetEmployee,
+        string $today,
+        int $dayOfWeek,
+        array|Collection $transitions,
+        ExpectedAgentStateInterface $expectedState,
+        Carbon $now,
+    ): array {
+        $assignment = WeeklyScheduleAssignment::with('schedule')
+            ->where('employee_id', $targetEmployee->id)
+            ->where('day_of_week', $dayOfWeek)
+            ->whereHas('weeklySchedule', fn ($q) => $q
+                ->where('week_start_date', '<=', $today)
+                ->where('week_end_date', '>=', $today)
+            )
+            ->first();
+
+        if (! $assignment || ! $assignment->start_time || ! $assignment->end_time) {
+            return [];
+        }
+
+        $start = Carbon::parse($today.' '.$assignment->start_time);
+        $end = Carbon::parse($today.' '.$assignment->end_time);
+        $intervals = [];
+
+        $windowStart = $start->copy();
+        while ($windowStart->lt($end)) {
+            $windowEnd = $windowStart->copy()->addMinutes(30);
+            if ($windowEnd->gt($end)) {
+                $windowEnd = $end->copy();
+            }
+
+            $expected = $expectedState->execute((int) $targetEmployee->id, $windowStart);
+            $expectedType = $expected['type'] ?? 'OFF';
+
+            $actualState = $this->getActualStateForWindow($transitions, $windowStart, $windowEnd);
+
+            $isAdherent = $this->isStateAdherent($actualState, $expectedType);
+
+            $intervals[] = [
+                'time' => $windowStart->format('H:i'),
+                'expected' => $expectedType,
+                'expected_label' => $expected['label'] ?? '',
+                'actual' => $actualState,
+                'is_adherent' => $isAdherent,
+                'state' => match (true) {
+                    $expectedType === 'OFF' && $actualState === 'OFFLINE' => 'off',
+                    $isAdherent => 'on_track',
+                    $windowStart->isFuture() => 'pending',
+                    default => 'off_track',
+                },
+            ];
+
+            $windowStart->addMinutes(30);
+        }
+
+        return $intervals;
+    }
+
+    private function getActualStateForWindow(Collection|array $transitions, Carbon $windowStart, Carbon $windowEnd): string
+    {
+        $windowTransitions = collect($transitions)->filter(function ($t) use ($windowStart, $windowEnd) {
+            $tTime = Carbon::parse($t['transition_time'] ?? $t->transition_time ?? now());
+
+            return $tTime->between($windowStart, $windowEnd);
+        });
+
+        if ($windowTransitions->isEmpty()) {
+            $totalDuration = $windowStart->diffInSeconds($windowEnd);
+            $duration = 0;
+            $state = 'UNKNOWN';
+            foreach ($transitions as $t) {
+                $tDuration = (int) ($t['duration'] ?? $t->duration ?? 0);
+                $tState = strtoupper($t['agent_state'] ?? $t->agent_state ?? '');
+                $duration += $tDuration;
+                if ($tDuration > 0) {
+                    $state = $tState;
+                }
+            }
+
+            if ($duration > ($totalDuration / 2)) {
+                return $state;
+            }
+
+            return 'UNKNOWN';
+        }
+
+        $dominantState = $windowTransitions->sortByDesc(function ($t) {
+            return (int) ($t['duration'] ?? $t->duration ?? 0);
+        })->first();
+
+        return strtoupper($dominantState['agent_state'] ?? $dominantState->agent_state ?? 'UNKNOWN');
+    }
+
+    private function isStateAdherent(string $actualState, string $expectedType): bool
+    {
+        if ($actualState === 'UNKNOWN') {
+            return false;
+        }
+
+        if ($expectedType === 'OFF') {
+            return in_array($actualState, ['OFFLINE', 'LOGOUT', 'UNKNOWN']);
+        }
+
+        if ($expectedType === 'INTRADAY') {
+            return in_array($actualState, ['NOT_READY', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO',
+                'NOT_READY_BREAK', 'NOT_READY_DESCANSO', 'LUNCH', 'BREAK']);
+        }
+
+        if ($expectedType === 'SHIFT') {
+            return in_array($actualState, ['READY', 'TALKING', 'WORK', 'ACW', 'RESERVED', 'NOT_READY']);
+        }
+
+        if ($expectedType === 'EXCEPTION') {
+            return in_array($actualState, ['NOT_READY', 'OFFLINE', 'LOGOUT']);
+        }
+
+        return false;
     }
 }

@@ -57,7 +57,24 @@
                 <div class="space-y-2">
                     <x-wfm.kpi :value="$d['total_calls']" label="Llamadas" :comparison="'SLA ' . $d['sla'] . '%'" icon="phone" />
                     <x-wfm.kpi :value="$d['handled_calls']" label="Atendidas" icon="phone-arrow-down-left" />
-                    <x-wfm.kpi :value="$d['avg_handle_time'] !== null ? number_format($d['avg_handle_time'], 1) . 's' : '--'" label="T. Prom. Atención" icon="clock" />
+                    <x-wfm.kpi :value="$d['avg_handle_time'] !== null ? number_format($d['avg_handle_time'], 1) . 's' : '--'" label="AHT" icon="clock" />
+                </div>
+            </x-wfm.section>
+
+            <x-wfm.section title="Desglose AHT">
+                <div class="space-y-2">
+                    <x-wfm.kpi :value="($d['avg_talk_time'] ?? 0) . 's'" label="T. Prom. Conversación" icon="phone" color="info" />
+                    <x-wfm.kpi :value="($d['avg_acw_time'] ?? 0) . 's'" label="T. Prom. Trabajo Post-Llamada" icon="pencil" color="warning" />
+                    <x-wfm.kpi :value="($d['handled_calls'] > 0 ? number_format(($d['avg_talk_time'] ?? 0) + ($d['avg_acw_time'] ?? 0), 1) : '--') . 's'" label="AHT Total" icon="chart-bar" color="success" />
+                </div>
+            </x-wfm.section>
+
+            <x-wfm.section title="Tiempos Auxiliares">
+                <div class="space-y-2">
+                    <x-wfm.kpi :value="gmdate('H:i:s', $d['lunch'] ?? 0)" label="Almuerzo" icon="clock" color="warning" />
+                    <x-wfm.kpi :value="gmdate('H:i:s', $d['break'] ?? 0)" label="Descansos" icon="clock" color="warning" />
+                    <x-wfm.kpi :value="gmdate('H:i:s', $d['not_ready'] ?? 0)" label="Not Ready" icon="clock" color="danger" />
+                    <x-wfm.kpi :value="gmdate('H:i:s', $d['aux_seconds'] ?? 0)" label="Total Auxiliares" icon="clock" color="info" />
                 </div>
             </x-wfm.section>
         </div>
@@ -98,6 +115,45 @@
                         </div>
                     </x-wfm.section>
                 </div>
+            </div>
+        @endif
+
+        @if(!empty($employeeData['adherence_intervals']) && !$isHistorical)
+            <div class="grid grid-cols-1 gap-4">
+                <x-wfm.section title="Adherencia por Intervalos (30 min)">
+                    <div class="flex flex-wrap gap-1.5">
+                        @php $intervals = $employeeData['adherence_intervals']; @endphp
+                        @foreach($intervals as $interval)
+                            @php
+                                $intervalColor = match($interval['state']) {
+                                    'on_track' => 'bg-wfm-success',
+                                    'off_track' => 'bg-wfm-danger',
+                                    'pending' => 'bg-wfm-surface-muted',
+                                    'off' => 'bg-gray-100 dark:bg-zinc-800',
+                                    default => 'bg-wfm-surface-muted',
+                                };
+                                $title = $interval['time'] . ' - Esperado: ' . $interval['expected_label'] . ' - Real: ' . $interval['actual'];
+                            @endphp
+                            <div class="w-8 h-8 rounded {{ $intervalColor }} flex items-center justify-center group relative cursor-help"
+                                 title="{{ $title }}">
+                                <span class="text-[9px] font-mono {{ $interval['state'] === 'off' ? 'text-wfm-surface-muted' : 'text-white' }}">{{ substr($interval['time'], 0, 2) }}</span>
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
+                                    <div class="bg-wfm-navy-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                                        {{ $interval['time'] }}<br>
+                                        <span class="text-wfm-success-medium">Esperado:</span> {{ $interval['expected_label'] }}<br>
+                                        <span class="text-wfm-warning">Real:</span> {{ $interval['actual'] }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="flex gap-4 mt-3 text-[10px] text-wfm-surface-muted">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-wfm-success inline-block"></span> En Cumplimiento</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-wfm-danger inline-block"></span> Fuera de Cumplimiento</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-gray-100 dark:bg-zinc-800 inline-block"></span> Fuera de Jornada</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-wfm-surface-muted inline-block"></span> Pendiente</span>
+                    </div>
+                </x-wfm.section>
             </div>
         @endif
 

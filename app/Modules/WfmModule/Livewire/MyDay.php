@@ -366,8 +366,9 @@ class MyDay extends Component
             return [];
         }
 
-        $start = Carbon::parse($today.' '.$assignment->start_time);
-        $end = Carbon::parse($today.' '.$assignment->end_time);
+        $todayCarbon = Carbon::parse($today);
+        $start = $assignment->start_time->copy()->setDateFrom($todayCarbon);
+        $end = $assignment->end_time->copy()->setDateFrom($todayCarbon);
         $intervals = [];
 
         $windowStart = $start->copy();

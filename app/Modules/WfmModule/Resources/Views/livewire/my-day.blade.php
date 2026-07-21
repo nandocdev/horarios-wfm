@@ -104,10 +104,8 @@
                 @endfor
                 <div class="absolute top-0 right-0 border-l border-wfm-surface-border/20" style="height: 0.75rem;"></div>
 
-                {{-- 60-min window background --}}
-                @if($isToday)
-                    <div class="absolute bg-wfm-surface/80 rounded-sm" style="top: 14px; height: 1.25rem; left: {{ $sincePct }}%; width: {{ $windowWidth }}%; border: 1px dashed var(--color-wfm-surface-border);"></div>
-                @endif
+                {{-- Base barra completa gris --}}
+                <div class="absolute bg-wfm-surface-muted/20 rounded-sm" style="top: 14px; height: 1.25rem; left: 0; right: 0;"></div>
 
                 {{-- Segments by state (ultimos 60 min) --}}
                 @if($timelineSegments->isNotEmpty())
@@ -217,22 +215,33 @@
                 $entryDiff = $d['entry_diff'] ?? null;
                 $entryLabel = $entryDiff !== null ? ($entryDiff <= 0 ? (string) $entryDiff : '+' . $entryDiff) . ' min' : '—';
                 $compliance = [
-                    ['label' => 'Entrada', 'sched' => $d['scheduled_entry'] ?? '--:--', 'real' => $d['real_entry'] ?? '--:--', 'diff' => $entryLabel, 'ok' => ($entryDiff !== null && $entryDiff <= 5)],
-                    ['label' => 'Almuerzo', 'sched' => $d['lunch_start'] ?? '--:--', 'real' => $d['lunch'] > 0 ? gmdate('H:i', $d['lunch']) : '—', 'diff' => '—', 'ok' => true],
-                    ['label' => 'Descanso', 'sched' => $d['break_start'] ?? '--:--', 'real' => $d['break'] > 0 ? gmdate('H:i', $d['break']) : '—', 'diff' => '—', 'ok' => true],
+                    ['label' => 'Entrada', 'sched' => $d['scheduled_entry'] ?? '--:--', 'real' => $d['real_entry'] ?? '--:--', 'acum' => '—', 'diff' => $entryLabel, 'ok' => ($entryDiff !== null && $entryDiff <= 5)],
+                    ['label' => 'Almuerzo', 'sched' => $d['lunch_start'] ?? '--:--', 'real' => $d['first_lunch_time'] ?? '—', 'acum' => $d['lunch'] > 0 ? gmdate('H:i', $d['lunch']) : '—', 'diff' => '—', 'ok' => true],
+                    ['label' => 'Descanso', 'sched' => $d['break_start'] ?? '--:--', 'real' => $d['first_break_time'] ?? '—', 'acum' => $d['break'] > 0 ? gmdate('H:i', $d['break']) : '—', 'diff' => '—', 'ok' => true],
                 ];
             @endphp
-            <x-wfm.table :headers="['', 'Programado', 'Real', 'Estado']" compact>
+            <x-wfm.table :headers="['', 'Programado', 'Real', 'Acumulado', 'Estado']" compact>
                 @foreach($compliance as $c)
                     <flux:table.row>
                         <flux:table.cell class="font-medium text-xs">{{ $c['label'] }}</flux:table.cell>
                         <flux:table.cell><span class="font-mono text-xs">{{ $c['sched'] }}</span></flux:table.cell>
                         <flux:table.cell><span class="font-mono text-xs">{{ $c['real'] }}</span></flux:table.cell>
+                        <flux:table.cell><span class="font-mono text-xs">{{ $c['acum'] }}</span></flux:table.cell>
                         <flux:table.cell>
                             <x-wfm.agent-status :status="$c['ok'] ? 'available' : 'busy'" :label="$c['diff']" size="xs" />
                         </flux:table.cell>
                     </flux:table.row>
                 @endforeach
+                @if(!empty($d['intraday_activities']))
+                    @foreach($d['intraday_activities'] as $ia)
+                        <flux:table.row>
+                            <flux:table.cell class="font-medium text-xs">{{ $ia['name'] }}</flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $ia['start'] }} - {{ $ia['end'] }}</span></flux:table.cell>
+                            <flux:table.cell colspan="2" class="text-xs text-wfm-surface-muted">Actividad intradía</flux:table.cell>
+                            <flux:table.cell><x-wfm.agent-status status="available" label="Programada" size="xs" /></flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                @endif
             </x-wfm.table>
             @if($d['has_exceptions'] ?? false)
                 <div class="mt-2 flex items-center gap-1.5 text-xs text-wfm-warning">

@@ -7,12 +7,12 @@ namespace App\Modules\WfmModule\Livewire;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\DailyOperatorReport;
+use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use Carbon\Carbon;
-use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -216,6 +216,9 @@ class MyDay extends Component
             'calls_by_queue' => [],
             'timeline_start' => $report->scheduled_start?->format('H:i') ?? '06:00',
             'timeline_end' => $report->scheduled_end?->format('H:i') ?? '18:00',
+            'first_lunch_time' => null,
+            'first_break_time' => null,
+            'intraday_activities' => [],
         ];
     }
 
@@ -292,6 +295,25 @@ class MyDay extends Component
         $callsByQueue = app(TelemetryRealtimeRepositoryInterface::class)
             ->getQueuePerformanceReport($today);
 
+        $firstLunch = $transitions
+            ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['LUNCH', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO']))
+            ->sortBy('transition_time')
+            ->first();
+        $firstBreak = $transitions
+            ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['BREAK', 'NOT_READY_BREAK', 'NOT_READY_DESCANSO']))
+            ->sortBy('transition_time')
+            ->first();
+
+        $intradayActivities = IntradayActivity::with('activityType')
+            ->where('employee_id', $targetEmployee->id)
+            ->whereDate('created_at', $today)
+            ->get()
+            ->map(fn ($a) => [
+                'name' => $a->activityType?->name ?? 'Actividad',
+                'start' => $a->getRangeStart()?->format('H:i'),
+                'end' => $a->getRangeEnd()?->format('H:i'),
+            ]);
+
         $hasRecentActivity = $productiveSeconds > 0 || $talkSeconds > 0;
         $disconnectedWithActivity = ! $isConnected && $hasRecentActivity;
 
@@ -343,6 +365,9 @@ class MyDay extends Component
             'calls_by_queue' => $callsByQueue,
             'timeline_start' => $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '06:00',
             'timeline_end' => $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '18:00',
+            'first_lunch_time' => $firstLunch?->transition_time?->format('H:i'),
+            'first_break_time' => $firstBreak?->transition_time?->format('H:i'),
+            'intraday_activities' => $intradayActivities,
         ];
     }
 

@@ -170,7 +170,7 @@
     {{-- Tráfico y Calidad --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
         <x-wfm.kpi :value="$d['total_calls'] ?? 0" :label="'Llamadas · SLA ' . ($d['sla'] ?? 0) . '%'" icon="phone" color="info" />
-        <x-wfm.kpi :value="($d['avg_handle_time'] ? number_format($d['avg_handle_time'], 1) . 's' : '--')" label="AHT" :comparison="($d['avg_talk_time'] ? 'T ' . number_format($d['avg_talk_time'], 1) . 's' : '') . ($d['avg_talk_time'] && $d['avg_acw_time'] ? ' · ' : '') . ($d['avg_acw_time'] ? 'ACW ' . number_format($d['avg_acw_time'], 1) . 's' : '')" icon="clock" color="success" />
+        <x-wfm.kpi :value="($d['avg_handle_time'] ? number_format($d['avg_handle_time'], 1) . 's' : '--')" label="AHT (T+ACW)" :comparison="'T ' . ($d['avg_talk_time'] ?? 0) . 's · ACW ' . ($d['avg_acw_time'] ?? 0) . 's'" icon="clock" color="success" />
         @php $adhVal = is_numeric($d['adherence'] ?? null) ? (float) $d['adherence'] : 0; @endphp
         <x-wfm.kpi :value="$adhVal . '%'" label="Adherencia" :trend="$adhVal . '%'" trend-direction="{{ $adhVal >= 80 ? 'up' : 'down' }}" icon="check-badge" :color="$adhVal >= 80 ? 'success' : ($adhVal >= 60 ? 'warning' : 'danger')" />
         <x-wfm.kpi :value="($d['occupancy'] ?? 0) . '%'" label="Ocupación" icon="cpu-chip" />
@@ -290,30 +290,30 @@
         @if(count($queueData) > 0)
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <x-wfm.section title="Llamadas por Cola">
-                    <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'Talk Time']" compact>
-                        @php $qTotalCalls = 0; $qTotalAht = 0; $qCount = 0; @endphp
+                    <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado']" compact>
+                        @php $qTotalCalls = 0; $qTotalTalk = 0; $qCount = 0; @endphp
                         @foreach($queueData as $q)
                             @php
                                 $qc = (int) ($q['handled'] ?? $q['total_offered'] ?? 0);
                                 $qaht = (float) ($q['avg_aht'] ?? 0);
-                                $qTalk = (float) ($q['avg_talk'] ?? 0);
+                                $qTalk = (int) ($q['total_talk'] ?? 0);
                                 $qTotalCalls += $qc;
-                                $qTotalAht += $qaht;
+                                $qTotalTalk += $qTalk;
                                 $qCount++;
                             @endphp
                             <flux:table.row>
                                 <flux:table.cell class="font-medium text-xs">{{ $q['queue_name'] ?? '—' }}</flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? number_format($qTalk, 1) . 's' : '—' }}</span></flux:table.cell>
+                                <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '—' }}</span></flux:table.cell>
                             </flux:table.row>
                         @endforeach
                         @if($qCount > 1)
                             <flux:table.row class="font-bold">
-                                <flux:table.cell class="text-xs">Total / Prom</flux:table.cell>
+                                <flux:table.cell class="text-xs">Total</flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qCount > 0 ? number_format($qTotalAht / $qCount, 1) : 0 }}s</span></flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">—</span></flux:table.cell>
+                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalTalk > 0 ? gmdate('H:i:s', $qTotalTalk) : '—' }}</span></flux:table.cell>
                             </flux:table.row>
                         @endif
                     </x-wfm.table>
@@ -322,23 +322,23 @@
                 <x-wfm.section title="Distribución AHT por Cola">
                     <div class="relative h-48">
                         @php
-                            $maxCalls = max(array_map(fn($q) => (int) ($q['handled'] ?? $q['total_offered'] ?? 0), $queueData)) ?: 1;
+                            $maxTalk = max(array_map(fn($q) => (int) ($q['total_talk'] ?? 0), $queueData)) ?: 1;
                             $maxAht = max(array_map(fn($q) => (float) ($q['avg_aht'] ?? 0), $queueData)) ?: 1;
                         @endphp
                         <svg viewBox="0 0 100 50" class="w-full h-full">
                             @foreach($queueData as $q)
                                 @php
-                                    $qc = (int) ($q['handled'] ?? $q['total_offered'] ?? 0);
+                                    $qTalk = (int) ($q['total_talk'] ?? 0);
                                     $qaht = (float) ($q['avg_aht'] ?? 0);
-                                    $cx = 10 + (($qc / $maxCalls) * 80);
+                                    $cx = 10 + (($qTalk / $maxTalk) * 80);
                                     $cy = 45 - (($qaht / max($maxAht, 1)) * 40);
-                                    $r = max(2, min(8, $qc / $maxCalls * 8));
+                                    $r = max(2, min(8, $qTalk / $maxTalk * 8));
                                 @endphp
                                 <circle cx="{{ $cx }}" cy="{{ $cy }}" r="{{ $r }}" fill="rgba(59,130,246,0.3)" stroke="rgb(59,130,246)" stroke-width="0.5" />
                                 <text x="{{ $cx }}" y="{{ $cy - $r - 1 }}" font-size="2" text-anchor="middle" fill="#6b7280">{{ $q['queue_name'] ?? '' }}</text>
                             @endforeach
-                            <text x="2" y="10" font-size="2.5" fill="#9ca3af">AHT</text>
-                            <text x="98" y="48" font-size="2.5" text-anchor="end" fill="#9ca3af">Volumen</text>
+                            <text x="2" y="10" font-size="2.5" fill="#9ca3af">AHT ↑</text>
+                            <text x="98" y="48" font-size="2.5" text-anchor="end" fill="#9ca3af">T. Hablado Acumulado →</text>
                         </svg>
                     </div>
                 </x-wfm.section>

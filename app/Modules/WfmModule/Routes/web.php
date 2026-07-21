@@ -21,6 +21,7 @@ use App\Modules\WfmModule\Livewire\RequestLeave;
 use App\Modules\WfmModule\Livewire\RequestShiftSwap;
 use App\Modules\WfmModule\Livewire\RequestSummary;
 use App\Modules\WfmModule\Livewire\SwapRequestHistory;
+use App\Modules\WfmModule\Livewire\TeamDashboard;
 use App\Modules\WfmModule\Livewire\TeamWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\WeeklyPlanning;
 use App\Modules\WfmModule\Livewire\WeeklyPlanningTeams;
@@ -42,6 +43,7 @@ Route::middleware(['web', 'auth'])->prefix('schedules')->name('schedules.')->gro
     Route::get('/wfm-approvals', WfmSwapApprovals::class)->name('wfm-approvals')->can('wfm.swaps.manage');
     Route::get('/manager-approvals', ManagerApprovals::class)->name('manager-approvals');
     Route::get('/planning', WeeklyPlanning::class)->name('planning');
+    Route::get('/team-dashboard', TeamDashboard::class)->name('team-dashboard');
     Route::get('/intraday-activities/manage', ManageIntradayActivities::class)->name('intraday-activities.manage');
     Route::get('/exceptions', ManageScheduleExceptions::class)->name('exceptions');
     Route::get('/planning/{week}/teams', WeeklyPlanningTeams::class)->name('planning.teams');

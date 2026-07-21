@@ -17,6 +17,7 @@ use App\Modules\WfmModule\Livewire\ManageScheduledActivities;
 use App\Modules\WfmModule\Livewire\ManageSchedules;
 use App\Modules\WfmModule\Livewire\MyDay;
 use App\Modules\WfmModule\Livewire\MySchedule;
+use App\Modules\WfmModule\Livewire\TeamDashboard;
 use App\Modules\WfmModule\Livewire\TeamWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\WeeklyPlanning;
 use App\Modules\WfmModule\Livewire\WeeklyPlanningTeams;
@@ -115,6 +116,7 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('wfm.employee-weekly-planning', EmployeeWeeklyPlanning::class);
         Livewire::component('wfm.my-schedule', MySchedule::class);
         Livewire::component('wfm.my-day', MyDay::class);
+        Livewire::component('wfm.team-dashboard', TeamDashboard::class);
 
         // Registro de Observadores
         LeaveRequest::observe(LeaveRequestObserver::class);

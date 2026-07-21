@@ -312,7 +312,7 @@
                             <flux:table.row class="font-bold">
                                 <flux:table.cell class="text-xs">Total</flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">—</span></flux:table.cell>
+                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls > 0 ? number_format($qTotalTalk / $qTotalCalls, 1) . 's' : '—' }}</span></flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qTotalTalk > 0 ? gmdate('H:i:s', $qTotalTalk) : '—' }}</span></flux:table.cell>
                             </flux:table.row>
                         @endif

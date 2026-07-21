@@ -341,7 +341,6 @@
                         $chartOptions = json_encode([
                             'chart' => [
                                 'type' => 'scatter',
-                                'height' => 280,
                                 'toolbar' => ['show' => false],
                                 'zoom' => ['enabled' => false],
                                 'animations' => ['enabled' => false],

@@ -32,23 +32,34 @@
     @else
         @php $d = $employeeData; @endphp
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <x-wfm.kpi :value="$d['scheduled_entry'] . ' - ' . $d['scheduled_end']" label="Turno" icon="clock" />
-            <x-wfm.kpi :value="$d['real_entry'] ?? '--:--'" label="Entrada Real" :comparison="$d['entry_diff'] !== null ? ($d['entry_diff'] <= 0 ? (string) $d['entry_diff'] . ' min' : '+' . $d['entry_diff'] . ' min') : ''" :color="$d['entry_diff'] !== null && $d['entry_diff'] > 0 ? 'warning' : 'success'" />
-            <x-wfm.kpi :value="gmdate('H:i:s', $d['total_seconds'])" label="Tiempo Conectado" icon="signal" />
-            <x-wfm.kpi :value="gmdate('H:i:s', $d['productive_seconds'])" label="T. Productivo" icon="chart-bar" />
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <x-wfm.section title="Tiempos Base">
+                <div class="space-y-2">
+                    <x-wfm.kpi :value="$d['scheduled_entry'] . ' - ' . $d['scheduled_end']" label="Turno" icon="clock" />
+                    <x-wfm.kpi :value="$d['real_entry'] ?? '--:--'" label="Entrada Real" :comparison="$d['entry_diff'] !== null ? ($d['entry_diff'] <= 0 ? (string) $d['entry_diff'] . ' min' : '+' . $d['entry_diff'] . ' min') : ''" :color="$d['entry_diff'] !== null && $d['entry_diff'] > 0 ? 'warning' : 'success'" />
+                    <x-wfm.kpi :value="gmdate('H:i:s', $d['total_seconds'])" label="Conectado" icon="signal" />
+                    <x-wfm.kpi :value="gmdate('H:i:s', $d['productive_seconds'])" label="Productivo" icon="chart-bar" />
+                </div>
+            </x-wfm.section>
 
-        <div class="grid grid-cols-2 lg:grid-cols-6 gap-3">
-            @php
-                $adherenceVal = is_numeric($d['adherence']) ? (float) $d['adherence'] : 0;
-            @endphp
-            <x-wfm.kpi :value="$d['adherence'] ?? '--'" label="Adherencia" :trend="$adherenceVal > 0 ? $adherenceVal . '%' : ''" trend-direction="up" icon="check-badge" color="info" />
-            <x-wfm.kpi :value="$d['occupancy'] . '%'" label="Ocupación" icon="cpu-chip" />
-            <x-wfm.kpi :value="gmdate('H:i', $d['total_seconds'])" label="T. Conectado" icon="clock" />
-            <x-wfm.kpi :value="gmdate('H:i', $d['productive_seconds'])" label="T. Productivo" icon="chart-bar" />
-            <x-wfm.kpi :value="$d['total_calls']" label="Llamadas" :comparison="'SLA ' . $d['sla'] . '%'" icon="phone" />
-            <x-wfm.kpi :value="($d['productivity_pct'] ?? 0) . '%'" label="Productividad" icon="chart-pie" :comparison="$d['avg_handle_time'] !== null ? 'AHT ' . number_format($d['avg_handle_time'], 1) . 's' : ''" />
+            <x-wfm.section title="Calidad Operativa">
+                @php
+                    $adherenceVal = is_numeric($d['adherence']) ? (float) $d['adherence'] : 0;
+                @endphp
+                <div class="space-y-2">
+                    <x-wfm.kpi :value="$d['adherence'] ?? '--'" label="Adherencia" :trend="$adherenceVal > 0 ? $adherenceVal . '%' : ''" trend-direction="up" icon="check-badge" color="info" />
+                    <x-wfm.kpi :value="$d['occupancy'] . '%'" label="Ocupación" icon="cpu-chip" />
+                    <x-wfm.kpi :value="($d['productivity_pct'] ?? 0) . '%'" label="Productividad" icon="chart-pie" />
+                </div>
+            </x-wfm.section>
+
+            <x-wfm.section title="Tráfico">
+                <div class="space-y-2">
+                    <x-wfm.kpi :value="$d['total_calls']" label="Llamadas" :comparison="'SLA ' . $d['sla'] . '%'" icon="phone" />
+                    <x-wfm.kpi :value="$d['handled_calls']" label="Atendidas" icon="phone-arrow-down-left" />
+                    <x-wfm.kpi :value="$d['avg_handle_time'] !== null ? number_format($d['avg_handle_time'], 1) . 's' : '--'" label="T. Prom. Atención" icon="clock" />
+                </div>
+            </x-wfm.section>
         </div>
 
         @if(!$isHistorical)

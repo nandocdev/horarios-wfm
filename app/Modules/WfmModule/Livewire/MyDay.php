@@ -257,6 +257,9 @@ class MyDay extends Component
 
         $shrinkage = $performanceService->calculateShrinkage([$targetEmployee->id], $now);
 
+        $hasRecentActivity = $productiveSeconds > 0 || $talkSeconds > 0;
+        $disconnectedWithActivity = ! $isConnected && $hasRecentActivity;
+
         return [
             'is_historical' => false,
             'name' => $targetEmployee->full_name,
@@ -264,6 +267,7 @@ class MyDay extends Component
             'current_state' => $currentState?->current_state ?? 'OFFLINE',
             'reason' => $currentState?->reason_code,
             'is_connected' => $isConnected,
+            'disconnected_with_activity' => $disconnectedWithActivity,
             'scheduled_entry' => $schedEntry,
             'scheduled_end' => $schedEnd,
             'real_entry' => $realEntry,

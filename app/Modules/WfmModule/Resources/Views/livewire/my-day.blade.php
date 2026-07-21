@@ -17,7 +17,11 @@
                 </flux:text>
                 <flux:button wire:click="nextDay" variant="ghost" icon="chevron-right" size="xs" @if($isToday) disabled @endif />
                 @if(!$isHistorical)
-                    <x-wfm.live-indicator :label="$employeeData['current_state'] ?? 'OFFLINE'" :color="($employeeData['is_connected'] ?? false) ? 'success' : 'danger'" />
+                    @if($employeeData['disconnected_with_activity'] ?? false)
+                        <x-wfm.live-indicator label="Desconexión Abrupta" color="warning" :pulse="true" />
+                    @else
+                        <x-wfm.live-indicator :label="$employeeData['current_state'] ?? 'OFFLINE'" :color="($employeeData['is_connected'] ?? false) ? 'success' : 'danger'" />
+                    @endif
                 @endif
             </div>
         </x-slot:actions>
@@ -126,6 +130,18 @@
             @if(!$isHistorical)
                 <x-wfm.section title="Estado Actual">
                     <div class="space-y-3">
+                        @if($d['disconnected_with_activity'] ?? false)
+                            <div class="flex items-center gap-3 p-3 bg-wfm-warning/10 border border-wfm-warning/30 rounded-md">
+                                <span class="live-pulse">
+                                    <span class="live-pulse-dot bg-wfm-warning"></span>
+                                    <span class="live-pulse-ring bg-wfm-warning"></span>
+                                </span>
+                                <div>
+                                    <p class="text-sm font-bold text-wfm-warning">Sesión Perdida</p>
+                                    <p class="text-xs text-wfm-surface-muted">El agente tuvo actividad hoy pero actualmente aparece desconectado. Posible caída abrupta del softphone.</p>
+                                </div>
+                            </div>
+                        @endif
                         <div class="flex items-center gap-3 p-3 bg-wfm-surface rounded-md">
                             <span class="w-3 h-3 rounded-full {{ $d['is_connected'] ? 'bg-wfm-success' : 'bg-wfm-danger' }}"></span>
                             <div>

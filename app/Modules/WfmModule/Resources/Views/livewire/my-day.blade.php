@@ -341,10 +341,13 @@
                         $chartOptions = json_encode([
                             'chart' => [
                                 'type' => 'scatter',
-                                'height' => 350,
+                                'height' => 280,
                                 'toolbar' => ['show' => false],
                                 'zoom' => ['enabled' => false],
                                 'animations' => ['enabled' => false],
+                                'offsetX' => 0,
+                                'offsetY' => 0,
+                                'parentHeightOffset' => 0,
                             ],
                             'series' => [[
                                 'name' => 'Colas',
@@ -384,6 +387,12 @@
                                 'show' => true,
                                 'borderColor' => '#e5e7eb',
                                 'strokeDashArray' => 2,
+                                'padding' => [
+                                    'left' => 20,
+                                    'right' => 10,
+                                    'top' => 10,
+                                    'bottom' => 10,
+                                ],
                             ],
                             'annotations' => [
                                 'yaxis' => [[
@@ -399,7 +408,7 @@
                             ],
                         ]);
                     @endphp
-                    <x-apex-chart id="aht-scatter" :options="$chartOptions" height="350" />
+                    <x-apex-chart id="aht-scatter" :options="$chartOptions" height="280" />
                 </x-wfm.section>
             </div>
         @endif

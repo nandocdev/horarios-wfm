@@ -194,31 +194,49 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
 
     public function getQueuePerformanceReport(string $date, ?array $employeeIds = null): Collection
     {
-        $query = CallRecord::join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
-            ->whereDate('ivr_started_at', $date);
+        $query = CallQueue::leftJoin('call_records', function ($join) use ($date, $employeeIds) {
+            $join->on('call_queues.id', '=', 'call_records.queue_id')
+                ->whereDate('call_records.ivr_started_at', $date);
 
-        if ($employeeIds !== null) {
-            $query->whereIn('call_records.employee_id', $employeeIds);
-        }
+            if ($employeeIds !== null) {
+                $join->whereIn('call_records.employee_id', $employeeIds);
+            }
+        })
+            ->where('call_queues.is_active', true);
 
         return $query->select(
             'call_queues.name as queue_name',
             'call_queues.aht_goal',
-            DB::raw('COUNT(*) as total_offered'),
-            DB::raw('SUM(CASE WHEN contact_disposition = 2 THEN 1 ELSE 0 END) as handled'),
-            DB::raw('SUM(CASE WHEN contact_disposition = 1 THEN 1 ELSE 0 END) as abandoned'),
-            DB::raw('AVG(talk_time + work_time) as avg_aht'),
-            DB::raw('AVG(talk_time) as avg_talk'),
-            DB::raw('AVG(work_time) as avg_work'),
-            DB::raw('SUM(talk_time) as total_talk'),
-            DB::raw('SUM(work_time) as total_work'),
-            DB::raw('AVG(queue_time) as avg_asa'),
-            DB::raw('MAX(queue_time) as max_wait'),
-            DB::raw('SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sl_count'),
+            DB::raw('COALESCE(COUNT(call_records.id), 0) as total_offered'),
+            DB::raw('COALESCE(SUM(CASE WHEN call_records.contact_disposition = 2 THEN 1 ELSE 0 END), 0) as handled'),
+            DB::raw('COALESCE(SUM(CASE WHEN call_records.contact_disposition = 1 THEN 1 ELSE 0 END), 0) as abandoned'),
+            DB::raw('AVG(call_records.talk_time + call_records.work_time) as avg_aht'),
+            DB::raw('AVG(call_records.talk_time) as avg_talk'),
+            DB::raw('AVG(call_records.work_time) as avg_work'),
+            DB::raw('COALESCE(SUM(call_records.talk_time), 0) as total_talk'),
+            DB::raw('COALESCE(SUM(call_records.work_time), 0) as total_work'),
+            DB::raw('AVG(call_records.queue_time) as avg_asa'),
+            DB::raw('MAX(call_records.queue_time) as max_wait'),
+            DB::raw('COALESCE(SUM(CASE WHEN call_records.contact_disposition = 2 AND call_records.queue_time <= 20 THEN 1 ELSE 0 END), 0) as sl_count'),
         )
             ->groupBy('call_queues.id', 'call_queues.name', 'call_queues.aht_goal')
-            ->orderBy('total_offered', 'desc')
-            ->get();
+            ->orderBy('handled', 'desc')
+            ->get()
+            ->map(fn ($q) => (object) [
+                'queue_name' => $q->queue_name,
+                'aht_goal' => $q->aht_goal,
+                'total_offered' => (int) $q->total_offered,
+                'handled' => (int) $q->handled,
+                'abandoned' => (int) $q->abandoned,
+                'avg_aht' => (float) $q->avg_aht,
+                'avg_talk' => (float) $q->avg_talk,
+                'avg_work' => (float) $q->avg_work,
+                'total_talk' => (int) $q->total_talk,
+                'total_work' => (int) $q->total_work,
+                'avg_asa' => $q->avg_asa !== null ? (float) $q->avg_asa : null,
+                'max_wait' => $q->max_wait !== null ? (int) $q->max_wait : null,
+                'sl_count' => (int) $q->sl_count,
+            ]);
     }
 
     public function getCallVolumeByDateRange(string $start, string $end): Collection

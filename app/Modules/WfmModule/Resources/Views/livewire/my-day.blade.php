@@ -294,15 +294,15 @@
                         @php $qTotalCalls = 0; $qTotalTalk = 0; $qCount = 0; @endphp
                         @foreach($queueData as $q)
                             @php
-                                $qc = (int) ($q['handled'] ?? $q['total_offered'] ?? 0);
-                                $qaht = (float) ($q['avg_aht'] ?? 0);
-                                $qTalk = (int) ($q['total_talk'] ?? 0);
+                                $qc = (int) ($q->handled ?? $q->total_offered ?? 0);
+                                $qaht = (float) ($q->avg_aht ?? 0);
+                                $qTalk = (int) ($q->total_talk ?? 0);
                                 $qTotalCalls += $qc;
                                 $qTotalTalk += $qTalk;
                                 $qCount++;
                             @endphp
                             <flux:table.row>
-                                <flux:table.cell class="font-medium text-xs">{{ $q['queue_name'] ?? '—' }}</flux:table.cell>
+                                <flux:table.cell class="font-medium text-xs">{{ $q->queue_name ?? '—' }}</flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
                                 <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '—' }}</span></flux:table.cell>
@@ -325,16 +325,16 @@
                         $ahtValues = [];
                         $talkValues = [];
                         foreach ($queueData as $q) {
-                            $qTalk = (int) ($q['total_talk'] ?? 0);
-                            $qaht = round((float) ($q['avg_aht'] ?? 0), 1);
-                            $qHandled = (int) ($q['handled'] ?? 0);
+                            $qTalk = (int) ($q->total_talk ?? 0);
+                            $qaht = round((float) ($q->avg_aht ?? 0), 1);
+                            $qHandled = (int) ($q->handled ?? 0);
                             $ahtValues[] = $qaht;
                             $talkValues[] = $qTalk;
                             $seriesData[] = [
                                 'x' => $qTalk,
                                 'y' => $qaht,
                                 'z' => max($qHandled, 1),
-                                'name' => $q['queue_name'] ?? '—',
+                                'name' => $q->queue_name ?? '—',
                             ];
                         }
                         $avgAhtChart = count($ahtValues) > 0 ? round(array_sum($ahtValues) / count($ahtValues), 1) : 0;

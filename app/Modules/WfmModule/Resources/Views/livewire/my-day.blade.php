@@ -109,12 +109,11 @@
 
             {{-- Transitions drawer --}}
             <flux:modal name="transitions-drawer" class="md:max-w-xl">
-                <div class="space-y-4">
-                    <div>
-                        <flux:heading size="lg">Transiciones de Estado</flux:heading>
-                        <flux:subheading>{{ $selectedDate->locale('es')->translatedFormat('l d F Y') }}</flux:subheading>
-                    </div>
-
+                <flux:modal.header>
+                    <flux:heading size="lg">Transiciones de Estado</flux:heading>
+                    <flux:subheading>{{ $selectedDate->locale('es')->translatedFormat('l d F Y') }}</flux:subheading>
+                </flux:modal.header>
+                <flux:modal.body>
                     <div class="space-y-0.5 max-h-[32rem] overflow-y-auto">
                         @forelse($d['transitions'] as $t)
                             <div class="flex items-center gap-2 py-1 text-xs">
@@ -137,13 +136,12 @@
                             <x-wfm.empty icon="clock" message="Sin transiciones registradas" />
                         @endforelse
                     </div>
-
-                    <div class="flex justify-end">
-                        <flux:modal.close>
-                            <flux:button variant="ghost">Cerrar</flux:button>
-                        </flux:modal.close>
-                    </div>
-                </div>
+                </flux:modal.body>
+                <flux:modal.footer>
+                    <flux:modal.close>
+                        <flux:button variant="ghost">Cerrar</flux:button>
+                    </flux:modal.close>
+                </flux:modal.footer>
             </flux:modal>
         @endif
 

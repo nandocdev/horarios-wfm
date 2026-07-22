@@ -86,6 +86,19 @@ final class CuicBackfillCommand extends Command
                 $currentIntervalEnd = $endDate->copy();
             }
 
+            // Saltar fines de semana (días no laborales)
+            if ($currentIntervalStart->isWeekend()) {
+                $nextMonday = $currentIntervalStart->copy()->next('Monday')->startOfDay();
+
+                if ($nextMonday->greaterThanOrEqualTo($endDate)) {
+                    break;
+                }
+
+                $currentIntervalStart = $nextMonday;
+
+                continue;
+            }
+
             // Detectar cambio de día para enviar reporte
             if ($currentIntervalStart->toDateString() !== $lastProcessedDay) {
                 $this->sendDailyReport($lastProcessedDay, $dailyStats);

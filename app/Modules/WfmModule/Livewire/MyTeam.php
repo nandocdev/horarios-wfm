@@ -8,6 +8,8 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\DeleteScheduleExceptionAction;
 use App\Modules\WfmModule\Actions\SaveScheduleExceptionAction;
+use App\Modules\WfmModule\Exports\TeamIncidentsExport;
+use App\Modules\WfmModule\Exports\TeamScheduleExport;
 use App\Modules\WfmModule\Livewire\Forms\IncidentForm;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\LeaveRequest;
@@ -16,6 +18,7 @@ use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Carbon\Carbon;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -129,6 +132,50 @@ class MyTeam extends Component
             $this->dispatch('modal-close', name: 'incident-modal');
             \Flux::toast(__('Incidente eliminado correctamente.'), variant: 'warning');
         }
+    }
+
+    public function exportSchedule(TeamScheduleExport $export): Response
+    {
+        $members = Employee::query()->active()
+            ->when($this->selectedTeam, fn ($q) => $q->where('team_id', $this->selectedTeam))
+            ->orderBy('first_name')
+            ->get();
+
+        $weeklySchedule = WeeklySchedule::where('week_start_date', $this->weekStart->format('Y-m-d'))->first();
+
+        $assignments = collect();
+        if ($weeklySchedule) {
+            $assignments = WeeklyScheduleAssignment::with(['schedule'])
+                ->whereIn('employee_id', $members->pluck('id'))
+                ->where('weekly_schedule_id', $weeklySchedule->id)
+                ->get()
+                ->groupBy('employee_id');
+        }
+
+        return $export->toXls($members, $assignments, $this->weekStart, $this->weekEnd);
+    }
+
+    public function exportIncidents(TeamIncidentsExport $export): Response
+    {
+        $memberIds = Employee::query()->active()
+            ->when($this->selectedTeam, fn ($q) => $q->where('team_id', $this->selectedTeam))
+            ->pluck('id')
+            ->toArray();
+
+        $exceptions = ScheduleException::with(['employee', 'reason'])
+            ->whereIn('employee_id', $memberIds)
+            ->where(fn ($q) => $q
+                ->whereBetween('start_at', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
+                ->orWhereBetween('end_at', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
+            )
+            ->orderBy('start_at')
+            ->get()
+            ->groupBy('employee_id');
+
+        $teamName = $this->selectedTeam ? (Team::find($this->selectedTeam)?->name ?? 'Mi Equipo') : 'Mi Equipo';
+        $periodLabel = $this->weekStart->format('d/m').' – '.$this->weekEnd->format('d/m/Y');
+
+        return $export->toXls($exceptions, $teamName, $periodLabel);
     }
 
     public function render()

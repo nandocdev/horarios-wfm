@@ -10,6 +10,12 @@
                 @endforeach
             </flux:select>
             <flux:input type="date" wire:model.live="date" class="!w-40" />
+            <flux:button wire:click="exportSchedule" variant="subtle" icon="arrow-down-tray" size="sm">
+                Horario
+            </flux:button>
+            <flux:button wire:click="exportIncidents" variant="subtle" icon="arrow-down-tray" size="sm">
+                Incidencias
+            </flux:button>
         </x-slot:actions>
     </x-wfm.page-header>
 

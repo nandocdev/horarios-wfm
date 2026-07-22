@@ -181,7 +181,7 @@ class ReportGenerator extends Component
             $this->preview = [
                 'title' => $result->title,
                 'description' => $result->description,
-                'rows' => $result->rows->toArray(),
+                'rows' => $result->rows->map(fn ($r) => json_decode(json_encode($r), true))->toArray(),
                 'columns' => $result->columns,
                 'summary' => $result->summary,
                 'chartConfig' => $result->chartConfig,

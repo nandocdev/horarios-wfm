@@ -318,8 +318,21 @@ class TeamDashboard extends Component
 
     public function render()
     {
+        $this->sanitizeNumericProperties();
+
         return view('wfm::livewire.team-dashboard', [
             'teams' => $this->resolveTeams(),
         ])->layout('layouts.app', ['title' => 'Dashboard del Equipo']);
+    }
+
+    private function sanitizeNumericProperties(): void
+    {
+        foreach (['headcount', 'teamKpis', 'roster'] as $prop) {
+            array_walk_recursive($this->$prop, function (&$v) {
+                if (is_float($v) && (is_nan($v) || is_infinite($v))) {
+                    $v = 0.0;
+                }
+            });
+        }
     }
 }

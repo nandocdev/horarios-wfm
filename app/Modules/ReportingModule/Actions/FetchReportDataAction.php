@@ -86,7 +86,7 @@ final class FetchReportDataAction
             summary: [
                 ['label' => 'Total Tardanzas', 'value' => (string) $rows->count(), 'icon' => 'exclamation-triangle'],
                 ['label' => 'Empleados', 'value' => (string) $uniqueEmployees, 'icon' => 'users'],
-                ['label' => 'Promedio Retraso', 'value' => round($avgMinutes).' min', 'icon' => 'clock'],
+                ['label' => 'Promedio Retraso', 'value' => round($avgMinutes ?? 0).' min', 'icon' => 'clock'],
             ],
         );
     }

@@ -122,10 +122,10 @@
                                     </flux:modal.trigger>
 
                                     <flux:modal name="results-poll-{{ $item->id }}" class="md:max-w-lg">
-                                        <flux:modal.header>
+                                        <div class="p-6 border-b border-zinc-200 dark:border-zinc-700">
                                             <flux:heading size="lg">Resultados: {{ $item->question }}</flux:heading>
-                                        </flux:modal.header>
-                                        <flux:modal.body class="space-y-4">
+                                        </div>
+                                        <div class="p-6 space-y-4">
                                             @foreach($item->options as $option)
                                                 @php
                                                     $total = $item->responses_count ?: 1;
@@ -143,12 +143,12 @@
                                                 </div>
                                             @endforeach
                                             <flux:text class="text-xs text-wfm-surface-muted">Total: {{ $item->responses_count }} votos</flux:text>
-                                        </flux:modal.body>
-                                        <flux:modal.footer>
+                                        </div>
+                                        <div class="p-6 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-end gap-2">
                                             <flux:modal.close>
                                                 <flux:button variant="ghost">Cerrar</flux:button>
                                             </flux:modal.close>
-                                        </flux:modal.footer>
+                                        </div>
                                     </flux:modal>
 
                                     @if($item->status === 'published')

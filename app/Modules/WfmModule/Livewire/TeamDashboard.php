@@ -56,7 +56,7 @@ class TeamDashboard extends Component
             }
         }
 
-        $this->teams = $this->resolveTeams();
+        $this->teams = collect();
         $this->loadDashboard();
     }
 
@@ -321,7 +321,7 @@ class TeamDashboard extends Component
     public function render()
     {
         return view('wfm::livewire.team-dashboard', [
-            'teams' => $this->teams,
+            'teams' => $this->resolveTeams(),
         ])->layout('layouts.app', ['title' => 'Dashboard del Equipo']);
     }
 }

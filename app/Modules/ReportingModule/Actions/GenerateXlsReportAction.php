@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace App\Modules\ReportingModule\Actions;
 
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class GenerateXlsReportAction
 {
-    public function execute(array $rows, array $headers, string $filename): Response
+    public function execute(array $rows, array $headers, string $filename): StreamedResponse
     {
-        $html = view('reporting::reports.xls-table', [
-            'headers' => $headers,
-            'rows' => $rows,
-            'title' => $filename,
-        ])->render();
-
-        return response($html, 200, [
-            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$filename}.xls\"",
-        ]);
+        return response()->streamDownload(
+            function () use ($rows, $headers, $filename): void {
+                echo view('reporting::reports.xls-table', [
+                    'headers' => $headers,
+                    'rows' => $rows,
+                    'title' => $filename,
+                ])->render();
+            },
+            "{$filename}.xls",
+            ['Content-Type' => 'application/vnd.ms-excel; charset=UTF-8'],
+        );
     }
 }

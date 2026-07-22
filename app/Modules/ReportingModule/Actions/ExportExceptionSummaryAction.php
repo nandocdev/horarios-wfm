@@ -8,7 +8,7 @@ use App\Modules\ReportingModule\DTOs\ExceptionSummaryRowDTO;
 use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Repositories\EloquentReportDataRepository;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class ExportExceptionSummaryAction
 {
@@ -18,7 +18,7 @@ final class ExportExceptionSummaryAction
         private readonly GenerateXlsReportAction $xlsAction,
     ) {}
 
-    public function execute(ReportFilterDTO $filters): Response
+    public function execute(ReportFilterDTO $filters): StreamedResponse
     {
         $rows = $this->repository->getExceptionSummaryData($filters);
 

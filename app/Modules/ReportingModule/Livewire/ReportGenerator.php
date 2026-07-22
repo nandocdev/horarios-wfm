@@ -14,14 +14,14 @@ use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Livewire\Forms\ReportGeneratorForm;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Response;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportGenerator extends Component
 {
     public ReportGeneratorForm $form;
 
-    public function generate(): Response
+    public function generate(): StreamedResponse
     {
         $this->form->validate();
 

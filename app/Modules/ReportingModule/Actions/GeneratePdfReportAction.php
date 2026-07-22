@@ -6,12 +6,12 @@ namespace App\Modules\ReportingModule\Actions;
 
 use App\Reports\BaseReport;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\View as ViewFacade;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class GeneratePdfReportAction
 {
-    public function execute(array $data, string $view, string $title, string $orientation = 'portrait'): Response
+    public function execute(array $data, string $view, string $title, string $orientation = 'portrait'): StreamedResponse
     {
         $report = new class($data, $view, $title, $orientation) extends BaseReport
         {
@@ -37,8 +37,13 @@ final class GeneratePdfReportAction
             }
         };
 
+        $pdf = $report->build();
         $filename = sprintf('%s_%s.pdf', str_replace(' ', '_', $title), now()->format('Ymd_His'));
 
-        return $report->download($filename);
+        return response()->streamDownload(
+            fn () => print ($pdf->output()),
+            $filename,
+            ['Content-Type' => 'application/pdf'],
+        );
     }
 }

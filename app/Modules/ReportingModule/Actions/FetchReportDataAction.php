@@ -229,7 +229,7 @@ final class FetchReportDataAction
                 ['label' => 'Registros', 'value' => (string) $rows->count(), 'icon' => 'clipboard-document-list'],
                 ['label' => 'T. Productivo', 'value' => $this->formatDuration($productiveMinutes), 'icon' => 'check-circle'],
                 ['label' => 'T. No Productivo', 'value' => $this->formatDuration($nonProductiveMinutes), 'icon' => 'x-circle'],
-                ['label' => '% Cumplimiento Prom.', 'value' => round($avgCompliance ?? 0, 1).'%', 'icon' => 'trending-up'],
+                ['label' => '% Cumplimiento Prom.', 'value' => round($avgCompliance ?? 0, 1).'%', 'icon' => 'arrow-trending-up'],
             ],
         );
     }

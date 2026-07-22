@@ -105,17 +105,17 @@ final class EloquentReportDataRepository
 
         $rows = $union->orderBy('date')->orderBy('employee_name')->get();
 
-        return $rows->map(fn (array $row): TardinessRowDTO => new TardinessRowDTO(
-            employeeId: (int) $row['employee_id'],
-            employeeName: $row['employee_name'],
-            employeeNumber: $row['employee_number'],
-            teamName: $row['team_name'],
-            date: $row['date'],
-            scheduledStart: $row['start_at'] ?? null,
-            actualLogin: $row['actual_start'] ?? null,
-            minutesLate: isset($row['minutes_late']) ? (int) round((float) $row['minutes_late']) : (isset($row['minutes_absent']) ? (int) round((float) $row['minutes_absent']) : null),
-            incidentType: $row['incident_type'] ?? $row['cause_name'] ?? null,
-            justification: $row['justification'] ?? $row['remarks'] ?? null,
+        return $rows->map(fn (object $row): TardinessRowDTO => new TardinessRowDTO(
+            employeeId: (int) $row->employee_id,
+            employeeName: $row->employee_name,
+            employeeNumber: $row->employee_number,
+            teamName: $row->team_name,
+            date: $row->date,
+            scheduledStart: $row->start_at ?? null,
+            actualLogin: $row->actual_start ?? null,
+            minutesLate: isset($row->minutes_late) ? (int) round((float) $row->minutes_late) : (isset($row->minutes_absent) ? (int) round((float) $row->minutes_absent) : null),
+            incidentType: $row->incident_type ?? $row->cause_name ?? null,
+            justification: $row->justification ?? $row->remarks ?? null,
         ));
     }
 
@@ -128,17 +128,17 @@ final class EloquentReportDataRepository
 
         $rows = $query->orderBy('date')->orderBy('employee_name')->get();
 
-        return $rows->map(fn (array $row): LeaveRowDTO => new LeaveRowDTO(
-            employeeId: (int) $row['employee_id'],
-            employeeName: $row['employee_name'],
-            employeeNumber: $row['employee_number'],
-            teamName: $row['team_name'],
-            date: $row['date'],
-            leaveType: $row['cause_name'],
+        return $rows->map(fn (object $row): LeaveRowDTO => new LeaveRowDTO(
+            employeeId: (int) $row->employee_id,
+            employeeName: $row->employee_name,
+            employeeNumber: $row->employee_number,
+            teamName: $row->team_name,
+            date: $row->date,
+            leaveType: $row->cause_name,
             isExcused: true,
             status: 'approved',
-            minutes: $row['minutes_absent'] !== null ? (int) round((float) $row['minutes_absent']) : null,
-            remarks: $row['remarks'],
+            minutes: $row->minutes_absent !== null ? (int) round((float) $row->minutes_absent) : null,
+            remarks: $row->remarks,
         ));
     }
 
@@ -166,15 +166,15 @@ final class EloquentReportDataRepository
 
         $result = $rows->orderBy('start_date')->orderBy('employee_name')->get();
 
-        return $result->map(fn (array $row): VacationRowDTO => new VacationRowDTO(
-            employeeId: (int) $row['employee_id'],
-            employeeName: $row['employee_name'],
-            employeeNumber: $row['employee_number'],
-            teamName: $row['team_name'],
-            startDate: $row['start_date'],
-            endDate: $row['end_date'],
-            daysTaken: max(1, (int) $row['days_taken']),
-            remarks: $row['remarks'],
+        return $result->map(fn (object $row): VacationRowDTO => new VacationRowDTO(
+            employeeId: (int) $row->employee_id,
+            employeeName: $row->employee_name,
+            employeeNumber: $row->employee_number,
+            teamName: $row->team_name,
+            startDate: $row->start_date,
+            endDate: $row->end_date,
+            daysTaken: max(1, (int) $row->days_taken),
+            remarks: $row->remarks,
         ));
     }
 
@@ -232,13 +232,13 @@ final class EloquentReportDataRepository
             $query->whereHas('scheduleExceptions.employee', fn (Builder $q) => $q->where('team_id', $filters->teamId));
         }
 
-        return $query->get()->map(fn (array $row): ExceptionSummaryRowDTO => new ExceptionSummaryRowDTO(
-            causeName: $row['name'],
-            shortCode: $row['short_code'],
-            isExcused: (bool) $row['is_excused'],
-            totalOccurrences: (int) $row['total_occurrences'],
-            totalMinutesLost: (int) round((float) $row['total_minutes_lost']),
-            employeesAffected: (int) $row['employees_affected'],
+        return $query->get()->map(fn (object $row): ExceptionSummaryRowDTO => new ExceptionSummaryRowDTO(
+            causeName: $row->name,
+            shortCode: $row->short_code,
+            isExcused: (bool) $row->is_excused,
+            totalOccurrences: (int) $row->total_occurrences,
+            totalMinutesLost: (int) round((float) $row->total_minutes_lost),
+            employeesAffected: (int) $row->employees_affected,
         ));
     }
 
@@ -265,15 +265,15 @@ final class EloquentReportDataRepository
             $query->whereHas('employee', fn (Builder $q) => $q->where('team_id', $filters->teamId));
         }
 
-        return $query->orderBy('employee_name')->get()->map(fn (array $row): IntradayActivityRowDTO => new IntradayActivityRowDTO(
-            employeeId: (int) $row['employee_id'],
-            employeeName: $row['employee_name'],
+        return $query->orderBy('employee_name')->get()->map(fn (object $row): IntradayActivityRowDTO => new IntradayActivityRowDTO(
+            employeeId: (int) $row->employee_id,
+            employeeName: $row->employee_name,
             date: $filters->dateFrom,
-            startTime: $this->parseRangeStart($row['time_range']),
-            endTime: $this->parseRangeEnd($row['time_range']),
-            activityName: $row['activity_name'],
-            isProductive: (bool) $row['is_productive'],
-            notes: $row['notes'],
+            startTime: $this->parseRangeStart($row->time_range),
+            endTime: $this->parseRangeEnd($row->time_range),
+            activityName: $row->activity_name,
+            isProductive: (bool) $row->is_productive,
+            notes: $row->notes,
         ));
     }
 
@@ -301,12 +301,12 @@ final class EloquentReportDataRepository
             $query->whereHas('employee', fn (Builder $q) => $q->where('team_id', $filters->teamId));
         }
 
-        return $query->get()->map(fn (array $row): PeriodActivityRowDTO => new PeriodActivityRowDTO(
-            entityName: $row['entity_name'],
-            entityType: $row['entity_type'],
-            activityName: $row['activity_name'],
-            totalMinutes: (int) round((float) $row['total_minutes']),
-            isProductive: (bool) $row['is_productive'],
+        return $query->get()->map(fn (object $row): PeriodActivityRowDTO => new PeriodActivityRowDTO(
+            entityName: $row->entity_name,
+            entityType: $row->entity_type,
+            activityName: $row->activity_name,
+            totalMinutes: (int) round((float) $row->total_minutes),
+            isProductive: (bool) $row->is_productive,
             compliancePct: null,
         ));
     }
@@ -355,19 +355,19 @@ final class EloquentReportDataRepository
             $query->whereHas('employee', fn (Builder $q) => $q->where('team_id', $filters->teamId));
         }
 
-        return $query->get()->map(fn (array $row): AhtRowDTO => new AhtRowDTO(
-            agentName: $row['agent_name'],
-            queueName: $row['queue_name'],
-            date: $row['date'],
-            callsHandled: (int) $row['calls_handled'],
-            avgTalkTime: (float) ($row['avg_talk_time'] ?? 0),
-            avgWorkTime: (float) ($row['avg_work_time'] ?? 0),
-            avgHoldTime: (float) ($row['avg_hold_time'] ?? 0),
-            aht: (float) ($row['aht'] ?? 0),
-            ahtGoal: $row['aht_goal'] !== null ? (int) $row['aht_goal'] : null,
-            deviation: $row['aht'] !== null && $row['aht_goal'] !== null ? (float) ($row['aht'] - $row['aht_goal']) : null,
-            minAht: $row['min_aht'] !== null ? (float) $row['min_aht'] : null,
-            maxAht: $row['max_aht'] !== null ? (float) $row['max_aht'] : null,
+        return $query->get()->map(fn (object $row): AhtRowDTO => new AhtRowDTO(
+            agentName: $row->agent_name,
+            queueName: $row->queue_name,
+            date: $row->date,
+            callsHandled: (int) $row->calls_handled,
+            avgTalkTime: (float) ($row->avg_talk_time ?? 0),
+            avgWorkTime: (float) ($row->avg_work_time ?? 0),
+            avgHoldTime: (float) ($row->avg_hold_time ?? 0),
+            aht: (float) ($row->aht ?? 0),
+            ahtGoal: $row->aht_goal !== null ? (int) $row->aht_goal : null,
+            deviation: $row->aht !== null && $row->aht_goal !== null ? (float) ($row->aht - $row->aht_goal) : null,
+            minAht: $row->min_aht !== null ? (float) $row->min_aht : null,
+            maxAht: $row->max_aht !== null ? (float) $row->max_aht : null,
         ));
     }
 
@@ -401,17 +401,17 @@ final class EloquentReportDataRepository
             });
         }
 
-        return $query->get()->map(fn (array $row): AhtRowDTO => new AhtRowDTO(
+        return $query->get()->map(fn (object $row): AhtRowDTO => new AhtRowDTO(
             agentName: '—',
-            queueName: $row['queue_name'],
-            date: $row['date'],
-            callsHandled: (int) $row['calls_handled'],
-            avgTalkTime: (float) ($row['avg_talk_time'] ?? 0),
-            avgWorkTime: (float) ($row['avg_work_time'] ?? 0),
-            avgHoldTime: (float) ($row['avg_hold_time'] ?? 0),
-            aht: (float) ($row['aht'] ?? 0),
-            ahtGoal: $row['aht_goal'] !== null ? (int) $row['aht_goal'] : null,
-            deviation: $row['aht'] !== null && $row['aht_goal'] !== null ? (float) ($row['aht'] - $row['aht_goal']) : null,
+            queueName: $row->queue_name,
+            date: $row->date,
+            callsHandled: (int) $row->calls_handled,
+            avgTalkTime: (float) ($row->avg_talk_time ?? 0),
+            avgWorkTime: (float) ($row->avg_work_time ?? 0),
+            avgHoldTime: (float) ($row->avg_hold_time ?? 0),
+            aht: (float) ($row->aht ?? 0),
+            ahtGoal: $row->aht_goal !== null ? (int) $row->aht_goal : null,
+            deviation: $row->aht !== null && $row->aht_goal !== null ? (float) ($row->aht - $row->aht_goal) : null,
         ));
     }
 
@@ -490,16 +490,16 @@ final class EloquentReportDataRepository
             $query->where('call_records.queue_id', $filters->queueId);
         }
 
-        return $query->get()->map(fn (array $row): VolumeIntervalRowDTO => new VolumeIntervalRowDTO(
-            queueName: $row['queue_name'],
-            interval: $row['interval_label'],
-            offered: (int) $row['offered'],
-            handled: (int) $row['handled'],
-            abandoned: (int) $row['abandoned'],
-            abandonmentRate: $row['offered'] > 0 ? round(((int) $row['abandoned'] / (int) $row['offered']) * 100, 2) : 0,
-            aht: $row['aht'] !== null ? (float) $row['aht'] : null,
-            asa: $row['asa'] !== null ? (float) $row['asa'] : null,
-            maxWaitTime: $row['max_wait_time'] !== null ? (int) $row['max_wait_time'] : null,
+        return $query->get()->map(fn (object $row): VolumeIntervalRowDTO => new VolumeIntervalRowDTO(
+            queueName: $row->queue_name,
+            interval: $row->interval_label,
+            offered: (int) $row->offered,
+            handled: (int) $row->handled,
+            abandoned: (int) $row->abandoned,
+            abandonmentRate: $row->offered > 0 ? round(((int) $row->abandoned / (int) $row->offered) * 100, 2) : 0,
+            aht: $row->aht !== null ? (float) $row->aht : null,
+            asa: $row->asa !== null ? (float) $row->asa : null,
+            maxWaitTime: $row->max_wait_time !== null ? (int) $row->max_wait_time : null,
         ));
     }
 
@@ -524,15 +524,15 @@ final class EloquentReportDataRepository
             $query->where('call_records.queue_id', $filters->queueId);
         }
 
-        return $query->get()->map(fn (array $row): VolumeRowDTO => new VolumeRowDTO(
-            queueName: $row['queue_name'],
+        return $query->get()->map(fn (object $row): VolumeRowDTO => new VolumeRowDTO(
+            queueName: $row->queue_name,
             date: $filters->interval,
-            received: (int) $row['received'],
-            handled: (int) $row['handled'],
-            abandoned: (int) $row['abandoned'],
-            abandonmentRate: $row['received'] > 0 ? round(((int) $row['abandoned'] / (int) $row['received']) * 100, 2) : 0,
-            aht: $row['aht'] !== null ? (float) $row['aht'] : null,
-            asa: $row['asa'] !== null ? (float) $row['asa'] : null,
+            received: (int) $row->received,
+            handled: (int) $row->handled,
+            abandoned: (int) $row->abandoned,
+            abandonmentRate: $row->received > 0 ? round(((int) $row->abandoned / (int) $row->received) * 100, 2) : 0,
+            aht: $row->aht !== null ? (float) $row->aht : null,
+            asa: $row->asa !== null ? (float) $row->asa : null,
         ));
     }
 
@@ -566,17 +566,17 @@ final class EloquentReportDataRepository
             $query->where('employees.team_id', $filters->teamId);
         }
 
-        return $query->get()->map(fn (array $row): AgentPerformanceRowDTO => new AgentPerformanceRowDTO(
-            employeeId: (int) $row['employee_id'],
-            employeeName: $row['employee_name'],
-            employeeNumber: $row['employee_number'],
-            teamName: $row['team_name'],
-            callsHandled: (int) $row['calls_handled'],
-            aht: (float) ($row['aht'] ?? 0),
-            occupancy: (float) ($row['occupancy'] ?? 0),
-            talkTime: (float) ($row['talk_time'] ?? 0),
-            readyTime: (float) ($row['ready_time'] ?? 0),
-            acwTime: (float) ($row['acw_time'] ?? 0),
+        return $query->get()->map(fn (object $row): AgentPerformanceRowDTO => new AgentPerformanceRowDTO(
+            employeeId: (int) $row->employee_id,
+            employeeName: $row->employee_name,
+            employeeNumber: $row->employee_number,
+            teamName: $row->team_name,
+            callsHandled: (int) $row->calls_handled,
+            aht: (float) ($row->aht ?? 0),
+            occupancy: (float) ($row->occupancy ?? 0),
+            talkTime: (float) ($row->talk_time ?? 0),
+            readyTime: (float) ($row->ready_time ?? 0),
+            acwTime: (float) ($row->acw_time ?? 0),
         ));
     }
 
@@ -602,13 +602,13 @@ final class EloquentReportDataRepository
             $query->where('employees.team_id', $filters->teamId);
         }
 
-        return $query->get()->map(fn (array $row): TeamPerformanceRowDTO => new TeamPerformanceRowDTO(
-            teamName: $row['team_name'],
-            agentCount: (int) $row['agent_count'],
-            totalCalls: (int) $row['total_calls'],
-            avgAht: (float) ($row['avg_aht'] ?? 0),
-            avgOccupancy: (float) ($row['avg_occupancy'] ?? 0),
-            avgAdherence: (float) ($row['avg_adherence'] ?? 0),
+        return $query->get()->map(fn (object $row): TeamPerformanceRowDTO => new TeamPerformanceRowDTO(
+            teamName: $row->team_name,
+            agentCount: (int) $row->agent_count,
+            totalCalls: (int) $row->total_calls,
+            avgAht: (float) ($row->avg_aht ?? 0),
+            avgOccupancy: (float) ($row->avg_occupancy ?? 0),
+            avgAdherence: (float) ($row->avg_adherence ?? 0),
         ));
     }
 
@@ -643,11 +643,11 @@ final class EloquentReportDataRepository
         $ahtRange = $maxAht - $minAht > 0 ? $maxAht - $minAht : 1;
 
         $ranked = $rows->map(function (array $row) use ($maxCalls, $minAht, $ahtRange): array {
-            $callsScore = ((int) $row['calls_handled'] / $maxCalls) * 50;
-            $ahtScore = (1 - (((float) ($row['aht'] ?? 0) - $minAht) / $ahtRange)) * 30;
-            $occScore = ((float) ($row['occupancy'] ?? 0) / 100) * 20;
+            $callsScore = ((int) $row->calls_handled / $maxCalls) * 50;
+            $ahtScore = (1 - (((float) ($row->aht ?? 0) - $minAht) / $ahtRange)) * 30;
+            $occScore = ((float) ($row->occupancy ?? 0) / 100) * 20;
 
-            $row['score'] = round($callsScore + $ahtScore + $occScore, 2);
+            $row->score = round($callsScore + $ahtScore + $occScore, 2);
 
             return $row;
         })->sortByDesc('score')->values();
@@ -659,15 +659,15 @@ final class EloquentReportDataRepository
 
             return new RankingRowDTO(
                 position: $position,
-                employeeId: (int) $row['employee_id'],
-                employeeName: $row['employee_name'],
-                employeeNumber: $row['employee_number'],
-                teamName: $row['team_name'],
-                callsHandled: (int) $row['calls_handled'],
-                aht: (float) ($row['aht'] ?? 0),
-                occupancy: (float) ($row['occupancy'] ?? 0),
-                adherence: (float) ($row['adherence'] ?? 0),
-                score: (float) $row['score'],
+                employeeId: (int) $row->employee_id,
+                employeeName: $row->employee_name,
+                employeeNumber: $row->employee_number,
+                teamName: $row->team_name,
+                callsHandled: (int) $row->calls_handled,
+                aht: (float) ($row->aht ?? 0),
+                occupancy: (float) ($row->occupancy ?? 0),
+                adherence: (float) ($row->adherence ?? 0),
+                score: (float) $row->score,
             );
         });
     }
@@ -730,20 +730,20 @@ final class EloquentReportDataRepository
 
         $rows = $union->orderBy('date')->orderBy('employee_name')->get();
 
-        return $rows->map(fn (array $row): AbsenteeismRowDTO => new AbsenteeismRowDTO(
-            employeeId: (int) $row['employee_id'],
-            employeeName: $row['employee_name'],
-            employeeNumber: $row['employee_number'],
-            teamName: $row['team_name'],
-            date: $row['date'],
-            originType: $row['origin_type'],
-            causeName: $row['cause_name'],
-            isJustified: (bool) $row['is_justified'],
-            isFullDay: (bool) $row['is_full_day'],
-            startAt: $row['start_at'] ?? $row['start_time'],
-            endAt: $row['end_at'] ?? $row['end_time'],
-            minutesAbsent: $row['minutes_absent'] !== null ? (int) round((float) $row['minutes_absent']) : null,
-            remarks: $row['remarks'],
+        return $rows->map(fn (object $row): AbsenteeismRowDTO => new AbsenteeismRowDTO(
+            employeeId: (int) $row->employee_id,
+            employeeName: $row->employee_name,
+            employeeNumber: $row->employee_number,
+            teamName: $row->team_name,
+            date: $row->date,
+            originType: $row->origin_type,
+            causeName: $row->cause_name,
+            isJustified: (bool) $row->is_justified,
+            isFullDay: (bool) $row->is_full_day,
+            startAt: $row->start_at ? (string) $row->start_at : ($row->start_time ?? null),
+            endAt: $row->end_at ? (string) $row->end_at : ($row->end_time ?? null),
+            minutesAbsent: $row->minutes_absent !== null ? (int) round((float) $row->minutes_absent) : null,
+            remarks: $row->remarks,
         ));
     }
 

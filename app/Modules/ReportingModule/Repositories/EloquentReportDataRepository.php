@@ -35,8 +35,8 @@ final class EloquentReportDataRepository
                 'absence_reason_codes.name as cause_name',
                 'absence_reason_codes.is_excused as is_justified',
                 'schedule_exceptions.is_full_day',
-                'schedule_exceptions.start_at',
-                'schedule_exceptions.end_at',
+                DB::raw('schedule_exceptions.start_at::time as start_at'),
+                DB::raw('schedule_exceptions.end_at::time as end_at'),
                 DB::raw('EXTRACT(EPOCH FROM schedule_exceptions.end_at - schedule_exceptions.start_at) / 60 as minutes_absent'),
                 'schedule_exceptions.remarks',
             ])

@@ -8,10 +8,13 @@ use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\DTOs\VolumeRowDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Repositories\EloquentReportDataRepository;
+use App\Modules\ReportingModule\Support\FormatDuration;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class ExportVolumeSummaryAction
 {
+    use FormatDuration;
+
     public function __construct(
         private readonly EloquentReportDataRepository $repository,
         private readonly GeneratePdfReportAction $pdfAction,
@@ -44,15 +47,5 @@ final class ExportVolumeSummaryAction
                 ['Cola', 'Recibidos', 'Atendidos', 'Abandonados', '% Abandono', 'AHT', 'ASA'],
                 'volumen-resumen',
             );
-    }
-
-    private function formatSeconds(int $seconds): string
-    {
-        $minutes = intdiv($seconds, 60);
-        $secs = $seconds % 60;
-
-        return $minutes > 0
-            ? sprintf('%dm %02ds', $minutes, $secs)
-            : sprintf('%ds', $secs);
     }
 }

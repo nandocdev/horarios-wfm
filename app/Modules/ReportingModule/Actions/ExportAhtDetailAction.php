@@ -8,10 +8,13 @@ use App\Modules\ReportingModule\DTOs\AhtRowDTO;
 use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Repositories\EloquentReportDataRepository;
+use App\Modules\ReportingModule\Support\FormatDuration;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class ExportAhtDetailAction
 {
+    use FormatDuration;
+
     public function __construct(
         private readonly EloquentReportDataRepository $repository,
         private readonly GeneratePdfReportAction $pdfAction,
@@ -47,15 +50,5 @@ final class ExportAhtDetailAction
                 ['Agente', 'Cola', 'Fecha', 'Llamadas', 'Talk Time', 'Work Time', 'Hold Time', 'AHT', 'Objetivo', 'Desviación'],
                 'aht-detallado',
             );
-    }
-
-    private function formatSeconds(int $seconds): string
-    {
-        $minutes = intdiv($seconds, 60);
-        $secs = $seconds % 60;
-
-        return $minutes > 0
-            ? sprintf('%dm %02ds', $minutes, $secs)
-            : sprintf('%ds', $secs);
     }
 }

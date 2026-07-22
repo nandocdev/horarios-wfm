@@ -45,8 +45,7 @@ final class EloquentReportDataRepository
 
     public function getRawAbsenteeismData(ReportFilterDTO $filters): Collection
     {
-        $scheduleExceptions = $this->baseAbsenceQuery($filters)
-            ->whereIn('absence_reason_codes.short_code', $this->unexcusedCodes());
+        $scheduleExceptions = $this->baseAbsenceQuery($filters);
 
         $attendanceIncidents = AttendanceIncident::query()
             ->select([
@@ -430,6 +429,7 @@ final class EloquentReportDataRepository
                 DB::raw('MAX(call_records.queue_time) as max_wait_time'),
                 DB::raw('MIN(call_records.queue_time) as min_wait_time'),
                 DB::raw('AVG(call_records.queue_time) FILTER (WHERE call_records.contact_disposition IN (1, 4, 13)) as avg_abandon_time'),
+                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition = 2 AND call_records.queue_time <= 20) as sl_count'),
             ])
             ->join('call_queues', 'call_queues.id', '=', 'call_records.queue_id')
             ->whereDate('call_records.ivr_started_at', '>=', $filters->dateFrom)
@@ -454,7 +454,9 @@ final class EloquentReportDataRepository
             maxWaitTime: $row->max_wait_time !== null ? (int) $row->max_wait_time : null,
             minWaitTime: $row->min_wait_time !== null ? (int) $row->min_wait_time : null,
             avgAbandonTime: $row->avg_abandon_time !== null ? (float) $row->avg_abandon_time : null,
-            slaPercentage: $this->calculateSlaPercentage($row, self::SLA_THRESHOLD_SECONDS),
+            slaPercentage: (int) $row->handled > 0
+                ? round(((int) $row->sl_count / (int) $row->handled) * 100, 2)
+                : null,
         ));
     }
 
@@ -786,23 +788,5 @@ final class EloquentReportDataRepository
         preg_match('/,(.+?)"\)$/', $range, $m);
 
         return $m[1] ?? $range;
-    }
-
-    private function calculateSlaPercentage(object $row, int $thresholdSeconds): ?float
-    {
-        if ((int) $row->received === 0) {
-            return null;
-        }
-
-        $query = CallRecord::query()
-            ->whereDate('ivr_started_at', $row->date)
-            ->where('queue_id', function ($q) use ($row) {
-                $q->select('id')->from('call_queues')->where('name', $row->queue_name);
-            });
-
-        $withinSla = (clone $query)->where('queue_time', '<=', $thresholdSeconds)->count();
-        $total = $query->count();
-
-        return $total > 0 ? round(($withinSla / $total) * 100, 2) : null;
     }
 }

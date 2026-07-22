@@ -30,18 +30,14 @@ Módulo **Supporting/Generic** (transaction script) para la generación de repor
 ```
 app/Modules/ReportingModule/
 ├── Actions/
-│   ├── Ausentismo/
-│   │   ├── ExportRawAbsenteeismAction.php
-│   │   └── ExportExceptionSummaryAction.php
-│   ├── Aht/
-│   │   ├── ExportAhtDetailAction.php
-│   │   └── ExportAhtSummaryAction.php
-│   ├── Volumen/
-│   │   ├── ExportVolumeDetailAction.php
-│   │   └── ExportVolumeSummaryAction.php
-│   └── Shared/
-│       ├── GeneratePdfReportAction.php
-│       └── GenerateXlsReportAction.php
+│   ├── ExportRawAbsenteeismAction.php
+│   ├── ExportExceptionSummaryAction.php
+│   ├── ExportAhtDetailAction.php
+│   ├── ExportAhtSummaryAction.php
+│   ├── ExportVolumeDetailAction.php
+│   ├── ExportVolumeSummaryAction.php
+│   ├── GeneratePdfReportAction.php
+│   └── GenerateXlsReportAction.php
 ├── DTOs/
 │   ├── ReportFilterDTO.php
 │   ├── AbsenteeismRowDTO.php
@@ -70,8 +66,6 @@ app/Modules/ReportingModule/
 │       └── volume-summary.blade.php
 ├── Routes/
 │   └── web.php
-└── Services/
-    └── ReportDataService.php
 ```
 
 ---
@@ -198,8 +192,7 @@ Usuario
   │
   ├─ ReportGenerator → app(ExportXxxAction::class)->execute($filtros, $formato)
   │   │
-  │   ├─ ExportXxxAction → ReportDataService::getXxxData($filtros)
-  │   │                        └─ EloquentReportDataRepository::queryXxx($filtros)
+  │   ├─ ExportXxxAction → EloquentReportDataRepository::queryXxx($filtros)
   │   │
   │   ├─ Si PDF: GeneratePdfReportAction::execute($data, $view, $title, $orientation)
   │   │               └─ Extiende BaseReport → stream() / download()
@@ -311,20 +304,18 @@ No se requieren nuevas dependencias. El XLS utiliza el patrón existente de resp
 
 | Componente | Archivos | Líneas estimadas |
 |---|---|---|
-| Actions de exportación (6) | 6 | ~360 |
-| Actions shared PDF/XLS (2) | 2 | ~100 |
+| Actions (8) | 8 | ~460 |
 | DTOs (5) | 5 | ~120 |
 | Enum (1) | 1 | ~20 |
 | Livewire + Form (2) | 2 | ~220 |
 | Policy (1) | 1 | ~40 |
 | ModuleServiceProvider | 1 | ~60 |
 | Repository | 1 | ~180 |
-| Service | 1 | ~160 |
 | Templates PDF/XLS (4) | 4 | ~320 |
 | Vista Livewire | 1 | ~80 |
 | Ruta web.php | 1 | ~15 |
 | Migración de permiso (seeder) | 1 | ~15 |
-| **Total** | **27** | **~1,690** |
+| **Total** | **26** | **~1,530** |
 
 ---
 

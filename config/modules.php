@@ -38,6 +38,9 @@ return [
         // ─── Módulo WFM (núcleo del negocio, depende de PersonnelModule + ConnectModule) ───
         App\Modules\WfmModule\Providers\ModuleServiceProvider::class,           // WfmModule: Turnos, planificación semanal, swaps, permisos, intradía
 
+        // ─── Módulo de Reportería WFM ───
+        App\Modules\ReportingModule\Providers\ModuleServiceProvider::class,     // ReportingModule: Reportes descargables PDF/XLS
+
         // ─── Módulos de Soporte ───
         App\Modules\HelpdeskModule\Providers\ModuleServiceProvider::class,      // HelpdeskModule: Tickets de soporte, SLA, bandeja
         App\Modules\DocumentationModule\Providers\ModuleServiceProvider::class, // DocumentationModule: Wiki/documentación interna

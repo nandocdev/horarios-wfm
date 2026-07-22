@@ -166,6 +166,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reports.staffing',
             'reports.requests',
             'reports.reports',
+            'reports.export',
 
             // Helpdesk Module
             'helpdesk.view',
@@ -276,6 +277,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Supervisor
         Role::findByName('supervisor', 'web')->syncPermissions([
             'menu.team',
+            'menu.reports',
             'schedules.view_own',
             'schedules.view_team',
             'schedules.swap_request',
@@ -289,6 +291,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'articles.viewAny',
             'knowledge.viewAny',
             'quality.evaluations.view',
+            'reports.export',
         ]);
 
         // Coordinator
@@ -309,6 +312,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'requests.view',
             'requests.manage',
             'reports.scorecard',
+            'reports.export',
             'analytics.view',
             'notifications.view',
             'notifications.send',
@@ -335,6 +339,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reports.scorecard',
             'reports.attendance',
             'reports.compliance',
+            'reports.export',
             'analytics.view',
             'analytics.export',
             'notifications.view',
@@ -356,6 +361,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reports.scorecard',
             'reports.attendance',
             'reports.compliance',
+            'reports.export',
             'analytics.view',
             'analytics.export',
             'news.viewAny',

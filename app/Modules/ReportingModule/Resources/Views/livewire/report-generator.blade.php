@@ -2,14 +2,19 @@
     {{-- Selector de Categoría --}}
     <div class="flex flex-wrap gap-1 border-b border-zinc-200 pb-px mb-4">
         @foreach($this->categories as $key => $cat)
-            <button wire:click="selectCategory('{{ $key }}')" wire:key="cat-{{ $key }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-colors
-                           {{ $category === $key
-                               ? 'text-blue-700 border-b-2 border-blue-600 bg-blue-50'
-                               : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50' }}">
+            @php
+                $defaultSubs = ['attendance' => 'absenteeism', 'activities' => 'intraday', 'volume' => 'queue', 'performance' => 'agent'];
+                $firstSub = $defaultSubs[$key] ?? null;
+                $catUrl = $firstSub ? route('reports.show', ['category' => $key, 'subReport' => $firstSub]) : route('reports.index');
+            @endphp
+            <a href="{{ $catUrl }}" wire:navigate wire:key="cat-{{ $key }}"
+               class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-t-md transition-colors
+                      {{ $category === $key
+                          ? 'text-blue-700 border-b-2 border-blue-600 bg-blue-50'
+                          : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50' }}">
                 <flux:icon name="{{ $cat['icon'] }}" variant="micro" />
                 {{ $cat['label'] }}
-            </button>
+            </a>
         @endforeach
     </div>
 
@@ -17,13 +22,14 @@
     <div class="flex flex-wrap items-center gap-2 mb-6">
         <span class="text-xs font-medium text-zinc-400 uppercase tracking-wider mr-1">Reporte:</span>
         @foreach($this->subReports as $key => $label)
-            <button wire:click="selectSubReport('{{ $key }}')" wire:key="sub-{{ $key }}"
-                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
-                           {{ $subReport === $key
-                               ? 'bg-blue-600 text-white'
-                               : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }}">
+            <a href="{{ route('reports.show', ['category' => $category, 'subReport' => $key]) }}"
+               wire:navigate wire:key="sub-{{ $key }}"
+               class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
+                      {{ $subReport === $key
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200' }}">
                 {{ $label }}
-            </button>
+            </a>
         @endforeach
     </div>
 

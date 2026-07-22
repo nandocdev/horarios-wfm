@@ -59,8 +59,8 @@ class MenuHelper
                 'icon' => 'users',
                 'permission' => 'schedules.view_team',
                 'submenu' => [
-                    ['label' => __('Mi Equipo'), 'route' => 'schedules.my-team', 'pattern' => 'schedules/my-team*', 'permission' => 'schedules.view_team', 'icon' => 'user-group'],
                     ['label' => __('Dashboard del Equipo'), 'route' => 'schedules.team-dashboard', 'pattern' => 'schedules/team-dashboard*', 'permission' => 'schedules.view_team', 'icon' => 'presentation-chart-bar'],
+                    ['label' => __('Mi Equipo'), 'route' => 'schedules.my-team', 'pattern' => 'schedules/my-team*', 'permission' => 'schedules.view_team', 'icon' => 'user-group'],
                     ['label' => __('Aprobar Permisos'), 'route' => 'schedules.manager-approvals', 'pattern' => 'schedules/manager-approvals*', 'permission' => 'schedules.approve_requests', 'icon' => 'check-badge'],
                     ['label' => __('Resumen de Solicitudes'), 'route' => 'schedules.request-summary', 'pattern' => 'schedules/request-summary*', 'permission' => 'schedules.view_team', 'icon' => 'clipboard-document'],
                 ],

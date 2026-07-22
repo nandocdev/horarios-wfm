@@ -10,10 +10,12 @@ use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Support\Str;
 use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
-class MenuHelper {
+class MenuHelper
+{
     protected static $currentUser = null;
 
-    public static function getSidebarItems($user = null, array $counts = []): Collection {
+    public static function getSidebarItems($user = null, array $counts = []): Collection
+    {
         self::$currentUser = $user ?: AuthFacade::user();
 
         $items = self::buildItems();
@@ -25,7 +27,8 @@ class MenuHelper {
     // Construcción del árbol
     // ─────────────────────────────────────────────────────────
 
-    private static function buildItems(): array {
+    private static function buildItems(): array
+    {
         return [
 
             // 📊 Dashboard
@@ -223,7 +226,8 @@ class MenuHelper {
     // Marcar elemento activo según la ruta actual
     // ─────────────────────────────────────────────────────────
 
-    private static function markActive(array $items): array {
+    private static function markActive(array $items): array
+    {
         $currentRoute = RequestFacade::route()?->getName();
         $currentPath = RequestFacade::path();
 
@@ -246,7 +250,7 @@ class MenuHelper {
 
             if (isset($item['submenu'])) {
                 $item['submenu'] = self::markActive($item['submenu']);
-                if (!$isActive) {
+                if (! $isActive) {
                     foreach ($item['submenu'] as $sub) {
                         if ($sub['is_active'] ?? false) {
                             $isActive = true;
@@ -266,10 +270,11 @@ class MenuHelper {
     // Filtrar por permisos del usuario
     // ─────────────────────────────────────────────────────────
 
-    private static function filterByPermission(array $items): array {
+    private static function filterByPermission(array $items): array
+    {
         $user = self::$currentUser;
 
-        if (!$user) {
+        if (! $user) {
             return [];
         }
 
@@ -280,7 +285,7 @@ class MenuHelper {
                 } catch (PermissionDoesNotExist) {
                     $can = false;
                 }
-                if (!$can) {
+                if (! $can) {
                     return null;
                 }
             }
@@ -296,7 +301,8 @@ class MenuHelper {
         }, $items)));
     }
 
-    public static function getFooterItems($user = null): array {
+    public static function getFooterItems($user = null): array
+    {
         return [
             [
                 'label' => __('Configuración'),

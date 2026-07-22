@@ -10,7 +10,7 @@ class ReportPolicy
 {
     public function export(User $user): bool
     {
-        return $user->hasPermissionTo('reports.export');
+        return $user->checkPermissionTo('reports.export');
     }
 
     public function viewAll(User $user): bool

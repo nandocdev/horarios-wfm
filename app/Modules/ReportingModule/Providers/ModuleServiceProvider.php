@@ -24,6 +24,6 @@ class ModuleServiceProvider extends ServiceProvider
 
         Livewire::component('reporting.generator', ReportGenerator::class);
 
-        Gate::define('reports.export', fn (User $user): bool => $user->hasPermissionTo('reports.export'));
+        Gate::define('reports.export', fn (User $user): bool => $user->checkPermissionTo('reports.export'));
     }
 }

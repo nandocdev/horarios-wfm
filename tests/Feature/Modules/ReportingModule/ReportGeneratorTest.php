@@ -71,14 +71,41 @@ it('allows authorized roles to access the generator', function (): void {
         ->assertOk();
 });
 
-it('switches report type and updates available filters', function (): void {
+it('switches category and resets sub-report', function (): void {
     $user = User::factory()->create();
     $user->assignRole('coordinator');
 
     Livewire::actingAs($user)
         ->test(ReportGenerator::class)
-        ->set('form.reportType', 'aht-detail')
-        ->assertSet('form.reportType', 'aht-detail')
-        ->set('form.reportType', 'volume-summary')
-        ->assertSet('form.reportType', 'volume-summary');
+        ->set('category', 'attendance')
+        ->assertSet('subReport', 'absenteeism')
+        ->set('category', 'activities')
+        ->assertSet('subReport', 'intraday')
+        ->set('category', 'volume')
+        ->assertSet('subReport', 'queue')
+        ->set('category', 'performance')
+        ->assertSet('subReport', 'agent');
+});
+
+it('rejects invalid report combination with exception', function (): void {
+    $user = User::factory()->create();
+    $user->assignRole('coordinator');
+
+    $comp = Livewire::actingAs($user)
+        ->test(ReportGenerator::class)
+        ->set('form.dateFrom', '2026-07-01')
+        ->set('form.dateTo', '2026-07-15');
+
+    $comp->set('category', 'attendance');
+    $comp->set('subReport', 'nonexistent');
+
+    try {
+        $comp->call('generate');
+    } catch (InvalidArgumentException $e) {
+        expect($e->getMessage())->toContain('attendance.nonexistent');
+
+        return;
+    }
+
+    $this->fail('Expected InvalidArgumentException was not thrown.');
 });

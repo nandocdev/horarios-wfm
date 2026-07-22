@@ -88,6 +88,7 @@ abstract class BaseReport
     public function build(): DomPDFInstance
     {
         $data = $this->data();
+        $authUser = auth()->user();
 
         $html = $this->view()->with(array_merge($data, [
             'title' => $this->title,
@@ -96,7 +97,8 @@ abstract class BaseReport
             'header' => $this->header,
             'logo' => public_path('img/logo_full.png'),
             'date' => now()->format('d/m/Y H:i'),
-            'user' => auth()->user()?->name ?? 'Sistema',
+            'user' => $authUser?->name ?? 'Sistema',
+            'userRole' => $authUser?->roles->first()?->name ?? '—',
             'filters' => $this->filters,
         ]))->render();
 

@@ -1,3 +1,6 @@
+@extends('reporting::reports.layout')
+
+@section('content')
 <table>
     <thead>
         <tr>
@@ -28,3 +31,4 @@
         @endforeach
     </tbody>
 </table>
+@endsection

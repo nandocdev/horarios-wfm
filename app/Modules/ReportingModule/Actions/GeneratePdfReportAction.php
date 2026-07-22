@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\Modules\ReportingModule\Actions;
 
 use App\Reports\BaseReport;
-use Barryvdh\DomPDF\PDF as DomPDFInstance;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\View as ViewFacade;
 
 final class GeneratePdfReportAction
 {
-    public function execute(array $data, string $view, string $title, string $orientation = 'portrait'): DomPDFInstance
+    public function execute(array $data, string $view, string $title, string $orientation = 'portrait'): Response
     {
         $report = new class($data, $view, $title, $orientation) extends BaseReport
         {

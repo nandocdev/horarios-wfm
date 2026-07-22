@@ -6,6 +6,7 @@ namespace App\Reports;
 
 use Barryvdh\DomPDF\PDF as DomPDFInstance;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\App;
 
 abstract class BaseReport
@@ -68,7 +69,7 @@ abstract class BaseReport
         return $this;
     }
 
-    public function download(?string $filename = null): DomPDFInstance
+    public function download(?string $filename = null): Response
     {
         $filename ??= str_replace(' ', '_', $this->title).'_'.now()->format('Ymd_His').'.pdf';
 
@@ -76,7 +77,7 @@ abstract class BaseReport
             ->download($filename);
     }
 
-    public function stream(?string $filename = null): DomPDFInstance
+    public function stream(?string $filename = null): Response
     {
         $filename ??= str_replace(' ', '_', $this->title).'_'.now()->format('Ymd_His').'.pdf';
 

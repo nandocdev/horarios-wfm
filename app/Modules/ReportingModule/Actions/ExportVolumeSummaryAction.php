@@ -8,7 +8,6 @@ use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\DTOs\VolumeRowDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Repositories\EloquentReportDataRepository;
-use Barryvdh\DomPDF\PDF as DomPDFInstance;
 use Illuminate\Http\Response;
 
 final class ExportVolumeSummaryAction
@@ -19,7 +18,7 @@ final class ExportVolumeSummaryAction
         private readonly GenerateXlsReportAction $xlsAction,
     ) {}
 
-    public function execute(ReportFilterDTO $filters): DomPDFInstance|Response
+    public function execute(ReportFilterDTO $filters): Response
     {
         $rows = $this->repository->getVolumeSummaryData($filters);
 

@@ -31,9 +31,7 @@ class TeamDashboard extends Component
 
     public array $alerts = [];
 
-    public Collection $roster;
-
-    public Collection $teams;
+    public array $roster = [];
 
     public function mount(): void
     {
@@ -72,7 +70,7 @@ class TeamDashboard extends Component
 
     public function loadDashboard(): void
     {
-        $this->roster = collect();
+        $this->roster = [];
 
         if (! $this->teamId) {
             $this->headcount = [];
@@ -227,7 +225,7 @@ class TeamDashboard extends Component
             ];
         }
 
-        $this->roster = collect($roster);
+        $this->roster = $roster;
 
         $this->teamKpis = array_merge($this->teamKpis, [
             'total_calls' => $totalCalls,
@@ -237,7 +235,7 @@ class TeamDashboard extends Component
 
     private function buildKpis(): void
     {
-        $roster = $this->roster;
+        $roster = collect($this->roster);
 
         $connected = $roster->where('is_connected', true);
         $connectedCount = $connected->count();

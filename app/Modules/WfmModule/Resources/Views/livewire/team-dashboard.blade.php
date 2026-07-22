@@ -116,7 +116,8 @@
 
         {{-- AHT Distribution by Agent --}}
         @php
-            $rosterWithAht = $roster->filter(fn($r) => $r['aht'] > 0)->values();
+            $rosterCol = collect($roster);
+            $rosterWithAht = $rosterCol->filter(fn($r) => $r['aht'] > 0)->values();
             $ahtValues = $rosterWithAht->pluck('aht')->sort()->values();
             $ahtCount = $ahtValues->count();
             $ahtMin = $ahtValues->first() ?? 0;

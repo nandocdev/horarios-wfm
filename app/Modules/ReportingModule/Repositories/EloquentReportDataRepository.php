@@ -85,11 +85,11 @@ final class EloquentReportDataRepository
                 'employees.employee_number',
                 'teams.name as team_name',
                 'attendance_incidents.incident_date as date',
+                DB::raw('NULL::time as start_at'),
                 'attendance_incidents.start_time as actual_start',
-                'attendance_incidents.end_time as actual_end',
-                DB::raw("'Tardanza' as incident_type"),
                 DB::raw('EXTRACT(EPOCH FROM attendance_incidents.end_time - attendance_incidents.start_time) / 60 as minutes_late'),
-                DB::raw('incident_types.name as incident_name'),
+                DB::raw('NULL::text as cause_name'),
+                DB::raw("'Tardanza' as incident_type"),
                 'attendance_incidents.user_comment as justification',
             ])
             ->join('employees', 'employees.id', '=', 'attendance_incidents.employee_id')
@@ -705,10 +705,11 @@ final class EloquentReportDataRepository
                 'teams.name as team_name',
                 DB::raw('schedule_exceptions.start_at::date as date'),
                 DB::raw('schedule_exceptions.start_at::time as start_at'),
+                DB::raw('NULL::time as actual_start'),
+                DB::raw('EXTRACT(EPOCH FROM schedule_exceptions.end_at - schedule_exceptions.start_at) / 60 as minutes_late'),
                 DB::raw('absence_reason_codes.name as cause_name'),
                 DB::raw("'Tardanza' as incident_type"),
-                DB::raw('EXTRACT(EPOCH FROM schedule_exceptions.end_at - schedule_exceptions.start_at) / 60 as minutes_late'),
-                'schedule_exceptions.remarks',
+                DB::raw('schedule_exceptions.remarks as justification'),
             ])
             ->join('employees', 'employees.id', '=', 'schedule_exceptions.employee_id')
             ->leftJoin('teams', 'teams.id', '=', 'employees.team_id')

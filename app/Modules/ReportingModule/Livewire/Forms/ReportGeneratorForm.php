@@ -9,12 +9,6 @@ use Livewire\Form;
 
 class ReportGeneratorForm extends Form
 {
-    #[Rule('required|in:absenteeism-raw,absenteeism-exceptions,aht-detail,aht-summary,volume-detail,volume-summary')]
-    public string $reportType = 'absenteeism-raw';
-
-    #[Rule('required|in:pdf,xls')]
-    public string $format = 'pdf';
-
     #[Rule('required|date')]
     public string $dateFrom = '';
 

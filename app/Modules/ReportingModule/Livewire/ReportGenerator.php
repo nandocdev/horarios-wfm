@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\ReportingModule\Livewire;
 
+use App\Modules\CoreModule\Models\User;
 use App\Modules\ReportingModule\Actions\ExportAgentPerformanceAction;
 use App\Modules\ReportingModule\Actions\ExportAttendanceSummaryAction;
 use App\Modules\ReportingModule\Actions\ExportIntradayActivitiesAction;
@@ -17,10 +18,12 @@ use App\Modules\ReportingModule\Actions\ExportVacationsAction;
 use App\Modules\ReportingModule\Actions\ExportVolumeByIntervalAction;
 use App\Modules\ReportingModule\Actions\ExportVolumeDetailAction;
 use App\Modules\ReportingModule\Actions\ExportVolumeSummaryAction;
+use App\Modules\ReportingModule\Actions\FetchReportDataAction;
 use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Livewire\Forms\ReportGeneratorForm;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -33,12 +36,29 @@ class ReportGenerator extends Component
 
     public ReportGeneratorForm $form;
 
+    public ?array $preview = null;
+
+    public bool $loading = false;
+
     public function mount(?string $category = null, ?string $subReport = null): void
     {
         if ($category !== null && $subReport !== null) {
             $this->category = $category;
             $this->subReport = $subReport;
         }
+    }
+
+    public function selectCategory(string $category): void
+    {
+        $this->category = $category;
+        $this->subReport = $this->defaultSubReport($category);
+        $this->preview = null;
+    }
+
+    public function selectSubReport(string $subReport): void
+    {
+        $this->subReport = $subReport;
+        $this->preview = null;
     }
 
     #[Computed]
@@ -83,28 +103,122 @@ class ReportGenerator extends Component
         };
     }
 
-    public function generate(): StreamedResponse
+    #[Computed]
+    public function categories(): array
     {
-        $this->form->validate();
+        return [
+            'attendance' => ['label' => 'Asistencia', 'icon' => 'clipboard-document-check'],
+            'activities' => ['label' => 'Actividades', 'icon' => 'arrow-right-circle'],
+            'volume' => ['label' => 'Volumen', 'icon' => 'phone'],
+            'performance' => ['label' => 'Rendimiento', 'icon' => 'chart-bar'],
+        ];
+    }
 
-        $this->authorize('reports.export');
+    #[Computed]
+    public function subReports(): array
+    {
+        return match ($this->category) {
+            'attendance' => [
+                'absenteeism' => 'Ausentismo',
+                'tardiness' => 'Tardanzas',
+                'leaves' => 'Permisos',
+                'vacations' => 'Vacaciones',
+                'summary' => 'Resumen',
+            ],
+            'activities' => [
+                'intraday' => 'Actividades Intradía',
+                'period' => 'Actividades por Período',
+            ],
+            'volume' => [
+                'queue' => 'Volumen por Cola',
+                'interval' => 'Volumen por Intervalo',
+                'summary' => 'Consolidado',
+            ],
+            'performance' => [
+                'agent' => 'Desempeño por Agente',
+                'team' => 'Desempeño por Equipo',
+                'ranking' => 'Ranking',
+            ],
+            default => [],
+        };
+    }
+
+    private function defaultSubReport(string $category): string
+    {
+        return match ($category) {
+            'attendance' => 'absenteeism',
+            'activities' => 'intraday',
+            'volume' => 'queue',
+            'performance' => 'agent',
+            default => 'absenteeism',
+        };
+    }
+
+    public function generate(): void
+    {
+        Gate::authorize('reports.export', User::class);
+
+        $this->form->validate();
+        $this->loading = true;
+
+        try {
+            $filters = new ReportFilterDTO(
+                dateFrom: $this->form->dateFrom,
+                dateTo: $this->form->dateTo,
+                format: ReportFormatEnum::Pdf,
+                teamId: $this->form->teamId,
+                employeeId: $this->form->employeeId,
+                queueId: $this->form->queueId,
+                interval: $this->form->interval,
+            );
+
+            $result = app(FetchReportDataAction::class)->execute(
+                $this->category,
+                $this->subReport,
+                $filters,
+            );
+
+            $this->preview = [
+                'title' => $result->title,
+                'description' => $result->description,
+                'rows' => $result->rows->toArray(),
+                'columns' => $result->columns,
+                'summary' => $result->summary,
+                'chartConfig' => $result->chartConfig,
+            ];
+        } finally {
+            $this->loading = false;
+        }
+    }
+
+    public function exportPdf(): StreamedResponse
+    {
+        return $this->export(ReportFormatEnum::Pdf);
+    }
+
+    public function exportXls(): StreamedResponse
+    {
+        return $this->export(ReportFormatEnum::Xls);
+    }
+
+    private function export(ReportFormatEnum $format): StreamedResponse
+    {
+        Gate::authorize('reports.export', User::class);
 
         $filters = new ReportFilterDTO(
             dateFrom: $this->form->dateFrom,
             dateTo: $this->form->dateTo,
-            format: ReportFormatEnum::from($this->form->format),
+            format: $format,
             teamId: $this->form->teamId,
             employeeId: $this->form->employeeId,
             queueId: $this->form->queueId,
             interval: $this->form->interval,
         );
 
-        $action = $this->resolveAction();
-
-        return $action->execute($filters);
+        return $this->resolveExportAction()->execute($filters);
     }
 
-    private function resolveAction(): object
+    private function resolveExportAction(): object
     {
         return match ("{$this->category}.{$this->subReport}") {
             'attendance.absenteeism' => app(ExportRawAbsenteeismAction::class),

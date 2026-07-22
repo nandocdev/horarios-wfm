@@ -591,8 +591,8 @@ final class EloquentReportDataRepository
             ])
             ->join('employees', 'employees.id', '=', 'daily_operator_reports.employee_id')
             ->join('teams', 'teams.id', '=', 'employees.team_id')
-            ->whereDate('daily_operator_reports.date', '>=', $filters->dateFrom)
-            ->whereDate('daily_operator_reports.date', '<=', $filters->dateTo)
+            ->whereDate('daily_operator_reports.report_date', '>=', $filters->dateFrom)
+            ->whereDate('daily_operator_reports.report_date', '<=', $filters->dateTo)
             ->groupBy('teams.id', 'teams.name')
             ->orderByDesc('total_calls');
 
@@ -625,8 +625,8 @@ final class EloquentReportDataRepository
             ])
             ->join('employees', 'employees.id', '=', 'daily_operator_reports.employee_id')
             ->leftJoin('teams', 'teams.id', '=', 'employees.team_id')
-            ->whereDate('daily_operator_reports.date', '>=', $filters->dateFrom)
-            ->whereDate('daily_operator_reports.date', '<=', $filters->dateTo)
+            ->whereDate('daily_operator_reports.report_date', '>=', $filters->dateFrom)
+            ->whereDate('daily_operator_reports.report_date', '<=', $filters->dateTo)
             ->groupBy('employees.id', 'employees.first_name', 'employees.last_name', 'employees.employee_number', 'teams.name');
 
         if ($filters->teamId !== null) {

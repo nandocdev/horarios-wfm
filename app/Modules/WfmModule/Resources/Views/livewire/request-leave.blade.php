@@ -32,7 +32,16 @@
 
     <flux:card>
         <form wire:submit="submit" class="space-y-4">
-            @if($errors->has('general'))
+            @php
+                $remaining = $this->remainingAfterRequest();
+                $exceeds = $form->type === 'cuatrimestral' && $remaining < 0;
+            @endphp
+
+            @if($exceeds)
+                <flux:callout variant="danger" icon="exclamation-triangle">
+                    La solicitud excede el saldo disponible de {{ round($availableMinutes / 60, 1) }} horas. Reduce la duración o elige otra fecha.
+                </flux:callout>
+            @elseif($errors->has('general'))
                 <flux:callout variant="danger">
                     {{ $errors->first('general') }}
                 </flux:callout>

@@ -59,6 +59,44 @@ class RequestLeave extends Component
         }
     }
 
+    public function remainingAfterRequest(): int
+    {
+        if ($this->form->type !== 'cuatrimestral') {
+            return 9999;
+        }
+
+        $requested = $this->computeRequestedMinutes();
+        if ($requested === null) {
+            return $this->availableMinutes;
+        }
+
+        return $this->availableMinutes - $requested;
+    }
+
+    private function computeRequestedMinutes(): ?int
+    {
+        if (! $this->form->date) {
+            return null;
+        }
+
+        if ($this->form->isFullDay) {
+            $assignment = $this->getAssignment($this->form->date);
+            if (! $assignment) {
+                return null;
+            }
+
+            return (int) Carbon::parse($assignment->start_time)
+                ->diffInMinutes(Carbon::parse($assignment->end_time));
+        }
+
+        if (! $this->form->startTime || ! $this->form->endTime) {
+            return null;
+        }
+
+        return (int) Carbon::parse($this->form->date.' '.$this->form->startTime)
+            ->diffInMinutes(Carbon::parse($this->form->date.' '.$this->form->endTime));
+    }
+
     public function submit(CreateLeaveRequestAction $action)
     {
         $this->form->validate();

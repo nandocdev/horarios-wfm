@@ -27,11 +27,11 @@ class MyTeam extends Component
 {
     use WithPagination;
 
-    public string $date;
+    public string $date = '';
 
-    public $weekStart;
+    public string $weekStart = '';
 
-    public $weekEnd;
+    public string $weekEnd = '';
 
     public $selectedTeam = null;
 
@@ -42,8 +42,8 @@ class MyTeam extends Component
     public function mount(): void
     {
         $this->date = Carbon::now()->format('Y-m-d');
-        $this->weekStart = Carbon::now()->startOfWeek();
-        $this->weekEnd = Carbon::now()->endOfWeek();
+        $this->weekStart = Carbon::now()->startOfWeek()->toDateString();
+        $this->weekEnd = Carbon::now()->endOfWeek()->toDateString();
 
         $employee = Auth::user()->employee;
         if (! $employee) {
@@ -66,8 +66,8 @@ class MyTeam extends Component
 
     public function updatedDate(): void
     {
-        $this->weekStart = Carbon::parse($this->date)->startOfWeek();
-        $this->weekEnd = Carbon::parse($this->date)->endOfWeek();
+        $this->weekStart = Carbon::parse($this->date)->startOfWeek()->toDateString();
+        $this->weekEnd = Carbon::parse($this->date)->endOfWeek()->toDateString();
     }
 
     public function openIncidentModal($employeeId, $date): void
@@ -136,12 +136,14 @@ class MyTeam extends Component
 
     public function exportSchedule(TeamScheduleExport $export): Response
     {
+        $weekStart = Carbon::parse($this->weekStart);
+        $weekEnd = Carbon::parse($this->weekEnd);
         $members = Employee::query()->active()
             ->when($this->selectedTeam, fn ($q) => $q->where('team_id', $this->selectedTeam))
             ->orderBy('first_name')
             ->get();
 
-        $weeklySchedule = WeeklySchedule::where('week_start_date', $this->weekStart->format('Y-m-d'))->first();
+        $weeklySchedule = WeeklySchedule::where('week_start_date', $this->weekStart)->first();
 
         $assignments = collect();
         if ($weeklySchedule) {
@@ -152,11 +154,13 @@ class MyTeam extends Component
                 ->groupBy('employee_id');
         }
 
-        return $export->toXls($members, $assignments, $this->weekStart, $this->weekEnd);
+        return $export->toXls($members, $assignments, $weekStart, $weekEnd);
     }
 
     public function exportIncidents(TeamIncidentsExport $export): Response
     {
+        $weekStart = Carbon::parse($this->weekStart);
+        $weekEnd = Carbon::parse($this->weekEnd);
         $memberIds = Employee::query()->active()
             ->when($this->selectedTeam, fn ($q) => $q->where('team_id', $this->selectedTeam))
             ->pluck('id')
@@ -165,21 +169,23 @@ class MyTeam extends Component
         $exceptions = ScheduleException::with(['employee', 'reason'])
             ->whereIn('employee_id', $memberIds)
             ->where(fn ($q) => $q
-                ->whereBetween('start_at', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
-                ->orWhereBetween('end_at', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
+                ->whereBetween('start_at', [$weekStart->startOfDay(), $weekEnd->endOfDay()])
+                ->orWhereBetween('end_at', [$weekStart->startOfDay(), $weekEnd->endOfDay()])
             )
             ->orderBy('start_at')
             ->get()
             ->groupBy('employee_id');
 
         $teamName = $this->selectedTeam ? (Team::find($this->selectedTeam)?->name ?? 'Mi Equipo') : 'Mi Equipo';
-        $periodLabel = $this->weekStart->format('d/m').' – '.$this->weekEnd->format('d/m/Y');
+        $periodLabel = $weekStart->format('d/m').' – '.$weekEnd->format('d/m/Y');
 
         return $export->toXls($exceptions, $teamName, $periodLabel);
     }
 
     public function render()
     {
+        $weekStart = Carbon::parse($this->weekStart);
+        $weekEnd = Carbon::parse($this->weekEnd);
         $employee = Auth::user()->employee;
         $user = Auth::user();
         $isPowerUser = $user->hasAnyRole(['admin', 'wfm', 'superuser', 'chief']);
@@ -210,7 +216,7 @@ class MyTeam extends Component
         $members = $query->with(['position'])->orderBy('first_name')->get();
         $memberIds = $members->pluck('id')->toArray();
 
-        $weeklySchedule = WeeklySchedule::where('week_start_date', $this->weekStart->format('Y-m-d'))->first();
+        $weeklySchedule = WeeklySchedule::where('week_start_date', $this->weekStart)->first();
 
         $assignments = collect();
         if ($weeklySchedule) {
@@ -224,9 +230,9 @@ class MyTeam extends Component
         $exceptions = ScheduleException::with(['reason'])
             ->whereIn('employee_id', $memberIds)
             ->where(fn ($q) => $q
-                ->whereBetween('start_at', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
-                ->orWhereBetween('end_at', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
-                ->orWhere(fn ($sub) => $sub->where('start_at', '<=', $this->weekStart)->where('end_at', '>=', $this->weekEnd))
+                ->whereBetween('start_at', [$weekStart->startOfDay(), $weekEnd->endOfDay()])
+                ->orWhereBetween('end_at', [$weekStart->startOfDay(), $weekEnd->endOfDay()])
+                ->orWhere(fn ($sub) => $sub->where('start_at', '<=', $weekStart)->where('end_at', '>=', $weekEnd))
             )
             ->get()
             ->groupBy('employee_id');
@@ -234,8 +240,8 @@ class MyTeam extends Component
         $pendingRequests = LeaveRequest::whereIn('employee_id', $memberIds)
             ->where('status', 'pending')
             ->where(fn ($q) => $q
-                ->whereBetween('start_time', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
-                ->orWhereBetween('end_time', [$this->weekStart->startOfDay(), $this->weekEnd->endOfDay()])
+                ->whereBetween('start_time', [$weekStart->startOfDay(), $weekEnd->endOfDay()])
+                ->orWhereBetween('end_time', [$weekStart->startOfDay(), $weekEnd->endOfDay()])
             )
             ->get()
             ->groupBy('employee_id');
@@ -270,7 +276,7 @@ class MyTeam extends Component
     protected function getWeekDays(): array
     {
         $days = [];
-        $current = $this->weekStart->copy();
+        $current = Carbon::parse($this->weekStart);
         for ($i = 0; $i < 7; $i++) {
             $days[] = $current->copy();
             $current = $current->addDay();

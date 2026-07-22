@@ -55,13 +55,13 @@ class WfmSwapApprovals extends Component
         $this->recipientShift = null;
 
         if ($week) {
-            $this->requesterShift = WeeklyScheduleAssignment::with('schedule')
+            $this->requesterShift = WeeklyScheduleAssignment::withoutGlobalScopes()->with('schedule')
                 ->where('weekly_schedule_id', $week->id)
                 ->where('employee_id', $this->selectedRequest->requester_id)
                 ->where('day_of_week', $dayOfWeek)
                 ->first();
 
-            $this->recipientShift = WeeklyScheduleAssignment::with('schedule')
+            $this->recipientShift = WeeklyScheduleAssignment::withoutGlobalScopes()->with('schedule')
                 ->where('weekly_schedule_id', $week->id)
                 ->where('employee_id', $this->selectedRequest->recipient_id)
                 ->where('day_of_week', $dayOfWeek)
@@ -73,9 +73,9 @@ class WfmSwapApprovals extends Component
 
     public function approveSwap($requestId)
     {
-        $this->authorize('wfm.swaps.manage');
-
         try {
+            $this->authorize('wfm.swaps.manage');
+
             $employee = Auth::user()->employee;
             if (! $employee) {
                 throw new \RuntimeException('El usuario autenticado debe tener un perfil de empleado asociado para aprobar solicitudes.');
@@ -96,9 +96,9 @@ class WfmSwapApprovals extends Component
 
     public function rejectSwap($requestId, $reason = 'Rechazado por WFM')
     {
-        $this->authorize('wfm.swaps.manage');
-
         try {
+            $this->authorize('wfm.swaps.manage');
+
             $employee = Auth::user()->employee;
             if (! $employee) {
                 throw new \RuntimeException('El usuario autenticado debe tener un perfil de empleado asociado para rechazar solicitudes.');

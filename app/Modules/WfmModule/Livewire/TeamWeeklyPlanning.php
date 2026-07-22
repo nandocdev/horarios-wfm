@@ -39,6 +39,15 @@ class TeamWeeklyPlanning extends Component
         'break_start_time' => null,
     ];
 
+    // Estado del modal de copia de día
+    public bool $showCopyModal = false;
+
+    public ?int $copySourceDay = null;
+
+    public ?int $copyEmployeeId = null;
+
+    public array $copyTargetDays = [];
+
     // Estado del modal de asignación masiva
     public bool $showBulkAssignModal = false;
 
@@ -146,6 +155,66 @@ class TeamWeeklyPlanning extends Component
                 $this->bulkForm['end_time'] = $this->formatTime($schedule->end_time);
             }
         }
+    }
+
+    public function copyDaySetup(int $employeeId, int $dayOfWeek): void
+    {
+        $this->copyEmployeeId = $employeeId;
+        $this->copySourceDay = $dayOfWeek;
+        $this->copyTargetDays = [];
+        $this->showCopyModal = true;
+    }
+
+    public function copyDayExecute(UpdateEmployeeDayAssignmentAction $action): void
+    {
+        if (! $this->copyEmployeeId || ! $this->copySourceDay || empty($this->copyTargetDays)) {
+            \Flux::toast('Seleccione al menos un día destino.', variant: 'danger');
+
+            return;
+        }
+
+        $sourceAssignment = WeeklyScheduleAssignment::where('weekly_schedule_id', $this->week->id)
+            ->where('employee_id', $this->copyEmployeeId)
+            ->where('day_of_week', $this->copySourceDay)
+            ->with('schedule')
+            ->first();
+
+        if (! $sourceAssignment) {
+            \Flux::toast('El día origen no tiene asignación.', variant: 'danger');
+
+            return;
+        }
+
+        $formData = [
+            'schedule_id' => $sourceAssignment->schedule_id,
+            'start_time' => $this->formatTime($sourceAssignment->start_time) ?? $this->formatTime($sourceAssignment->schedule?->start_time),
+            'end_time' => $this->formatTime($sourceAssignment->end_time) ?? $this->formatTime($sourceAssignment->schedule?->end_time),
+            'lunch_start_time' => $this->formatTime($sourceAssignment->lunch_start_time),
+            'break_start_time' => $this->formatTime($sourceAssignment->break_start_time),
+        ];
+
+        $copied = 0;
+        foreach ($this->copyTargetDays as $dayNum) {
+            if ((int) $dayNum === $this->copySourceDay) {
+                continue;
+            }
+
+            $targetAssignment = WeeklyScheduleAssignment::where('weekly_schedule_id', $this->week->id)
+                ->where('employee_id', $this->copyEmployeeId)
+                ->where('day_of_week', (int) $dayNum)
+                ->first();
+
+            if ($targetAssignment) {
+                $action->execute((int) $targetAssignment->id, $formData);
+                $copied++;
+            }
+        }
+
+        $this->showCopyModal = false;
+        $this->reset(['copyEmployeeId', 'copySourceDay', 'copyTargetDays']);
+        \Flux::toast("Asignación copiada a {$copied} día(s).");
+
+        $this->dispatch('$refresh');
     }
 
     public function bulkAssign(AssignTeamWeeklyScheduleAction $action): void

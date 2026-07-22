@@ -442,18 +442,18 @@ final class EloquentReportDataRepository
             $query->where('call_records.queue_id', $filters->queueId);
         }
 
-        return $query->get()->map(fn (array $row): VolumeRowDTO => new VolumeRowDTO(
-            queueName: $row['queue_name'],
-            date: $row['date'],
-            received: (int) $row['received'],
-            handled: (int) $row['handled'],
-            abandoned: (int) $row['abandoned'],
-            abandonmentRate: $row['received'] > 0 ? round(((int) $row['abandoned'] / (int) $row['received']) * 100, 2) : 0,
-            aht: $row['aht'] !== null ? (float) $row['aht'] : null,
-            asa: $row['asa'] !== null ? (float) $row['asa'] : null,
-            maxWaitTime: $row['max_wait_time'] !== null ? (int) $row['max_wait_time'] : null,
-            minWaitTime: $row['min_wait_time'] !== null ? (int) $row['min_wait_time'] : null,
-            avgAbandonTime: $row['avg_abandon_time'] !== null ? (float) $row['avg_abandon_time'] : null,
+        return $query->get()->map(fn (object $row): VolumeRowDTO => new VolumeRowDTO(
+            queueName: $row->queue_name,
+            date: $row->date,
+            received: (int) $row->received,
+            handled: (int) $row->handled,
+            abandoned: (int) $row->abandoned,
+            abandonmentRate: $row->received > 0 ? round(((int) $row->abandoned / (int) $row->received) * 100, 2) : 0,
+            aht: $row->aht !== null ? (float) $row->aht : null,
+            asa: $row->asa !== null ? (float) $row->asa : null,
+            maxWaitTime: $row->max_wait_time !== null ? (int) $row->max_wait_time : null,
+            minWaitTime: $row->min_wait_time !== null ? (int) $row->min_wait_time : null,
+            avgAbandonTime: $row->avg_abandon_time !== null ? (float) $row->avg_abandon_time : null,
             slaPercentage: $this->calculateSlaPercentage($row, self::SLA_THRESHOLD_SECONDS),
         ));
     }
@@ -788,16 +788,16 @@ final class EloquentReportDataRepository
         return $m[1] ?? $range;
     }
 
-    private function calculateSlaPercentage(array $row, int $thresholdSeconds): ?float
+    private function calculateSlaPercentage(object $row, int $thresholdSeconds): ?float
     {
-        if ((int) $row['received'] === 0) {
+        if ((int) $row->received === 0) {
             return null;
         }
 
         $query = CallRecord::query()
-            ->whereDate('ivr_started_at', $row['date'])
+            ->whereDate('ivr_started_at', $row->date)
             ->where('queue_id', function ($q) use ($row) {
-                $q->select('id')->from('call_queues')->where('name', $row['queue_name']);
+                $q->select('id')->from('call_queues')->where('name', $row->queue_name);
             });
 
         $withinSla = (clone $query)->where('queue_time', '<=', $thresholdSeconds)->count();

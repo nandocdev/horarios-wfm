@@ -10,12 +10,10 @@ use Illuminate\Support\Facades\Request as RequestFacade;
 use Illuminate\Support\Str;
 use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
-class MenuHelper
-{
+class MenuHelper {
     protected static $currentUser = null;
 
-    public static function getSidebarItems($user = null, array $counts = []): Collection
-    {
+    public static function getSidebarItems($user = null, array $counts = []): Collection {
         self::$currentUser = $user ?: AuthFacade::user();
 
         $items = self::buildItems();
@@ -27,8 +25,7 @@ class MenuHelper
     // Construcción del árbol
     // ─────────────────────────────────────────────────────────
 
-    private static function buildItems(): array
-    {
+    private static function buildItems(): array {
         return [
 
             // 📊 Dashboard
@@ -157,50 +154,8 @@ class MenuHelper
             [
                 'label' => __('Reportes'),
                 'icon' => 'document-chart-bar',
-                'permission' => 'reports.export',
-                'submenu' => [
-                    [
-                        'label' => __('Asistencia'),
-                        'icon' => 'clipboard-document-list',
-                        'permission' => 'reports.attendance.view',
-                        'submenu' => [
-                            ['label' => __('Ausentismo'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'absenteeism'], 'icon' => 'exclamation-triangle'],
-                            ['label' => __('Tardanzas'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'tardiness'], 'icon' => 'clock'],
-                            ['label' => __('Permisos'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'leaves'], 'icon' => 'document-text'],
-                            ['label' => __('Vacaciones'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'vacations'], 'icon' => 'calendar-days'],
-                            ['label' => __('Global'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'summary'], 'icon' => 'chart-bar'],
-                        ],
-                    ],
-                    [
-                        'label' => __('Actividades'),
-                        'icon' => 'list-bullet',
-                        'permission' => 'reports.activities.view',
-                        'submenu' => [
-                            ['label' => __('Intradía'), 'route' => 'reports.show', 'params' => ['category' => 'activities', 'subReport' => 'intraday'], 'icon' => 'clock'],
-                            ['label' => __('Por Período'), 'route' => 'reports.show', 'params' => ['category' => 'activities', 'subReport' => 'period'], 'icon' => 'calendar-days'],
-                        ],
-                    ],
-                    [
-                        'label' => __('Volumen'),
-                        'icon' => 'phone-arrow-down-left',
-                        'permission' => 'reports.volume.view',
-                        'submenu' => [
-                            ['label' => __('Por Cola'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'queue'], 'icon' => 'queue-list'],
-                            ['label' => __('Por Intervalo'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'interval'], 'icon' => 'chart-bar-square'],
-                            ['label' => __('Consolidado'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'summary'], 'icon' => 'chart-pie'],
-                        ],
-                    ],
-                    [
-                        'label' => __('Desempeño'),
-                        'icon' => 'presentation-chart-bar',
-                        'permission' => 'reports.performance.view',
-                        'submenu' => [
-                            ['label' => __('Por Agente'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'agent'], 'icon' => 'user', 'permission' => 'reports.performance.agent.view'],
-                            ['label' => __('Por Equipo'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'team'], 'icon' => 'users', 'permission' => 'reports.performance.team.view'],
-                            ['label' => __('Ranking'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'ranking'], 'icon' => 'presentation-chart-line', 'permission' => 'reports.performance.ranking.view'],
-                        ],
-                    ],
-                ],
+                'route' => 'reports.index',
+                'pattern' => 'reports*',
             ],
 
             // 📚 Documentación
@@ -268,8 +223,7 @@ class MenuHelper
     // Marcar elemento activo según la ruta actual
     // ─────────────────────────────────────────────────────────
 
-    private static function markActive(array $items): array
-    {
+    private static function markActive(array $items): array {
         $currentRoute = RequestFacade::route()?->getName();
         $currentPath = RequestFacade::path();
 
@@ -292,7 +246,7 @@ class MenuHelper
 
             if (isset($item['submenu'])) {
                 $item['submenu'] = self::markActive($item['submenu']);
-                if (! $isActive) {
+                if (!$isActive) {
                     foreach ($item['submenu'] as $sub) {
                         if ($sub['is_active'] ?? false) {
                             $isActive = true;
@@ -312,11 +266,10 @@ class MenuHelper
     // Filtrar por permisos del usuario
     // ─────────────────────────────────────────────────────────
 
-    private static function filterByPermission(array $items): array
-    {
+    private static function filterByPermission(array $items): array {
         $user = self::$currentUser;
 
-        if (! $user) {
+        if (!$user) {
             return [];
         }
 
@@ -327,7 +280,7 @@ class MenuHelper
                 } catch (PermissionDoesNotExist) {
                     $can = false;
                 }
-                if (! $can) {
+                if (!$can) {
                     return null;
                 }
             }
@@ -343,8 +296,7 @@ class MenuHelper
         }, $items)));
     }
 
-    public static function getFooterItems($user = null): array
-    {
+    public static function getFooterItems($user = null): array {
         return [
             [
                 'label' => __('Configuración'),

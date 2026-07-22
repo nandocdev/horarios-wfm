@@ -162,6 +162,7 @@ class MenuHelper
                     [
                         'label' => __('Asistencia'),
                         'icon' => 'clipboard-document-list',
+                        'permission' => 'reports.attendance.view',
                         'submenu' => [
                             ['label' => __('Ausentismo'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'absenteeism'], 'icon' => 'exclamation-triangle'],
                             ['label' => __('Tardanzas'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'tardiness'], 'icon' => 'clock'],
@@ -173,6 +174,7 @@ class MenuHelper
                     [
                         'label' => __('Actividades'),
                         'icon' => 'list-bullet',
+                        'permission' => 'reports.activities.view',
                         'submenu' => [
                             ['label' => __('Intradía'), 'route' => 'reports.show', 'params' => ['category' => 'activities', 'subReport' => 'intraday'], 'icon' => 'clock'],
                             ['label' => __('Por Período'), 'route' => 'reports.show', 'params' => ['category' => 'activities', 'subReport' => 'period'], 'icon' => 'calendar-days'],
@@ -181,6 +183,7 @@ class MenuHelper
                     [
                         'label' => __('Volumen'),
                         'icon' => 'phone-arrow-down-left',
+                        'permission' => 'reports.volume.view',
                         'submenu' => [
                             ['label' => __('Por Cola'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'queue'], 'icon' => 'queue-list'],
                             ['label' => __('Por Intervalo'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'interval'], 'icon' => 'chart-bar-square'],
@@ -190,10 +193,11 @@ class MenuHelper
                     [
                         'label' => __('Desempeño'),
                         'icon' => 'presentation-chart-bar',
+                        'permission' => 'reports.performance.view',
                         'submenu' => [
-                            ['label' => __('Por Agente'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'agent'], 'icon' => 'user'],
-                            ['label' => __('Por Equipo'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'team'], 'icon' => 'users'],
-                            ['label' => __('Ranking'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'ranking'], 'icon' => 'presentation-chart-line'],
+                            ['label' => __('Por Agente'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'agent'], 'icon' => 'user', 'permission' => 'reports.performance.agent.view'],
+                            ['label' => __('Por Equipo'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'team'], 'icon' => 'users', 'permission' => 'reports.performance.team.view'],
+                            ['label' => __('Ranking'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'ranking'], 'icon' => 'presentation-chart-line', 'permission' => 'reports.performance.ranking.view'],
                         ],
                     ],
                 ],

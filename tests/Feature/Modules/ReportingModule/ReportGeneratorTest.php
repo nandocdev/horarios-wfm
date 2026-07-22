@@ -12,18 +12,43 @@ beforeEach(function (): void {
     $this->seed(RolesAndPermissionsSeeder::class);
 });
 
-it('renders the report generator page for authorized users', function (): void {
+it('redirects unauthenticated users to login', function (): void {
+    $this->get('/reportes')
+        ->assertRedirect('/login');
+});
+
+it('renders each report route for authorized users', function (string $route): void {
     $user = User::factory()->create();
     $user->assignRole('coordinator');
 
     $this->actingAs($user)
-        ->get('/reportes')
+        ->get($route)
         ->assertOk();
-});
+})->with([
+    '/reportes',
+    '/reportes/attendance/absenteeism',
+    '/reportes/attendance/tardiness',
+    '/reportes/attendance/leaves',
+    '/reportes/attendance/vacations',
+    '/reportes/attendance/summary',
+    '/reportes/activities/intraday',
+    '/reportes/activities/period',
+    '/reportes/volume/queue',
+    '/reportes/volume/interval',
+    '/reportes/volume/summary',
+    '/reportes/performance/agent',
+    '/reportes/performance/team',
+    '/reportes/performance/ranking',
+]);
 
-it('redirects unauthenticated users to login', function (): void {
-    $this->get('/reportes')
-        ->assertRedirect('/login');
+it('mounts with correct category and subReport from route', function (): void {
+    $user = User::factory()->create();
+    $user->assignRole('coordinator');
+
+    Livewire::actingAs($user)
+        ->test(ReportGenerator::class, ['category' => 'volume', 'subReport' => 'interval'])
+        ->assertSet('category', 'volume')
+        ->assertSet('subReport', 'interval');
 });
 
 it('shows validation errors when date range is missing', function (): void {
@@ -69,22 +94,6 @@ it('allows authorized roles to access the generator', function (): void {
     Livewire::actingAs($user)
         ->test(ReportGenerator::class)
         ->assertOk();
-});
-
-it('switches category and resets sub-report', function (): void {
-    $user = User::factory()->create();
-    $user->assignRole('coordinator');
-
-    Livewire::actingAs($user)
-        ->test(ReportGenerator::class)
-        ->set('category', 'attendance')
-        ->assertSet('subReport', 'absenteeism')
-        ->set('category', 'activities')
-        ->assertSet('subReport', 'intraday')
-        ->set('category', 'volume')
-        ->assertSet('subReport', 'queue')
-        ->set('category', 'performance')
-        ->assertSet('subReport', 'agent');
 });
 
 it('rejects invalid report combination with exception', function (): void {

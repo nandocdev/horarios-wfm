@@ -21,6 +21,7 @@ use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Livewire\Forms\ReportGeneratorForm;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -32,14 +33,53 @@ class ReportGenerator extends Component
 
     public ReportGeneratorForm $form;
 
-    public function updatedCategory(string $value): void
+    public function mount(?string $category = null, ?string $subReport = null): void
     {
-        $this->subReport = match ($value) {
-            'attendance' => 'absenteeism',
-            'activities' => 'intraday',
-            'volume' => 'queue',
-            'performance' => 'agent',
-            default => 'absenteeism',
+        if ($category !== null && $subReport !== null) {
+            $this->category = $category;
+            $this->subReport = $subReport;
+        }
+    }
+
+    #[Computed]
+    public function reportTitle(): string
+    {
+        return match ("{$this->category}.{$this->subReport}") {
+            'attendance.absenteeism' => 'Ausentismo',
+            'attendance.tardiness' => 'Tardanzas',
+            'attendance.leaves' => 'Permisos',
+            'attendance.vacations' => 'Vacaciones',
+            'attendance.summary' => 'Resumen Global de Asistencia',
+            'activities.intraday' => 'Actividades Intradía',
+            'activities.period' => 'Actividades por Período',
+            'volume.queue' => 'Volumen por Cola',
+            'volume.interval' => 'Volumen por Intervalo',
+            'volume.summary' => 'Volumen Consolidado',
+            'performance.agent' => 'Desempeño por Agente',
+            'performance.team' => 'Desempeño por Equipo',
+            'performance.ranking' => 'Ranking de Agentes',
+            default => 'Reporte',
+        };
+    }
+
+    #[Computed]
+    public function reportDescription(): string
+    {
+        return match ("{$this->category}.{$this->subReport}") {
+            'attendance.absenteeism' => 'Detalle de ausencias no justificadas por agente, fecha y causa.',
+            'attendance.tardiness' => 'Registro de tardanzas detectadas, con hora programada vs real y minutos de retraso.',
+            'attendance.leaves' => 'Permisos registrados (trimestral, compensatorio, licencias, duelos, etc.).',
+            'attendance.vacations' => 'Períodos de vacaciones registrados como excepciones de horario.',
+            'attendance.summary' => 'Métrica consolidada de asistencia: ausencias, tardanzas, permisos y vacaciones por agente.',
+            'activities.intraday' => 'Actividades no telefónicas ejecutadas por el agente durante la jornada.',
+            'activities.period' => 'Horas acumuladas por tipo de actividad en el rango de fechas seleccionado.',
+            'volume.queue' => 'Métricas de llamadas por cola: ofrecidas, atendidas, abandonadas, AHT, ASA y SLA.',
+            'volume.interval' => 'Volumen de llamadas segmentado en intervalos de 30 minutos.',
+            'volume.summary' => 'Resumen de tráfico telefónico agregado por cola en el período.',
+            'performance.agent' => 'KPIs individuales: llamadas atendidas, AHT, ocupación, talk time, disponible y ACW.',
+            'performance.team' => 'Métricas agregadas por equipo: llamadas, AHT promedio, ocupación y adherencia.',
+            'performance.ranking' => 'Agentes ordenados por score compuesto (50% llamadas + 30% AHT inverso + 20% ocupación).',
+            default => '',
         };
     }
 

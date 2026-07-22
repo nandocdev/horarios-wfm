@@ -153,6 +153,52 @@ class MenuHelper
                 ],
             ],
 
+            // 📊 Reportes
+            [
+                'label' => __('Reportes'),
+                'icon' => 'document-chart-bar',
+                'permission' => 'reports.export',
+                'submenu' => [
+                    [
+                        'label' => __('Asistencia'),
+                        'icon' => 'clipboard-document-list',
+                        'submenu' => [
+                            ['label' => __('Ausentismo'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'absenteeism'], 'icon' => 'exclamation-triangle'],
+                            ['label' => __('Tardanzas'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'tardiness'], 'icon' => 'clock'],
+                            ['label' => __('Permisos'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'leaves'], 'icon' => 'document-text'],
+                            ['label' => __('Vacaciones'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'vacations'], 'icon' => 'calendar-days'],
+                            ['label' => __('Global'), 'route' => 'reports.show', 'params' => ['category' => 'attendance', 'subReport' => 'summary'], 'icon' => 'chart-bar'],
+                        ],
+                    ],
+                    [
+                        'label' => __('Actividades'),
+                        'icon' => 'list-bullet',
+                        'submenu' => [
+                            ['label' => __('Intradía'), 'route' => 'reports.show', 'params' => ['category' => 'activities', 'subReport' => 'intraday'], 'icon' => 'clock'],
+                            ['label' => __('Por Período'), 'route' => 'reports.show', 'params' => ['category' => 'activities', 'subReport' => 'period'], 'icon' => 'calendar-days'],
+                        ],
+                    ],
+                    [
+                        'label' => __('Volumen'),
+                        'icon' => 'phone-arrow-down-left',
+                        'submenu' => [
+                            ['label' => __('Por Cola'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'queue'], 'icon' => 'queue-list'],
+                            ['label' => __('Por Intervalo'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'interval'], 'icon' => 'chart-bar-square'],
+                            ['label' => __('Consolidado'), 'route' => 'reports.show', 'params' => ['category' => 'volume', 'subReport' => 'summary'], 'icon' => 'chart-pie'],
+                        ],
+                    ],
+                    [
+                        'label' => __('Desempeño'),
+                        'icon' => 'presentation-chart-bar',
+                        'submenu' => [
+                            ['label' => __('Por Agente'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'agent'], 'icon' => 'user'],
+                            ['label' => __('Por Equipo'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'team'], 'icon' => 'users'],
+                            ['label' => __('Ranking'), 'route' => 'reports.show', 'params' => ['category' => 'performance', 'subReport' => 'ranking'], 'icon' => 'presentation-chart-line'],
+                        ],
+                    ],
+                ],
+            ],
+
             // 📚 Documentación
             [
                 'label' => __('Documentación'),

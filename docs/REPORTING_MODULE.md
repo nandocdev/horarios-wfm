@@ -13,13 +13,13 @@ Módulo **Supporting/Generic** (transaction script) para la generación de repor
 
 ## 2. Justificación: ¿Módulo nuevo o extensión de OperationsModule?
 
-| Criterio | OperationsModule (existente) | ReportingModule (nuevo) |
-|---|---|---|
-| Propósito | Dashboards en vivo, KPIs, adherencia en tiempo real | Documentos estáticos descargables (PDF/XLS) |
-| Tamaño actual | 19 Livewire + 6 Actions + 3 Services | Comienza limpio, ~1,500 líneas estimadas |
-| Consumo cross-module | Ya es grande y con acoplamiento a 5 módulos | Lo hace explícitamente como consumidor read-only |
-| Ciclo de vida | Tiempo real, polling cada 5s/10s | Bajo demanda (click → descarga inmediata) |
-| Formato de salida | HTML/Blade (pantalla) | PDF (dompdf) + XLS (HTML table) |
+| Criterio             | OperationsModule (existente)                        | ReportingModule (nuevo)                          |
+| -------------------- | --------------------------------------------------- | ------------------------------------------------ |
+| Propósito            | Dashboards en vivo, KPIs, adherencia en tiempo real | Documentos estáticos descargables (PDF/XLS)      |
+| Tamaño actual        | 19 Livewire + 6 Actions + 3 Services                | Comienza limpio, ~1,500 líneas estimadas         |
+| Consumo cross-module | Ya es grande y con acoplamiento a 5 módulos         | Lo hace explícitamente como consumidor read-only |
+| Ciclo de vida        | Tiempo real, polling cada 5s/10s                    | Bajo demanda (click → descarga inmediata)        |
+| Formato de salida    | HTML/Blade (pantalla)                               | PDF (dompdf) + XLS (HTML table)                  |
 
 **Decisión:** Módulo nuevo. Un módulo de reportería es un dominio transversal diferente a las operaciones en vivo.
 
@@ -82,18 +82,18 @@ Detalle línea por línea de cada período de ausencia registrado en el sistema.
 
 **Columnas del reporte:**
 
-| Columna | Origen | Transformación |
-|---|---|---|
-| Empleado | `ScheduleException.employee_id` → `Employee` | JOIN (nombre, número, equipo) |
-| Fecha | `ScheduleException.start_at::date` | `DATE(start_at)` |
-| Tipo de origen | — | `'schedule_exception'` o `'attendance_incident'` |
-| Causa | `AbsenceReasonCode.name` o `IncidentType.name` | JOIN según origen |
-| ¿Justificado? | `AbsenceReasonCode.is_excused` | `Bool` → `Sí` / `No` |
-| ¿Día completo? | `ScheduleException.is_full_day` o horas cubiertas | `Bool` |
-| Inicio | `ScheduleException.start_at` o `AttendanceIncident.start_time` | Timestamp o TIME |
-| Fin | `ScheduleException.end_at` o `AttendanceIncident.end_time` | Timestamp o TIME |
-| Minutos de ausencia | `EXTRACT(EPOCH FROM end_at - start_at) / 60` | Cálculo |
-| Observaciones | `ScheduleException.remarks` o `AttendanceIncident.user_comment` | Texto |
+| Columna             | Origen                                                          | Transformación                                   |
+| ------------------- | --------------------------------------------------------------- | ------------------------------------------------ |
+| Empleado            | `ScheduleException.employee_id` → `Employee`                    | JOIN (nombre, número, equipo)                    |
+| Fecha               | `ScheduleException.start_at::date`                              | `DATE(start_at)`                                 |
+| Tipo de origen      | —                                                               | `'schedule_exception'` o `'attendance_incident'` |
+| Causa               | `AbsenceReasonCode.name` o `IncidentType.name`                  | JOIN según origen                                |
+| ¿Justificado?       | `AbsenceReasonCode.is_excused`                                  | `Bool` → `Sí` / `No`                             |
+| ¿Día completo?      | `ScheduleException.is_full_day` o horas cubiertas               | `Bool`                                           |
+| Inicio              | `ScheduleException.start_at` o `AttendanceIncident.start_time`  | Timestamp o TIME                                 |
+| Fin                 | `ScheduleException.end_at` o `AttendanceIncident.end_time`      | Timestamp o TIME                                 |
+| Minutos de ausencia | `EXTRACT(EPOCH FROM end_at - start_at) / 60`                    | Cálculo                                          |
+| Observaciones       | `ScheduleException.remarks` o `AttendanceIncident.user_comment` | Texto                                            |
 
 **Filtros:** rango de fechas, equipo, empleado, tipo de causa (justificado/no), origen (planificado/incidencia)
 
@@ -105,15 +105,15 @@ Agregación de ausencias agrupadas por causa.
 
 **Columnas del reporte:**
 
-| Columna | Origen |
-|---|---|
-| Causa de ausencia | `AbsenceReasonCode.name` + `short_code` |
-| ¿Justificado? | `AbsenceReasonCode.is_excused` |
-| Total ocurrencias | `COUNT(schedule_exceptions.id)` |
-| Total minutos perdidos | `SUM(EXTRACT(EPOCH FROM end_at - start_at) / 60)` |
-| Empleados afectados | `COUNT(DISTINCT employee_id)` |
+| Columna                         | Origen                                                         |
+| ------------------------------- | -------------------------------------------------------------- |
+| Causa de ausencia               | `AbsenceReasonCode.name` + `short_code`                        |
+| ¿Justificado?                   | `AbsenceReasonCode.is_excused`                                 |
+| Total ocurrencias               | `COUNT(schedule_exceptions.id)`                                |
+| Total minutos perdidos          | `SUM(EXTRACT(EPOCH FROM end_at - start_at) / 60)`              |
+| Empleados afectados             | `COUNT(DISTINCT employee_id)`                                  |
 | % sobre tiempo total programado | `SUM(minutos) / (empleados_del_periodo × días × jornada_base)` |
-| Desglose por equipo | — |
+| Desglose por equipo             | —                                                              |
 
 ---
 
@@ -128,20 +128,20 @@ Average Handle Time desglosado por agente, cola y día.
 
 **Columnas del reporte:**
 
-| Columna | Origen |
-|---|---|
-| Agente | `AgentCallPerformance.employee_id` → `Employee` |
-| Cola | `AgentCallPerformance.csq_name` |
-| Fecha | `AgentCallPerformance.start_time::date` |
-| Llamadas atendidas | `COUNT(*)` |
-| Talk Time promedio | `AVG(talk_time)` |
-| Work Time promedio | `AVG(work_time)` |
-| Hold Time promedio | `AVG(hold_time)` |
-| **AHT** | `AVG(talk_time + work_time)` |
-| Objetivo AHT | `CallQueue.aht_goal` por cola |
-| Desviación vs objetivo | `AHT - aht_goal` |
-| AHT mínimo del período | `MIN(talk_time + work_time)` |
-| AHT máximo del período | `MAX(talk_time + work_time)` |
+| Columna                | Origen                                          |
+| ---------------------- | ----------------------------------------------- |
+| Agente                 | `AgentCallPerformance.employee_id` → `Employee` |
+| Cola                   | `AgentCallPerformance.csq_name`                 |
+| Fecha                  | `AgentCallPerformance.start_time::date`         |
+| Llamadas atendidas     | `COUNT(*)`                                      |
+| Talk Time promedio     | `AVG(talk_time)`                                |
+| Work Time promedio     | `AVG(work_time)`                                |
+| Hold Time promedio     | `AVG(hold_time)`                                |
+| **AHT**                | `AVG(talk_time + work_time)`                    |
+| Objetivo AHT           | `CallQueue.aht_goal` por cola                   |
+| Desviación vs objetivo | `AHT - aht_goal`                                |
+| AHT mínimo del período | `MIN(talk_time + work_time)`                    |
+| AHT máximo del período | `MAX(talk_time + work_time)`                    |
 
 **Filtros:** rango de fechas, cola, equipo, agente
 
@@ -157,19 +157,19 @@ Volumen de llamadas con métricas de servicio.
 
 **Columnas del reporte:**
 
-| Columna | Origen / Fórmula |
-|---|---|
-| Cola | `CallQueue.name` |
-| Fecha | `CallRecord.ivr_started_at::date` |
-| Recibidos | `COUNT(*)` total de registros en el período |
-| Atendidos | `COUNT(*)` WHERE `contact_disposition = Handled (2)` |
-| Abandonados | `COUNT(*)` WHERE `contact_disposition IN (1, 4, 13)` |
-| % Abandono | `(abandonados / recibidos) × 100` |
-| **AHT** | `AVG(talk_time + work_time)` de los atendidos |
-| ASA (Tiempo espera prom.) | `AVG(queue_time)` de los atendidos |
-| Tiempo espera máx. | `MAX(queue_time)` |
-| Tiempo espera mín. | `MIN(queue_time)` |
-| Tiempo abandono prom. | `AVG(queue_time)` de los abandonados |
+| Columna                     | Origen / Fórmula                                        |
+| --------------------------- | ------------------------------------------------------- |
+| Cola                        | `CallQueue.name`                                        |
+| Fecha                       | `CallRecord.ivr_started_at::date`                       |
+| Recibidos                   | `COUNT(*)` total de registros en el período             |
+| Atendidos                   | `COUNT(*)` WHERE `contact_disposition = Handled (2)`    |
+| Abandonados                 | `COUNT(*)` WHERE `contact_disposition IN (1, 4, 13)`    |
+| % Abandono                  | `(abandonados / recibidos) × 100`                       |
+| **AHT**                     | `AVG(talk_time + work_time)` de los atendidos           |
+| ASA (Tiempo espera prom.)   | `AVG(queue_time)` de los atendidos                      |
+| Tiempo espera máx.          | `MAX(queue_time)`                                       |
+| Tiempo espera mín.          | `MIN(queue_time)`                                       |
+| Tiempo abandono prom.       | `AVG(queue_time)` de los abandonados                    |
 | SLA % (umbral configurable) | `COUNT(*) WHERE queue_time <= umbral / recibidos × 100` |
 
 **Filtros:** rango de fechas, cola, intervalo de agregación (diario/semanal/mensual)
@@ -238,13 +238,13 @@ return response($html, 200, [
 
 ## 6. Contratos que Consume (Shared/Contracts)
 
-| Interfaz | Métodos útiles para reportería |
-|---|---|
+| Interfaz                               | Métodos útiles para reportería                                                       |
+| -------------------------------------- | ------------------------------------------------------------------------------------ |
 | `TelemetryRealtimeRepositoryInterface` | `getCallVolumeByDateRange()`, `getQueuePerformanceReport()`, `getCallStatsForDate()` |
-| `AgentPerformanceRepositoryInterface` | `getCallRecords()`, `getDailyMetric()` |
-| `DashboardScheduleQueriesInterface` | `getExceptionsForRange()` |
-| `EmployeeLookupRepositoryInterface` | `findActive()`, `findByTeam()` |
-| `EmployeeRepositoryInterface` | Consultas de empleados por filtros |
+| `AgentPerformanceRepositoryInterface`  | `getCallRecords()`, `getDailyMetric()`                                               |
+| `DashboardScheduleQueriesInterface`    | `getExceptionsForRange()`                                                            |
+| `EmployeeLookupRepositoryInterface`    | `findActive()`, `findByTeam()`                                                       |
+| `EmployeeRepositoryInterface`          | Consultas de empleados por filtros                                                   |
 
 Donde no exista contrato, el `EloquentReportDataRepository` realizará consultas directas a modelos Eloquent. Esto es aceptable para un módulo Supporting/Generic de solo lectura que consume datos aguas abajo en la cadena de dependencias.
 
@@ -258,15 +258,15 @@ Un permiso único que se agrega al `RolesAndPermissionsSeeder` existente:
 reports.export  →  Generar y descargar reportes
 ```
 
-| Rol | Acceso |
-|---|---|
-| operator | ❌ |
-| supervisor | ✅ Solo su equipo |
-| coordinator | ✅ Todos |
-| chief | ✅ Todos |
-| wfm | ✅ Todos |
-| director | ✅ Todos |
-| admin | ✅ Todos (super-bypass) |
+| Rol         | Acceso                 |
+| ----------- | ---------------------- |
+| operator    | ❌                      |
+| supervisor  | ✅ Solo su equipo       |
+| coordinator | ✅ Todos                |
+| chief       | ✅ Todos                |
+| wfm         | ✅ Todos                |
+| director    | ✅ Todos                |
+| admin       | ✅ Todos (super-bypass) |
 
 `ReportPolicy` implementará scoping por jerarquía de rol y equipo.
 
@@ -291,10 +291,10 @@ App\Modules\HelpdeskModule\Providers\ModuleServiceProvider::class,
 
 ## 9. Dependencias Externas
 
-| Paquete | Estado | Uso |
-|---|---|---|
-| `barryvdh/laravel-dompdf` | ✅ Ya instalado (^3.1) | Generación de PDF |
-| `PhpOffice/PhpSpreadsheet` | ❌ No instalado | No requerido — XLS vía HTML table |
+| Paquete                    | Estado                | Uso                               |
+| -------------------------- | --------------------- | --------------------------------- |
+| `barryvdh/laravel-dompdf`  | ✅ Ya instalado (^3.1) | Generación de PDF                 |
+| `PhpOffice/PhpSpreadsheet` | ❌ No instalado        | No requerido — XLS vía HTML table |
 
 No se requieren nuevas dependencias. El XLS utiliza el patrón existente de respuesta HTTP con tabla HTML y `Content-Type: application/vnd.ms-excel`.
 
@@ -302,6 +302,7 @@ No se requieren nuevas dependencias. El XLS utiliza el patrón existente de resp
 
 ## 10. Estimación de Entregables
 
+<<<<<<< HEAD
 | Componente | Archivos | Líneas estimadas |
 |---|---|---|
 | Actions (8) | 8 | ~460 |
@@ -316,6 +317,24 @@ No se requieren nuevas dependencias. El XLS utiliza el patrón existente de resp
 | Ruta web.php | 1 | ~15 |
 | Migración de permiso (seeder) | 1 | ~15 |
 | **Total** | **26** | **~1,530** |
+=======
+| Componente                    | Archivos | Líneas estimadas |
+| ----------------------------- | -------- | ---------------- |
+| Actions de exportación (6)    | 6        | ~360             |
+| Actions shared PDF/XLS (2)    | 2        | ~100             |
+| DTOs (5)                      | 5        | ~120             |
+| Enum (1)                      | 1        | ~20              |
+| Livewire + Form (2)           | 2        | ~220             |
+| Policy (1)                    | 1        | ~40              |
+| ModuleServiceProvider         | 1        | ~60              |
+| Repository                    | 1        | ~180             |
+| Service                       | 1        | ~160             |
+| Templates PDF/XLS (4)         | 4        | ~320             |
+| Vista Livewire                | 1        | ~80              |
+| Ruta web.php                  | 1        | ~15              |
+| Migración de permiso (seeder) | 1        | ~15              |
+| **Total**                     | **27**   | **~1,690**       |
+>>>>>>> e48eff2 (docs: format markdown tables for improved readability in REPORTING_MODULE.md)
 
 ---
 

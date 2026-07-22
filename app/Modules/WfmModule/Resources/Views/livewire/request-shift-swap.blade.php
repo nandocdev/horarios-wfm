@@ -1,4 +1,4 @@
-<div class=" mx-auto space-y-8 flex-1 flex flex-col">
+<div class="max-w-2xl mx-auto space-y-8 flex-1 flex flex-col">
     <div>
         <flux:heading size="xl">Solicitar Cambio de Turno</flux:heading>
         <flux:subheading>Completa los detalles para intercambiar tu turno con un compañero de otro equipo.

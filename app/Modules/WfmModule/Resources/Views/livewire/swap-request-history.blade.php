@@ -22,8 +22,8 @@
             <tbody class="divide-y dark:divide-slate-800">
                 @forelse($requests as $request)
                     @php
-                        $isRequester = $request->requester_id === $currentEmployeeId;
-                        $peer = $isRequester ? $request->recipient : $request->requester;
+    $isRequester = $request->requester_id === $currentEmployeeId;
+    $peer = $isRequester ? $request->recipient : $request->requester;
                     @endphp
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
                         <td class="py-2 px-4 text-sm font-medium">
@@ -47,31 +47,31 @@
                         </td>
                         <td class="py-2 px-4">
                             @php
-                                $variant = match ($request->status) {
-                                    'pending' => 'gost',
-                                    'approved' => 'default',
-                                    'accepted' => 'default',
-                                    'rejected' => 'danger',
-                                    'cancelled' => 'filled',
-                                    default => 'gost'
-                                };
+    $variant = match ($request->status) {
+        'pending' => 'gost',
+        'approved' => 'default',
+        'accepted' => 'default',
+        'rejected' => 'danger',
+        'cancelled' => 'filled',
+        default => 'gost'
+    };
 
-                                $colors = [
-                                    'pending' => 'warning',
-                                    'accepted' => 'green',
-                                    'approved' => 'blue',
-                                    'rejected' => 'red',
-                                    'cancelled' => 'slate',
-                                ];
+    $colors = [
+        'pending' => 'warning',
+        'accepted' => 'green',
+        'approved' => 'blue',
+        'rejected' => 'red',
+        'cancelled' => 'slate',
+    ];
 
-                                $statusLabel = match ($request->status) {
-                                    'pending' => 'Pendiente',
-                                    'accepted' => 'Aceptado por Par',
-                                    'approved' => 'Aprobado WFM',
-                                    'rejected' => 'Rechazado',
-                                    'cancelled' => 'Cancelado',
-                                    default => ucfirst($request->status)
-                                };
+    $statusLabel = match ($request->status) {
+        'pending' => 'Pendiente',
+        'accepted' => 'Aceptado por Par',
+        'approved' => 'Aprobado WFM',
+        'rejected' => 'Rechazado',
+        'cancelled' => 'Cancelado',
+        default => ucfirst($request->status)
+    };
                             @endphp
                             <flux:badge size="sm" :variant="$variant" color="{{ $colors[$request->status] }}">{{ $statusLabel }}</flux:badge>
                         </td>

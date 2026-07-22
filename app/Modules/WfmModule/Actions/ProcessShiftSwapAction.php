@@ -35,6 +35,8 @@ class ProcessShiftSwapAction
             $endDate = $request->end_date ?: $startDate;
             $currentDate = $startDate->copy();
 
+            $swapsExecuted = 0;
+
             while ($currentDate->lte($endDate)) {
                 $dateStr = $currentDate->toDateString();
 
@@ -42,7 +44,6 @@ class ProcessShiftSwapAction
                 $assignmentA = $this->getAssignmentForLock((int) $request->requester_id, $dateStr);
                 $assignmentB = $this->getAssignmentForLock((int) $request->recipient_id, $dateStr);
 
-                // Si no hay turnos ese día específico, saltamos (esto permite swaps de periodos con días libres)
                 if ($assignmentA && $assignmentB) {
                     // 3. Validación de integridad contra Snapshots (Solo el primer día para mantener simplicidad de snapshot)
                     if ($currentDate->equalTo($startDate)) {
@@ -52,9 +53,17 @@ class ProcessShiftSwapAction
 
                     // 5. Ejecutar intercambio inmutable
                     $this->performImmutableSwap($request, $assignmentA, $assignmentB);
+                    $swapsExecuted++;
                 }
 
                 $currentDate = $currentDate->addDay();
+            }
+
+            if ($swapsExecuted === 0) {
+                throw new \RuntimeException(
+                    'No se encontraron asignaciones de horario para intercambiar en el rango de fechas solicitado. '
+                    .'Es posible que los empleados no tengan turnos asignados o que ya hayan sido reemplazados.'
+                );
             }
 
             // 6. Crear asignaciones temporales de coordinadores cruzados

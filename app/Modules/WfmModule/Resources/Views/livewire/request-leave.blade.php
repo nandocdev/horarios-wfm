@@ -1,14 +1,20 @@
 <div class="max-w-2xl mx-auto space-y-8 flex-1 flex flex-col">
     <div>
-        <flux:heading size="xl">Solicitar Permiso {{ $form->type === 'quarterly' ? 'Trimestral' : 'Compensatorio' }}</flux:heading>
-        @if($form->type === 'quarterly')
-            <flux:subheading>Puedes solicitar hasta 8 horas por trimestre (Ene-Mar, Abr-Jun, Jul-Sep, Oct-Dic).</flux:subheading>
+        @php
+            $cuatriMonth = (int) now()->month;
+            $cuatriStart = (int) (floor(($cuatriMonth - 1) / 4) * 4 + 1);
+            $cuatriLabelStart = now()->startOfYear()->addMonths($cuatriStart - 1);
+            $cuatriLabelEnd = $cuatriLabelStart->copy()->addMonths(4)->subDay();
+        @endphp
+        <flux:heading size="xl">Solicitar Permiso {{ $form->type === 'cuatrimestral' ? 'Cuatrimestral' : 'Compensatorio' }}</flux:heading>
+        @if($form->type === 'cuatrimestral')
+            <flux:subheading>Puedes solicitar hasta 8 horas por cuatrimestre (Ene-Abr, May-Ago, Sep-Dic).</flux:subheading>
         @else
             <flux:subheading>Solicita tiempo libre a cambio de tus horas extra trabajadas.</flux:subheading>
         @endif
     </div>
 
-    @if($form->type === 'quarterly')
+    @if($form->type === 'cuatrimestral')
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <flux:card class="flex flex-col items-center justify-center p-4 text-center">
                 <span class="text-xs text-slate-500 uppercase font-bold mb-1">Saldo Disponible</span>
@@ -17,9 +23,9 @@
             </flux:card>
 
             <flux:card class="flex flex-col items-center justify-center p-4 text-center">
-                <span class="text-xs text-slate-500 uppercase font-bold mb-1">Uso en el Trimestre</span>
+                <span class="text-xs text-slate-500 uppercase font-bold mb-1">Uso en el Cuatrimestre</span>
                 <span class="text-3xl font-black text-slate-400">{{ round($usedMinutes / 60, 1) }}h</span>
-                <span class="text-[10px] text-slate-400">Trimestre: {{ now()->startOfQuarter()->format('M') }} - {{ now()->endOfQuarter()->format('M Y') }}</span>
+                <span class="text-[10px] text-slate-400">{{ $cuatriLabelStart->format('M') }} - {{ $cuatriLabelEnd->format('M Y') }}</span>
             </flux:card>
         </div>
     @endif
@@ -35,7 +41,7 @@
             <flux:field>
                 <flux:label>Tipo de Permiso</flux:label>
                 <flux:select wire:model.live="form.type">
-                    <flux:select.option value="quarterly">Permiso Trimestral (8h)</flux:select.option>
+                    <flux:select.option value="cuatrimestral">Permiso Cuatrimestral (8h)</flux:select.option>
                     <flux:select.option value="compensatory">Permiso Compensatorio</flux:select.option>
                 </flux:select>
             </flux:field>

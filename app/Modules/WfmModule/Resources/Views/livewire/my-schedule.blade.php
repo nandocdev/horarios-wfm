@@ -233,15 +233,15 @@
                         </flux:card>
                     </a>
 
-                    <a href="{{ route('schedules.leave-request', ['type' => 'quarterly']) }}" wire:navigate class="block">
+                    <a href="{{ route('schedules.leave-request', ['type' => 'cuatrimestral']) }}" wire:navigate class="block">
                         <flux:card class="p-4 hover:shadow-md transition-opacity cursor-pointer group">
                             <div class="flex items-center gap-4">
                                 <div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-md group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 transition-opacity">
                                     <flux:icon name="calendar-days" size="sm" />
                                 </div>
                                 <div class="flex-grow">
-                                    <flux:heading size="sm">Permiso Trimestral</flux:heading>
-                                    <flux:subheading size="xs">Gestiona tu día de permiso por trimestre</flux:subheading>
+                                    <flux:heading size="sm">Permiso Cuatrimestral</flux:heading>
+                                    <flux:subheading size="xs">Gestiona tu día de permiso por cuatrimestre</flux:subheading>
                                 </div>
                                 <flux:icon name="chevron-right" size="xs" class="text-slate-400" />
                             </div>

@@ -22,7 +22,7 @@ class RequestLeave extends Component
 
     public int $usedMinutes = 0;
 
-    public function mount($type = 'quarterly')
+    public function mount($type = 'cuatrimestral')
     {
         $this->form->type = $type;
         $this->form->date = now()->format('Y-m-d');
@@ -41,14 +41,13 @@ class RequestLeave extends Component
             return;
         }
 
-        if ($this->form->type === 'quarterly') {
-            $startOfQuarter = now()->startOfQuarter();
-            $endOfQuarter = now()->endOfQuarter();
+        if ($this->form->type === 'cuatrimestral') {
+            $period = $this->getCuatrimestrePeriod();
 
             $this->usedMinutes = LeaveRequest::where('employee_id', $employee->id)
-                ->where('type', 'quarterly')
+                ->where('type', 'cuatrimestral')
                 ->whereIn('status', ['pending', 'approved'])
-                ->whereBetween('start_time', [$startOfQuarter, $endOfQuarter])
+                ->whereBetween('start_time', [$period['start'], $period['end']])
                 ->sum('minutes');
 
             $this->availableMinutes = max(0, 480 - $this->usedMinutes);
@@ -85,9 +84,9 @@ class RequestLeave extends Component
 
         $requestedMinutes = (int) $start->diffInMinutes($end);
 
-        if ($this->form->type === 'quarterly' && $requestedMinutes > $this->availableMinutes) {
+        if ($this->form->type === 'cuatrimestral' && $requestedMinutes > $this->availableMinutes) {
             $hours = round($this->availableMinutes / 60, 1);
-            $this->addError('general', "No tienes suficiente saldo trimestral. Saldo restante: {$hours} horas.");
+            $this->addError('general', "No tienes suficiente saldo cuatrimestral. Saldo restante: {$hours} horas.");
 
             return;
         }
@@ -109,10 +108,20 @@ class RequestLeave extends Component
 
         $action->execute($dto, (int) auth()->id());
 
-        $typeLabel = $this->form->type === 'quarterly' ? 'trimestral' : 'compensatorio';
+        $typeLabel = $this->form->type === 'cuatrimestral' ? 'cuatrimestral' : 'compensatorio';
         \Flux::toast("Solicitud de permiso {$typeLabel} enviada al jefe inmediato.");
 
         $this->redirect(route('schedules.leave-history'), navigate: true);
+    }
+
+    private function getCuatrimestrePeriod(): array
+    {
+        $month = (int) now()->month;
+        $quadStartMonth = (int) (floor(($month - 1) / 4) * 4 + 1);
+        $start = now()->startOfYear()->addMonths($quadStartMonth - 1);
+        $end = $start->copy()->addMonths(4)->subDay()->endOfDay();
+
+        return ['start' => $start, 'end' => $end];
     }
 
     protected function getAssignment($dateString)

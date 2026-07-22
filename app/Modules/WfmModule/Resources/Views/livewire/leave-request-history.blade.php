@@ -27,7 +27,7 @@
                         <td class="py-2 px-4 text-sm">
                             @php
                                 $typeLabel = match($leave->type) {
-                                    'quarterly' => 'Trimestral',
+                                    'cuatrimestral' => 'Cuatrimestral',
                                     'compensatory' => 'Compensatorio',
                                     default => ucfirst($leave->type)
                                 };

@@ -21,7 +21,7 @@ test('operator can create a partial leave request', function () {
 
     $date = now()->addDays(2)->toDateString();
 
-    Livewire::test(RequestLeave::class, ['type' => 'quarterly'])
+    Livewire::test(RequestLeave::class, ['type' => 'cuatrimestral'])
         ->set('form.date', $date)
         ->set('form.startTime', '10:00')
         ->set('form.endTime', '12:00')
@@ -31,7 +31,7 @@ test('operator can create a partial leave request', function () {
 
     $this->assertDatabaseHas('leave_requests', [
         'employee_id' => $employee->id,
-        'type' => 'quarterly',
+        'type' => 'cuatrimestral',
         'status' => 'pending',
     ]);
 });
@@ -55,7 +55,7 @@ test('partial leave cannot be created if overlapping existing leave exists', fun
         'start_time' => $existingStart,
         'end_time' => $existingEnd,
         'minutes' => 240,
-        'type' => 'quarterly',
+        'type' => 'cuatrimestral',
         'reason' => 'Existing',
     ]);
 
@@ -66,7 +66,7 @@ test('partial leave cannot be created if overlapping existing leave exists', fun
     // este test se espera que falle o se comporte según la lógica actual.
     // Por ahora lo alineamos para que al menos no lance Error de clase no encontrada.
 
-    Livewire::test(RequestLeave::class, ['type' => 'quarterly'])
+    Livewire::test(RequestLeave::class, ['type' => 'cuatrimestral'])
         ->set('form.date', $date)
         ->set('form.startTime', '11:00')
         ->set('form.endTime', '12:00')

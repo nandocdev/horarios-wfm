@@ -8,7 +8,7 @@ use Livewire\Form;
 
 final class LeaveRequestForm extends Form
 {
-    public string $type = 'quarterly';
+    public string $type = 'cuatrimestral';
 
     public string $date = '';
 

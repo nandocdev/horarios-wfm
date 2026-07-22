@@ -24,6 +24,7 @@ class SyncFinesseAgentStatesAction
                 ->whereNotNull('username')
                 ->get(['id', 'username', 'metadata']);
         });
+        Log::debug('Employees: '.count($employees));
 
         $successCount = 0;
         $errorCount = 0;

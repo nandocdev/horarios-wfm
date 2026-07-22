@@ -169,8 +169,8 @@ final class FetchReportDataAction
                 ['label' => '% Asistencia', 'key' => 'attendanceRate'],
             ],
             summary: [
-                ['label' => '% Asistencia Promedio', 'value' => round($avgAttendance, 1).'%', 'icon' => 'check-circle'],
-                ['label' => '% Tardanza Promedio', 'value' => round($avgTardiness, 1).'%', 'icon' => 'exclamation-triangle'],
+                ['label' => '% Asistencia Promedio', 'value' => round($avgAttendance ?? 0, 1).'%', 'icon' => 'check-circle'],
+                ['label' => '% Tardanza Promedio', 'value' => round($avgTardiness ?? 0, 1).'%', 'icon' => 'exclamation-triangle'],
                 ['label' => 'Total Registros', 'value' => (string) $rows->count(), 'icon' => 'clipboard-document-list'],
             ],
         );
@@ -229,7 +229,7 @@ final class FetchReportDataAction
                 ['label' => 'Registros', 'value' => (string) $rows->count(), 'icon' => 'clipboard-document-list'],
                 ['label' => 'T. Productivo', 'value' => $this->formatDuration($productiveMinutes), 'icon' => 'check-circle'],
                 ['label' => 'T. No Productivo', 'value' => $this->formatDuration($nonProductiveMinutes), 'icon' => 'x-circle'],
-                ['label' => '% Cumplimiento Prom.', 'value' => round($avgCompliance, 1).'%', 'icon' => 'trending-up'],
+                ['label' => '% Cumplimiento Prom.', 'value' => round($avgCompliance ?? 0, 1).'%', 'icon' => 'trending-up'],
             ],
         );
     }
@@ -261,7 +261,7 @@ final class FetchReportDataAction
                 ['label' => 'Total Ofrecidas', 'value' => (string) $totalReceived, 'icon' => 'phone'],
                 ['label' => 'Atendidas', 'value' => (string) $totalHandled, 'icon' => 'phone-arrow-up-right'],
                 ['label' => 'Abandonadas', 'value' => (string) $totalAbandoned, 'icon' => 'phone-x-mark'],
-                ['label' => 'SLA Promedio', 'value' => round($avgSla, 1).'%', 'icon' => 'chart-bar'],
+                ['label' => 'SLA Promedio', 'value' => round($avgSla ?? 0, 1).'%', 'icon' => 'chart-bar'],
             ],
         );
     }
@@ -336,7 +336,7 @@ final class FetchReportDataAction
                 ['label' => 'Total Ofrecidas', 'value' => (string) $totalReceived, 'icon' => 'phone'],
                 ['label' => 'Atendidas', 'value' => (string) $totalHandled, 'icon' => 'phone-arrow-up-right'],
                 ['label' => 'Abandonadas', 'value' => (string) $totalAbandoned, 'icon' => 'phone-x-mark'],
-                ['label' => 'SLA Promedio', 'value' => round($avgSla, 1).'%', 'icon' => 'chart-bar'],
+                ['label' => 'SLA Promedio', 'value' => round($avgSla ?? 0, 1).'%', 'icon' => 'chart-bar'],
             ],
         );
     }
@@ -366,9 +366,9 @@ final class FetchReportDataAction
             ],
             summary: [
                 ['label' => 'Agentes', 'value' => (string) $rows->count(), 'icon' => 'users'],
-                ['label' => 'Prom. Llamadas', 'value' => round($avgCalls, 1).'', 'icon' => 'phone'],
-                ['label' => 'AHT Promedio', 'value' => round($avgAht, 1).'s', 'icon' => 'clock'],
-                ['label' => 'Ocupación Prom.', 'value' => round($avgOccupancy, 1).'%', 'icon' => 'chart-bar'],
+                ['label' => 'Prom. Llamadas', 'value' => round($avgCalls ?? 0, 1).'', 'icon' => 'phone'],
+                ['label' => 'AHT Promedio', 'value' => round($avgAht ?? 0, 1).'s', 'icon' => 'clock'],
+                ['label' => 'Ocupación Prom.', 'value' => round($avgOccupancy ?? 0, 1).'%', 'icon' => 'chart-bar'],
             ],
         );
     }
@@ -397,9 +397,9 @@ final class FetchReportDataAction
             summary: [
                 ['label' => 'Equipos', 'value' => (string) $rows->count(), 'icon' => 'building-office'],
                 ['label' => 'Total Llamadas', 'value' => (string) $totalCalls, 'icon' => 'phone'],
-                ['label' => 'AHT Prom.', 'value' => round($avgAht, 1).'s', 'icon' => 'clock'],
-                ['label' => 'Ocupación Prom.', 'value' => round($avgOccupancy, 1).'%', 'icon' => 'chart-bar'],
-                ['label' => 'Adherencia Prom.', 'value' => round($avgAdherence, 1).'%', 'icon' => 'check-circle'],
+                ['label' => 'AHT Prom.', 'value' => round($avgAht ?? 0, 1).'s', 'icon' => 'clock'],
+                ['label' => 'Ocupación Prom.', 'value' => round($avgOccupancy ?? 0, 1).'%', 'icon' => 'chart-bar'],
+                ['label' => 'Adherencia Prom.', 'value' => round($avgAdherence ?? 0, 1).'%', 'icon' => 'check-circle'],
             ],
         );
     }
@@ -429,7 +429,7 @@ final class FetchReportDataAction
             ],
             summary: [
                 ['label' => 'Agentes', 'value' => (string) $totalAgents, 'icon' => 'users'],
-                ['label' => 'Score Prom.', 'value' => round($avgScore, 1), 'icon' => 'chart-bar'],
+                ['label' => 'Score Prom.', 'value' => round($avgScore ?? 0, 1), 'icon' => 'chart-bar'],
                 ['label' => 'Top', 'value' => $topAgent?->employeeName ?? '—', 'icon' => 'trophy'],
             ],
         );

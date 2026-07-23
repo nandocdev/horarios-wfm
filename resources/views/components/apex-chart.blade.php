@@ -1,12 +1,11 @@
 @props([
     'id' => 'chart-' . uniqid(),
     'options' => '{}',
-    'height' => 300,
+    'height' => '100px'
 ])
 
-<div wire:ignore>
-    <div id="{{ $id }}" style="height: {{ $height }}px;"
-         x-data="{
+<div wire:ignore class="h-full">
+    <div id="{{ $id }}" style="height: {{ $height }}" x-data="{
             chart: null,
             baseOptions: JSON.parse(atob('{{ base64_encode($options) }}')),
             init() {
@@ -37,7 +36,5 @@
                     this.chart = null;
                 }
             },
-         }"
-         x-init="init"
-         x-on:livewire:navigating.window="destroy"></div>
+         }" x-init="init" x-on:livewire:navigating.window="destroy"></div>
 </div>

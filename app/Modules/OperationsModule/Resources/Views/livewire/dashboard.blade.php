@@ -26,26 +26,28 @@
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
             @foreach ($kpis as $kpi)
                         <x-wfm.kpi :value="$kpi['value']" :label="$kpi['label']" :comparison="$kpi['hint'] ?: null" :color="match ($kpi['label']) {
-                    'Cobertura' => (float) filter_var($kpi['value'], FILTER_SANITIZE_NUMBER_FLOAT) < 80 ? 'danger' : 'success',
-                    'Ausentes' => (int) $kpi['value'] > 0 ? 'warning' : 'success',
-                    default => 'default'
-                }" />
+        'Cobertura' => (float) filter_var($kpi['value'], FILTER_SANITIZE_NUMBER_FLOAT) < 80 ? 'danger' : 'success',
+        'Ausentes' => (int) $kpi['value'] > 0 ? 'warning' : 'success',
+        default => 'default'
+    }" />
             @endforeach
         </div>
 
         <div class="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-            <x-wfm.section title="Cobertura durante el día" :description="'Próximo riesgo ' . $nextRisk['time'] . ' · Cobertura esperada ' . $nextRisk['coverage']">
-                <x-apex-chart id="coverage-chart" :options="$coverageChartOptions" height="200" />
+            <x-wfm.section title="Cobertura durante el día" :description="'Próximo riesgo ' . $nextRisk['time'] . ' · Cobertura esperada ' . $nextRisk['coverage']" class="flex flex-col h-full">
+                <div class="flex-1 min-h-0">
+                    <x-apex-chart id="coverage-chart" :options="$coverageChartOptions" height="100%" />
+                </div>
             </x-wfm.section>
 
-            <x-wfm.section title="Distribución del personal">
-                <div class="flex flex-col items-center gap-4 sm:flex-row">
-                    <div class="w-36 h-36 flex-shrink-0">
-                        <x-apex-chart id="distribution-chart" :options="$donutChartOptions" height="144" />
+            <x-wfm.section title="Distribución del personal" class="flex flex-col h-full">
+                <div class="flex flex-col items-center gap-4 flex-1 min-h-0">
+                    <div class="w-full max-w-[200px] shrink-0">
+                        <x-apex-chart id="distribution-chart" :options="$donutChartOptions" height="100%" />
                     </div>
-                    <div class="flex-1 space-y-2 w-full">
+                    <div class="space-y-2 w-full max-w-[220px]">
                         @php
-                            $donutColors = ['#3b82f6', '#22c55e', '#f59e0b', '#94a3b8'];
+                            $donutColors = ['#22c55e', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#94a3b8'];
                             $total = array_sum(array_column($distribution, 'value'));
                         @endphp
                         @foreach($distribution as $i => $d)
@@ -171,13 +173,13 @@
             <x-wfm.section title="Tendencia Semanal">
                 @forelse ($trends as $trend)
                     @php
-                        $sparkData = $trend['data'] ?? [];
-                        $sparkVals = array_values($sparkData);
-                        $lastVal = end($sparkVals);
-                        $prevVal = $sparkVals[count($sparkVals) - 2] ?? 0;
-                        $diff = $lastVal - $prevVal;
-                        $dir = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'flat');
-                        $chartId = 'spark-' . \Illuminate\Support\Str::slug($trend['label']);
+    $sparkData = $trend['data'] ?? [];
+    $sparkVals = array_values($sparkData);
+    $lastVal = end($sparkVals);
+    $prevVal = $sparkVals[count($sparkVals) - 2] ?? 0;
+    $diff = $lastVal - $prevVal;
+    $dir = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'flat');
+    $chartId = 'spark-' . \Illuminate\Support\Str::slug($trend['label']);
                     @endphp
                     <div class="mb-4 last:mb-0">
                         <div class="flex items-center justify-between text-xs mb-1">

@@ -8,7 +8,11 @@ use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Modules\WfmModule\Models\AbsenceReasonCode;
+use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\OperationalSetting;
+use App\Modules\WfmModule\Models\ScheduleException;
+use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Illuminate\Support\Facades\DB;
@@ -127,7 +131,7 @@ class Dashboard extends Component
         $opSettings = OperationalSetting::pluck('value', 'key')->toArray();
         $coverageGoal = (int) ($opSettings['goal_coverage'] ?? 80);
 
-        $queues = $realtimeRepo->getQueueStats(6);
+        $queues = $realtimeRepo->getQueueStats(0);
 
         $incidentQuery = AttendanceIncident::query();
         $incidents = [
@@ -226,12 +230,73 @@ class Dashboard extends Component
         $nextRiskTime = $nextRisk ? $nextRisk['hour'].':00' : '--:--';
         $nextRiskCoverage = $nextRisk ? $nextRisk['available'].'%' : '--%';
 
-        $stateDistribution = $realtimeRepo->getStateDistribution($employeeIds);
+        $allEmployees = Employee::where('is_active', true)->get();
+
+        $connectedIds = $states->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])->pluck('employee_id')->toArray();
+
+        $leaveEmpIds = LeaveRequest::whereDate('start_time', '<=', $today)
+            ->whereDate('end_time', '>=', $today)
+            ->where('status', 'approved')
+            ->pluck('employee_id')
+            ->toArray();
+
+        $excusedIds = ScheduleException::whereDate('start_at', '<=', $today)
+            ->whereDate('end_at', '>=', $today)
+            ->whereHas('reason', fn ($q) => $q->where('is_excused', true))
+            ->pluck('employee_id')
+            ->toArray();
+
+        $vacacionesReasonId = AbsenceReasonCode::where('short_code', 'V.')->value('id');
+        $vacacionesIds = ScheduleException::whereDate('start_at', '<=', $today)
+            ->whereDate('end_at', '>=', $today)
+            ->where('absence_reason_code_id', $vacacionesReasonId)
+            ->pluck('employee_id')
+            ->toArray();
+
+        $unexcusedIds = ScheduleException::whereDate('start_at', '<=', $today)
+            ->whereDate('end_at', '>=', $today)
+            ->whereHas('reason', fn ($q) => $q->where('is_excused', false))
+            ->pluck('employee_id')
+            ->toArray();
+
+        $scheduledIds = WeeklyScheduleAssignment::where('day_of_week', $now->dayOfWeekIso)
+            ->whereHas('weeklySchedule', fn ($q) => $q
+                ->where('week_start_date', '<=', $today)
+                ->where('week_end_date', '>=', $today)
+            )
+            ->pluck('employee_id')
+            ->toArray();
+
+        $presentes = 0;
+        $permisos = 0;
+        $vacaciones = 0;
+        $licencias = 0;
+        $ausentes = 0;
+        $fueraDeTurno = 0;
+
+        foreach ($allEmployees as $emp) {
+            if (in_array($emp->id, $connectedIds)) {
+                $presentes++;
+            } elseif (in_array($emp->id, $leaveEmpIds)) {
+                $permisos++;
+            } elseif (in_array($emp->id, $vacacionesIds)) {
+                $vacaciones++;
+            } elseif (in_array($emp->id, $excusedIds)) {
+                $licencias++;
+            } elseif (in_array($emp->id, $scheduledIds) || in_array($emp->id, $unexcusedIds)) {
+                $ausentes++;
+            } else {
+                $fueraDeTurno++;
+            }
+        }
+
         $distribution = [
-            ['label' => 'Operando', 'value' => $stateDistribution['operating']],
-            ['label' => 'Ready', 'value' => $stateDistribution['ready']],
-            ['label' => 'Auxiliar', 'value' => $stateDistribution['auxiliar']],
-            ['label' => 'Offline', 'value' => $stateDistribution['offline']],
+            ['label' => 'Presentes', 'value' => $presentes],
+            ['label' => 'Permisos', 'value' => $permisos],
+            ['label' => 'Vacaciones', 'value' => $vacaciones],
+            ['label' => 'Licencias', 'value' => $licencias],
+            ['label' => 'Ausentes', 'value' => $ausentes],
+            ['label' => 'Fuera de turno', 'value' => $fueraDeTurno],
         ];
 
         $coverageChartOptions = json_encode([
@@ -241,7 +306,7 @@ class Dashboard extends Component
                 ['name' => 'Disponible', 'data' => $coverageSeries->pluck('available')->toArray()],
             ],
             'xaxis' => ['categories' => $coverageSeries->pluck('hour')->toArray(), 'labels' => ['style' => ['fontSize' => '10px']]],
-            'yaxis' => ['min' => 0, 'max' => 100, 'labels' => ['formatter' => 'function(v){return v+"%"}']],
+            'yaxis' => ['min' => 0, 'labels' => ['formatter' => 'function(v){return v+"%"}'], 'forceNiceScale' => true],
             'colors' => ['#94a3b8', '#3b82f6'],
             'fill' => ['opacity' => [0.12, 0.15]],
             'stroke' => ['width' => [2, 2], 'dashArray' => [4, 0], 'curve' => 'smooth'],
@@ -250,7 +315,7 @@ class Dashboard extends Component
             'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px', 'markers' => ['width' => 8, 'height' => 8]],
         ]);
 
-        $donutColors = ['#3b82f6', '#22c55e', '#f59e0b', '#94a3b8'];
+        $donutColors = ['#22c55e', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444', '#94a3b8'];
         $donutChartOptions = json_encode([
             'chart' => ['type' => 'donut', 'toolbar' => ['show' => false], 'fontFamily' => 'inherit'],
             'series' => array_column($distribution, 'value'),

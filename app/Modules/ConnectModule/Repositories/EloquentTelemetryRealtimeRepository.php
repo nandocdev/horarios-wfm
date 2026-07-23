@@ -64,9 +64,13 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
 
     public function getQueueStats(int $limit = 6): Collection
     {
-        return CsqRealtimeStat::orderByDesc('calls_waiting')
-            ->take($limit)
-            ->get()
+        $query = CsqRealtimeStat::orderByDesc('calls_waiting');
+
+        if ($limit > 0) {
+            $query->take($limit);
+        }
+
+        return $query->get()
             ->map(fn ($q): array => [
                 'name' => $q->csq_name,
                 'waiting' => $q->calls_waiting,

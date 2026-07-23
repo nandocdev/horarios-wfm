@@ -64,6 +64,7 @@ use App\Shared\Contracts\WfmModule\ScheduleValidationInterface;
 use App\Shared\Events\LeaveRequestCreated;
 use App\Shared\Events\LeaveRequestDecision;
 use App\Shared\Events\ShiftSwapApproved;
+use App\Shared\Events\ShiftSwapRejected;
 use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -142,6 +143,10 @@ class ModuleServiceProvider extends ServiceProvider
         Event::listen(
             ShiftSwapApproved::class,
             [SendShiftSwapNotification::class, 'handleShiftSwapApproved']
+        );
+        Event::listen(
+            ShiftSwapRejected::class,
+            [SendShiftSwapNotification::class, 'handleShiftSwapRejected']
         );
         Event::listen(
             LeaveRequestCreated::class,

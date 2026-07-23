@@ -6,8 +6,10 @@ namespace App\Modules\WfmModule\Listeners;
 
 use App\Modules\WfmModule\Notifications\ShiftSwapApprovedNotification;
 use App\Modules\WfmModule\Notifications\SwapRequestNotification;
+use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
 use App\Shared\DTOs\NotificationDTO;
 use App\Shared\Events\ShiftSwapApproved;
+use App\Shared\Events\ShiftSwapRejected;
 use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -69,6 +71,32 @@ class SendShiftSwapNotification implements ShouldQueue
 
         if ($swap->recipient?->user) {
             $swap->recipient->user->notify(new ShiftSwapApprovedNotification($dto));
+        }
+    }
+
+    public function handleShiftSwapRejected(ShiftSwapRejected $event): void
+    {
+        $swap = $event->shiftSwap;
+
+        $dateRange = $swap->start_date->format('d/m/Y');
+        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
+            $dateRange .= ' al '.$swap->end_date->format('d/m/Y');
+        }
+
+        $dto = new NotificationDTO(
+            title: 'Cambio de Turno Rechazado',
+            message: "El intercambio de turno para el periodo {$dateRange} ha sido rechazado. Motivo: {$event->reason}",
+            actionUrl: route('schedules.swap-history'),
+            icon: 'x-circle',
+            level: 'danger',
+        );
+
+        if ($swap->requester?->user) {
+            $swap->requester->user->notify(new SwapStatusChangedNotification($dto));
+        }
+
+        if ($swap->recipient?->user) {
+            $swap->recipient->user->notify(new SwapStatusChangedNotification($dto));
         }
     }
 }

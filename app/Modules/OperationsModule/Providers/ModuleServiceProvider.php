@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Providers;
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
 use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
 use App\Modules\OperationsModule\Listeners\SendAdherenceAlertNotification;
+use App\Modules\OperationsModule\Listeners\SendAttendanceIncidentNotification;
 use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
 use App\Modules\OperationsModule\Livewire\AgentPerformanceDashboard;
 use App\Modules\OperationsModule\Livewire\AgentRealtimeCard;
@@ -36,6 +37,7 @@ use App\Modules\OperationsModule\Services\AgentPerformanceService;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use App\Shared\Events\AdherenceAlertTriggered;
+use App\Shared\Events\AttendanceIncidentRegistered;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -108,6 +110,10 @@ class ModuleServiceProvider extends ServiceProvider
         Event::listen(
             AdherenceAlertTriggered::class,
             SendAdherenceAlertNotification::class,
+        );
+        Event::listen(
+            AttendanceIncidentRegistered::class,
+            SendAttendanceIncidentNotification::class,
         );
     }
 }

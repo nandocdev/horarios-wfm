@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Enums\AbsenceReasonType;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Modules\WfmModule\Actions\GenerateFormPdfAction;
+use App\Modules\WfmModule\DTOs\AbsenceReportDTO;
 use App\Modules\WfmModule\Livewire\Forms\ExceptionForm;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ScheduleException;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -77,6 +81,60 @@ class ManageScheduleExceptions extends Component
         }
 
         $this->showCreateModal = false;
+    }
+
+    public function downloadF1(int $id, GenerateFormPdfAction $action)
+    {
+        $exception = ScheduleException::with(['employee.reason', 'reason'])->findOrFail($id);
+
+        $employee = $exception->employee;
+        $start = $exception->start_at;
+
+        $report = new AbsenceReportDTO(
+            employee_number: $employee?->employee_number ?? '__________',
+            absence_start_date: Carbon::parse($start),
+            absence_total_days: $exception->is_full_day ? 1 : max(1, (int) ceil($start->diffInMinutes($exception->end_at) / 480)),
+            employee_position: $employee?->position?->name ?? '__________',
+            cip_number: $employee?->metadata['cip'] ?? '',
+            base_salary: (float) ($employee?->salary ?? 0),
+            salary_supplement: 0.0,
+            is_justified: $exception->reason?->is_excused ?? false,
+            reason_type: $this->resolveReasonType($exception),
+            medical_certificate_attached: in_array($exception->absence_reason_code_id, [5, 6]),
+            has_witnesses: false,
+            observations: $exception->remarks ?? '',
+            department_head_name: $employee?->manager?->full_name ?? '____________________',
+            executive_unit: $employee?->team?->name ?? '____________________',
+            discount_code: null,
+            discount_description: null,
+            discount_amount: null,
+            discount_balance: null,
+            accountant_name: '____________________',
+            discount_biweekly_authorized: false,
+        );
+
+        return $action->execute(
+            data: ['report' => $report],
+            view: 'pdf::forms.leave-request',
+            title: 'Reporte de Inasistencia - '.$report->employee_number,
+        );
+    }
+
+    private function resolveReasonType(ScheduleException $exception): AbsenceReasonType
+    {
+        $shortCode = $exception->reason?->short_code ?? '';
+
+        return match ($shortCode) {
+            'C.M.', 'S.C.' => AbsenceReasonType::CommonIllness,
+            'R.P.' => AbsenceReasonType::OccupationalRisk,
+            'D.' => AbsenceReasonType::Bereavement,
+            default => AbsenceReasonType::Other,
+        };
+    }
+
+    public static function isAbsenceReason(string $shortCode): bool
+    {
+        return ! in_array($shortCode, ['T.I.', 'T.J.', 'V.', 'L.', 'S.D', 'R']);
     }
 
     public function delete(int $id): void

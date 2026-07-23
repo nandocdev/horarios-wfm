@@ -131,12 +131,18 @@
                             </flux:badge>
                         </flux:table.cell>
                         <flux:table.cell align="end" class="py-2">
-                            <div class="flex justify-end gap-2">
-                                <flux:button wire:click="edit({{ $exception->id }})" variant="ghost" size="sm" icon="pencil-square" />
-                                <flux:button wire:confirm="{{ __('¿Seguro que desea eliminar esta excepción?') }}"
-                                    wire:click="delete({{ $exception->id }})"
-                                    variant="ghost" size="sm" icon="trash" class="text-red-500 hover:text-red-600" />
-                            </div>
+                            <flux:dropdown>
+                                <flux:button variant="subtle" size="sm" icon="ellipsis-horizontal" />
+                                <flux:menu>
+                                    <flux:menu.item wire:click="edit({{ $exception->id }})" icon="pencil-square">{{ __('Editar') }}</flux:menu.item>
+                                    @php $shortCode = $exception->reason?->short_code ?? ''; @endphp
+                                    @if(!in_array($shortCode, ['T.I.', 'T.J.', 'V.', 'L.', 'S.D', 'R']))
+                                        <flux:menu.item wire:click="downloadF1({{ $exception->id }})" icon="arrow-down-tray">{{ __('Generar F1') }}</flux:menu.item>
+                                    @endif
+                                    <flux:menu.separator />
+                                    <flux:menu.item wire:click="delete({{ $exception->id }})" wire:confirm="{{ __('¿Seguro que desea eliminar esta excepción?') }}" variant="danger" icon="trash">{{ __('Eliminar') }}</flux:menu.item>
+                                </flux:menu>
+                            </flux:dropdown>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

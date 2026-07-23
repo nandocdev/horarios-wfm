@@ -1,20 +1,26 @@
-<table>
+{{-- resources/views/pdf/partials/header.blade.php --}}
+<table class="no-border">
     <tr>
-        <td style="width:85px; text-align:center; vertical-align:middle; border:1px solid #000; padding:4px;">
-            @isset($logo)
-                <img src="{{ $logo }}" alt="Logo" style="width:60px;">
-            @endisset
+        <td style="width: 15%;">
+            <img src="{{ public_path('images/css-logo.png') }}" style="width: 60px;">
         </td>
-        <td style="border-top:1px solid #000; border-bottom:1px solid #000; vertical-align:middle; text-align:center; padding:6px;">
-            <div style="font-size:11pt; font-weight:bold;">{{ $institution }}</div>
-            <div style="font-size:10pt;">{{ $department }}</div>
+        <td style="width: 70%; text-align: center;">
+            <strong style="font-size: 13px;">CAJA DE SEGURO SOCIAL</strong><br>
+            <strong>DIRECCIÓN DE PERSONAL</strong><br>
+            <strong>REPORTE DE INASISTENCIA</strong>
+        </td>
+        <td style="width: 15%; text-align: right;" class="small">
+            F-1<br>
+            Cód. 02-968-22
         </td>
     </tr>
 </table>
-<table style="margin-top:4px;">
+
+<table class="no-border mt-2">
     <tr>
-        <td style="border:1px solid #000; text-align:center; font-weight:bold; font-size:12pt; padding:8px;">
-            {{ $formTitle }}
+        <td>
+            Panamá, de <span class="field-line">{{ $report->absence_start_date->translatedFormat('F') }}</span>
+            de <span class="field-line">{{ $report->absence_start_date->format('Y') }}</span>
         </td>
     </tr>
 </table>

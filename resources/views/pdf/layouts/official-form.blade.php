@@ -1,83 +1,81 @@
+{{-- resources/views/pdf/layouts/official-form.blade.php --}}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>@yield('title', 'Formulario Oficial')</title>
     <style>
         @page {
-            margin: 12mm;
-            size: A4 portrait;
+            margin: 25px 30px;
         }
 
-        * { box-sizing: border-box; }
-
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 10pt;
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 10px;
             color: #000;
-            line-height: 1.2;
         }
 
         table {
-            width: 100%;
             border-collapse: collapse;
+            width: 100%;
         }
 
-        td, th {
-            vertical-align: top;
-            padding: 3px;
-        }
-
-        .page { width: 100%; }
-        .header { margin-bottom: 6mm; }
-        .content { width: 100%; }
-        .footer { margin-top: 6mm; }
-
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .text-bold { font-weight: bold; }
-
-        .borders { border: 1px solid #000; }
-        .border { border: 1px solid #000; }
-        .border-top { border-top: 1px solid #000; }
-        .border-bottom { border-bottom: 1px solid #000; }
-        .border-left { border-left: 1px solid #000; }
-        .border-right { border-right: 1px solid #000; }
-        .no-border { border: none; }
-
-        .field {
-            border-bottom: 1px solid #000;
-            height: 18px;
+        .form-container {
+            border: 1.5px solid #000;
+            padding: 10px;
         }
 
         .checkbox {
-            font-size: 14pt;
-            font-family: DejaVu Sans, sans-serif;
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: bold;
+            line-height: 14px;
         }
 
-        .signature-line {
+        .field-line {
             border-bottom: 1px solid #000;
-            height: 45px;
-            margin-bottom: 6px;
+            display: inline-block;
+            min-width: 150px;
         }
 
-        @stack('styles')
+        .no-border td,
+        .no-border th {
+            border: none;
+        }
+
+        .bordered td,
+        .bordered th {
+            border: 1px solid #000;
+            padding: 4px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .small {
+            font-size: 8px;
+        }
+
+        .mt-1 {
+            margin-top: 4px;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
     </style>
-    @stack('styles')
 </head>
+
 <body>
-<div class="page">
-    @hasSection('header')
-        <div class="header">@yield('header')</div>
-    @endif
-
-    <div class="content">@yield('content')</div>
-
-    @hasSection('footer')
-        <div class="footer">@yield('footer')</div>
-    @endif
-</div>
+    <div class="form-container">
+        @yield('content')
+    </div>
 </body>
+
 </html>

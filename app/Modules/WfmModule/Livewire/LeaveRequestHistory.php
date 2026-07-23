@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Enums\AbsenceReasonType;
 use App\Modules\WfmModule\Actions\GenerateFormPdfAction;
+use App\Modules\WfmModule\DTOs\AbsenceReportDTO;
 use App\Modules\WfmModule\Models\LeaveRequest;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -30,27 +33,42 @@ class LeaveRequestHistory extends Component
     {
         $leave = LeaveRequest::with('employee')->findOrFail($leaveId);
 
-        $data = [
-            'days' => round($leave->minutes / 480, 1),
-            'employeeName' => $leave->employee?->full_name ?? '—',
-            'employeeNumber' => $leave->employee?->employee_number ?? '—',
-            'position' => $leave->employee?->position?->name ?? '—',
-            'salary' => $leave->employee?->salary ?? '—',
-            'bonus' => '',
-            'isJustified' => $leave->status === 'approved',
-            'reason' => match ($leave->type) {
-                'enfermedad' => 'enfermedad',
-                'compensatorio' => 'comun',
-                default => 'otro',
-            },
-            'hasCertificate' => $leave->type === 'enfermedad',
-            'hasDocuments' => true,
-            'hasRestCertificate' => false,
-            'observations' => $leave->reason,
-            'date' => $leave->created_at?->format('d/m/Y') ?? now()->format('d/m/Y'),
-        ];
+        $employee = $leave->employee;
 
-        return $action->execute($data, 'pdf::forms.leave-request', 'Formulario_Inasistencia');
+        $report = new AbsenceReportDTO(
+            employee_number: $employee?->employee_number ?? '__________',
+            absence_start_date: Carbon::parse($leave->start_time),
+            absence_total_days: max(1, (int) ceil($leave->minutes / 480)),
+            employee_position: $employee?->position?->name ?? '__________',
+            cip_number: $employee?->metadata['cip'] ?? '',
+            base_salary: (float) ($employee?->salary ?? 0),
+            salary_supplement: 0.0,
+            is_justified: $leave->status === 'approved',
+            reason_type: match ($leave->type) {
+                'enfermedad' => AbsenceReasonType::CommonIllness,
+                'compensatorio' => AbsenceReasonType::CommonIllness,
+                'duelo' => AbsenceReasonType::Bereavement,
+                'nacimiento' => AbsenceReasonType::ChildBirth,
+                default => AbsenceReasonType::Other,
+            },
+            medical_certificate_attached: $leave->type === 'enfermedad',
+            has_witnesses: false,
+            observations: $leave->reason ?? '',
+            department_head_name: $employee?->manager?->full_name ?? '____________________',
+            executive_unit: $employee?->team?->name ?? '____________________',
+            discount_code: null,
+            discount_description: null,
+            discount_amount: null,
+            discount_balance: null,
+            accountant_name: '____________________',
+            discount_biweekly_authorized: false,
+        );
+
+        return $action->execute(
+            data: ['report' => $report],
+            view: 'pdf::forms.leave-request',
+            title: 'Reporte de Inasistencia - '.$report->employee_number,
+        );
     }
 
     public function cancelLeave($leaveId)

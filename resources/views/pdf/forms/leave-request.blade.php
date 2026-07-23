@@ -1,165 +1,110 @@
+{{-- resources/views/pdf/forms/leave-request.blade.php --}}
 @extends('pdf.layouts.official-form')
 
-@section('title', 'Formulario para Justificación de Inasistencia')
-
-@section('header')
-    @include('pdf.partials.header', [
-        'logo'        => $logo ?? public_path('img/logo_full.png'),
-        'institution' => 'CAJA DE SEGURO SOCIAL',
-        'department'  => 'Dirección Ejecutiva Nacional de Recursos Humanos',
-        'formTitle'   => 'FORMULARIO PARA JUSTIFICACIÓN DE INASISTENCIA',
-    ])
-@endsection
+@section('title', 'Reporte de Inasistencia - ' . $report->employee_number)
 
 @section('content')
+    @include('pdf.partials.header', ['report' => $report])
 
-    {{-- Fecha --}}
-    <table>
+    <p class="mt-2">Señor Jefe del Departamento de Ingresos Cambios y Separaciones:</p>
+
+    <p>
+        Cúmpleme llevar a su conocimiento, que el (los) día(s)
+        <span class="field-line" style="min-width: 300px;">{{ $report->absence_start_date->format('d/m/Y') }}</span>
+        TOTAL DIA(S) <span class="field-line" style="min-width: 60px;">{{ $report->absence_total_days }}</span>
+    </p>
+
+    <p>dejó de asistir a sus labores el siguiente servidor público:</p>
+
+    <table class="no-border">
         <tr>
-            <td style="width:82%; border:none;"></td>
-            <td style="width:18%; border:1px solid #000; text-align:center;">Fecha: {{ $date ?? '__________' }}</td>
+            <td style="width: 60%;">Cargo: <span class="field-line" style="min-width: 250px;">{{ $report->employee_position }}</span></td>
+            <td style="width: 40%;">No. de Empleado: <span class="field-line">{{ $report->employee_number }}</span></td>
         </tr>
     </table>
 
-    <br>
-
-    {{-- Datos del funcionario --}}
-    <table>
+    <table class="no-border mt-1">
         <tr>
-            <td class="border" style="width:18%;">Cantidad de días</td>
-            <td class="border" style="width:12%;">{{ $days ?? '__________' }}</td>
-            <td class="border" style="width:22%;">Nombre del funcionario</td>
-            <td class="border" colspan="3">{{ $employeeName ?? '______________________________________' }}</td>
-        </tr>
-        <tr>
-            <td class="border">Cargo</td>
-            <td class="border" colspan="2">{{ $position ?? '______________________' }}</td>
-            <td class="border">No. Empleado</td>
-            <td class="border">{{ $employeeNumber ?? '__________' }}</td>
-            <td class="border">C.I.P.</td>
-        </tr>
-        <tr>
-            <td class="border">Salario</td>
-            <td class="border">{{ $salary ?? '__________' }}</td>
-            <td class="border">Sobresueldo</td>
-            <td class="border">{{ $bonus ?? '__________' }}</td>
-            <td class="border"></td>
-            <td class="border"></td>
+            <td style="width: 34%;">No. de C.I.P.: <span class="field-line">{{ $report->cip_number }}</span></td>
+            <td style="width: 33%;">Sueldo Base B/. <span class="field-line">{{ number_format((float) $report->base_salary, 2) }}</span></td>
+            <td style="width: 33%;">Sobresueldo B/. <span class="field-line">{{ number_format((float) $report->salary_supplement, 2) }}</span></td>
         </tr>
     </table>
 
-    <br>
-
-    {{-- Clasificación --}}
-    <table>
+    <table class="bordered mt-2 text-center">
         <tr>
-            <td class="border" colspan="2">La ausencia es Justificada</td>
-            <td class="border" style="width:8%; text-align:center;">Sí</td>
-            <td class="border" style="width:8%; text-align:center;">
-                <span class="checkbox">{{ $isJustified === true ? '☑' : '☐' }}</span>
+            <td rowspan="2" style="width: 20%;">
+                <strong>INASISTENCIA JUSTIFICADA</strong><br><br>
+                SI <span class="checkbox">{{ $report->is_justified ? 'X' : '' }}</span>
+                &nbsp;&nbsp;
+                NO <span class="checkbox">{{ ! $report->is_justified ? 'X' : '' }}</span>
             </td>
-            <td class="border" style="width:8%; text-align:center;">No</td>
-            <td class="border" style="width:8%; text-align:center;">
-                <span class="checkbox">{{ $isJustified === false ? '☑' : '☐' }}</span>
+            <td colspan="2" style="width: 45%;"><strong>ENFERMEDAD</strong></td>
+            <td style="width: 15%;"><strong>DUELO</strong></td>
+            <td style="width: 20%;"><strong>NACIMIENTO DE HIJO</strong></td>
+        </tr>
+        <tr>
+            <td style="width: 22.5%;">
+                COMÚN<br>
+                <span class="checkbox">{{ $report->reason_type === \App\Enums\AbsenceReasonType::CommonIllness ? 'X' : '' }}</span>
             </td>
+            <td style="width: 22.5%;">
+                RIESGOS<br>
+                <span class="checkbox">{{ $report->reason_type === \App\Enums\AbsenceReasonType::OccupationalRisk ? 'X' : '' }}</span>
+            </td>
+            <td><span class="checkbox">{{ $report->reason_type === \App\Enums\AbsenceReasonType::Bereavement ? 'X' : '' }}</span></td>
+            <td><span class="checkbox">{{ $report->reason_type === \App\Enums\AbsenceReasonType::ChildBirth ? 'X' : '' }}</span></td>
         </tr>
     </table>
 
-    <br>
-
-    {{-- Motivos --}}
-    <table>
+    <table class="bordered text-center">
         <tr>
-            <td class="border" style="width:15%;">Enfermedad</td>
-            <td class="border" style="width:7%; text-align:center;">
-                <span class="checkbox">{{ $reason === 'enfermedad' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:10%;">Común</td>
-            <td class="border" style="width:7%; text-align:center;">
-                <span class="checkbox">{{ $reason === 'comun' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:18%;">Riesgo Profesional</td>
-            <td class="border" style="width:7%; text-align:center;">
-                <span class="checkbox">{{ $reason === 'riesgo_profesional' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:10%;">Accidente</td>
-            <td class="border" style="width:7%; text-align:center;">
-                <span class="checkbox">{{ $reason === 'accidente' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:15%;">Cita Médica</td>
-            <td class="border" style="width:7%; text-align:center;">
-                <span class="checkbox">{{ $reason === 'cita_medica' ? '☑' : '☐' }}</span>
-            </td>
+            <td colspan="2" style="width: 60%;"><strong>Certificado Médico adjunto al original</strong></td>
+            <td colspan="2" style="width: 40%;"><strong>Sustendadores</strong></td>
         </tr>
         <tr>
-            <td class="border">Duelo</td>
-            <td class="border" style="text-align:center;">
-                <span class="checkbox">{{ $reason === 'duelo' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border">Nacimiento</td>
-            <td class="border" style="text-align:center;">
-                <span class="checkbox">{{ $reason === 'nacimiento' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border">Matrimonio</td>
-            <td class="border" style="text-align:center;">
-                <span class="checkbox">{{ $reason === 'matrimonio' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border">Estudio</td>
-            <td class="border" style="text-align:center;">
-                <span class="checkbox">{{ $reason === 'estudio' ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border">Otro</td>
-            <td class="border" style="text-align:center;">
-                <span class="checkbox">{{ $reason === 'otro' ? '☑' : '☐' }}</span>
-            </td>
+            <td style="width: 30%;">SI <span class="checkbox">{{ $report->medical_certificate_attached === true ? 'X' : '' }}</span></td>
+            <td style="width: 30%;">NO <span class="checkbox">{{ $report->medical_certificate_attached === false ? 'X' : '' }}</span></td>
+            <td style="width: 20%;">SI <span class="checkbox">{{ $report->has_witnesses === true ? 'X' : '' }}</span></td>
+            <td style="width: 20%;">NO <span class="checkbox">{{ $report->has_witnesses === false ? 'X' : '' }}</span></td>
         </tr>
     </table>
 
-    <br>
+    <p class="mt-2">
+        <strong>Observaciones:</strong> *<br>
+        <span style="border-bottom: 1px solid #000; display: block; min-height: 14px;">{{ $report->observations }}</span>
+        <span style="border-bottom: 1px solid #000; display: block; min-height: 14px;">&nbsp;</span>
+    </p>
 
-    {{-- Evidencias --}}
-    <table>
-        <tr>
-            <td class="border" style="width:18%;">Certificado Médico</td>
-            <td class="border" style="width:10%; text-align:center;">
-                Sí <span class="checkbox">{{ $hasCertificate === true ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:10%; text-align:center;">
-                No <span class="checkbox">{{ $hasCertificate === false ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:18%;">Documentos Sustentadores</td>
-            <td class="border" style="width:10%; text-align:center;">
-                Sí <span class="checkbox">{{ $hasDocuments === true ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:10%; text-align:center;">
-                No <span class="checkbox">{{ $hasDocuments === false ? '☑' : '☐' }}</span>
-            </td>
-            <td class="border" style="width:15%;">Constancia / Reposo</td>
-            <td class="border" style="width:9%; text-align:center;">
-                Sí <span class="checkbox">{{ $hasRestCertificate === true ? '☑' : '☐' }}</span>
-            </td>
-        </tr>
-    </table>
+    <p class="mt-1">Atentamente,</p>
 
-    <br>
-
-    {{-- Observaciones --}}
-    <table>
-        <tr>
-            <td class="border" style="height:90px; vertical-align:top;">
-                <strong>Observaciones</strong>
-                <br>{{ $observations ?? '' }}
-            </td>
-        </tr>
-    </table>
-
-    {{-- Firmas --}}
     @include('pdf.partials.signature-row', [
-        'signatures' => [
-            ['label' => 'Funcionario'],
-            ['label' => 'Jefe Inmediato'],
-            ['label' => 'Unidad Ejecutora'],
+        'columns' => [
+            'Firma del Empleado',
+            'Jefe del Departamento de: ' . $report->department_head_name,
+            'Unidad Ejecutora: ' . $report->executive_unit,
         ],
     ])
 
+    @include('pdf.partials.footer')
+
+    <div style="border-top: 2px dashed #000; margin-top: 10px; padding-top: 8px;">
+        <p class="text-center"><strong>USO EXCLUSIVO DEL DEPARTAMENTO DE INGRESOS, CAMBIOS Y SEPARACIONES</strong></p>
+
+        <table class="no-border">
+            <tr>
+                <td style="width: 25%;">Clave del descuento: <span class="field-line">{{ $report->discount_code }}</span></td>
+                <td style="width: 25%;">Desc.: <span class="field-line">{{ $report->discount_description }}</span></td>
+                <td style="width: 25%;">Monto: <span class="field-line">{{ $report->discount_amount ? number_format((float) $report->discount_amount, 2) : '' }}</span></td>
+                <td style="width: 25%;">Saldo: <span class="field-line">{{ $report->discount_balance ? number_format((float) $report->discount_balance, 2) : '' }}</span></td>
+            </tr>
+        </table>
+
+        @include('pdf.partials.signature-row', [
+            'columns' => [
+                'Firma del Contador: ' . $report->accountant_name,
+                'Efectuar Descuento Quincena: ' . ($report->discount_biweekly_authorized ? 'SI' : 'NO'),
+            ],
+        ])
+    </div>
 @endsection

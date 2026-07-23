@@ -85,7 +85,7 @@ class ManageScheduleExceptions extends Component
 
     public function downloadF1(int $id, GenerateFormPdfAction $action)
     {
-        $exception = ScheduleException::with(['employee.reason', 'reason'])->findOrFail($id);
+        $exception = ScheduleException::with(['employee.position', 'employee.manager', 'employee.team', 'reason'])->findOrFail($id);
 
         $employee = $exception->employee;
         $start = $exception->start_at;

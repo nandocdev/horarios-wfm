@@ -37,6 +37,26 @@ class ManageScheduleExceptions extends Component
 
     public ?int $teamFilter = null;
 
+    public bool $showF1Preview = false;
+
+    public array $f1Data = [
+        'employee_name' => '',
+        'employee_number' => '',
+        'employee_position' => '',
+        'cip_number' => '',
+        'base_salary' => 0,
+        'salary_supplement' => 0,
+        'absence_start_date' => '',
+        'absence_total_days' => 1,
+        'is_justified' => true,
+        'reason_type' => '',
+        'medical_certificate_attached' => false,
+        'has_witnesses' => false,
+        'observations' => '',
+        'department_head_name' => '',
+        'executive_unit' => '',
+    ];
+
     /** @var string[] */
     public array $statusFilter = ['active', 'pending'];
 
@@ -83,28 +103,55 @@ class ManageScheduleExceptions extends Component
         $this->showCreateModal = false;
     }
 
-    public function downloadF1(int $id, GenerateFormPdfAction $action)
+    public function openF1Preview(int $id): void
     {
         $exception = ScheduleException::with(['employee.position', 'employee.manager', 'employee.team', 'reason'])->findOrFail($id);
 
         $employee = $exception->employee;
         $start = $exception->start_at;
 
+        $this->f1Data = [
+            'employee_name' => $employee?->full_name ?? '',
+            'employee_number' => $employee?->employee_number ?? '',
+            'employee_position' => $employee?->position?->name ?? '',
+            'cip_number' => $employee?->metadata['cip'] ?? '',
+            'base_salary' => (float) ($employee?->salary ?? 0),
+            'salary_supplement' => 0.0,
+            'absence_start_date' => $start->format('Y-m-d'),
+            'absence_total_days' => $exception->is_full_day ? 1 : max(1, (int) ceil($start->diffInMinutes($exception->end_at) / 480)),
+            'is_justified' => $exception->reason?->is_excused ?? false,
+            'reason_type' => $this->resolveReasonType($exception)->value,
+            'medical_certificate_attached' => in_array($exception->absence_reason_code_id, [5, 6]),
+            'has_witnesses' => false,
+            'observations' => $exception->remarks ?? '',
+            'department_head_name' => $employee?->manager?->full_name ?? '',
+            'executive_unit' => $employee?->team?->name ?? '',
+        ];
+
+        $this->showF1Preview = true;
+    }
+
+    public function generateF1(GenerateFormPdfAction $action)
+    {
+        $d = $this->f1Data;
+
+        $reasonType = AbsenceReasonType::tryFrom($d['reason_type']) ?? AbsenceReasonType::Other;
+
         $report = new AbsenceReportDTO(
-            employee_number: $employee?->employee_number ?? '__________',
-            absence_start_date: Carbon::parse($start),
-            absence_total_days: $exception->is_full_day ? 1 : max(1, (int) ceil($start->diffInMinutes($exception->end_at) / 480)),
-            employee_position: $employee?->position?->name ?? '__________',
-            cip_number: $employee?->metadata['cip'] ?? '',
-            base_salary: (float) ($employee?->salary ?? 0),
-            salary_supplement: 0.0,
-            is_justified: $exception->reason?->is_excused ?? false,
-            reason_type: $this->resolveReasonType($exception),
-            medical_certificate_attached: in_array($exception->absence_reason_code_id, [5, 6]),
-            has_witnesses: false,
-            observations: $exception->remarks ?? '',
-            department_head_name: $employee?->manager?->full_name ?? '____________________',
-            executive_unit: $employee?->team?->name ?? '____________________',
+            employee_number: $d['employee_number'] ?: '__________',
+            absence_start_date: Carbon::parse($d['absence_start_date']),
+            absence_total_days: (int) $d['absence_total_days'],
+            employee_position: $d['employee_position'] ?: '__________',
+            cip_number: $d['cip_number'] ?: '',
+            base_salary: (float) ($d['base_salary'] ?? 0),
+            salary_supplement: (float) ($d['salary_supplement'] ?? 0),
+            is_justified: (bool) $d['is_justified'],
+            reason_type: $reasonType,
+            medical_certificate_attached: (bool) $d['medical_certificate_attached'],
+            has_witnesses: (bool) $d['has_witnesses'],
+            observations: $d['observations'] ?? '',
+            department_head_name: $d['department_head_name'] ?: '____________________',
+            executive_unit: $d['executive_unit'] ?: '____________________',
             discount_code: null,
             discount_description: null,
             discount_amount: null,
@@ -112,6 +159,8 @@ class ManageScheduleExceptions extends Component
             accountant_name: '____________________',
             discount_biweekly_authorized: false,
         );
+
+        $this->showF1Preview = false;
 
         return $action->execute(
             data: ['report' => $report],

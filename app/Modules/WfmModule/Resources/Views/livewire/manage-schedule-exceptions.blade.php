@@ -137,7 +137,7 @@
                                     <flux:menu.item wire:click="edit({{ $exception->id }})" icon="pencil-square">{{ __('Editar') }}</flux:menu.item>
                                     @php $shortCode = $exception->reason?->short_code ?? ''; @endphp
                                     @if(!in_array($shortCode, ['T.I.', 'T.J.', 'V.', 'L.', 'S.D', 'R']))
-                                        <flux:menu.item wire:click="downloadF1({{ $exception->id }})" icon="arrow-down-tray">{{ __('Generar F1') }}</flux:menu.item>
+                                        <flux:menu.item wire:click="openF1Preview({{ $exception->id }})" icon="document-text">{{ __('Vista Previa F1') }}</flux:menu.item>
                                     @endif
                                     <flux:menu.separator />
                                     <flux:menu.item wire:click="delete({{ $exception->id }})" wire:confirm="{{ __('¿Seguro que desea eliminar esta excepción?') }}" variant="danger" icon="trash">{{ __('Eliminar') }}</flux:menu.item>
@@ -201,6 +201,110 @@
                     </flux:button>
                 </div>
             </form>
+        </div>
+    </flux:modal>
+
+    {{-- Modal Vista Previa F1 --}}
+    <flux:modal wire:model="showF1Preview" class="w-full max-w-4xl" scrollable>
+        <div class="space-y-4">
+            <div>
+                <flux:heading size="lg">{{ __('Formulario F1 — Justificación de Inasistencia') }}</flux:heading>
+                <flux:subheading>{{ __('Revise y edite los campos antes de generar el PDF.') }}</flux:subheading>
+            </div>
+
+            @php $d = $f1Data; @endphp
+
+            <div class="border border-slate-200 dark:border-zinc-700 rounded-lg p-4 bg-white text-xs space-y-3 font-sans">
+                {{-- Fecha --}}
+                <div class="text-right">Fecha: <span class="border-b border-black inline-block min-w-[120px] px-1">{{ now()->format('d/m/Y') }}</span></div>
+
+                {{-- Datos del funcionario --}}
+                <table class="w-full border-collapse border border-black text-xs">
+                    <tr>
+                        <td class="border border-black px-2 py-1 w-[18%]">Cantidad de días</td>
+                        <td class="border border-black px-2 py-1 w-[12%]"><input type="number" wire:model="f1Data.absence_total_days" class="w-full border-0 p-0 text-xs" /></td>
+                        <td class="border border-black px-2 py-1 w-[22%]">Nombre del funcionario</td>
+                        <td class="border border-black px-2 py-1" colspan="3"><input type="text" wire:model="f1Data.employee_name" class="w-full border-0 p-0 text-xs font-medium" /></td>
+                    </tr>
+                    <tr>
+                        <td class="border border-black px-2 py-1">Cargo</td>
+                        <td class="border border-black px-2 py-1" colspan="2"><input type="text" wire:model="f1Data.employee_position" class="w-full border-0 p-0 text-xs" /></td>
+                        <td class="border border-black px-2 py-1">No. Empleado</td>
+                        <td class="border border-black px-2 py-1"><input type="text" wire:model="f1Data.employee_number" class="w-full border-0 p-0 text-xs" /></td>
+                        <td class="border border-black px-2 py-1">C.I.P.</td>
+                    </tr>
+                    <tr>
+                        <td class="border border-black px-2 py-1">Salario</td>
+                        <td class="border border-black px-2 py-1"><input type="number" wire:model="f1Data.base_salary" class="w-full border-0 p-0 text-xs" step="0.01" /></td>
+                        <td class="border border-black px-2 py-1">Sobresueldo</td>
+                        <td class="border border-black px-2 py-1"><input type="number" wire:model="f1Data.salary_supplement" class="w-full border-0 p-0 text-xs" step="0.01" /></td>
+                        <td class="border border-black px-2 py-1"></td>
+                        <td class="border border-black px-2 py-1"></td>
+                    </tr>
+                </table>
+
+                {{-- Clasificación --}}
+                <table class="w-full border-collapse border border-black text-xs">
+                    <tr>
+                        <td class="border border-black px-2 py-1" colspan="2">La ausencia es Justificada</td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]">Sí</td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]">
+                            <input type="radio" wire:model="f1Data.is_justified" value="1" />
+                        </td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]">No</td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]">
+                            <input type="radio" wire:model="f1Data.is_justified" value="0" />
+                        </td>
+                    </tr>
+                </table>
+
+                {{-- Motivos --}}
+                <table class="w-full border-collapse border border-black text-xs">
+                    <tr>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]"><input type="radio" wire:model="f1Data.reason_type" value="comun" /></td>
+                        <td class="border border-black px-2 py-1 w-[15%]">Común</td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]"><input type="radio" wire:model="f1Data.reason_type" value="riesgos" /></td>
+                        <td class="border border-black px-2 py-1 w-[15%]">Riesgos Prof.</td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]"><input type="radio" wire:model="f1Data.reason_type" value="duelo" /></td>
+                        <td class="border border-black px-2 py-1 w-[10%]">Duelo</td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]"><input type="radio" wire:model="f1Data.reason_type" value="nacimiento" /></td>
+                        <td class="border border-black px-2 py-1 w-[12%]">Nacimiento</td>
+                        <td class="border border-black px-2 py-1 text-center w-[8%]"><input type="radio" wire:model="f1Data.reason_type" value="otro" /></td>
+                        <td class="border border-black px-2 py-1">Otro</td>
+                    </tr>
+                </table>
+
+                {{-- Evidencias --}}
+                <table class="w-full border-collapse border border-black text-xs">
+                    <tr>
+                        <td class="border border-black px-2 py-1 w-[18%]">Certificado Médico</td>
+                        <td class="border border-black px-2 py-1 w-[10%] text-center">
+                            Sí <input type="radio" wire:model="f1Data.medical_certificate_attached" value="1" />
+                            No <input type="radio" wire:model="f1Data.medical_certificate_attached" value="0" />
+                        </td>
+                        <td class="border border-black px-2 py-1 w-[18%]">Sustentadores</td>
+                        <td class="border border-black px-2 py-1 text-center">
+                            Sí <input type="radio" wire:model="f1Data.has_witnesses" value="1" />
+                            No <input type="radio" wire:model="f1Data.has_witnesses" value="0" />
+                        </td>
+                        <td class="border border-black px-2 py-1 w-[15%]">Jefe Depto.</td>
+                        <td class="border border-black px-2 py-1"><input type="text" wire:model="f1Data.department_head_name" class="w-full border-0 p-0 text-xs" /></td>
+                        <td class="border border-black px-2 py-1 w-[12%]">Unidad Ejec.</td>
+                        <td class="border border-black px-2 py-1"><input type="text" wire:model="f1Data.executive_unit" class="w-full border-0 p-0 text-xs" /></td>
+                    </tr>
+                </table>
+
+                {{-- Observaciones --}}
+                <div>
+                    <strong>Observaciones:</strong>
+                    <textarea wire:model="f1Data.observations" rows="2" class="w-full border border-black rounded px-2 py-1 text-xs mt-1"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2 border-t border-slate-200 dark:border-zinc-700">
+                <flux:button variant="ghost" wire:click="$set('showF1Preview', false)">{{ __('Cancelar') }}</flux:button>
+                <flux:button wire:click="generateF1" variant="primary" icon="arrow-down-tray">{{ __('Generar PDF') }}</flux:button>
+            </div>
         </div>
     </flux:modal>
 </div>

@@ -136,10 +136,10 @@
                                 <tbody>
                                     @foreach($d['queue_performance'] as $qp)
                                         <tr class="border-t border-slate-100 dark:border-slate-800">
-                                            <td class="py-1.5 font-medium">{{ $qp['queue_name'] ?? '—' }}</td>
-                                            <td class="py-1.5 text-right">{{ $qp['total_offered'] ?? 0 }}</td>
+                                            <td class="py-1.5 font-medium">{{ $qp->queue_name ?? '—' }}</td>
+                                            <td class="py-1.5 text-right">{{ $qp->total_offered ?? 0 }}</td>
                                             <td class="py-1.5 text-right font-mono">
-                                                {{ $qp['avg_aht'] ? gmdate('i:s', (int) $qp['avg_aht']) : '--:--' }}
+                                                {{ $qp->avg_aht ? gmdate('i:s', (int) $qp->avg_aht) : '--:--' }}
                                             </td>
                                         </tr>
                                     @endforeach

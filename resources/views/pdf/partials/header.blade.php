@@ -1,7 +1,7 @@
 <table class="no-border">
     <tr>
         <td style="width:15%; text-align:center; vertical-align:middle;">
-            <img src="{{ $logo ?? public_path('img/logo_full.png') }}" style="width:55px;">
+            <img src="{{  public_path('img/logocss.png') }}" style="width:55px;">
         </td>
         <td style="width:70%; text-align:center; vertical-align:middle;">
             <div style="font-size:12pt; font-weight:bold;">CAJA DE SEGURO SOCIAL</div>
@@ -14,3 +14,4 @@
         </td>
     </tr>
 </table>
+<br>

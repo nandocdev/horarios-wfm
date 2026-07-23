@@ -10,7 +10,7 @@
 
 @php
 $classes = Flux::classes()
-    ->add('py-3 px-3 first:ps-0 last:pe-0')
+    ->add('py-3 px-3')
     ->add('text-start text-sm font-medium text-zinc-800 dark:text-white')
     ->add('border-b border-zinc-800/10 dark:border-white/20')
     ->add(match($align) {

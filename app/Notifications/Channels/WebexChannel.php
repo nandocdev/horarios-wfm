@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications\Channels;
 
+use App\Modules\CoreModule\Models\User;
 use App\Services\WebexService;
 use Illuminate\Notifications\Notification;
 
@@ -21,18 +22,20 @@ class WebexChannel
             return;
         }
 
+        $payload = [];
+
         if (is_string($message)) {
-            $this->webex->sendText($message);
-
-            return;
+            $payload['text'] = $message;
+        } elseif (isset($message['markdown'])) {
+            $payload['markdown'] = $message['markdown'];
+        } else {
+            $payload['text'] = $message['text'] ?? '';
         }
 
-        if (isset($message['markdown'])) {
-            $this->webex->sendMarkdown($message['markdown']);
-
-            return;
+        if ($notifiable instanceof User && $notifiable->email) {
+            $payload['toPersonEmail'] = $notifiable->email;
         }
 
-        $this->webex->sendText($message['text'] ?? '');
+        $this->webex->sendDirect($payload);
     }
 }

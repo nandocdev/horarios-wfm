@@ -43,6 +43,11 @@ class WebexService
         return $this->sendMarkdown("**<@all>** {$message}", $roomId);
     }
 
+    public function sendDirect(array $payload): ?array
+    {
+        return $this->send($payload);
+    }
+
     private function send(array $payload): ?array
     {
         if (empty($this->token)) {
@@ -51,12 +56,17 @@ class WebexService
             return null;
         }
 
-        $targetRoom = $payload['roomId'] ?? $this->roomId;
+        $hasRoom = ! empty($payload['roomId'] ?? $this->roomId);
+        $hasPerson = ! empty($payload['toPersonEmail'] ?? $payload['toPersonId'] ?? null);
 
-        if (empty($targetRoom)) {
-            Log::warning('WebexService: Room ID no configurado.');
+        if (! $hasRoom && ! $hasPerson) {
+            Log::warning('WebexService: Sin destino — roomId ni toPersonEmail configurados.');
 
             return null;
+        }
+
+        if (! isset($payload['roomId'])) {
+            $payload['roomId'] = $this->roomId;
         }
 
         try {
@@ -72,7 +82,8 @@ class WebexService
             Log::error('WebexService: Error enviando mensaje', [
                 'status' => $response->status(),
                 'response' => $response->body(),
-                'roomId' => $targetRoom,
+                'roomId' => $payload['roomId'] ?? null,
+                'toPersonEmail' => $payload['toPersonEmail'] ?? null,
             ]);
 
             return null;

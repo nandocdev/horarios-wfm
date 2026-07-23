@@ -9,6 +9,8 @@ use App\Modules\WfmModule\Console\Commands\CalculateDailyReports;
 use App\Modules\WfmModule\Console\Commands\CleanExpiredTemporalAssignments;
 use App\Modules\WfmModule\Listeners\ApplyShiftSwapToSchedule;
 use App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved;
+use App\Modules\WfmModule\Listeners\SendLeaveRequestNotification;
+use App\Modules\WfmModule\Listeners\SendShiftSwapNotification;
 use App\Modules\WfmModule\Livewire\EmployeeWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\ManageAbsenceReasons;
 use App\Modules\WfmModule\Livewire\ManageActivityTypes;
@@ -59,7 +61,10 @@ use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Contracts\Schedules\ShiftSwapServiceInterface;
 use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use App\Shared\Contracts\WfmModule\ScheduleValidationInterface;
+use App\Shared\Events\LeaveRequestCreated;
+use App\Shared\Events\LeaveRequestDecision;
 use App\Shared\Events\ShiftSwapApproved;
+use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -129,6 +134,22 @@ class ModuleServiceProvider extends ServiceProvider
         Event::listen(
             ShiftSwapApproved::class,
             [NotifyShiftSwapApproved::class, 'handle']
+        );
+        Event::listen(
+            ShiftSwapRequested::class,
+            [SendShiftSwapNotification::class, 'handleShiftSwapRequested']
+        );
+        Event::listen(
+            ShiftSwapApproved::class,
+            [SendShiftSwapNotification::class, 'handleShiftSwapApproved']
+        );
+        Event::listen(
+            LeaveRequestCreated::class,
+            [SendLeaveRequestNotification::class, 'handleLeaveRequestCreated']
+        );
+        Event::listen(
+            LeaveRequestDecision::class,
+            [SendLeaveRequestNotification::class, 'handleLeaveRequestDecision']
         );
 
         $this->registerCommands();

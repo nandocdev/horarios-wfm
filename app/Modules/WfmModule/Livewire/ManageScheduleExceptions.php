@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Livewire\Forms\ExceptionForm;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ScheduleException;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -29,6 +31,8 @@ class ManageScheduleExceptions extends Component
 
     public string $reasonFilter = '';
 
+    public ?int $teamFilter = null;
+
     /** @var string[] */
     public array $statusFilter = ['active', 'pending'];
 
@@ -36,6 +40,12 @@ class ManageScheduleExceptions extends Component
     {
         $this->dateFrom = now()->startOfMonth()->toDateString();
         $this->dateTo = now()->endOfMonth()->toDateString();
+
+        $user = Auth::user();
+        $employee = $user->employee;
+        if ($employee && $employee->team_id) {
+            $this->teamFilter = $employee->team_id;
+        }
     }
 
     public function create(): void
@@ -82,6 +92,8 @@ class ManageScheduleExceptions extends Component
 
     public function render()
     {
+        $user = Auth::user();
+        $employee = $user->employee;
         $now = now();
 
         $exceptions = ScheduleException::query()
@@ -93,6 +105,7 @@ class ManageScheduleExceptions extends Component
                         ->orWhere('username', 'ilike', '%'.$this->search.'%');
                 });
             })
+            ->when($this->teamFilter, fn ($q) => $q->whereHas('employee', fn ($sq) => $sq->where('team_id', $this->teamFilter)))
             ->when($this->dateFrom, fn ($q) => $q->whereDate('end_at', '>=', $this->dateFrom))
             ->when($this->dateTo, fn ($q) => $q->whereDate('start_at', '<=', $this->dateTo))
             ->when($this->reasonFilter, fn ($q) => $q->where('absence_reason_code_id', $this->reasonFilter))
@@ -115,10 +128,15 @@ class ManageScheduleExceptions extends Component
             ->orderBy('start_at', 'desc')
             ->paginate(15);
 
+        $managedTeams = $user->hasRole(['admin', 'wfm', 'director'])
+            ? Team::active()->orderBy('name')->get()
+            : Team::whereIn('id', $employee?->getManagedTeamIds() ?? [])->active()->orderBy('name')->get();
+
         return view('wfm::livewire.manage-schedule-exceptions', [
             'exceptions' => $exceptions,
             'employees' => Employee::active()->orderBy('first_name')->get(),
             'reasons' => AbsenceReasonCode::all(),
+            'managedTeams' => $managedTeams,
             'now' => $now,
         ]);
     }

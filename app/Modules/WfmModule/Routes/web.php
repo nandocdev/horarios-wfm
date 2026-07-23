@@ -12,7 +12,6 @@ use App\Modules\WfmModule\Livewire\ManageIntradayActivities;
 use App\Modules\WfmModule\Livewire\ManagerApprovals;
 use App\Modules\WfmModule\Livewire\ManageScheduledActivities;
 use App\Modules\WfmModule\Livewire\ManageScheduleExceptions;
-use App\Modules\WfmModule\Livewire\ManageScheduleExceptions;
 use App\Modules\WfmModule\Livewire\ManageSchedules;
 use App\Modules\WfmModule\Livewire\MyDay;
 use App\Modules\WfmModule\Livewire\MySchedule;

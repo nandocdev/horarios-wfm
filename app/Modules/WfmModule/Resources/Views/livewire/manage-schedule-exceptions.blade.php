@@ -13,6 +13,16 @@
     <flux:card class="p-4 bg-slate-50/50">
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <flux:field class="flex-1">
+                <flux:label>{{ __('Equipo') }}</flux:label>
+                <flux:select wire:model.live="teamFilter" placeholder="{{ __('Todos') }}">
+                    <flux:select.option value="">{{ __('Todos los equipos') }}</flux:select.option>
+                    @foreach($managedTeams as $team)
+                        <flux:select.option value="{{ $team->id }}">{{ $team->name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+            </flux:field>
+
+            <flux:field class="flex-1">
                 <flux:label>{{ __('Buscar empleado') }}</flux:label>
                 <flux:input wire:model.live.debounce.300ms="search" placeholder="{{ __('Nombre o usuario...') }}" icon="magnifying-glass" />
             </flux:field>

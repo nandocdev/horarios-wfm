@@ -11,6 +11,7 @@ use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Enums\NotificationType;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -108,10 +109,21 @@ class WfmSwapApprovals extends Component
             $request = $action->execute((int) $requestId, $employee->id, $reason);
 
             $dto = new NotificationDTO(
-                title: 'Intercambio de Turno Rechazado',
-                message: "Tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')} ha sido rechazada por el supervisor. Motivo: {$reason}",
+                title: 'Intercambio rechazado',
+                message: "Tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')} ha sido rechazada por el supervisor.",
+                summary: 'La solicitud no fue aprobada.',
                 actionUrl: route('schedules.swap-history'),
-                level: 'danger'
+                icon: 'x-circle',
+                level: 'danger',
+                notificationType: NotificationType::ShiftSwapRejected->value,
+                facts: [
+                    ['label' => 'Periodo', 'value' => $request->start_date->format('d/m/Y')],
+                    ['label' => 'Motivo', 'value' => $reason],
+                    ['label' => 'Estado', 'value' => 'Rechazado'],
+                ],
+                recommendation: 'Puedes crear una nueva solicitud para otra fecha.',
+                resourceType: 'shift_swap',
+                resourceId: (string) $request->id,
             );
 
             if ($request->requester?->user) {

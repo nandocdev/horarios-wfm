@@ -11,6 +11,7 @@ use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Notifications\ScheduleModifiedNotification;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Enums\NotificationType;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -161,11 +162,21 @@ class EmployeeWeeklyPlanning extends Component
         }
 
         if ($this->week->status === 'published' && $this->employee->user) {
+            $weekLabel = $this->week->week_start_date->format('d/m/Y').' al '.$this->week->week_end_date->format('d/m/Y');
             $dto = new NotificationDTO(
-                title: 'Horario Modificado',
-                message: "Tu horario para la semana del {$this->week->week_start_date->format('d/m/Y')} ha sido actualizado por un supervisor.",
+                title: 'Horario actualizado',
+                message: "Tu horario para la semana del {$weekLabel} ha sido actualizado.",
+                summary: 'Existe una nueva versión de tu planificación.',
                 actionUrl: route('schedules.my-schedule'),
-                level: 'warning'
+                icon: 'calendar',
+                level: 'warning',
+                notificationType: NotificationType::ScheduleUpdated->value,
+                facts: [
+                    ['label' => 'Semana', 'value' => $weekLabel],
+                ],
+                recommendation: 'Revisa tu horario antes del inicio de la jornada.',
+                resourceType: 'weekly_schedule',
+                resourceId: (string) $this->week->id,
             );
             $this->employee->user->notify(new ScheduleModifiedNotification($dto));
         }

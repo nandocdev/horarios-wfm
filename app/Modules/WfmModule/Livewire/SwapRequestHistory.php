@@ -10,6 +10,7 @@ use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Enums\NotificationType;
 use App\Shared\Events\ShiftSwapAccepted;
 use App\Shared\Events\ShiftSwapCancelled;
 use App\Shared\Events\ShiftSwapRejectedByPeer;
@@ -79,10 +80,19 @@ class SwapRequestHistory extends Component
         // Notificar al destinatario si el usuario existía
         if ($request->recipient?->user) {
             $dto = new NotificationDTO(
-                title: 'Solicitud Cancelada',
+                title: 'Solicitud de intercambio cancelada',
                 message: "{$employee->full_name} ha cancelado la solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
+                summary: 'El solicitante ha cancelado la solicitud de intercambio.',
                 actionUrl: route('schedules.swap-history', [], false),
-                level: 'warning'
+                icon: 'x-circle',
+                level: 'warning',
+                notificationType: NotificationType::ShiftSwapCancelled->value,
+                facts: [
+                    ['label' => 'Periodo', 'value' => $request->start_date->format('d/m/Y')],
+                    ['label' => 'Estado', 'value' => 'Cancelado'],
+                ],
+                resourceType: 'shift_swap',
+                resourceId: (string) $request->id,
             );
             $request->recipient->user->notify(new SwapStatusChangedNotification($dto));
         }
@@ -111,10 +121,21 @@ class SwapRequestHistory extends Component
         // Notificar al solicitante
         if ($request->requester?->user) {
             $dto = new NotificationDTO(
-                title: 'Intercambio Aceptado',
-                message: "{$employee->full_name} ha aceptado tu solicitud de intercambio para el {$dateStr}. Pendiente por aprobación de WFM.",
+                title: 'Intercambio aceptado',
+                message: "{$employee->full_name} ha aceptado tu solicitud de intercambio para el {$dateStr}.",
+                summary: 'Tu solicitud de intercambio ha sido aceptada. Pendiente por aprobación de WFM.',
                 actionUrl: route('schedules.swap-history', [], false),
-                level: 'success'
+                icon: 'check-circle',
+                level: 'success',
+                notificationType: NotificationType::ShiftSwapAccepted->value,
+                facts: [
+                    ['label' => 'Periodo', 'value' => $dateStr],
+                    ['label' => 'Aceptado por', 'value' => $employee->full_name],
+                    ['label' => 'Estado', 'value' => 'Aceptado — Pendiente de aprobación WFM'],
+                ],
+                recommendation: 'Espera la aprobación del equipo WFM.',
+                resourceType: 'shift_swap',
+                resourceId: (string) $request->id,
             );
             $request->requester->user->notify(new SwapStatusChangedNotification($dto));
         }
@@ -136,10 +157,21 @@ class SwapRequestHistory extends Component
         }
 
         $dto = new NotificationDTO(
-            title: 'Intercambio de Turno Aceptado — Pendiente de Aprobación',
-            message: "{$operator->full_name} y {$otherOperator->full_name} han acordado un intercambio para el {$dateStr}. Requiere aprobación de WFM.",
+            title: 'Intercambio aceptado — pendiente de aprobación',
+            message: "{$operator->full_name} y {$otherOperator->full_name} han acordado un intercambio para el {$dateStr}.",
+            summary: "{$operator->full_name} y {$otherOperator->full_name} acordaron un intercambio. Requiere aprobación de WFM.",
             actionUrl: route('schedules.swap-history', [], false),
-            level: 'info'
+            icon: 'arrows-right-left',
+            level: 'info',
+            notificationType: NotificationType::ShiftSwapAccepted->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $dateStr],
+                ['label' => 'Participantes', 'value' => "{$operator->full_name}, {$otherOperator->full_name}"],
+                ['label' => 'Estado', 'value' => 'Pendiente de aprobación WFM'],
+            ],
+            recommendation: 'Revisa y aprueba o rechaza la solicitud.',
+            resourceType: 'shift_swap',
+            resourceId: (string) $operator->id,
         );
         $coordinator->user->notify(new SwapStatusChangedNotification($dto));
     }
@@ -159,10 +191,20 @@ class SwapRequestHistory extends Component
         // Notificar al solicitante
         if ($request->requester?->user) {
             $dto = new NotificationDTO(
-                title: 'Intercambio Rechazado',
+                title: 'Intercambio rechazado',
                 message: "{$employee->full_name} ha rechazado tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
+                summary: 'Tu solicitud de intercambio ha sido rechazada por el destinatario.',
                 actionUrl: route('schedules.swap-history', [], false),
-                level: 'danger'
+                icon: 'x-circle',
+                level: 'danger',
+                notificationType: NotificationType::ShiftSwapRejected->value,
+                facts: [
+                    ['label' => 'Periodo', 'value' => $request->start_date->format('d/m/Y')],
+                    ['label' => 'Estado', 'value' => 'Rechazado'],
+                ],
+                recommendation: 'Puedes crear una nueva solicitud para otra fecha.',
+                resourceType: 'shift_swap',
+                resourceId: (string) $request->id,
             );
             $request->requester->user->notify(new SwapStatusChangedNotification($dto));
         }

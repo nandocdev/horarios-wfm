@@ -8,6 +8,7 @@ use App\Modules\WfmModule\Notifications\ShiftSwapApprovedNotification;
 use App\Modules\WfmModule\Notifications\SwapRequestNotification;
 use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Enums\NotificationType;
 use App\Shared\Events\ShiftSwapAccepted;
 use App\Shared\Events\ShiftSwapApproved;
 use App\Shared\Events\ShiftSwapCancelled;
@@ -18,21 +19,47 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendShiftSwapNotification implements ShouldQueue
 {
+    private function periodLabel($swap): string
+    {
+        $label = $swap->start_date->format('d/m/Y');
+        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
+            $label .= ' al '.$swap->end_date->format('d/m/Y');
+        }
+
+        return $label;
+    }
+
+    private function requesterName($swap): string
+    {
+        return "{$swap->requester->first_name} {$swap->requester->last_name}";
+    }
+
+    private function recipientName($swap): string
+    {
+        return "{$swap->recipient->first_name} {$swap->recipient->last_name}";
+    }
+
     public function handleShiftSwapRequested(ShiftSwapRequested $event): void
     {
         $swap = $event->shiftSwap;
-
-        $dateRange = $swap->start_date->format('d/m/Y');
-        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
-            $dateRange .= ' al '.$swap->end_date->format('d/m/Y');
-        }
+        $period = $this->periodLabel($swap);
 
         $dto = new NotificationDTO(
-            title: 'Nueva Solicitud de Intercambio',
-            message: "{$swap->requester->first_name} {$swap->requester->last_name} ha solicitado intercambiar un turno contigo para el periodo {$dateRange}.",
+            title: 'Nueva solicitud de intercambio',
+            message: "{$this->requesterName($swap)} desea intercambiar un turno contigo.",
+            summary: "{$this->requesterName($swap)} ha solicitado intercambiar un turno contigo para el periodo {$period}.",
             actionUrl: route('schedules.swap-history'),
             icon: 'arrows-right-left',
             level: 'info',
+            notificationType: NotificationType::ShiftSwapRequested->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $period],
+                ['label' => 'Solicitante', 'value' => $this->requesterName($swap)],
+                ['label' => 'Estado', 'value' => 'Pendiente de tu respuesta'],
+            ],
+            recommendation: 'Acepta o rechaza la solicitud desde tu historial de intercambios.',
+            resourceType: 'shift_swap',
+            resourceId: (string) $swap->id,
         );
 
         if ($swap->recipient?->user) {
@@ -41,11 +68,21 @@ class SendShiftSwapNotification implements ShouldQueue
 
         if ($swap->recipient?->team?->supervisor?->user) {
             $supervisorDto = new NotificationDTO(
-                title: 'Solicitud de Intercambio Pendiente',
-                message: "{$swap->recipient->first_name} {$swap->recipient->last_name} tiene una solicitud de intercambio pendiente de {$swap->requester->first_name} {$swap->requester->last_name} para el periodo {$dateRange}.",
+                title: 'Solicitud de intercambio pendiente',
+                message: "{$this->recipientName($swap)} tiene una solicitud pendiente.",
+                summary: "{$this->recipientName($swap)} tiene una solicitud de intercambio pendiente de {$this->requesterName($swap)} para el periodo {$period}.",
                 actionUrl: route('schedules.swap-history'),
                 icon: 'arrows-right-left',
                 level: 'info',
+                notificationType: NotificationType::ShiftSwapRequested->value,
+                facts: [
+                    ['label' => 'Periodo', 'value' => $period],
+                    ['label' => 'Solicitante', 'value' => $this->requesterName($swap)],
+                    ['label' => 'Destinatario', 'value' => $this->recipientName($swap)],
+                    ['label' => 'Estado', 'value' => 'Pendiente de aprobación'],
+                ],
+                resourceType: 'shift_swap',
+                resourceId: (string) $swap->id,
             );
             $swap->recipient->team->supervisor->user->notify(new SwapRequestNotification($swap));
         }
@@ -54,18 +91,25 @@ class SendShiftSwapNotification implements ShouldQueue
     public function handleShiftSwapApproved(ShiftSwapApproved $event): void
     {
         $swap = $event->shiftSwap;
-
-        $dateRange = $swap->start_date->format('d/m/Y');
-        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
-            $dateRange .= ' al '.$swap->end_date->format('d/m/Y');
-        }
+        $period = $this->periodLabel($swap);
 
         $dto = new NotificationDTO(
-            title: 'Cambio de Turno Aprobado',
-            message: "El intercambio de turno para el periodo {$dateRange} ha sido aprobado y aplicado.",
+            title: 'Intercambio aprobado',
+            message: "El intercambio para el periodo {$period} fue aprobado y aplicado.",
+            summary: 'El intercambio fue aprobado y aplicado correctamente.',
             actionUrl: route('schedules.my-schedule'),
             icon: 'check-circle',
             level: 'success',
+            notificationType: NotificationType::ShiftSwapApproved->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $period],
+                ['label' => 'Solicitante', 'value' => $this->requesterName($swap)],
+                ['label' => 'Destinatario', 'value' => $this->recipientName($swap)],
+                ['label' => 'Estado', 'value' => 'Completado'],
+            ],
+            recommendation: 'No se requiere ninguna acción adicional.',
+            resourceType: 'shift_swap',
+            resourceId: (string) $swap->id,
         );
 
         if ($swap->requester?->user) {
@@ -80,18 +124,24 @@ class SendShiftSwapNotification implements ShouldQueue
     public function handleShiftSwapRejected(ShiftSwapRejected $event): void
     {
         $swap = $event->shiftSwap;
-
-        $dateRange = $swap->start_date->format('d/m/Y');
-        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
-            $dateRange .= ' al '.$swap->end_date->format('d/m/Y');
-        }
+        $period = $this->periodLabel($swap);
 
         $dto = new NotificationDTO(
-            title: 'Cambio de Turno Rechazado',
-            message: "El intercambio de turno para el periodo {$dateRange} ha sido rechazado. Motivo: {$event->reason}",
+            title: 'Intercambio rechazado',
+            message: "El intercambio para el periodo {$period} no fue aprobado.",
+            summary: 'La solicitud no fue aprobada.',
             actionUrl: route('schedules.swap-history'),
             icon: 'x-circle',
             level: 'danger',
+            notificationType: NotificationType::ShiftSwapRejected->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $period],
+                ['label' => 'Motivo', 'value' => $event->reason],
+                ['label' => 'Estado', 'value' => 'Rechazado'],
+            ],
+            recommendation: 'Puedes crear una nueva solicitud para otra fecha.',
+            resourceType: 'shift_swap',
+            resourceId: (string) $swap->id,
         );
 
         if ($swap->requester?->user) {
@@ -106,18 +156,22 @@ class SendShiftSwapNotification implements ShouldQueue
     public function handleShiftSwapCancelled(ShiftSwapCancelled $event): void
     {
         $swap = $event->shiftSwap;
-
-        $dateRange = $swap->start_date->format('d/m/Y');
-        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
-            $dateRange .= ' al '.$swap->end_date->format('d/m/Y');
-        }
+        $period = $this->periodLabel($swap);
 
         $dto = new NotificationDTO(
-            title: 'Solicitud de Intercambio Cancelada',
-            message: "El solicitante ha cancelado la solicitud de intercambio para el periodo {$dateRange}.",
+            title: 'Solicitud de intercambio cancelada',
+            message: "La solicitud para el periodo {$period} fue cancelada.",
+            summary: 'El solicitante ha cancelado la solicitud de intercambio.',
             actionUrl: route('schedules.swap-history'),
             icon: 'x-circle',
             level: 'warning',
+            notificationType: NotificationType::ShiftSwapCancelled->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $period],
+                ['label' => 'Estado', 'value' => 'Cancelado'],
+            ],
+            resourceType: 'shift_swap',
+            resourceId: (string) $swap->id,
         );
 
         if ($swap->recipient?->user) {
@@ -128,18 +182,25 @@ class SendShiftSwapNotification implements ShouldQueue
     public function handleShiftSwapAccepted(ShiftSwapAccepted $event): void
     {
         $swap = $event->shiftSwap;
-
-        $dateRange = $swap->start_date->format('d/m/Y');
-        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
-            $dateRange .= ' al '.$swap->end_date->format('d/m/Y');
-        }
+        $period = $this->periodLabel($swap);
 
         $notifyDto = new NotificationDTO(
-            title: 'Intercambio Aceptado — Pendiente de Aprobación',
-            message: "Tu solicitud de intercambio para el periodo {$dateRange} ha sido aceptada. Queda pendiente de aprobación por WFM.",
+            title: 'Intercambio aceptado',
+            message: "Tu solicitud para el periodo {$period} fue aceptada.",
+            summary: 'Tu solicitud de intercambio ha sido aceptada. Queda pendiente de aprobación por WFM.',
             actionUrl: route('schedules.swap-history'),
             icon: 'check-circle',
             level: 'success',
+            notificationType: NotificationType::ShiftSwapAccepted->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $period],
+                ['label' => 'Solicitante', 'value' => $this->requesterName($swap)],
+                ['label' => 'Destinatario', 'value' => $this->recipientName($swap)],
+                ['label' => 'Estado', 'value' => 'Aceptado — Pendiente de aprobación WFM'],
+            ],
+            recommendation: 'Espera la aprobación del equipo WFM.',
+            resourceType: 'shift_swap',
+            resourceId: (string) $swap->id,
         );
 
         if ($swap->requester?->user) {
@@ -147,11 +208,22 @@ class SendShiftSwapNotification implements ShouldQueue
         }
 
         $coordinatorDto = new NotificationDTO(
-            title: 'Intercambio de Turno Aceptado — Pendiente de Aprobación',
-            message: "{$swap->requester->first_name} {$swap->requester->last_name} y {$swap->recipient->first_name} {$swap->recipient->last_name} han acordado un intercambio para el periodo {$dateRange}. Requiere aprobación de WFM.",
+            title: 'Intercambio aceptado — pendiente de aprobación',
+            message: "{$this->requesterName($swap)} y {$this->recipientName($swap)} acordaron un intercambio.",
+            summary: "{$this->requesterName($swap)} y {$this->recipientName($swap)} han acordado un intercambio para el periodo {$period}. Requiere aprobación de WFM.",
             actionUrl: route('schedules.wfm-approvals'),
             icon: 'arrows-right-left',
             level: 'info',
+            notificationType: NotificationType::ShiftSwapAccepted->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $period],
+                ['label' => 'Solicitante', 'value' => $this->requesterName($swap)],
+                ['label' => 'Destinatario', 'value' => $this->recipientName($swap)],
+                ['label' => 'Estado', 'value' => 'Pendiente de aprobación WFM'],
+            ],
+            recommendation: 'Revisa y aprueba o rechaza la solicitud.',
+            resourceType: 'shift_swap',
+            resourceId: (string) $swap->id,
         );
 
         if ($swap->requester?->manager?->user) {
@@ -166,18 +238,24 @@ class SendShiftSwapNotification implements ShouldQueue
     public function handleShiftSwapRejectedByPeer(ShiftSwapRejectedByPeer $event): void
     {
         $swap = $event->shiftSwap;
-
-        $dateRange = $swap->start_date->format('d/m/Y');
-        if ($swap->end_date && $swap->end_date->gt($swap->start_date)) {
-            $dateRange .= ' al '.$swap->end_date->format('d/m/Y');
-        }
+        $period = $this->periodLabel($swap);
 
         $dto = new NotificationDTO(
-            title: 'Intercambio Rechazado',
-            message: "Tu solicitud de intercambio para el periodo {$dateRange} ha sido rechazada por el destinatario.",
+            title: 'Intercambio rechazado',
+            message: "Tu solicitud para el periodo {$period} fue rechazada por el destinatario.",
+            summary: 'Tu solicitud de intercambio ha sido rechazada por el destinatario.',
             actionUrl: route('schedules.swap-history'),
             icon: 'x-circle',
             level: 'danger',
+            notificationType: NotificationType::ShiftSwapRejected->value,
+            facts: [
+                ['label' => 'Periodo', 'value' => $period],
+                ['label' => 'Destinatario', 'value' => $this->recipientName($swap)],
+                ['label' => 'Estado', 'value' => 'Rechazado'],
+            ],
+            recommendation: 'Puedes crear una nueva solicitud para otra fecha.',
+            resourceType: 'shift_swap',
+            resourceId: (string) $swap->id,
         );
 
         if ($swap->requester?->user) {

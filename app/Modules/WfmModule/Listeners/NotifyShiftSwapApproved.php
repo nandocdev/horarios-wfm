@@ -8,6 +8,7 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Mail\ShiftSwapApprovedMail;
 use App\Modules\WfmModule\Notifications\ShiftSwapApprovedNotification;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Enums\NotificationType;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
@@ -60,11 +61,20 @@ class NotifyShiftSwapApproved implements ShouldQueue
             if ($recipient->user) {
                 try {
                     $dto = new NotificationDTO(
-                        title: 'Cambio de Turno Aprobado',
+                        title: 'Intercambio aprobado',
                         message: "El cambio de turno para el periodo {$dateRange} ha sido procesado.",
+                        summary: 'El cambio de turno fue procesado exitosamente.',
                         actionUrl: route('schedules.my-schedule'),
                         icon: 'check-circle',
-                        level: 'success'
+                        level: 'success',
+                        notificationType: NotificationType::ShiftSwapApproved->value,
+                        facts: [
+                            ['label' => 'Periodo', 'value' => $dateRange],
+                            ['label' => 'Estado', 'value' => 'Completado'],
+                        ],
+                        recommendation: 'No se requiere ninguna acción adicional.',
+                        resourceType: 'shift_swap',
+                        resourceId: (string) $request->id,
                     );
                     $recipient->user->notify(new ShiftSwapApprovedNotification($dto));
                 } catch (\Throwable $e) {

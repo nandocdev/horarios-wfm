@@ -12,6 +12,7 @@ use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
 use App\Modules\WfmModule\Notifications\IntradayActivityNotification;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Enums\NotificationType;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -139,10 +140,20 @@ class AssignIntradayActivityAction
                     $endTime = Carbon::parse($dto->date.' '.$dto->end_time)->format('H:i');
 
                     $dtoNotify = new NotificationDTO(
-                        title: 'Nueva Actividad Asignada',
+                        title: 'Nueva actividad asignada',
                         message: "Se te ha asignado la actividad '{$definition->name}' para hoy de {$startTime} a {$endTime}.",
+                        summary: 'Se agregó una actividad a tu jornada.',
                         actionUrl: route('schedules.my-schedule'),
-                        level: 'info'
+                        icon: 'clock',
+                        level: 'info',
+                        notificationType: NotificationType::IntradayActivity->value,
+                        facts: [
+                            ['label' => 'Actividad', 'value' => $definition->name],
+                            ['label' => 'Horario', 'value' => "{$startTime}–{$endTime}"],
+                        ],
+                        recommendation: 'Esta actividad forma parte de tu planificación diaria.',
+                        resourceType: 'intraday_activity',
+                        resourceId: (string) ($activity->id ?? ''),
                     );
                     $userNotify->notify(new IntradayActivityNotification($dtoNotify));
                 }

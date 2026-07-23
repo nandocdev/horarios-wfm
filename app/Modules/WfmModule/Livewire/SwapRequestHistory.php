@@ -10,6 +10,9 @@ use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Modules\WfmModule\Notifications\SwapStatusChangedNotification;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Events\ShiftSwapAccepted;
+use App\Shared\Events\ShiftSwapCancelled;
+use App\Shared\Events\ShiftSwapRejectedByPeer;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -71,6 +74,8 @@ class SwapRequestHistory extends Component
 
         $request->update(['status' => 'cancelled']);
 
+        ShiftSwapCancelled::dispatch($request, $employee->id);
+
         // Notificar al destinatario si el usuario existía
         if ($request->recipient?->user) {
             $dto = new NotificationDTO(
@@ -98,6 +103,8 @@ class SwapRequestHistory extends Component
             ->firstOrFail();
 
         $request->update(['status' => 'accepted']);
+
+        ShiftSwapAccepted::dispatch($request, $employee->id);
 
         $dateStr = $request->start_date->format('d/m/Y');
 
@@ -146,6 +153,8 @@ class SwapRequestHistory extends Component
             ->firstOrFail();
 
         $request->update(['status' => 'rejected']);
+
+        ShiftSwapRejectedByPeer::dispatch($request, $employee->id);
 
         // Notificar al solicitante
         if ($request->requester?->user) {

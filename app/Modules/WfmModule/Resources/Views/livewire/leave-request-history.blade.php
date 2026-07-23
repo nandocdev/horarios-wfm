@@ -61,6 +61,7 @@
                                 <flux:button variant="subtle" size="sm" icon="ellipsis-horizontal" />
                                 <flux:menu>
                                     <flux:menu.item wire:click="showDetails({{ $leave->id }})" icon="eye">Ver Aprobación</flux:menu.item>
+                                    <flux:menu.item wire:click="downloadPdf({{ $leave->id }})" icon="arrow-down-tray">Descargar PDF</flux:menu.item>
                                     @if($leave->status === 'pending')
                                         <flux:menu.item wire:click="cancelLeave({{ $leave->id }})" wire:confirm="¿Estás seguro de cancelar este permiso?" variant="danger" icon="trash">Cancelar Solicitud</flux:menu.item>
                                     @endif

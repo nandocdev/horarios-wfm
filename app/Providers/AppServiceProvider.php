@@ -46,7 +46,7 @@ class AppServiceProvider extends ServiceProvider
             app()->register(FluxServiceProvider::class);
         }
 
-        // View::addNamespace('reports', resource_path('views/reports'));
+        View::addNamespace('pdf', resource_path('views/pdf'));
 
         $this->configureDefaults();
     }

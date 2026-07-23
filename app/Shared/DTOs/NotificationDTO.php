@@ -13,7 +13,14 @@ class NotificationDTO extends Data
         public string $message,
         public string $actionUrl = '#',
         public string $icon = 'information-circle',
-        public string $level = 'info', // info, success, warning, danger
-        public array $metadata = []
+        public string $level = 'info',
+        public array $metadata = [],
+        public ?string $notificationType = null,
+        public ?string $summary = null,
+        public array $facts = [],
+        public ?string $recommendation = null,
+        public array $actions = [],
+        public ?string $resourceType = null,
+        public ?string $resourceId = null,
     ) {}
 }

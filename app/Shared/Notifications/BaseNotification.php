@@ -42,14 +42,51 @@ abstract class BaseNotification extends Notification implements ShouldQueue
             'level' => $this->dto->level,
             'icon' => $this->dto->icon,
             'action_url' => $this->dto->actionUrl,
+            'notificationType' => $this->dto->notificationType,
+            'summary' => $this->dto->summary,
+            'facts' => $this->dto->facts,
+            'recommendation' => $this->dto->recommendation,
+            'actions' => $this->dto->actions,
+            'resourceType' => $this->dto->resourceType,
+            'resourceId' => $this->dto->resourceId,
         ]);
     }
 
     public function toWebex($notifiable): ?string
     {
-        $title = $this->dto->title;
-        $message = $this->dto->message;
+        $lines = [];
 
-        return "*{$title}*\n\n{$message}";
+        $lines[] = "*{$this->dto->title}*";
+        $lines[] = '';
+
+        if ($this->dto->summary) {
+            $lines[] = $this->dto->summary;
+            $lines[] = '';
+        } else {
+            $lines[] = $this->dto->message;
+            $lines[] = '';
+        }
+
+        $lines[] = '---';
+        $lines[] = '';
+
+        if (! empty($this->dto->facts)) {
+            foreach ($this->dto->facts as $fact) {
+                $label = $fact['label'] ?? '';
+                $value = $fact['value'] ?? '';
+                if ($label && $value) {
+                    $lines[] = "**{$label}:** {$value}";
+                }
+            }
+            $lines[] = '';
+            $lines[] = '---';
+            $lines[] = '';
+        }
+
+        if ($this->dto->recommendation) {
+            $lines[] = $this->dto->recommendation;
+        }
+
+        return implode("\n", $lines);
     }
 }

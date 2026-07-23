@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Actions;
 
 use App\Modules\WfmModule\Models\ShiftSwapApproval;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
+use App\Shared\Events\ShiftSwapRejected;
 use Illuminate\Support\Facades\DB;
 
 final class RejectShiftSwapAction
@@ -37,6 +38,9 @@ final class RejectShiftSwapAction
                 'status' => 'rejected',
                 'rejection_reason' => $reason,
             ]);
+
+            // 3. Disparar evento de dominio
+            ShiftSwapRejected::dispatch($request, $approverEmployeeId, $reason);
 
             return $request;
         });

@@ -10,6 +10,7 @@ use App\Modules\OperationsModule\Models\IncidentType;
 use App\Modules\WfmModule\Notifications\AttendanceIncidentNotification;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Events\AttendanceIncidentRegistered;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Log;
@@ -138,6 +139,8 @@ final class ReconcileEmployeeAttendanceAction
             );
             $user->notify(new AttendanceIncidentNotification($dto));
         }
+
+        AttendanceIncidentRegistered::dispatch($incident, $typeCode);
 
         return $incident;
     }

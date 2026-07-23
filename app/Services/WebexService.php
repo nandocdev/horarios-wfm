@@ -45,8 +45,16 @@ class WebexService
 
     private function send(array $payload): ?array
     {
-        if (empty($this->token) || empty($this->roomId)) {
-            Log::warning('WebexService: Token o Room ID no configurados.');
+        if (empty($this->token)) {
+            Log::warning('WebexService: Token no configurado.');
+
+            return null;
+        }
+
+        $targetRoom = $payload['roomId'] ?? $this->roomId;
+
+        if (empty($targetRoom)) {
+            Log::warning('WebexService: Room ID no configurado.');
 
             return null;
         }
@@ -64,6 +72,7 @@ class WebexService
             Log::error('WebexService: Error enviando mensaje', [
                 'status' => $response->status(),
                 'response' => $response->body(),
+                'roomId' => $targetRoom,
             ]);
 
             return null;

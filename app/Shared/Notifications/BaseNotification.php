@@ -22,7 +22,7 @@ abstract class BaseNotification extends Notification implements ShouldQueue
     {
         $channels = ['database', 'broadcast'];
 
-        if (config('services.webex.bot_token')) {
+        if (config('services.webex.bot_token') && config('services.webex.room_id')) {
             $channels[] = 'webex';
         }
 

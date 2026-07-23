@@ -26,7 +26,7 @@ trait HasWebexSupport
             $channels = array_merge($channels, $this->additionalVia());
         }
 
-        if (config('services.webex.bot_token')) {
+        if (config('services.webex.bot_token') && config('services.webex.room_id')) {
             $channels[] = 'webex';
         }
 

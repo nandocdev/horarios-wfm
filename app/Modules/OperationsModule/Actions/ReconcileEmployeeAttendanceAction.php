@@ -10,6 +10,7 @@ use App\Modules\OperationsModule\Models\IncidentType;
 use App\Modules\WfmModule\Notifications\AttendanceIncidentNotification;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Enums\NotificationType;
 use App\Shared\Events\AttendanceIncidentRegistered;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -132,10 +133,20 @@ final class ReconcileEmployeeAttendanceAction
         $user = User::find($employee->getUserId());
         if ($user) {
             $dto = new NotificationDTO(
-                title: 'Incidencia de Asistencia',
-                message: "Se ha registrado una incidencia de tipo '{$type->name}' para el día {$date->format('d/m/Y')}. Motivo: {$comment}",
+                title: 'Incidencia registrada',
+                message: "Se ha registrado una incidencia de tipo '{$type->name}' para el día {$date->format('d/m/Y')}.",
+                summary: 'Se detectó una incidencia de asistencia.',
                 actionUrl: route('schedules.my-schedule'),
-                level: 'warning'
+                icon: 'exclamation-triangle',
+                level: 'warning',
+                notificationType: NotificationType::AttendanceIncident->value,
+                facts: [
+                    ['label' => 'Tipo', 'value' => $type->name],
+                    ['label' => 'Fecha', 'value' => $date->format('d/m/Y')],
+                ],
+                recommendation: 'Si consideras que existe un error, comunícate con tu supervisor.',
+                resourceType: 'attendance_incident',
+                resourceId: (string) $incident->id,
             );
             $user->notify(new AttendanceIncidentNotification($dto));
         }

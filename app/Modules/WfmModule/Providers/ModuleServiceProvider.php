@@ -126,6 +126,7 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('wfm.my-schedule', MySchedule::class);
         Livewire::component('wfm.my-day', MyDay::class);
         Livewire::component('wfm.team-dashboard', TeamDashboard::class);
+        Livewire::component('wfm.manage-schedule-exceptions', ManageScheduleExceptions::class);
 
         // Registro de Observadores
         LeaveRequest::observe(LeaveRequestObserver::class);

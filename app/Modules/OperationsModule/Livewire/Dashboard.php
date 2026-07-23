@@ -234,6 +234,47 @@ class Dashboard extends Component
             ['label' => 'Offline', 'value' => $stateDistribution['offline']],
         ];
 
+        $coverageChartOptions = json_encode([
+            'chart' => ['type' => 'area', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit'],
+            'series' => [
+                ['name' => 'Requerido', 'data' => $coverageSeries->pluck('required')->toArray()],
+                ['name' => 'Disponible', 'data' => $coverageSeries->pluck('available')->toArray()],
+            ],
+            'xaxis' => ['categories' => $coverageSeries->pluck('hour')->toArray(), 'labels' => ['style' => ['fontSize' => '10px']]],
+            'yaxis' => ['min' => 0, 'max' => 100, 'labels' => ['formatter' => 'function(v){return v+"%"}']],
+            'colors' => ['#94a3b8', '#3b82f6'],
+            'fill' => ['opacity' => [0.12, 0.15]],
+            'stroke' => ['width' => [2, 2], 'dashArray' => [4, 0], 'curve' => 'smooth'],
+            'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2, 'padding' => ['left' => 10, 'right' => 10]],
+            'dataLabels' => ['enabled' => false],
+            'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px', 'markers' => ['width' => 8, 'height' => 8]],
+        ]);
+
+        $donutColors = ['#3b82f6', '#22c55e', '#f59e0b', '#94a3b8'];
+        $donutChartOptions = json_encode([
+            'chart' => ['type' => 'donut', 'toolbar' => ['show' => false], 'fontFamily' => 'inherit'],
+            'series' => array_column($distribution, 'value'),
+            'labels' => array_column($distribution, 'label'),
+            'colors' => $donutColors,
+            'plotOptions' => ['pie' => ['donut' => ['size' => '65%']]],
+            'dataLabels' => ['enabled' => false],
+            'legend' => ['show' => false],
+            'stroke' => ['show' => false],
+            'tooltip' => ['y' => ['formatter' => 'function(v){return v+" agentes"}']],
+            'responsive' => [['breakpoint' => 480, 'options' => ['chart' => ['height' => 200]]]],
+        ]);
+
+        $sparklineOptions = [];
+        foreach ($trends as $trend) {
+            $sparklineOptions[$trend['label']] = json_encode([
+                'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'sparkline' => ['enabled' => true], 'fontFamily' => 'inherit'],
+                'series' => [['name' => $trend['label'], 'data' => $trend['data']]],
+                'colors' => ['#3b82f6'],
+                'stroke' => ['width' => 2, 'curve' => 'smooth'],
+                'tooltip' => ['enabled' => false],
+            ]);
+        }
+
         return view('operations::livewire.dashboard', [
             'greeting' => $greeting,
             'displayName' => $displayName,
@@ -266,6 +307,9 @@ class Dashboard extends Component
             'teams' => $teams,
             'alerts' => $alerts,
             'trends' => $trends,
+            'coverageChartOptions' => $coverageChartOptions,
+            'donutChartOptions' => $donutChartOptions,
+            'sparklineOptions' => $sparklineOptions,
             'quickActions' => [
                 ['label' => 'Crear permiso', 'route' => 'schedules.leave-request'],
                 ['label' => 'Registrar incidencia', 'route' => 'schedules.exceptions'],

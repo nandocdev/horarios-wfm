@@ -35,81 +35,27 @@
 
         <div class="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
             <x-wfm.section title="Cobertura durante el día" :description="'Próximo riesgo ' . $nextRisk['time'] . ' · Cobertura esperada ' . $nextRisk['coverage']">
-                <span
-                    class="float-right rounded-full bg-wfm-surface px-2.5 py-0.5 text-[10px] font-medium text-wfm-surface-muted">Riesgo
-                    alto</span>
-                @php
-                    $maxVal = max(100, max(array_column($coverageSeries->toArray(), 'required')));
-                    $svgW = 560;
-                    $svgH = 160;
-                    $padL = 35;
-                    $padR = 10;
-                    $padT = 10;
-                    $padB = 25;
-                    $chartW = $svgW - $padL - $padR;
-                    $chartH = $svgH - $padT - $padB;
-                    $count = count($coverageSeries);
-                    $step = $count > 1 ? $chartW / ($count - 1) : $chartW;
-                    $points = [];
-                    $points2 = [];
-                    foreach ($coverageSeries as $i => $p) {
-                        $x = $padL + ($i * $step);
-                        $y1 = $padT + $chartH - (($p['required'] / $maxVal) * $chartH);
-                        $y2 = $padT + $chartH - (($p['available'] / $maxVal) * $chartH);
-                        $points[] = "{$x},{$y1}";
-                        $points2[] = "{$x},{$y2}";
-                    }
-                    $areaReq = 'M' . $padL . ',' . ($padT + $chartH) . ' L' . implode(' L', $points) . ' L' . ($padL + (($count - 1) * $step)) . ',' . ($padT + $chartH) . ' Z';
-                    $areaAvail = 'M' . $padL . ',' . ($padT + $chartH) . ' L' . implode(' L', $points2) . ' L' . ($padL + (($count - 1) * $step)) . ',' . ($padT + $chartH) . ' Z';
-                    $lineReq = implode(' L', $points);
-                    $lineAvail = implode(' L', $points2);
-                    $svgGrid = '';
-                    $svgLines = '';
-                    $svgLabels = '';
-                    $gridSteps = collect([50, 60, 70, 80, 90, 100])->filter(fn($v) => $v <= $maxVal);
-                    foreach ($gridSteps as $pct) {
-                        $gy = $padT + $chartH - (($pct / $maxVal) * $chartH);
-                        $svgGrid .= '<line x1="' . $padL . '" y1="' . $gy . '" x2="' . ($svgW - $padR) . '" y2="' . $gy . '" stroke="#e2e8f0" stroke-width="1" /><text x="' . ($padL - 5) . '" y="' . ($gy + 4) . '" text-anchor="end" fill="#94a3b8" font-size="10">' . $pct . '%</text>';
-                    }
-                    $svgLines .= '<path d="' . $areaReq . '" fill="#94a3b8" fill-opacity="0.15" /><path d="' . $areaAvail . '" fill="#3b82f6" fill-opacity="0.15" /><path d="M' . $lineReq . '" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3" /><path d="M' . $lineAvail . '" fill="none" stroke="#3b82f6" stroke-width="2" />';
-                    foreach ($coverageSeries as $i => $p) {
-                        $svgLabels .= '<text x="' . ($padL + ($i * $step)) . '" y="' . ($svgH - 5) . '" text-anchor="middle" fill="#94a3b8" font-size="10">' . $p['hour'] . '</text>';
-                    }
-                @endphp
-                <svg viewBox="0 0 {{ $svgW }} {{ $svgH }}"
-                    class="w-full h-auto max-h-48">{!! $svgGrid !!}{!! $svgLines !!}{!! $svgLabels !!}</svg>
+                <x-apex-chart id="coverage-chart" :options="$coverageChartOptions" height="200" />
             </x-wfm.section>
 
             <x-wfm.section title="Distribución del personal">
-                @php
-                    $donutColors = ['#3b82f6', '#22c55e', '#f59e0b', '#94a3b8'];
-                    $total = array_sum(array_column($distribution, 'value'));
-                    $acc = 0;
-                    $segments = [];
-                    foreach ($distribution as $i => $d) {
-                        $pct = $total > 0 ? ($d['value'] / $total) * 100 : 0;
-                        $len = $pct * 2.513;
-                        $segments[] = ['label' => $d['label'], 'value' => $d['value'], 'pct' => round($pct), 'color' => $donutColors[$i % count($donutColors)], 'offset' => $acc, 'len' => max(1, $len)];
-                        $acc += $len;
-                    }
-                @endphp
                 <div class="flex flex-col items-center gap-4 sm:flex-row">
-                    <svg viewBox="0 0 100 100" class="w-32 h-32 flex-shrink-0 -rotate-90">
-                        @foreach($segments as $s)
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="{{ $s['color'] }}" stroke-width="12"
-                                stroke-dasharray="{{ $s['len'] }} {{ 251.3 - $s['len'] }}"
-                                stroke-dashoffset="{{ -$s['offset'] }}" />
-                        @endforeach
-                        <circle cx="50" cy="50" r="28" fill="white" />
-                    </svg>
+                    <div class="w-36 h-36 flex-shrink-0">
+                        <x-apex-chart id="distribution-chart" :options="$donutChartOptions" height="144" />
+                    </div>
                     <div class="flex-1 space-y-2 w-full">
-                        @foreach($segments as $s)
+                        @php
+                            $donutColors = ['#3b82f6', '#22c55e', '#f59e0b', '#94a3b8'];
+                            $total = array_sum(array_column($distribution, 'value'));
+                        @endphp
+                        @foreach($distribution as $i => $d)
+                            @php $pct = $total > 0 ? round(($d['value'] / $total) * 100) : 0; @endphp
                             <div class="flex items-center gap-2 text-xs">
                                 <span class="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                                    style="background:{{ $s['color'] }}"></span>
-                                <span class="flex-1 text-wfm-navy-700">{{ $s['label'] }}</span>
-                                <span class="font-semibold text-wfm-navy-800">{{ $s['value'] }}</span>
-                                <span class="text-wfm-surface-muted w-8 text-right">{{ $s['pct'] }}%</span>
+                                    style="background:{{ $donutColors[$i % count($donutColors)] }}"></span>
+                                <span class="flex-1 text-wfm-navy-700">{{ $d['label'] }}</span>
+                                <span class="font-semibold text-wfm-navy-800">{{ $d['value'] }}</span>
+                                <span class="text-wfm-surface-muted w-8 text-right">{{ $pct }}%</span>
                             </div>
                         @endforeach
                     </div>
@@ -226,38 +172,24 @@
                 @forelse ($trends as $trend)
                     @php
                         $sparkData = $trend['data'] ?? [];
-                        $sparkCount = count($sparkData);
-                        $sparkW = 160;
-                        $sparkH = 28;
-                        $sparkMax = $sparkCount > 0 ? max(1, max($sparkData)) : 1;
-                        $sparkPts = '';
-                        if ($sparkCount > 0) {
-                            $sparkPts = implode(' ', array_map(fn($i, $v) => (($sparkCount > 1 ? ($i / ($sparkCount - 1)) : 0) * $sparkW) . ',' . (($sparkMax - $v) / $sparkMax * $sparkH), array_keys($sparkData), $sparkData));
-                        }
+                        $sparkVals = array_values($sparkData);
+                        $lastVal = end($sparkVals);
+                        $prevVal = $sparkVals[count($sparkVals) - 2] ?? 0;
+                        $diff = $lastVal - $prevVal;
+                        $dir = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'flat');
+                        $chartId = 'spark-' . \Illuminate\Support\Str::slug($trend['label']);
                     @endphp
                     <div class="mb-4 last:mb-0">
                         <div class="flex items-center justify-between text-xs mb-1">
                             <span class="font-medium text-wfm-navy-700">{{ $trend['label'] }}</span>
-                            @if($sparkCount > 1)
-                                @php
-                                    $sparkVals = array_values($sparkData);
-                                    $lastVal = end($sparkVals);
-                                    $prevVal = $sparkVals[count($sparkVals) - 2] ?? 0;
-                                    $diff = $lastVal - $prevVal;
-                                    $dir = $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'flat');
-                                @endphp
+                            @if(count($sparkData) > 1)
                                 <span
                                     class="text-[10px] {{ $dir === 'up' ? 'text-wfm-success' : ($dir === 'down' ? 'text-wfm-danger' : 'text-wfm-surface-muted') }}">
                                     @if($dir === 'up')▲ @elseif($dir === 'down')▼ @endif {{ number_format(abs($diff)) }}
                                 </span>
                             @endif
                         </div>
-                        @if($sparkCount > 1)
-                            <svg viewBox="0 0 {{ $sparkW }} {{ $sparkH }}" class="w-full h-7">
-                                <polyline points="{{ $sparkPts }}" fill="none" stroke="#3b82f6" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        @endif
+                        <x-apex-chart :id="$chartId" :options="$sparklineOptions[$trend['label']] ?? '{}'" height="40" />
                     </div>
                 @empty
                     <x-wfm.empty icon="chart-bar" message="Sin tendencias disponibles." />

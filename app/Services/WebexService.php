@@ -65,7 +65,7 @@ class WebexService
             return null;
         }
 
-        if (! isset($payload['roomId'])) {
+        if (! isset($payload['roomId']) && ! isset($payload['toPersonEmail']) && ! isset($payload['toPersonId'])) {
             $payload['roomId'] = $this->roomId;
         }
 

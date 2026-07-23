@@ -139,6 +139,7 @@ class ManageScheduleExceptions extends Component
 
         $report = new AbsenceReportDTO(
             employee_number: $d['employee_number'] ?: '__________',
+            employee_name: $d['employee_name'] ?? '',
             absence_start_date: Carbon::parse($d['absence_start_date']),
             absence_total_days: (int) $d['absence_total_days'],
             employee_position: $d['employee_position'] ?: '__________',

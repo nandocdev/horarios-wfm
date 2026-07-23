@@ -37,6 +37,7 @@ class LeaveRequestHistory extends Component
 
         $report = new AbsenceReportDTO(
             employee_number: $employee?->employee_number ?? '__________',
+            employee_name: $employee?->full_name ?? '',
             absence_start_date: Carbon::parse($leave->start_time),
             absence_total_days: max(1, (int) ceil($leave->minutes / 480)),
             employee_position: $employee?->position?->name ?? '__________',

@@ -69,6 +69,12 @@
         .mt-2 {
             margin-top: 8px;
         }
+
+        hr {
+            border: none;
+            border-top: 1px solid #000;
+            margin: 8px 0;
+        }
     </style>
 </head>
 

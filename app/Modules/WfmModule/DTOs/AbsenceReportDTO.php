@@ -11,6 +11,7 @@ readonly class AbsenceReportDTO
 {
     public function __construct(
         public string $employee_number,
+        public string $employee_name,
         public Carbon $absence_start_date,
         public int $absence_total_days,
         public string $employee_position,

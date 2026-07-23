@@ -25,11 +25,11 @@ class WebexChannel
         $payload = [];
 
         if (is_string($message)) {
-            $payload['text'] = $message;
+            $payload['markdown'] = $message;
         } elseif (isset($message['markdown'])) {
             $payload['markdown'] = $message['markdown'];
         } else {
-            $payload['text'] = $message['text'] ?? '';
+            $payload['markdown'] = $message['text'] ?? '';
         }
 
         if ($notifiable instanceof User && $notifiable->email) {

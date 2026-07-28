@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\OperationsModule\Jobs\AggregateIntervalMetricsJob;
 use App\Modules\QualityModule\Jobs\RecalculateQueueStats;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -49,4 +50,9 @@ Schedule::job(new RecalculateQueueStats)
 // WFM: Limpiar asignaciones temporales expiradas (swap de turnos)
 Schedule::command('wfm:clean-temporal-assignments')
     ->dailyAt('04:00')
+    ->withoutOverlapping();
+
+// Operaciones: Agregar métricas de intervalo cada 15 minutos
+Schedule::job(new AggregateIntervalMetricsJob)
+    ->everyFifteenMinutes()
     ->withoutOverlapping();

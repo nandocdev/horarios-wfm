@@ -181,6 +181,9 @@ class ImportProductionDataSeeder extends Seeder
             }
 
             $row = array_combine($header, $data);
+
+            $row = array_map(fn ($value) => $value === '' ? null : $value, $row);
+
             $rows[] = $row;
         }
 

@@ -127,6 +127,13 @@ class ImportProductionDataSeeder extends Seeder
             return;
         }
 
+        if ($uniqueBy !== 'id') {
+            foreach ($rows as &$row) {
+                unset($row['id']);
+            }
+            unset($row);
+        }
+
         foreach (array_chunk($rows, 500) as $chunk) {
             DB::table($table)->upsert($chunk, $uniqueBy);
         }

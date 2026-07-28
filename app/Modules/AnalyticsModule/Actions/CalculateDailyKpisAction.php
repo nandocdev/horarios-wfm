@@ -77,17 +77,30 @@ final class CalculateDailyKpisAction
         $avgUtilization = $intervalMetrics->avg('utilization') ?? 0;
         $avgAdherence = $intervalMetrics->avg('adherence') ?? 0;
 
+        $productiveSeconds = $totalTalk + $totalHold + $totalWrap;
         $ahtSeconds = $totalCalls > 0
-            ? round(($totalTalk + $totalHold + $totalWrap) / $totalCalls, 2)
+            ? round($productiveSeconds / $totalCalls, 2)
+            : 0;
+
+        $productivity = $totalLogged > 0
+            ? round(($productiveSeconds / $totalLogged) * 100, 2)
+            : 0;
+
+        $acwSeconds = $totalCalls > 0
+            ? round($totalWrap / $totalCalls, 2)
+            : 0;
+
+        $scheduledMinutes = $dailyMetric?->login_seconds
+            ? (int) round($dailyMetric->login_seconds / 60)
+            : 0;
+
+        $conformance = $scheduledMinutes > 0
+            ? round((($totalLogged / 60) / $scheduledMinutes) * 100, 2)
             : 0;
 
         $shrinkageMinutes = (int) HistoricalShrinkage::where('employee_id', $employeeId)
             ->whereDate('date', $dateStr)
             ->sum('duration_minutes');
-
-        $scheduledMinutes = $dailyMetric?->login_seconds
-            ? (int) round($dailyMetric->login_seconds / 60)
-            : 0;
 
         $shrinkagePct = $scheduledMinutes > 0
             ? round(($shrinkageMinutes / $scheduledMinutes) * 100, 2)
@@ -113,8 +126,11 @@ final class CalculateDailyKpisAction
                 'dim_team_id' => $teamId,
                 'occupancy' => round($avgOccupancy, 2),
                 'utilization' => round($avgUtilization, 2),
+                'productivity' => $productivity,
+                'conformance' => $conformance,
                 'adherence' => round($avgAdherence, 2),
                 'aht_seconds' => $ahtSeconds,
+                'acw_seconds' => $acwSeconds,
                 'shrinkage_pct' => $shrinkagePct,
                 'forecast_accuracy_pct' => $forecastAccuracy ? round((float) $forecastAccuracy, 2) : null,
                 'quality_score' => $qualityScore ? round((float) $qualityScore, 2) : null,
@@ -138,8 +154,11 @@ final class CalculateDailyKpisAction
         foreach ($byTeam as $teamId => $kpis) {
             $avgOccupancy = $kpis->avg('occupancy');
             $avgUtilization = $kpis->avg('utilization');
+            $avgProductivity = $kpis->avg('productivity');
+            $avgConformance = $kpis->avg('conformance');
             $avgAdherence = $kpis->avg('adherence');
             $avgAht = $kpis->avg('aht_seconds');
+            $avgAcw = $kpis->avg('acw_seconds');
             $avgShrinkage = $kpis->avg('shrinkage_pct');
             $avgQuality = $kpis->avg('quality_score');
 
@@ -152,8 +171,11 @@ final class CalculateDailyKpisAction
                 [
                     'occupancy' => $avgOccupancy ? round((float) $avgOccupancy, 2) : null,
                     'utilization' => $avgUtilization ? round((float) $avgUtilization, 2) : null,
+                    'productivity' => $avgProductivity ? round((float) $avgProductivity, 2) : null,
+                    'conformance' => $avgConformance ? round((float) $avgConformance, 2) : null,
                     'adherence' => $avgAdherence ? round((float) $avgAdherence, 2) : null,
                     'aht_seconds' => $avgAht ? round((float) $avgAht, 2) : null,
+                    'acw_seconds' => $avgAcw ? round((float) $avgAcw, 2) : null,
                     'shrinkage_pct' => $avgShrinkage ? round((float) $avgShrinkage, 2) : null,
                     'quality_score' => $avgQuality ? round((float) $avgQuality, 2) : null,
                     'total_calls' => $kpis->sum('total_calls'),
@@ -181,8 +203,11 @@ final class CalculateDailyKpisAction
 
         $avgOccupancy = $employeeKpis->avg('occupancy');
         $avgUtilization = $employeeKpis->avg('utilization');
+        $avgProductivity = $employeeKpis->avg('productivity');
+        $avgConformance = $employeeKpis->avg('conformance');
         $avgAdherence = $employeeKpis->avg('adherence');
         $avgAht = $employeeKpis->avg('aht_seconds');
+        $avgAcw = $employeeKpis->avg('acw_seconds');
         $avgShrinkage = $employeeKpis->avg('shrinkage_pct');
         $avgQuality = $employeeKpis->avg('quality_score');
 
@@ -197,8 +222,11 @@ final class CalculateDailyKpisAction
             [
                 'occupancy' => $avgOccupancy ? round((float) $avgOccupancy, 2) : null,
                 'utilization' => $avgUtilization ? round((float) $avgUtilization, 2) : null,
+                'productivity' => $avgProductivity ? round((float) $avgProductivity, 2) : null,
+                'conformance' => $avgConformance ? round((float) $avgConformance, 2) : null,
                 'adherence' => $avgAdherence ? round((float) $avgAdherence, 2) : null,
                 'aht_seconds' => $avgAht ? round((float) $avgAht, 2) : null,
+                'acw_seconds' => $avgAcw ? round((float) $avgAcw, 2) : null,
                 'shrinkage_pct' => $avgShrinkage ? round((float) $avgShrinkage, 2) : null,
                 'quality_score' => $avgQuality ? round((float) $avgQuality, 2) : null,
                 'forecast_accuracy_pct' => $forecastAccuracy ? round((float) $forecastAccuracy, 2) : null,

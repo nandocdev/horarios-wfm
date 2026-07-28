@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedSmallInteger('interval_minutes')->default(15);
             $table->unsignedInteger('call_volume_forecast')->default(0);
             $table->unsignedInteger('talk_time_seconds_forecast')->default(0);
-            $table->unsignedDecimal('aht_seconds_forecast', 10, 2)->default(0);
-            $table->unsignedDecimal('staff_required', 10, 2)->default(0)->comment('Agentes FTE requeridos');
+            $table->decimal('aht_seconds_forecast', 10, 2)->default(0);
+            $table->decimal('staff_required', 10, 2)->default(0)->comment('Agentes FTE requeridos');
             $table->jsonb('metadata')->nullable();
             $table->timestamps();
 

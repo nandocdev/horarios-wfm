@@ -8,12 +8,15 @@ use App\Http\Controllers\Controller;
 use App\Modules\ConnectModule\Actions\CloseCallRecordAction;
 use App\Modules\ConnectModule\Actions\CompleteCallRecordAction;
 use App\Modules\ConnectModule\Actions\CreateCallRecordAction;
+use App\Modules\ConnectModule\Actions\GetAgentCallsByDateAction;
+use App\Modules\ConnectModule\Actions\UploadAgentCallRecordingAction;
 use App\Modules\ConnectModule\DTOs\CallCloseDTO;
 use App\Modules\ConnectModule\DTOs\CallCompleteDTO;
 use App\Modules\ConnectModule\DTOs\CallStartDTO;
 use App\Modules\ConnectModule\Http\Requests\CloseCallRequest;
 use App\Modules\ConnectModule\Http\Requests\CompleteCallRequest;
 use App\Modules\ConnectModule\Http\Requests\CreateCallRequest;
+use App\Modules\ConnectModule\Http\Requests\UploadCallRecordingRequest;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Models\CaseSubtype;
 use Illuminate\Http\JsonResponse;
@@ -86,5 +89,44 @@ class CallRecordController extends Controller
             ->get(['id', 'name', 'queue_id']);
 
         return response()->json($subtypes);
+    }
+
+    /**
+     * GET /api/contact-center/calls/by-agent?agent_login_id={login}&date=YYYY-MM-DD
+     *
+     * Retorna las llamadas atendidas por un agente en una fecha específica.
+     */
+    public function byAgent(Request $request, GetAgentCallsByDateAction $action): JsonResponse
+    {
+        $validated = $request->validate([
+            'agent_login_id' => ['required', 'string', 'max:255'],
+            'date' => ['required', 'date_format:Y-m-d'],
+        ]);
+
+        $calls = $action->execute(
+            $validated['agent_login_id'],
+            $validated['date'],
+        );
+
+        return response()->json([
+            'data' => $calls,
+            'total' => count($calls),
+        ]);
+    }
+
+    /**
+     * POST /api/contact-center/recordings
+     *
+     * Sube una grabación multimedia asociada a un registro de llamada.
+     */
+    public function uploadRecording(UploadCallRecordingRequest $request, UploadAgentCallRecordingAction $action): JsonResponse
+    {
+        $uploaded = $action->execute(
+            $request->file('file'),
+            (int) $request->input('agent_call_performance_id'),
+            (int) auth()->id(),
+        );
+
+        return response()->json($uploaded, 201);
     }
 }

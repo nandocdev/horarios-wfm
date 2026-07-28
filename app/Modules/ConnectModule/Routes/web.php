@@ -32,6 +32,12 @@ Route::middleware(['web'])->group(function () {
         ->name('contact-center.subtypes.index');
 
     Route::middleware(['auth'])->group(function () {
+        Route::get('/api/contact-center/calls/by-agent', [CallRecordController::class, 'byAgent'])
+            ->name('contact-center.calls.by-agent');
+
+        Route::post('/api/contact-center/recordings', [CallRecordController::class, 'uploadRecording'])
+            ->name('contact-center.recordings.upload');
+
         Route::get('/api/contact-center/cisco/agent-snapshot', [CiscoFinesseController::class, 'agentSnapshot'])
             ->name('contact-center.cisco.agent-snapshot');
 

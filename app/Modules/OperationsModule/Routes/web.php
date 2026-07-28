@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
 use App\Modules\OperationsModule\Livewire\AgentPerformanceDashboard;
+use App\Modules\OperationsModule\Livewire\ControlTower\ControlTowerDashboard;
 use App\Modules\OperationsModule\Livewire\DailyReport;
-use App\Modules\OperationsModule\Livewire\Dashboard;
 use App\Modules\OperationsModule\Livewire\IntradayAvailability;
 use App\Modules\OperationsModule\Livewire\PerformanceScorecard;
 use App\Modules\OperationsModule\Livewire\QueuePerformanceReport;
@@ -17,7 +17,8 @@ use App\Reports\EmployeePerformanceReport;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('/operations/dashboard', Dashboard::class)->name('operations.dashboard');
+    Route::get('/operations/dashboard', ControlTowerDashboard::class)->name('operations.dashboard');
+    Route::get('/operations/control-tower', ControlTowerDashboard::class)->name('operations.control-tower');
     Route::get('/operations/realtime', RealtimeMonitoring::class)->name('operations.realtime');
     Route::get('/operations/reporte-diario', DailyReport::class)->name('operations.daily-report');
     Route::get('/operations/availability', IntradayAvailability::class)->name('operations.availability');

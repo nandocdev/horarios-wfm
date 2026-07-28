@@ -38,15 +38,19 @@ class ImportProductionDataSeeder extends Seeder
         $this->importPivot('role_has_permissions', ['permission_id', 'role_id']);
         $this->importPivot('model_has_roles', ['role_id', 'model_type', 'model_id']);
 
-        // Batch 4 — Usuarios y empleados
+        // Batch 4 — Usuarios
         $this->import('users');
-        $this->import('employees');
 
-        // Batch 5 — Equipos
+        // Batch 5 — Empleados (sin team_id por FK circular con teams)
+        // teams.supervisor_id → employees.id  y  employees.team_id → teams.id
+        $employeeTeams = $this->importEmployeesWithoutTeam();
+
+        // Batch 6 — Equipos
         $this->import('teams');
         $this->import('team_members');
+        $this->updateEmployeeTeams($employeeTeams);
 
-        // Batch 6 — Catalogos
+        // Batch 7 — Catalogos
         $this->import('absence_reason_codes');
         $this->import('activity_types');
         $this->import('incident_types');
@@ -60,44 +64,44 @@ class ImportProductionDataSeeder extends Seeder
         $this->import('operational_settings');
         $this->import('approved_intraday_periods');
 
-        // Batch 7 — Semanas y asignaciones
+        // Batch 8 — Semanas y asignaciones
         $this->import('weekly_schedules');
         $this->import('weekly_schedule_assignments');
         $this->import('weekly_team_assignments');
 
-        // Batch 8 — Excepciones, permisos, cambios turno
+        // Batch 9 — Excepciones, permisos, cambios turno
         $this->import('schedule_exceptions');
         $this->import('leave_requests');
         $this->import('leave_request_approvals');
         $this->import('shift_swap_requests');
         $this->import('shift_swap_approvals');
 
-        // Batch 9 — Telemetria y desempeno
+        // Batch 10 — Telemetria y desempeno
         $this->import('agent_realtime_states');
         $this->import('agent_daily_metrics');
         $this->import('csq_realtime_stats');
         $this->import('temporal_assignments');
 
-        // Batch 10 — Recursos humanos complementarios
+        // Batch 11 — Recursos humanos complementarios
         $this->import('employee_dependents');
         $this->import('employee_disabilities');
         $this->import('employee_diseases');
         $this->import('employee_positions');
         $this->import('employee_import_batches');
 
-        // Batch 11 — Filesystem
+        // Batch 12 — Filesystem
         $this->import('folders');
         $this->import('files');
         $this->import('file_shares');
         $this->import('storage_quotas');
 
-        // Batch 12 — Media
+        // Batch 13 — Media
         $this->import('media');
 
-        // Batch 13 — Documentacion
+        // Batch 14 — Documentacion
         $this->import('documentation_articles');
 
-        // Batch 14 — Helpdesk (depende de employees + categories)
+        // Batch 15 — Helpdesk (depende de employees + categories)
         $this->import('helpdesk_tickets');
         $this->import('helpdesk_ticket_comments');
 
@@ -151,6 +155,62 @@ class ImportProductionDataSeeder extends Seeder
         }
 
         $this->command->info("  [ok] {$table}: ".count($rows).' registros');
+    }
+
+    private function importEmployeesWithoutTeam(): array
+    {
+        $csvFile = $this->findCsv('employees');
+
+        if ($csvFile === null) {
+            $this->command->warn('  [skip] employees: CSV no encontrado');
+
+            return [];
+        }
+
+        $rows = $this->parseCsv($csvFile);
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $teamMap = [];
+
+        foreach (array_chunk($rows, 500) as $chunk) {
+            $mutated = [];
+
+            foreach ($chunk as $row) {
+                $teamMap[$row['id']] = $row['team_id'] ?? null;
+                unset($row['team_id']);
+                $mutated[] = $row;
+            }
+
+            DB::table('employees')->upsert($mutated, 'id');
+        }
+
+        $this->command->info('  [ok] employees: '.count($rows).' registros (sin team_id)');
+
+        return $teamMap;
+    }
+
+    private function updateEmployeeTeams(array $teamMap): void
+    {
+        $count = 0;
+
+        foreach ($teamMap as $employeeId => $teamId) {
+            if ($teamId === null) {
+                continue;
+            }
+
+            DB::table('employees')
+                ->where('id', $employeeId)
+                ->update(['team_id' => $teamId]);
+
+            $count++;
+        }
+
+        if ($count > 0) {
+            $this->command->info("  [ok] employees: {$count} team_id asignados");
+        }
     }
 
     private function findCsv(string $table): ?string

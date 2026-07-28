@@ -399,6 +399,7 @@ class TeamDashboard extends Component
             'stroke' => ['show' => true, 'width' => 1, 'colors' => ['#fff']],
             'tooltip' => [
                 'shared' => true,
+                'intersect' => false,
                 'y' => ['formatter' => 'function(v){return v ? Number(v).toFixed(1)+"s" : "-"}'],
             ],
             'colors' => array_slice($palette, 0, count($queueNames)),

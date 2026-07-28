@@ -39,21 +39,27 @@ class VacacionesSeeder extends Seeder
                 continue;
             }
             // Insertar en schedule_exceptions
-            DB::table('schedule_exceptions')->insert([
-                'employee_id' => $employeeId,
-                'absence_reason_code_id' => $vacacionesReasonId,
-                'start_at' => Carbon::parse($startDate)->startOfDay(),
-                'end_at' => Carbon::parse($endDate)->endOfDay(), // Usualmente las excepciones terminan al final del día
-                'is_full_day' => true,
-                'remarks' => 'Importación masiva de vacaciones (CSV)',
-                'created_by' => 1, // Admin o Sistema
-                'metadata' => json_encode([
-                    'source' => 'vacaciones.csv',
-                    'original_name' => $data[1] ?? $data[0],
-                ]),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $startAt = Carbon::parse($startDate)->startOfDay();
+            $endAt = Carbon::parse($endDate)->endOfDay();
+
+            DB::table('schedule_exceptions')->updateOrInsert(
+                [
+                    'employee_id' => $employeeId,
+                    'start_at' => $startAt,
+                    'absence_reason_code_id' => $vacacionesReasonId,
+                ],
+                [
+                    'end_at' => $endAt,
+                    'is_full_day' => true,
+                    'remarks' => 'Importación masiva de vacaciones (CSV)',
+                    'created_by' => 1,
+                    'metadata' => json_encode([
+                        'source' => 'vacaciones.csv',
+                        'original_name' => $data[1] ?? $data[0],
+                    ]),
+                    'updated_at' => now(),
+                ]
+            );
 
             $count++;
         }

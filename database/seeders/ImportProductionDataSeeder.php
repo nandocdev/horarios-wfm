@@ -79,7 +79,7 @@ class ImportProductionDataSeeder extends Seeder
         // Batch 10 — Telemetria y desempeno
         $this->import('agent_realtime_states');
         $this->import('agent_daily_metrics');
-        $this->import('csq_realtime_stats');
+        $this->import('csq_realtime_stats', 'csq_name');
         $this->import('temporal_assignments');
 
         // Batch 11 — Recursos humanos complementarios

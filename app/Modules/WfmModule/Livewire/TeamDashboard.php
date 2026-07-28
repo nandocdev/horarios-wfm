@@ -12,6 +12,7 @@ use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -32,6 +33,8 @@ class TeamDashboard extends Component
     public array $alerts = [];
 
     public array $roster = [];
+
+    public string $ahtChartOptions = '{}';
 
     public function mount(): void
     {
@@ -77,6 +80,7 @@ class TeamDashboard extends Component
             $this->teamKpis = [];
             $this->stateDistribution = [];
             $this->alerts = [];
+            $this->ahtChartOptions = '{}';
 
             return;
         }
@@ -97,6 +101,7 @@ class TeamDashboard extends Component
         $this->buildKpis();
         $this->buildStateDistribution($employeeIds);
         $this->buildAlerts($employeeIds, $today, $dayOfWeek);
+        $this->buildAhtChartData($employeeIds, $today);
     }
 
     private function resolveTeams(): Collection
@@ -314,6 +319,97 @@ class TeamDashboard extends Component
         }
 
         $this->alerts = array_slice($alerts, 0, 10);
+    }
+
+    private function buildAhtChartData(array $employeeIds, string $today): void
+    {
+        $raw = DB::table('call_records')
+            ->join('employees', 'call_records.employee_id', '=', 'employees.id')
+            ->join('call_queues', 'call_records.queue_id', '=', 'call_queues.id')
+            ->whereIn('call_records.employee_id', $employeeIds)
+            ->whereNotNull('call_records.queue_id')
+            ->whereDate('call_records.ivr_started_at', $today)
+            ->select([
+                'employees.id as employee_id',
+                DB::raw("TRIM(COALESCE(employees.first_name, '') || ' ' || COALESCE(employees.last_name, '')) as full_name"),
+                'call_queues.id as queue_id',
+                'call_queues.name as queue_name',
+                DB::raw('AVG(COALESCE(call_records.talk_time, 0) + COALESCE(call_records.work_time, 0)) as avg_aht'),
+            ])
+            ->groupBy('employees.id', 'employees.first_name', 'employees.last_name', 'call_queues.id', 'call_queues.name')
+            ->orderBy('employees.first_name')
+            ->orderBy('employees.last_name')
+            ->get();
+
+        if ($raw->isEmpty()) {
+            $this->ahtChartOptions = '{}';
+
+            return;
+        }
+
+        $agentNames = $raw->pluck('full_name')->unique()->values()->toArray();
+        $queueNames = $raw->pluck('queue_name')->unique()->values()->toArray();
+
+        $series = [];
+        $palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'];
+
+        foreach ($queueNames as $i => $queueName) {
+            $queueData = $raw->where('queue_name', $queueName);
+            $data = [];
+            foreach ($agentNames as $agentName) {
+                $match = $queueData->firstWhere('full_name', $agentName);
+                $data[] = $match ? round((float) $match->avg_aht, 1) : 0;
+            }
+            $series[] = [
+                'name' => $queueName,
+                'data' => $data,
+            ];
+        }
+
+        $this->ahtChartOptions = json_encode([
+            'chart' => [
+                'type' => 'bar',
+                'toolbar' => ['show' => false],
+                'zoom' => ['enabled' => false],
+                'fontFamily' => 'inherit',
+                'animations' => ['enabled' => false],
+            ],
+            'series' => $series,
+            'xaxis' => [
+                'categories' => $agentNames,
+                'labels' => [
+                    'style' => ['fontSize' => '10px'],
+                    'rotate' => -45,
+                    'trim' => true,
+                    'maxHeight' => 80,
+                ],
+                'title' => ['text' => 'Agente'],
+            ],
+            'yaxis' => [
+                'title' => ['text' => 'AHT (segundos)'],
+                'labels' => ['formatter' => 'function(v){return Number(v).toFixed(0)+"s"}'],
+            ],
+            'plotOptions' => [
+                'bar' => [
+                    'horizontal' => false,
+                    'columnWidth' => '70%',
+                ],
+            ],
+            'dataLabels' => ['enabled' => false],
+            'stroke' => ['show' => true, 'width' => 1, 'colors' => ['#fff']],
+            'tooltip' => [
+                'shared' => true,
+                'y' => ['formatter' => 'function(v){return v ? Number(v).toFixed(1)+"s" : "-"}'],
+            ],
+            'colors' => array_slice($palette, 0, count($queueNames)),
+            'legend' => [
+                'position' => 'top',
+                'fontSize' => '10px',
+                'itemMargin' => ['horizontal' => 8],
+            ],
+            'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
+            'noData' => ['text' => 'Sin datos de AHT para la fecha seleccionada'],
+        ]);
     }
 
     public function render()

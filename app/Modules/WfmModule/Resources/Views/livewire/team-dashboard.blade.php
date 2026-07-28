@@ -114,80 +114,12 @@
             </x-wfm.section>
         </div>
 
-        {{-- AHT Distribution by Agent --}}
-        @php
-            $rosterCol = collect($roster);
-            $rosterWithAht = $rosterCol->filter(fn($r) => $r['aht'] > 0)->values();
-            $ahtValues = $rosterWithAht->pluck('aht')->sort()->values();
-            $ahtCount = $ahtValues->count();
-            $ahtMin = $ahtValues->first() ?? 0;
-            $ahtMax = $ahtValues->last() ?? 0;
-            $ahtMedian = $ahtCount > 0 ? $ahtValues[floor($ahtCount / 2)] : 0;
-            $ahtQ1 = $ahtCount > 0 ? $ahtValues[floor($ahtCount / 4)] : 0;
-            $ahtQ3 = $ahtCount > 0 ? $ahtValues[floor(($ahtCount * 3) / 4)] : 0;
-            $ahtIqr = $ahtQ3 - $ahtQ1;
-            $ahtLowerWhisker = max($ahtMin, $ahtQ1 - 1.5 * $ahtIqr);
-            $ahtUpperWhisker = min($ahtMax, $ahtQ3 + 1.5 * $ahtIqr);
-            $outliers = $rosterWithAht->filter(fn($r) => $r['aht'] < $ahtLowerWhisker || $r['aht'] > $ahtUpperWhisker);
-            $boxMax = $ahtUpperWhisker ?: 1;
-        @endphp
-
-        @if($ahtCount > 0)
-            <x-wfm.section title="Distribución AHT por Agente">
-                <div class="relative h-40">
-                    <svg viewBox="0 0 400 100" class="w-full h-full">
-                        {{-- Eje Y --}}
-                        <text x="5" y="12" font-size="6" fill="#9ca3af">AHT (s)</text>
-                        <text x="5" y="25" font-size="5" fill="#d1d5db">{{ number_format($ahtMax, 0) }}</text>
-                        <text x="5" y="50" font-size="5" fill="#d1d5db">{{ number_format(($ahtMax + $ahtMin) / 2, 0) }}</text>
-                        <text x="5" y="75" font-size="5" fill="#d1d5db">{{ number_format($ahtMin, 0) }}</text>
-
-                        {{-- Box plot --}}
-                        @php
-                            $scale = 60 / max($boxMax, 1);
-                            $cx = 200;
-                            $q1y = 70 - ($ahtQ1 * $scale);
-                            $q3y = 70 - ($ahtQ3 * $scale);
-                            $medY = 70 - ($ahtMedian * $scale);
-                            $lowY = 70 - ($ahtLowerWhisker * $scale);
-                            $highY = 70 - ($ahtUpperWhisker * $scale);
-                            $boxH = max(2, $q1y - $q3y);
-                        @endphp
-
-                        {{-- Whiskers --}}
-                        <line x1="{{ $cx }}" y1="{{ $lowY }}" x2="{{ $cx }}" y2="{{ $q3y }}" stroke="#93c5fd" stroke-width="1.5" />
-                        <line x1="{{ $cx }}" y1="{{ $q1y }}" x2="{{ $cx }}" y2="{{ $highY }}" stroke="#93c5fd" stroke-width="1.5" />
-                        <line x1="{{ $cx - 15 }}" y1="{{ $lowY }}" x2="{{ $cx + 15 }}" y2="{{ $lowY }}" stroke="#93c5fd" stroke-width="1.5" />
-                        <line x1="{{ $cx - 15 }}" y1="{{ $highY }}" x2="{{ $cx + 15 }}" y2="{{ $highY }}" stroke="#93c5fd" stroke-width="1.5" />
-
-                        {{-- Box (Q1 to Q3) --}}
-                        <rect x="{{ $cx - 20 }}" y="{{ $q3y }}" width="40" height="{{ $boxH }}" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="1.5" rx="2" />
-
-                        {{-- Median line --}}
-                        <line x1="{{ $cx - 20 }}" y1="{{ $medY }}" x2="{{ $cx + 20 }}" y2="{{ $medY }}" stroke="#ef4444" stroke-width="2" />
-
-                        {{-- Mean marker --}}
-                        @php $meanY = 70 - (($ahtValues->avg() ?? 0) * $scale); @endphp
-                        <circle cx="{{ $cx + 28 }}" cy="{{ $meanY }}" r="3" fill="#10b981" stroke="white" stroke-width="1" />
-
-                        {{-- Outliers --}}
-                        @foreach($outliers as $o)
-                            @php $oy = 70 - ($o['aht'] * $scale); @endphp
-                            <circle cx="{{ $cx + 35 }}" cy="{{ $oy }}" r="2.5" fill="none" stroke="#ef4444" stroke-width="1" />
-                            <text x="{{ $cx + 40 }}" y="{{ $oy + 2 }}" font-size="4" fill="#ef4444">{{ $o['name'] }}</text>
-                        @endforeach
-
-                        {{-- Legend --}}
-                        <rect x="10" y="82" width="6" height="6" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="0.5" rx="1" />
-                        <text x="20" y="88" font-size="5" fill="#9ca3af">IQR ({{ $ahtQ1 }}-{{ $ahtQ3 }})</text>
-                        <line x1="80" y1="85" x2="92" y2="85" stroke="#ef4444" stroke-width="2" />
-                        <text x="96" y="88" font-size="5" fill="#9ca3af">Mediana {{ number_format($ahtMedian, 0) }}s</text>
-                        <circle cx="150" cy="85" r="3" fill="#10b981" stroke="white" stroke-width="0.5" />
-                        <text x="158" y="88" font-size="5" fill="#9ca3af">Media {{ number_format($ahtValues->avg(), 0) }}s</text>
-                    </svg>
-                </div>
-            </x-wfm.section>
-        @endif
+        {{-- AHT por Agente y Cola --}}
+        <x-wfm.section title="AHT por Agente y Cola">
+            <div class="h-72" wire:ignore>
+                <x-apex-chart id="aht-queue-chart" :options="$ahtChartOptions" height="100%" />
+            </div>
+        </x-wfm.section>
 
         {{-- Roster Table --}}
         <x-wfm.section title="Roster del Equipo">

@@ -22,15 +22,20 @@ class SyncFinesseAgentStatesAction
         $employees = Cache::remember('cisco_active_employees', 3600, function () {
             return Employee::where('is_active', true)
                 ->whereNotNull('username')
-                ->get(['id', 'username', 'metadata']);
-        }) ?? collect();
-        Log::debug('Employees: '.count($employees));
+                ->get(['id', 'username', 'metadata'])
+                ->toArray();
+        });
+
+        if (! is_array($employees)) {
+            Cache::forget('cisco_active_employees');
+            $employees = [];
+        }
 
         $successCount = 0;
         $errorCount = 0;
 
         foreach ($employees as $employee) {
-            $uccxId = $employee->metadata['uccx_id'] ?? $employee->username;
+            $uccxId = $employee['metadata']['uccx_id'] ?? $employee['username'];
 
             try {
                 $data = $this->client->getAgentInfo($uccxId);
@@ -40,7 +45,7 @@ class SyncFinesseAgentStatesAction
                 }
 
                 $dialogInfo = $this->getDialogInfo($uccxId, $data);
-                $this->updateAgentRealtimeState($employee->id, $uccxId, $data, $dialogInfo);
+                $this->updateAgentRealtimeState($employee['id'], $uccxId, $data, $dialogInfo);
                 $successCount++;
 
             } catch (\Exception $e) {

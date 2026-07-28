@@ -36,6 +36,8 @@ class DatabaseSeeder extends Seeder
             OperationalSettingsSeeder::class,
             VacacionesSeeder::class,
             KnowledgeBaseSeeder::class,
+            IncidentTypeSeeder::class,
+            UsersPerRoleSeeder::class,
         ]);
 
         // Asegurar que el usuario administrador mantenga permisos totales

@@ -121,7 +121,7 @@ class ImportProductionDataSeeder extends Seeder
             return;
         }
 
-        $rows = $this->parseCsv($csvFile);
+        $rows = $this->parseCsv($csvFile, $table);
 
         if (empty($rows)) {
             return;
@@ -151,7 +151,7 @@ class ImportProductionDataSeeder extends Seeder
             return;
         }
 
-        $rows = $this->parseCsv($csvFile);
+        $rows = $this->parseCsv($csvFile, $table);
 
         if (empty($rows)) {
             return;
@@ -174,7 +174,7 @@ class ImportProductionDataSeeder extends Seeder
             return [];
         }
 
-        $rows = $this->parseCsv($csvFile);
+        $rows = $this->parseCsv($csvFile, 'employees');
 
         if (empty($rows)) {
             return [];
@@ -227,7 +227,9 @@ class ImportProductionDataSeeder extends Seeder
         return $files[0] ?? null;
     }
 
-    private function parseCsv(string $path): array
+    private array $nullableCache = [];
+
+    private function parseCsv(string $path, string $table): array
     {
         $handle = fopen($path, 'r');
         $rawHeader = fgetcsv($handle);
@@ -239,6 +241,7 @@ class ImportProductionDataSeeder extends Seeder
         }
 
         $header = array_map(fn (string $col): string => trim($col, '"'), $rawHeader);
+        $nullable = $this->getNullableColumns($table);
 
         $rows = [];
 
@@ -249,7 +252,13 @@ class ImportProductionDataSeeder extends Seeder
 
             $row = array_combine($header, $data);
 
-            $row = array_map(fn ($value) => $value === '' ? null : $value, $row);
+            foreach ($row as $col => $value) {
+                if ($value !== '') {
+                    continue;
+                }
+
+                $row[$col] = in_array($col, $nullable, true) ? null : '';
+            }
 
             $rows[] = $row;
         }
@@ -257,6 +266,25 @@ class ImportProductionDataSeeder extends Seeder
         fclose($handle);
 
         return $rows;
+    }
+
+    private function getNullableColumns(string $table): array
+    {
+        if (isset($this->nullableCache[$table])) {
+            return $this->nullableCache[$table];
+        }
+
+        $columns = DB::select("
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+              AND table_name = ?
+              AND is_nullable = 'YES'
+        ", [$table]);
+
+        $this->nullableCache[$table] = array_map(fn ($col) => $col->column_name, $columns);
+
+        return $this->nullableCache[$table];
     }
 
     private function resetSequences(): void

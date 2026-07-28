@@ -373,6 +373,7 @@ class TeamDashboard extends Component
                 'zoom' => ['enabled' => false],
                 'fontFamily' => 'inherit',
                 'animations' => ['enabled' => false],
+                'height' => '300px',
             ],
             'series' => $series,
             'xaxis' => [

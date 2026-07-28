@@ -7,6 +7,8 @@ namespace App\Modules\AnalyticsModule\Actions;
 use App\Modules\AnalyticsModule\Models\DailyKpi;
 use App\Modules\AnalyticsModule\Models\ForecastAccuracy;
 use App\Modules\AnalyticsModule\Models\HistoricalShrinkage;
+use App\Modules\ConnectModule\Enums\ContactDisposition;
+use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
 use App\Modules\PersonnelModule\Models\Employee;
@@ -114,6 +116,11 @@ final class CalculateDailyKpisAction
         $forecastAccuracy = ForecastAccuracy::where('evaluation_date', $dateStr)
             ->avg('accuracy');
 
+        $asaSeconds = $this->calculateAsa($employeeId, $dateStr);
+        $serviceLevel = $this->calculateServiceLevel($employeeId, $dateStr);
+        $fcrPct = $this->calculateFcr($employeeId, $dateStr);
+        $transferRatePct = $this->calculateTransferRate();
+
         $loginSeconds = $dailyMetric?->login_seconds ?? $totalLogged;
 
         return DailyKpi::updateOrCreate(
@@ -131,9 +138,13 @@ final class CalculateDailyKpisAction
                 'adherence' => round($avgAdherence, 2),
                 'aht_seconds' => $ahtSeconds,
                 'acw_seconds' => $acwSeconds,
+                'asa_seconds' => $asaSeconds,
+                'service_level' => $serviceLevel,
                 'shrinkage_pct' => $shrinkagePct,
                 'forecast_accuracy_pct' => $forecastAccuracy ? round((float) $forecastAccuracy, 2) : null,
                 'quality_score' => $qualityScore ? round((float) $qualityScore, 2) : null,
+                'fcr_pct' => $fcrPct,
+                'transfer_rate_pct' => $transferRatePct,
                 'total_calls' => $totalCalls,
                 'total_talk_seconds' => $totalTalk,
                 'total_hold_seconds' => $totalHold,
@@ -159,6 +170,9 @@ final class CalculateDailyKpisAction
             $avgAdherence = $kpis->avg('adherence');
             $avgAht = $kpis->avg('aht_seconds');
             $avgAcw = $kpis->avg('acw_seconds');
+            $avgAsa = $kpis->avg('asa_seconds');
+            $avgSl = $kpis->avg('service_level');
+            $avgFcr = $kpis->avg('fcr_pct');
             $avgShrinkage = $kpis->avg('shrinkage_pct');
             $avgQuality = $kpis->avg('quality_score');
 
@@ -176,6 +190,9 @@ final class CalculateDailyKpisAction
                     'adherence' => $avgAdherence ? round((float) $avgAdherence, 2) : null,
                     'aht_seconds' => $avgAht ? round((float) $avgAht, 2) : null,
                     'acw_seconds' => $avgAcw ? round((float) $avgAcw, 2) : null,
+                    'asa_seconds' => $avgAsa ? round((float) $avgAsa, 2) : null,
+                    'service_level' => $avgSl ? round((float) $avgSl, 2) : null,
+                    'fcr_pct' => $avgFcr ? round((float) $avgFcr, 2) : null,
                     'shrinkage_pct' => $avgShrinkage ? round((float) $avgShrinkage, 2) : null,
                     'quality_score' => $avgQuality ? round((float) $avgQuality, 2) : null,
                     'total_calls' => $kpis->sum('total_calls'),
@@ -208,6 +225,9 @@ final class CalculateDailyKpisAction
         $avgAdherence = $employeeKpis->avg('adherence');
         $avgAht = $employeeKpis->avg('aht_seconds');
         $avgAcw = $employeeKpis->avg('acw_seconds');
+        $avgAsa = $employeeKpis->avg('asa_seconds');
+        $avgSl = $employeeKpis->avg('service_level');
+        $avgFcr = $employeeKpis->avg('fcr_pct');
         $avgShrinkage = $employeeKpis->avg('shrinkage_pct');
         $avgQuality = $employeeKpis->avg('quality_score');
 
@@ -227,6 +247,9 @@ final class CalculateDailyKpisAction
                 'adherence' => $avgAdherence ? round((float) $avgAdherence, 2) : null,
                 'aht_seconds' => $avgAht ? round((float) $avgAht, 2) : null,
                 'acw_seconds' => $avgAcw ? round((float) $avgAcw, 2) : null,
+                'asa_seconds' => $avgAsa ? round((float) $avgAsa, 2) : null,
+                'service_level' => $avgSl ? round((float) $avgSl, 2) : null,
+                'fcr_pct' => $avgFcr ? round((float) $avgFcr, 2) : null,
                 'shrinkage_pct' => $avgShrinkage ? round((float) $avgShrinkage, 2) : null,
                 'quality_score' => $avgQuality ? round((float) $avgQuality, 2) : null,
                 'forecast_accuracy_pct' => $forecastAccuracy ? round((float) $forecastAccuracy, 2) : null,
@@ -240,5 +263,75 @@ final class CalculateDailyKpisAction
                 'total_scheduled_minutes' => $employeeKpis->sum('total_scheduled_minutes'),
             ],
         );
+    }
+
+    private function calculateAsa(int $employeeId, string $dateStr): ?float
+    {
+        $handled = CallRecord::where('employee_id', $employeeId)
+            ->whereDate('ivr_started_at', $dateStr)
+            ->where('contact_disposition', ContactDisposition::Handled->value)
+            ->whereNotNull('queue_time');
+
+        $avg = $handled->avg('queue_time');
+
+        return $avg ? round((float) $avg, 2) : null;
+    }
+
+    private function calculateServiceLevel(int $employeeId, string $dateStr, int $thresholdSeconds = 20): ?float
+    {
+        $handled = CallRecord::where('employee_id', $employeeId)
+            ->whereDate('ivr_started_at', $dateStr)
+            ->where('contact_disposition', ContactDisposition::Handled->value)
+            ->whereNotNull('queue_time');
+
+        $total = (int) $handled->count();
+
+        if ($total === 0) {
+            return null;
+        }
+
+        $within = (int) (clone $handled)->where('queue_time', '<=', $thresholdSeconds)->count();
+
+        return round(($within / $total) * 100, 2);
+    }
+
+    private function calculateFcr(int $employeeId, string $dateStr, int $repeatDays = 7): ?float
+    {
+        $todayCalls = CallRecord::where('employee_id', $employeeId)
+            ->whereDate('ivr_started_at', $dateStr)
+            ->where('contact_disposition', ContactDisposition::Handled->value)
+            ->whereNotNull('phone_number')
+            ->get(['id', 'phone_number', 'case_subtype_id']);
+
+        if ($todayCalls->isEmpty()) {
+            return null;
+        }
+
+        $repeatCount = 0;
+        $repeatStart = now()->subDays($repeatDays)->startOfDay();
+
+        foreach ($todayCalls as $call) {
+            $priorCount = CallRecord::where('phone_number', $call->phone_number)
+                ->where('case_subtype_id', $call->case_subtype_id)
+                ->where('id', '!=', $call->id)
+                ->whereDate('ivr_started_at', '>=', $repeatStart->toDateString())
+                ->whereDate('ivr_started_at', '<', $dateStr)
+                ->where('contact_disposition', ContactDisposition::Handled->value)
+                ->count();
+
+            if ($priorCount > 0) {
+                $repeatCount++;
+            }
+        }
+
+        $total = $todayCalls->count();
+        $firstContact = $total - $repeatCount;
+
+        return round(($firstContact / $total) * 100, 2);
+    }
+
+    private function calculateTransferRate(): ?float
+    {
+        return null;
     }
 }

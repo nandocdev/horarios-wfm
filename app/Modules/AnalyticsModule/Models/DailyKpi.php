@@ -28,6 +28,8 @@ class DailyKpi extends BaseModel
         'shrinkage_pct',
         'forecast_accuracy_pct',
         'quality_score',
+        'fcr_pct',
+        'transfer_rate_pct',
         'total_calls',
         'total_talk_seconds',
         'total_hold_seconds',

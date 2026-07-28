@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\OperationsModule\Actions\GetEmployeePerformanceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -188,11 +189,23 @@ class TeamDashboard extends Component
         $expectedState = app(ExpectedAgentStateInterface::class);
 
         $states = $realtimeRepo->getRealtimeStates($employeeIds)->keyBy('employee_id');
-        $stats = $realtimeRepo->getQueuePerformanceReport($today, $employeeIds);
 
-        $totalCalls = $stats->sum('handled');
-        $totalTalk = $stats->sum('total_talk');
-        $avgAht = $totalCalls > 0 ? round($totalTalk / $totalCalls, 1) : 0;
+        $perfRecords = AgentCallPerformance::whereIn('employee_id', $employeeIds)
+            ->whereDate('start_time', $today)
+            ->get();
+
+        $inboundRecords = $perfRecords->whereNotNull('csq_name');
+        $outboundRecords = $perfRecords->whereNull('csq_name');
+
+        $totalCalls = $perfRecords->count();
+        $totalInbound = $inboundRecords->count();
+        $totalOutbound = $outboundRecords->count();
+        $totalTalk = $perfRecords->sum('talk_time');
+        $totalWork = $perfRecords->sum('work_time');
+        $totalDurationInbound = $inboundRecords->sum('total_duration');
+        $avgAht = $totalInbound > 0 ? round($totalDurationInbound / $totalInbound, 1) : 0;
+
+        $perfByEmployee = $perfRecords->groupBy('employee_id');
 
         $roster = [];
 
@@ -204,10 +217,19 @@ class TeamDashboard extends Component
             $perf = $action->execute($employee, $date);
             $metrics = $perf->toArray()['metrics'] ?? [];
 
-            $empStats = $realtimeRepo->getQueuePerformanceReport($today, [$employee->id]);
-            $empCalls = $empStats->sum('handled');
-            $empTalk = $empStats->sum('total_talk');
-            $empAht = $empCalls > 0 ? round($empTalk / $empCalls, 1) : 0;
+            $empRecords = $perfByEmployee->get($employee->id, collect());
+            $empInbound = $empRecords->whereNotNull('csq_name');
+            $empOutbound = $empRecords->whereNull('csq_name');
+
+            $empCallsInbound = $empInbound->count();
+            $empCallsOutbound = $empOutbound->count();
+
+            $empDurationInbound = $empInbound->sum('total_duration');
+            $empTalkOutbound = $empOutbound->sum('talk_time');
+            $empWorkOutbound = $empOutbound->sum('work_time');
+
+            $empAhtInbound = $empCallsInbound > 0 ? round($empDurationInbound / $empCallsInbound, 1) : 0;
+            $empAhtOutbound = $empCallsOutbound > 0 ? round(($empTalkOutbound + $empWorkOutbound) / $empCallsOutbound, 1) : 0;
 
             $expected = $expectedState->execute((int) $employee->id, $date);
             $expectedType = $expected['type'] ?? 'OFF';
@@ -218,9 +240,12 @@ class TeamDashboard extends Component
                 'state' => $currentState,
                 'is_connected' => $isConnected,
                 'reason' => $realState->reason_code ?? null,
-                'aht' => $empAht,
-                'calls' => $empCalls,
-                'talk_time' => $empTalk,
+                'aht' => $empAhtInbound,
+                'calls_inbound' => $empCallsInbound,
+                'calls_outbound' => $empCallsOutbound,
+                'aht_inbound' => $empAhtInbound,
+                'aht_outbound' => $empAhtOutbound,
+                'talk_time' => $empInbound->sum('talk_time') + $empTalkOutbound,
                 'occupancy' => (float) ($metrics['occupancy'] ?? 0),
                 'productivity' => (float) ($metrics['productivity_percentage'] ?? 0),
                 'utilization' => (float) ($metrics['utilization_percentage'] ?? 0),
@@ -234,6 +259,8 @@ class TeamDashboard extends Component
 
         $this->teamKpis = array_merge($this->teamKpis, [
             'total_calls' => $totalCalls,
+            'total_inbound' => $totalInbound,
+            'total_outbound' => $totalOutbound,
             'avg_aht' => $avgAht,
         ]);
     }

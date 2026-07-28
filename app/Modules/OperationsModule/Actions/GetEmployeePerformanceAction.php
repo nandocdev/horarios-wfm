@@ -55,7 +55,7 @@ final class GetEmployeePerformanceAction
         $activities = $this->calculateTimeByActivity($transitions, $scheduledMinutes, $date, $attendance['actual_entry'], $schedule);
 
         // 6. Métricas de Productividad y Utilización
-        $metrics = $this->calculateProductivity($transitions, $scheduledMinutes, $date, $schedule);
+        $metrics = $this->calculateProductivity($transitions, $scheduledMinutes, $date, $schedule, $callRecords);
         $metrics['total_logout_minutes'] = $activities['Logout'] ?? 0;
 
         // 7. Volumen de Llamadas
@@ -270,7 +270,7 @@ final class GetEmployeePerformanceAction
         return $activities;
     }
 
-    private function calculateProductivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?WeeklyScheduleAssignment $schedule): array
+    private function calculateProductivity(Collection $transitions, int $scheduledMinutes, Carbon $date, ?WeeklyScheduleAssignment $schedule, Collection $callRecords): array
     {
         $productiveStates = ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND'];
         $totalConnectedSeconds = $transitions->sum('duration');
@@ -297,12 +297,21 @@ final class GetEmployeePerformanceAction
             $end
         );
 
+        $auxStates = ['NOT_READY', 'AUX', 'AUXILIARY'];
+        $auxSeconds = $transitions->filter(fn ($t) => in_array(strtoupper(trim((string) $t->agent_state)), $auxStates))
+            ->sum('duration');
+
+        $talkTime = (float) $callRecords->sum('talk_time');
+        $holdTime = (float) $callRecords->sum('hold_time');
+        $workTime = (float) $callRecords->sum('work_time');
+
         return [
             'total_scheduled_minutes' => $scheduledMinutes,
             'total_productive_minutes' => $productiveMinutes,
             'total_connected_minutes' => $connectedMinutes,
             'productivity_percentage' => MetricFormulas::productivity((float) $productiveSeconds / 60, $connectedMinutes),
             'utilization_percentage' => MetricFormulas::utilization($productiveMinutes, $denominator),
+            'occupancy' => MetricFormulas::occupancy($talkTime, $holdTime, $workTime, $totalConnectedSeconds, $auxSeconds),
         ];
     }
 

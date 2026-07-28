@@ -36,6 +36,7 @@ final class EmployeePerformanceDTO
                 'total_logout_minutes' => 0,
                 'productivity_percentage' => 0,
                 'utilization_percentage' => 0,
+                'occupancy' => 0,
             ],
             queues: []
         );

@@ -140,7 +140,7 @@
 
         {{-- Roster Table --}}
         <x-wfm.section title="Roster del Equipo">
-            <x-wfm.table :headers="['Agente', 'Estado', 'AHT', 'Llamadas', 'T. Hablado', 'Ocupación', 'Productividad']"
+            <x-wfm.table :headers="['Agente', 'Estado', 'AHT', 'Inbound', 'Outbound', 'T. Hablado', 'Ocupación', 'Productividad']"
                 compact>
                 @forelse($roster as $row)
                     <flux:table.row>
@@ -158,7 +158,8 @@
                         <flux:table.cell><span
                                 class="font-mono text-xs">{{ $row['aht'] > 0 ? number_format($row['aht'], 1) . 's' : '—' }}</span>
                         </flux:table.cell>
-                        <flux:table.cell><span class="font-mono text-xs">{{ $row['calls'] }}</span></flux:table.cell>
+                        <flux:table.cell><span class="font-mono text-xs">{{ $row['calls_inbound'] }}</span></flux:table.cell>
+                        <flux:table.cell><span class="font-mono text-xs">{{ $row['calls_outbound'] }}</span></flux:table.cell>
                         <flux:table.cell><span
                                 class="font-mono text-xs">{{ $row['talk_time'] > 0 ? gmdate('H:i:s', $row['talk_time']) : '—' }}</span>
                         </flux:table.cell>
@@ -176,7 +177,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="7" class="text-center text-wfm-surface-muted text-xs py-8">
+                        <flux:table.cell colspan="8" class="text-center text-wfm-surface-muted text-xs py-8">
                             Sin agentes en este equipo
                         </flux:table.cell>
                     </flux:table.row>

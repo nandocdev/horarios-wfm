@@ -23,7 +23,7 @@ class SyncFinesseAgentStatesAction
             return Employee::where('is_active', true)
                 ->whereNotNull('username')
                 ->get(['id', 'username', 'metadata']);
-        });
+        }) ?? collect();
         Log::debug('Employees: '.count($employees));
 
         $successCount = 0;

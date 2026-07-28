@@ -31,6 +31,12 @@ rsync -avzPr \
   --exclude="public/hot" \
   --exclude=".env" \
   --exclude="*.sh" \
+  --exclude=".agents" \
+  --exclude=".ai" \
+  --exclude=".claude" \
+  --exclude=".codegraph" \
+  --exclude=".gemini" \
+  --exclude=".opencode" \
   "$SRC" "$DEST"
 
 echo "✓ Sincronización completada"

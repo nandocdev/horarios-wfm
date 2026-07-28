@@ -60,6 +60,7 @@ class MenuHelper
                 'permission' => 'schedules.view_team',
                 'submenu' => [
                     ['label' => __('Dashboard del Equipo'), 'route' => 'schedules.team-dashboard', 'pattern' => 'schedules/team-dashboard*', 'permission' => 'schedules.view_team', 'icon' => 'presentation-chart-bar'],
+                    ['label' => __('Monitoreo en Tiempo Real'), 'route' => 'operations.realtime', 'pattern' => 'operations/realtime*', 'permission' => 'wfm.realtime.view', 'icon' => 'cpu-chip'],
                     ['label' => __('Mi Equipo'), 'route' => 'schedules.my-team', 'pattern' => 'schedules/my-team*', 'permission' => 'schedules.view_team', 'icon' => 'user-group'],
                     ['label' => __('Aprobar Permisos'), 'route' => 'schedules.manager-approvals', 'pattern' => 'schedules/manager-approvals*', 'permission' => 'schedules.approve_requests', 'icon' => 'check-badge'],
                     ['label' => __('Excepciones'), 'route' => 'schedules.exceptions', 'pattern' => 'schedules/exceptions*', 'permission' => 'schedules.view_team', 'icon' => 'exclamation-triangle'],
@@ -91,7 +92,6 @@ class MenuHelper
                 'icon' => 'chart-bar-square',
                 'permission' => 'operations.view',
                 'submenu' => [
-                    ['label' => __('Monitoreo en Tiempo Real'), 'route' => 'operations.realtime', 'pattern' => 'operations/realtime*', 'permission' => 'wfm.realtime.view', 'icon' => 'cpu-chip'],
                     ['label' => __('Reporte Diario'), 'route' => 'operations.daily-report', 'pattern' => 'operations/reporte-diario*', 'icon' => 'clipboard-document-list'],
                     ['label' => __('Disponibilidad Intradía'), 'route' => 'operations.availability', 'pattern' => 'operations/availability*', 'icon' => 'clock'],
                     ['label' => __('Desempeño por Cola'), 'route' => 'operations.queue-performance', 'pattern' => 'operations/queue-performance*', 'icon' => 'phone'],

@@ -8,12 +8,6 @@
       "enabled": true
    },
    "diff_style": "auto",
-   "attention": {
-      "enabled": true,
-      "notifications": true,
-      "sound": true,
-      "volume": 0.35
-   },
    "keybinds": {
       "leader": "ctrl+x",
       "command_list": "ctrl+p",

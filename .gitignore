@@ -31,3 +31,4 @@ package-lock.json
 gha-creds-*.json
 scripts/*.excalidraw:Zone.Identifier
 /docs/TMP.md
+*_build/

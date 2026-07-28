@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\AnalyticsModule\Jobs\RefreshDataMartJob;
 use App\Modules\OperationsModule\Jobs\AggregateIntervalMetricsJob;
 use App\Modules\QualityModule\Jobs\RecalculateQueueStats;
 use Illuminate\Foundation\Inspiring;
@@ -55,4 +56,9 @@ Schedule::command('wfm:clean-temporal-assignments')
 // Operaciones: Agregar métricas de intervalo cada 15 minutos
 Schedule::job(new AggregateIntervalMetricsJob)
     ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
+// Data Mart: Refrescar tablas de hechos y dimensiones cada hora
+Schedule::job(new RefreshDataMartJob)
+    ->hourly()
     ->withoutOverlapping();

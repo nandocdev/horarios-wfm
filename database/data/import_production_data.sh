@@ -56,8 +56,10 @@ import_csv() {
     local size
     size=$(du -h "$file" | cut -f1)
 
-    echo "  [copy] $table: ${rows} filas (${size})..."
+    echo "  [truncate] $table..."
+    psql $PGARGS -c "TRUNCATE $table;" 2>/dev/null || true
 
+    echo "  [copy] $table: ${rows} filas (${size})..."
     psql $PGARGS -c "\copy $table FROM '$file' WITH (FORMAT CSV, HEADER true);"
 
     echo "  [ok]   $table importada"

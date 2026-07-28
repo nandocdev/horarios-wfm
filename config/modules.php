@@ -48,6 +48,9 @@ return [
         App\Modules\KnowledgeModule\Providers\ModuleServiceProvider::class,     // KnowledgeModule: Base de conocimiento operativo
         App\Modules\QualityModule\Providers\ModuleServiceProvider::class,       // QualityModule: Evaluación de calidad de llamadas
 
+        // ─── Módulo de Analítica (depende de Operations + WFM) ───
+        App\Modules\AnalyticsModule\Providers\ModuleServiceProvider::class,     // AnalyticsModule: Forecast, Staffing, Capacity, Shrinkage, Data Mart, KPIs
+
         // ─── Módulo de Aprobaciones (Workflows) ───
         App\Modules\WorkflowsModule\Providers\ModuleServiceProvider::class,     // WorkflowsModule: Motor de aprobaciones multinivel
     ],

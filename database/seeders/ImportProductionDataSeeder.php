@@ -61,7 +61,7 @@ class ImportProductionDataSeeder extends Seeder
         $this->import('schedules');
         $this->import('scheduled_activity_definitions');
         $this->import('helpdesk_categories');
-        $this->import('operational_settings');
+        $this->import('operational_settings', 'key');
         $this->import('approved_intraday_periods');
 
         // Batch 8 — Semanas y asignaciones
@@ -111,7 +111,7 @@ class ImportProductionDataSeeder extends Seeder
         $this->command->info('Importacion completada.');
     }
 
-    private function import(string $table): void
+    private function import(string $table, string|array $uniqueBy = 'id'): void
     {
         $csvFile = $this->findCsv($table);
 
@@ -128,7 +128,7 @@ class ImportProductionDataSeeder extends Seeder
         }
 
         foreach (array_chunk($rows, 500) as $chunk) {
-            DB::table($table)->upsert($chunk, 'id');
+            DB::table($table)->upsert($chunk, $uniqueBy);
         }
 
         $this->command->info("  [ok] {$table}: ".count($rows).' registros');

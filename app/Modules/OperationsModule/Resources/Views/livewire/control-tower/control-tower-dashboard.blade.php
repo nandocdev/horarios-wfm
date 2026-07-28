@@ -1,5 +1,5 @@
 <div>
-    {{-- Header --}}
+    {{-- ROW 1: Header --}}
     <livewire:operations.control-tower.header-widget
         :selected-date="$selectedDate"
         :scope="$scope"
@@ -15,7 +15,7 @@
         :key="'header'"
     />
 
-    {{-- Hero KPIs --}}
+    {{-- ROW 2: Hero 6-pack --}}
     <livewire:operations.control-tower.hero-stats-widget
         :employee-ids="$employeeIds"
         :selected-date="$selectedDate"
@@ -23,8 +23,8 @@
         wire:key="hero-widget"
     />
 
+    {{-- ROW 3: Estado Operacional (2/3) | Alertas (1/3) --}}
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
-        {{-- Estado Operacional --}}
         <div class="xl:col-span-2">
             <livewire:operations.control-tower.operational-status-widget
                 :employee-ids="$employeeIds"
@@ -32,8 +32,6 @@
                 wire:key="ops-status-widget"
             />
         </div>
-
-        {{-- Alertas --}}
         <div class="xl:col-span-1">
             <livewire:operations.control-tower.alert-feed-widget
                 :employee-ids="$employeeIds"
@@ -43,61 +41,69 @@
         </div>
     </div>
 
+    {{-- ROW 4: Forecast vs Real (1/2) | Cobertura por Intervalo (1/2) --}}
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-        {{-- Occupancy por hora --}}
-        <livewire:operations.control-tower.occupancy-chart-widget
-            :employee-ids="$employeeIds"
+        <livewire:operations.control-tower.forecast-comparison-widget
             :selected-date="$selectedDate"
-            :key="'occupancy-chart'"
-            wire:key="occupancy-chart-widget"
+            :key="'forecast'"
+            wire:key="forecast-widget"
         />
-
-        {{-- SLA + ASA combinado --}}
-        <livewire:operations.control-tower.sla-asa-chart-widget
-            :employee-ids="$employeeIds"
-            :selected-date="$selectedDate"
-            :key="'sla-asa'"
-            wire:key="sla-asa-widget"
-        />
-    </div>
-
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-        {{-- Cobertura --}}
         <livewire:operations.control-tower.coverage-matrix-widget
             :employee-ids="$employeeIds"
             :selected-date="$selectedDate"
             :key="'coverage'"
             wire:key="coverage-widget"
         />
+    </div>
 
-        {{-- Forecast vs Real --}}
-        <livewire:operations.control-tower.forecast-comparison-widget
+    {{-- ROW 5: SLA/ASA (1/2) | Adherencia HeatMap (1/2) --}}
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+        <livewire:operations.control-tower.sla-asa-chart-widget
+            :employee-ids="$employeeIds"
             :selected-date="$selectedDate"
-            :key="'forecast'"
-            wire:key="forecast-widget"
+            :key="'sla-asa'"
+            wire:key="sla-asa-widget"
+        />
+        <livewire:operations.control-tower.adherence-heatmap-widget
+            :employee-ids="$employeeIds"
+            :selected-date="$selectedDate"
+            :key="'heatmap'"
+            wire:key="heatmap-widget"
         />
     </div>
 
+    {{-- ROW 6: Equipos (1/2) | Colas (1/2) --}}
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
-        {{-- Equipos --}}
         <livewire:operations.control-tower.team-performance-widget
             :employee-ids="$employeeIds"
             :selected-date="$selectedDate"
             :key="'teams'"
             wire:key="teams-widget"
         />
+        <livewire:operations.control-tower.queue-table-widget
+            :employee-ids="$employeeIds"
+            :selected-date="$selectedDate"
+            :key="'queues'"
+            wire:key="queues-widget"
+        />
+    </div>
 
-        {{-- Pendientes + Actividad Reciente --}}
-        <div class="grid grid-cols-1 gap-6">
-            <livewire:operations.control-tower.pending-approvals-widget
-                :key="'pending'"
-                wire:key="pending-widget"
-            />
-            <livewire:operations.control-tower.activity-feed-widget
-                :selected-date="$selectedDate"
-                :key="'activity'"
-                wire:key="activity-widget"
-            />
-        </div>
+    {{-- ROW 7: Pendientes (1/3) | Actividad Reciente (1/3) | Notificaciones (1/3) --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <livewire:operations.control-tower.pending-approvals-widget
+            :key="'pending'"
+            wire:key="pending-widget"
+        />
+        <livewire:operations.control-tower.activity-feed-widget
+            :selected-date="$selectedDate"
+            :key="'activity'"
+            wire:key="activity-widget"
+        />
+        <livewire:operations.control-tower.notification-center-widget
+            :employee-ids="$employeeIds"
+            :selected-date="$selectedDate"
+            :key="'notifications'"
+            wire:key="notifications-widget"
+        />
     </div>
 </div>

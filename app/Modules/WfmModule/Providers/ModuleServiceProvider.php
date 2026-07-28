@@ -101,6 +101,8 @@ class ModuleServiceProvider extends ServiceProvider
             Gate::policy($model, $policy);
         }
 
+        Gate::define('monitorRealtime', [SchedulePolicy::class, 'monitorRealtime']);
+
         // Rutas
         if (file_exists(__DIR__.'/../Routes/web.php')) {
             $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');

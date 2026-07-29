@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Livewire;
 
-use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Models\Channel;
 use App\Modules\CoreModule\Models\User;
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -69,7 +69,7 @@ class ListCallRecords extends Component
 
     public function getQueuesProperty(): mixed
     {
-        return CallQueue::active()->orderBy('name')->get();
+        return app(CallQueueCache::class)->active();
     }
 
     public function getChannelsProperty(): mixed

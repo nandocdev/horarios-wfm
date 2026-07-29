@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Actions;
 
 use App\Modules\ConnectModule\Models\CallQueue;
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -78,6 +79,8 @@ final class SyncQueuesFromFinesseAction
                 Log::warning("[FINESSE] Error en Queue/{$id}: {$e->getMessage()}");
             }
         }
+
+        app(CallQueueCache::class)->refresh();
 
         Log::info('[FINESSE] Sincronización completada', $stats);
 

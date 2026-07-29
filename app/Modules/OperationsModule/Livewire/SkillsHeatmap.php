@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\PersonnelModule\Actions\EvaluateSkillCoverageAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmployeeSkill;
 use App\Modules\PersonnelModule\Models\Skill;
+use App\Shared\Support\CallQueueCache;
 use Livewire\Component;
 
 class SkillsHeatmap extends Component
@@ -19,7 +19,7 @@ class SkillsHeatmap extends Component
 
     public function render()
     {
-        $queues = CallQueue::active()->orderBy('name')->get(['id', 'name']);
+        $queues = app(CallQueueCache::class)->selectIds();
 
         $coverageDetails = collect();
         $queueSummary = [];

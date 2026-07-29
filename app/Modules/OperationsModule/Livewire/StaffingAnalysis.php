@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire;
 
 use App\Modules\AnalyticsModule\Models\StaffingRequirement;
-use App\Modules\ConnectModule\Models\CallQueue;
+use App\Shared\Support\CallQueueCache;
 use Livewire\Component;
 
 class StaffingAnalysis extends Component
@@ -21,7 +21,7 @@ class StaffingAnalysis extends Component
 
     public function render()
     {
-        $queues = CallQueue::active()->orderBy('name')->get(['id', 'name']);
+        $queues = app(CallQueueCache::class)->selectIds();
 
         $query = StaffingRequirement::whereDate('interval_start', $this->date);
 

@@ -6,6 +6,7 @@ namespace App\Modules\WfmModule\Livewire;
 
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\WfmModule\Models\OperationalSetting;
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
@@ -93,8 +94,7 @@ class OperationalSettings extends Component
 
     public function loadQueues()
     {
-        $this->queues = CallQueue::orderBy('name')
-            ->get()
+        $this->queues = app(CallQueueCache::class)->all()
             ->map(fn ($q) => [
                 'id' => $q->id,
                 'name' => $q->name,

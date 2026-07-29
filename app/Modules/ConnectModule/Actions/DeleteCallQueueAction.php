@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Actions;
 
 use App\Modules\ConnectModule\Models\CallQueue;
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Support\Facades\DB;
 
 final class DeleteCallQueueAction
@@ -18,5 +19,7 @@ final class DeleteCallQueueAction
 
             $queue->delete();
         });
+
+        app(CallQueueCache::class)->refresh();
     }
 }

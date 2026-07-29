@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Models\Channel;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -53,7 +53,7 @@ class CallQuery extends Component
         return view('operations::livewire.call-query', [
             'records' => $records,
             'totals' => $totals,
-            'queues' => CallQueue::active()->orderBy('name')->get(),
+            'queues' => app(CallQueueCache::class)->active(),
             'channels' => Channel::where('is_active', true)->orderBy('name')->get(),
             'employees' => Employee::where('is_active', true)->orderBy('first_name')->get(['id', 'first_name', 'last_name']),
         ])->layout('layouts.app', ['title' => 'Consulta de Llamadas']);

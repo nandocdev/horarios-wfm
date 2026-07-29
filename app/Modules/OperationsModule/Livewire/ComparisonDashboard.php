@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire;
 
 use App\Modules\AnalyticsModule\Models\DailyKpi;
-use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\OrganizationModule\Models\Team;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -45,7 +45,7 @@ class ComparisonDashboard extends Component
     {
         $options = match ($this->dimension) {
             'team' => Team::active()->orderBy('name')->get()->mapWithKeys(fn ($t) => [$t->id => $t->name]),
-            'queue' => CallQueue::active()->orderBy('name')->get()->mapWithKeys(fn ($q) => [$q->id => $q->name]),
+            'queue' => app(CallQueueCache::class)->active()->mapWithKeys(fn ($q) => [$q->id => $q->name]),
             'supervisor' => Employee::where('is_active', true)
                 ->where(fn ($q) => $q->where('is_manager', true)->orWhereHas('team', fn ($t) => $t->where('supervisor_id', DB::raw('employees.id'))))
                 ->orderBy('first_name')

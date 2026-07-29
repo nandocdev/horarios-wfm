@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Http\Requests;
 
-use App\Modules\ConnectModule\Models\CallQueue;
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateCallRequest extends FormRequest
@@ -18,7 +18,7 @@ class CreateCallRequest extends FormRequest
 
     public function rules(): array
     {
-        $queues = CallQueue::activeNames();
+        $queues = app(CallQueueCache::class)->names();
 
         $queueRule = ['required', 'string'];
         if (! empty($queues)) {

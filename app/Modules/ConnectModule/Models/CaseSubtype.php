@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Models;
 
+use App\Shared\Support\CallQueueCache;
 use Illuminate\Database\Eloquent\Model;
 
 class CaseSubtype extends Model
@@ -40,10 +41,10 @@ class CaseSubtype extends Model
             return $query->where('queue_id', (int) $queue)->where('is_active', true);
         }
 
-        // assume queue is name, resolve id
-        $queueId = CallQueue::where('name', $queue)->value('id');
-        if ($queueId) {
-            return $query->where('queue_id', $queueId)->where('is_active', true);
+        // assume queue is name, resolve from cache
+        $queue = app(CallQueueCache::class)->active()->firstWhere('name', $queue);
+        if ($queue) {
+            return $query->where('queue_id', $queue->id)->where('is_active', true);
         }
 
         return $query->whereRaw('1=0');

@@ -8,7 +8,7 @@ use App\Modules\AnalyticsModule\Actions\CalculateStaffingRequirementsAction;
 use App\Modules\AnalyticsModule\Models\ForecastInterval;
 use App\Modules\AnalyticsModule\Models\ForecastScenario;
 use App\Modules\AnalyticsModule\Models\StaffingRequirement;
-use App\Modules\ConnectModule\Models\CallQueue;
+use App\Shared\Support\CallQueueCache;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Livewire\Attributes\Url;
@@ -52,7 +52,7 @@ class StaffingDashboard extends Component
 
         $forecastIntervals = collect();
         $staffing = collect();
-        $queues = CallQueue::active()->orderBy('name')->get(['id', 'name']);
+        $queues = app(CallQueueCache::class)->selectIds();
 
         if ($scenario && $forecastVersionId) {
             $forecastIntervals = ForecastInterval::where('forecast_scenario_id', $scenario->id)

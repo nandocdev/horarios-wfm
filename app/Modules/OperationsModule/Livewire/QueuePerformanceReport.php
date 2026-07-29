@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\ConnectModule\Models\CallQueue;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
+use App\Shared\Support\CallQueueCache;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -25,7 +25,7 @@ class QueuePerformanceReport extends Component
     public function render(
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
-        $queues = CallQueue::active()->orderBy('name')->get();
+        $queues = app(CallQueueCache::class)->active();
         $selectedQueue = $this->queueId ? $queues->firstWhere('id', $this->queueId) : null;
 
         $stats = $realtimeRepo->getQueuePerformanceReport($this->date);

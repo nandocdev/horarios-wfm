@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire\ControlTower;
 
-use App\Modules\ConnectModule\Enums\ContactDisposition;
-use App\Modules\ConnectModule\Models\CallQueue;
-use App\Modules\ConnectModule\Models\CallRecord;
+use App\Shared\Support\CallQueueCache;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -26,27 +25,32 @@ class QueueTableWidget extends Component
     {
         $today = $this->selectedDate;
 
-        $queues = CallQueue::where('is_active', true)
+        $stats = DB::table('call_records')
+            ->select('queue_id',
+                DB::raw('COUNT(*) as total'),
+                DB::raw('COUNT(*) FILTER (WHERE contact_disposition = 2) as handled'),
+                DB::raw('COUNT(*) FILTER (WHERE contact_disposition = 2 AND queue_time <= 20) as sla_calls'),
+            )
+            ->whereDate('ivr_started_at', $today)
+            ->whereNotNull('queue_id')
+            ->groupBy('queue_id')
             ->get()
-            ->map(function ($queue) use ($today) {
-                $handled = CallRecord::where('queue_id', $queue->id)
-                    ->whereDate('ivr_started_at', $today)
-                    ->where('contact_disposition', ContactDisposition::Handled->value);
+            ->keyBy('queue_id');
 
-                $totalHandled = (int) (clone $handled)->count();
-                $totalCalls = (int) CallRecord::where('queue_id', $queue->id)
-                    ->whereDate('ivr_started_at', $today)->count();
-
-                $waiting = max(0, $totalCalls - $totalHandled);
-                $slaCalls = (int) (clone $handled)->where('queue_time', '<=', 20)->count();
-                $slaPct = $totalHandled > 0 ? round(($slaCalls / $totalHandled) * 100, 1) : 0;
+        $queues = app(CallQueueCache::class)->active()
+            ->map(function ($queue) use ($stats) {
+                $s = $stats->get($queue->id);
+                $handled = (int) ($s->handled ?? 0);
+                $total = (int) ($s->total ?? 0);
+                $waiting = max(0, $total - $handled);
+                $slaPct = $handled > 0 ? round((($s->sla_calls ?? 0) / $handled) * 100, 1) : 0;
 
                 return [
                     'name' => $queue->name,
                     'sla' => $slaPct,
                     'slaClass' => $slaPct >= 90 ? 'text-green-600' : ($slaPct >= 80 ? 'text-yellow-600' : 'text-red-600'),
                     'waiting' => $waiting,
-                    'calls' => $totalHandled,
+                    'calls' => $handled,
                 ];
             })
             ->filter(fn ($q) => $q['calls'] > 0 || $q['waiting'] > 0)

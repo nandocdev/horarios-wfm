@@ -9,6 +9,7 @@ use App\Modules\AnalyticsModule\Models\ForecastGroup;
 use App\Modules\AnalyticsModule\Models\ForecastInterval;
 use App\Modules\AnalyticsModule\Models\ForecastVersion;
 use App\Modules\ConnectModule\Models\CallQueue;
+use App\Shared\Support\CallQueueCache;
 use Carbon\CarbonImmutable;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -139,7 +140,7 @@ class ForecastManager extends Component
         return view('operations::livewire.forecast-manager', [
             'view' => 'list',
             'groups' => $groups,
-            'queues' => CallQueue::active()->orderBy('name')->get(['id', 'name']),
+            'queues' => app(CallQueueCache::class)->selectIds(),
         ])->layout('layouts.app', ['title' => 'Forecast']);
     }
 
@@ -147,7 +148,7 @@ class ForecastManager extends Component
     {
         return view('operations::livewire.forecast-manager', [
             'view' => 'generate',
-            'queues' => CallQueue::active()->orderBy('name')->get(['id', 'name']),
+            'queues' => app(CallQueueCache::class)->selectIds(),
         ])->layout('layouts.app', ['title' => 'Generar Forecast']);
     }
 

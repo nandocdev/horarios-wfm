@@ -10,6 +10,7 @@ use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
+use App\Shared\Support\CallQueueCache;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -54,12 +55,12 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
 
     public function getQueueAhtGoals(): Collection
     {
-        return CallQueue::pluck('aht_goal', 'name');
+        return app(CallQueueCache::class)->ahtGoals();
     }
 
     public function getAllQueues(): Collection
     {
-        return CallQueue::all();
+        return app(CallQueueCache::class)->all();
     }
 
     public function getQueueStats(int $limit = 6): Collection

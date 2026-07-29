@@ -11,6 +11,7 @@ use App\Modules\ConnectModule\DTOs\CaseSubtypeDTO;
 use App\Modules\ConnectModule\Livewire\Forms\CaseSubtypeForm;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CaseSubtype;
+use App\Shared\Support\CallQueueCache;
 use App\Shared\Support\ManageCatalog;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
@@ -65,7 +66,7 @@ class ListCaseSubtypes extends Component
 
         $this->form->validate();
 
-        $activeIds = CallQueue::active()->pluck('id')->toArray();
+        $activeIds = app(CallQueueCache::class)->active()->pluck('id')->toArray();
         if (! in_array($this->form->queue_id, $activeIds, true)) {
             $this->addError('form.queue_id', 'La cola seleccionada no es válida.');
 
@@ -111,7 +112,7 @@ class ListCaseSubtypes extends Component
     public function render(): mixed
     {
         return view('connect::livewire.list-case-subtypes', [
-            'queues' => CallQueue::active()->orderBy('name')->get(),
+            'queues' => app(CallQueueCache::class)->active(),
             'subtypes' => CaseSubtype::with('queue')
                 ->when($this->search, fn ($q) => $q->where('name', 'ilike', "%{$this->search}%"))
                 ->orderBy('queue_id')

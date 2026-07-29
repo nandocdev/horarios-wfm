@@ -1,6 +1,7 @@
 @props([
     'headers' => [],
     'rows' => [],
+    'paginate' => null,
     'striped' => false,
     'hover' => true,
     'compact' => false,
@@ -8,6 +9,12 @@
     'loading' => false,
     'custom' => false,
 ])
+
+@php
+    if (! is_null($paginate)) {
+        $rows = $paginate->items();
+    }
+@endphp
 
 <div {{ $attributes->merge(['class' => 'card-wfm overflow-hidden']) }}>
     <div class="overflow-x-auto p-3">
@@ -75,6 +82,10 @@
     @if(($footer ?? false))
         <div class="px-3 py-2.5 border-t border-wfm-surface-border bg-wfm-surface text-xs text-wfm-surface-muted">
             {{ $footer }}
+        </div>
+    @elseif(! is_null($paginate) && $paginate->hasPages())
+        <div class="px-3 py-2.5 border-t border-wfm-surface-border bg-wfm-surface">
+            {{ $paginate->links() }}
         </div>
     @endif
 </div>

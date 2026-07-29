@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire;
 
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
+use App\Shared\Support\CallQueueCache;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -13,7 +14,10 @@ class QueuePerformanceReport extends Component
     #[Url]
     public string $date = '';
 
-    public function mount()
+    #[Url]
+    public ?int $queueId = null;
+
+    public function mount(): void
     {
         $this->date = $this->date ?: now()->toDateString();
     }
@@ -21,8 +25,25 @@ class QueuePerformanceReport extends Component
     public function render(
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
+        $queues = app(CallQueueCache::class)->active();
+        $selectedQueue = $this->queueId ? $queues->firstWhere('id', $this->queueId) : null;
+
+        $stats = $realtimeRepo->getQueuePerformanceReport($this->date);
+
+        if ($selectedQueue) {
+            $stats = $stats->filter(fn ($s) => $s->queue_name === $selectedQueue->name)->values();
+        }
+
+        $realtimeStats = $realtimeRepo->getCsqRealtimeStats();
+
         return view('operations::livewire.queue-performance-report', [
-            'stats' => $realtimeRepo->getQueuePerformanceReport($this->date),
-        ])->layout('layouts.app', ['title' => 'Performance por Cola']);
+            'queues' => $queues,
+            'selectedQueue' => $selectedQueue,
+            'stats' => $stats,
+            'realtimeStats' => $realtimeStats,
+            'totalOffered' => $stats->sum('total_offered'),
+            'totalHandled' => $stats->sum('handled'),
+            'totalAbandoned' => $stats->sum('abandoned'),
+        ])->layout('layouts.app', ['title' => $selectedQueue ? "Dashboard: {$selectedQueue->name}" : 'Dashboard de Colas']);
     }
 }

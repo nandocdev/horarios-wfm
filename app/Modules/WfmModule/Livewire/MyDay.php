@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\DailyOperatorReport;
@@ -223,8 +224,15 @@ class MyDay extends Component
             'aux_seconds' => $report->lunch_seconds + $report->break_seconds + $report->not_ready_seconds,
             'not_ready_by_reason' => [],
             'calls_by_queue' => [],
+            'call_scatter_data' => [],
+            'call_scatter_x_min' => 300,
+            'call_scatter_x_max' => 900,
             'timeline_start' => $report->scheduled_start?->format('H:i') ?? '06:00',
             'timeline_end' => $report->scheduled_end?->format('H:i') ?? '18:00',
+            'real_end' => null,
+            'end_diff' => null,
+            'lunch_diff' => null,
+            'break_diff' => null,
             'first_lunch_time' => null,
             'first_break_time' => null,
             'intraday_activities' => [],
@@ -268,7 +276,10 @@ class MyDay extends Component
             ? round(($handleSeconds / $readyAvailableSeconds) * 100, 1)
             : 0;
 
-        $firstTransition = $transitions->sortBy('transition_time')->first();
+        $sortedTransitions = $transitions->sortBy('transition_time');
+        $firstTransition = $sortedTransitions->first();
+        $lastTransition = $sortedTransitions->last();
+
         $realEntry = $firstTransition?->transition_time
             ? Carbon::parse($firstTransition->transition_time)->format('H:i')
             : null;
@@ -278,6 +289,15 @@ class MyDay extends Component
             $sched = Carbon::parse($assignment->start_time);
             $real = Carbon::parse($firstTransition->transition_time);
             $entryDiff = (int) $sched->diffInMinutes($real, false);
+        }
+
+        $realEnd = null;
+        $endDiff = null;
+        if ($lastTransition && $assignment?->end_time) {
+            $realEndTime = Carbon::parse($lastTransition->transition_time);
+            $realEnd = $realEndTime->format('H:i');
+            $schedEndTime = Carbon::parse($assignment->end_time);
+            $endDiff = (int) $schedEndTime->diffInMinutes($realEndTime, false);
         }
 
         $empIds = [$targetEmployee->id];
@@ -307,6 +327,32 @@ class MyDay extends Component
         $callsByQueue = app(TelemetryRealtimeRepositoryInterface::class)
             ->getQueuePerformanceReport($today, [$targetEmployee->id]);
 
+        $agentCalls = AgentCallPerformance::where('employee_id', $targetEmployee->id)
+            ->whereDate('start_time', $today)
+            ->whereNotNull('talk_time')
+            ->where('talk_time', '>', 0)
+            ->orderBy('start_time')
+            ->get(['start_time', 'talk_time', 'csq_name']);
+
+        $shiftStartMinutes = $assignment?->start_time
+            ? (int) Carbon::parse($assignment->start_time)->diffInMinutes(Carbon::parse($today))
+            : 360;
+
+        $shiftEndMinutes = $assignment?->end_time
+            ? (int) Carbon::parse($assignment->end_time)->diffInMinutes(Carbon::parse($today))
+            : $shiftStartMinutes + 480;
+
+        $callScatterData = collect($agentCalls)
+            ->groupBy(fn ($c) => $c->csq_name ?? 'Sin Cola')
+            ->map(fn ($calls, $queueName) => [
+                'name' => $queueName,
+                'data' => $calls->map(fn ($call) => [
+                    'x' => (int) Carbon::parse($call->start_time)->diffInMinutes(Carbon::parse($today)),
+                    'y' => (int) $call->talk_time,
+                    't' => Carbon::parse($call->start_time)->format('H:i'),
+                ])->values()->toArray(),
+            ])->values()->toArray();
+
         $firstLunch = $transitions
             ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['LUNCH', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO']))
             ->sortBy('transition_time')
@@ -315,6 +361,20 @@ class MyDay extends Component
             ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['BREAK', 'NOT_READY_BREAK', 'NOT_READY_DESCANSO']))
             ->sortBy('transition_time')
             ->first();
+
+        $lunchDiff = null;
+        if ($firstLunch && $assignment?->lunch_start_time) {
+            $schedLunch = Carbon::parse($assignment->lunch_start_time);
+            $realLunch = Carbon::parse($firstLunch->transition_time);
+            $lunchDiff = (int) $schedLunch->diffInMinutes($realLunch, false);
+        }
+
+        $breakDiff = null;
+        if ($firstBreak && $assignment?->break_start_time) {
+            $schedBreak = Carbon::parse($assignment->break_start_time);
+            $realBreak = Carbon::parse($firstBreak->transition_time);
+            $breakDiff = (int) $schedBreak->diffInMinutes($realBreak, false);
+        }
 
         $intradayActivities = IntradayActivity::with('activityType')
             ->where('employee_id', $targetEmployee->id)
@@ -374,9 +434,16 @@ class MyDay extends Component
             'avg_acw_time' => $avgAcwTime,
             'aux_seconds' => $lunchSeconds + $breakSeconds + $notReadySeconds,
             'not_ready_by_reason' => $notReadyByReason,
-            'calls_by_queue' => $callsByQueue,
+            'calls_by_queue' => $callsByQueue->filter(fn ($q) => ($q->total_offered ?? 0) > 0 || ($q->handled ?? 0) > 0)->values(),
+            'call_scatter_data' => $callScatterData,
+            'call_scatter_x_min' => max(0, $shiftStartMinutes - 60),
+            'call_scatter_x_max' => $shiftEndMinutes + 60,
             'timeline_start' => $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '06:00',
             'timeline_end' => $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '18:00',
+            'real_end' => $realEnd,
+            'end_diff' => $endDiff,
+            'lunch_diff' => $lunchDiff,
+            'break_diff' => $breakDiff,
             'first_lunch_time' => $firstLunch?->transition_time?->format('H:i'),
             'first_break_time' => $firstBreak?->transition_time?->format('H:i'),
             'intraday_activities' => $intradayActivities,

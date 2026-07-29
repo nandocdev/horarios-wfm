@@ -100,6 +100,26 @@ final class EloquentAgentPerformanceRepository implements AgentPerformanceReposi
         return $this->toDailyMetricDTO($model);
     }
 
+    public function getCallRecordsInInterval(int $employeeId, CarbonInterface $start, CarbonInterface $end): Collection
+    {
+        return AgentCallPerformance::where('employee_id', $employeeId)
+            ->where('start_time', '>=', $start)
+            ->where('start_time', '<', $end)
+            ->orderBy('start_time')
+            ->get()
+            ->map(fn (AgentCallPerformance $record): AgentCallRecordDTO => new AgentCallRecordDTO(
+                employee_id: $record->employee_id,
+                start_time: $record->start_time->toDateTimeString(),
+                end_time: $record->end_time?->toDateTimeString(),
+                talk_time: $record->talk_time,
+                hold_time: $record->hold_time,
+                work_time: $record->work_time,
+                phone_number: $record->phone_number,
+                csq_name: $record->csq_name,
+                call_type: $record->call_type,
+            ));
+    }
+
     public function getTeamCallRecords(array $teamIds, CarbonInterface $start, CarbonInterface $end): Collection
     {
         return AgentCallPerformance::join('employees', 'agent_call_performances.employee_id', '=', 'employees.id')

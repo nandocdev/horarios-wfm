@@ -19,16 +19,26 @@ class SyncFinesseAgentStatesAction
 
     public function execute(): array
     {
-        $employees = Cache::remember('cisco_active_employees', 3600, function () {
+        $ciscoUsers = $this->getCiscoUserIds();
+
+        if (empty($ciscoUsers)) {
+            Log::warning('Lista de usuarios Finesse vacía, saltando sincronización de estados.');
+
+            return ['success' => 0, 'error' => 0, 'skipped' => 0];
+        }
+
+        $employees = Cache::remember('cisco_active_employees', 3600, function () use ($ciscoUsers) {
             return Employee::where('is_active', true)
                 ->whereNotNull('username')
+                ->whereIn('username', $ciscoUsers)
                 ->get(['id', 'username', 'metadata'])
                 ->toArray();
         });
 
         if (! is_array($employees)) {
             Cache::forget('cisco_active_employees');
-            $employees = [];
+
+            return ['success' => 0, 'error' => 0, 'skipped' => 0];
         }
 
         $successCount = 0;
@@ -54,6 +64,29 @@ class SyncFinesseAgentStatesAction
         }
 
         return ['success' => $successCount, 'error' => $errorCount];
+    }
+
+    /**
+     * Obtiene los loginId de todos los usuarios en Finesse, cacheados 5 min.
+     */
+    private function getCiscoUserIds(): array
+    {
+        return Cache::remember('cisco_finesse_user_ids', 300, function () {
+            try {
+                $data = $this->client->getAllUsers();
+                $users = $data['User'] ?? [];
+
+                if (isset($users['loginId'])) {
+                    $users = [$users];
+                }
+
+                return collect($users)->pluck('loginId')->filter()->values()->toArray();
+            } catch (\Exception $e) {
+                Log::warning('No se pudo obtener lista de usuarios Finesse: '.$e->getMessage());
+
+                return [];
+            }
+        });
     }
 
     /**

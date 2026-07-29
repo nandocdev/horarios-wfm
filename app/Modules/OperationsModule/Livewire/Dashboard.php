@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire;
 
-use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -38,40 +37,7 @@ class Dashboard extends Component
 
     protected function resolveEmployeeIds(): array
     {
-        $employee = $this->getEmployee();
-        $user = $this->getCurrentUser();
-
-        if (! $employee) {
-            return [];
-        }
-
-        $isWfmOrAdmin = $user->can('viewAny', CallRecord::class);
-        $isChief = $user->hasRole('chief') || $employee->hasCoordinatorRights();
-        $isSupervisor = $employee->is_manager || $user->hasRole(['supervisor', 'coordinator']);
-
-        if ($isWfmOrAdmin) {
-            return [];
-        }
-
-        if ($isChief) {
-            $teamIds = $employee->getManagedTeamIds();
-            $subordinateIds = $employee->getAllSubordinateIds();
-            $ids = Employee::whereIn('team_id', $teamIds)
-                ->orWhereIn('id', $subordinateIds)
-                ->orWhere('id', $employee->id)
-                ->pluck('id')
-                ->toArray();
-
-            return array_unique($ids);
-        }
-
-        if ($isSupervisor) {
-            $subordinateIds = $employee->getAllSubordinateIds();
-
-            return array_unique([$employee->id, ...$subordinateIds]);
-        }
-
-        return [$employee->id];
+        return Employee::where('is_active', true)->pluck('id')->toArray();
     }
 
     public function mount(): void

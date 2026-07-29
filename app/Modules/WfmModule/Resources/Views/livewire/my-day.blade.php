@@ -214,10 +214,21 @@
             @php
                 $entryDiff = $d['entry_diff'] ?? null;
                 $entryLabel = $entryDiff !== null ? ($entryDiff <= 0 ? (string) $entryDiff : '+' . $entryDiff) . ' min' : '—';
+                $lunchDiff = $d['lunch_diff'] ?? null;
+                $lunchLabel = $lunchDiff !== null ? ($lunchDiff <= 0 ? (string) $lunchDiff : '+' . $lunchDiff) . ' min' : '—';
+                $breakDiff = $d['break_diff'] ?? null;
+                $breakLabel = $breakDiff !== null ? ($breakDiff <= 0 ? (string) $breakDiff : '+' . $breakDiff) . ' min' : '—';
+                $endDiff = $d['end_diff'] ?? null;
+                $endLabel = $endDiff !== null ? ($endDiff <= 0 ? (string) $endDiff : '+' . $endDiff) . ' min' : '—';
+                $totalAcum = ($d['total_seconds'] ?? 0) > 0 ? gmdate('H:i', $d['total_seconds']) : '—';
+                $productiveAcum = ($d['productive_seconds'] ?? 0) > 0 ? gmdate('H:i', $d['productive_seconds']) : '—';
+                $lunchAcum = ($d['lunch'] ?? 0) > 0 ? gmdate('H:i', $d['lunch']) : '—';
+                $breakAcum = ($d['break'] ?? 0) > 0 ? gmdate('H:i', $d['break']) : '—';
                 $compliance = [
-                    ['label' => 'Entrada', 'sched' => $d['scheduled_entry'] ?? '--:--', 'real' => $d['real_entry'] ?? '--:--', 'acum' => '—', 'diff' => $entryLabel, 'ok' => ($entryDiff !== null && $entryDiff <= 5)],
-                    ['label' => 'Almuerzo', 'sched' => $d['lunch_start'] ?? '--:--', 'real' => $d['first_lunch_time'] ?? '—', 'acum' => $d['lunch'] > 0 ? gmdate('H:i', $d['lunch']) : '—', 'diff' => '—', 'ok' => true],
-                    ['label' => 'Descanso', 'sched' => $d['break_start'] ?? '--:--', 'real' => $d['first_break_time'] ?? '—', 'acum' => $d['break'] > 0 ? gmdate('H:i', $d['break']) : '—', 'diff' => '—', 'ok' => true],
+                    ['label' => 'Entrada', 'sched' => $d['scheduled_entry'] ?? '--:--', 'real' => $d['real_entry'] ?? '--:--', 'acum' => $productiveAcum, 'diff' => $entryLabel, 'ok' => ($entryDiff !== null && $entryDiff <= 5)],
+                    ['label' => 'Almuerzo', 'sched' => $d['lunch_start'] ?? '--:--', 'real' => $d['first_lunch_time'] ?? '—', 'acum' => $lunchAcum, 'diff' => $lunchLabel, 'ok' => ($lunchDiff !== null && $lunchDiff <= 5)],
+                    ['label' => 'Descanso', 'sched' => $d['break_start'] ?? '--:--', 'real' => $d['first_break_time'] ?? '—', 'acum' => $breakAcum, 'diff' => $breakLabel, 'ok' => ($breakDiff !== null && $breakDiff <= 5)],
+                    ['label' => 'Salida', 'sched' => $d['scheduled_end'] ?? '--:--', 'real' => $d['real_end'] ?? '—', 'acum' => $totalAcum, 'diff' => $endLabel, 'ok' => ($endDiff !== null && $endDiff >= -5)],
                 ];
             @endphp
             <x-wfm.table :headers="['', 'Programado', 'Real', 'Acumulado', 'Estado']" compact>
@@ -285,59 +296,48 @@
     @endif
 
     {{-- Llamadas por Cola vs Distribución AHT --}}
-    @if(!empty($d['calls_by_queue']))
-        @php $queueData = is_array($d['calls_by_queue']) ? $d['calls_by_queue'] : (method_exists($d['calls_by_queue'], 'toArray') ? $d['calls_by_queue']->toArray() : []); @endphp
-        @if(count($queueData) > 0)
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <x-wfm.section title="Llamadas por Cola">
-                    <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado']" compact>
-                        @php $qTotalCalls = 0; $qTotalTalk = 0; $qCount = 0; @endphp
-                        @foreach($queueData as $q)
-                            @php
-                                $qc = (int) ($q->handled ?? $q->total_offered ?? 0);
-                                $qaht = (float) ($q->avg_aht ?? 0);
-                                $qTalk = (int) ($q->total_talk ?? 0);
-                                $qTotalCalls += $qc;
-                                $qTotalTalk += $qTalk;
-                                $qCount++;
-                            @endphp
-                            <flux:table.row>
-                                <flux:table.cell class="font-medium text-xs">{{ $q->queue_name ?? '—' }}</flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '—' }}</span></flux:table.cell>
-                            </flux:table.row>
-                        @endforeach
-                        @if($qCount > 1)
-                            <flux:table.row class="font-bold">
-                                <flux:table.cell class="text-xs">Total</flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls > 0 ? number_format($qTotalTalk / $qTotalCalls, 1) . 's' : '—' }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalTalk > 0 ? gmdate('H:i:s', $qTotalTalk) : '—' }}</span></flux:table.cell>
-                            </flux:table.row>
-                        @endif
-                    </x-wfm.table>
-                </x-wfm.section>
+    @php $queueData = collect($d['calls_by_queue'] ?? []); @endphp
+    @if($queueData->isNotEmpty())
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <x-wfm.section title="Llamadas por Cola">
+                <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado']" compact>
+                    @php $qTotalCalls = 0; $qTotalTalk = 0; $qCount = 0; @endphp
+                    @foreach($queueData as $q)
+                        @php
+                            $qc = (int) ($q->handled ?? $q->total_offered ?? 0);
+                            $qaht = $q->avg_aht ? (float) $q->avg_aht : 0;
+                            $qTalk = (int) ($q->total_talk ?? 0);
+                            $qTotalCalls += $qc;
+                            $qTotalTalk += $qTalk;
+                            $qCount++;
+                        @endphp
+                        <flux:table.row>
+                            <flux:table.cell class="font-medium text-xs">{{ $q->queue_name ?? '—' }}</flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '—' }}</span></flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                    @if($qCount > 1)
+                        <flux:table.row class="font-bold">
+                            <flux:table.cell class="text-xs">Total</flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls > 0 ? number_format($qTotalTalk / $qTotalCalls, 1) . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTotalTalk > 0 ? gmdate('H:i:s', $qTotalTalk) : '—' }}</span></flux:table.cell>
+                        </flux:table.row>
+                    @endif
+                </x-wfm.table>
+            </x-wfm.section>
 
                 <x-wfm.section title="Distribución AHT por Cola">
                     @php
-                        $seriesData = [];
-                        $ahtValues = [];
-                        $talkValues = [];
-                        foreach ($queueData as $q) {
-                            $qTalk = (int) ($q->total_talk ?? 0);
-                            $qaht = round((float) ($q->avg_aht ?? 0), 1);
-                            $qHandled = (int) ($q->handled ?? 0);
-                            $ahtValues[] = $qaht;
-                            $talkValues[] = $qTalk;
-                            $seriesData[] = [
-                                'x' => $qTalk,
-                                'y' => $qaht,
-                                'z' => max($qHandled, 1),
-                                'name' => $q->queue_name ?? '—',
-                            ];
-                        }
-                        $avgAhtChart = count($ahtValues) > 0 ? round(array_sum($ahtValues) / count($ahtValues), 1) : 0;
+                        $scatterColors = ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6','#e11d48','#84cc16','#d946ef','#0ea5e9','#fb923c','#22d3ee','#a855f7','#34d399','#f472b6'];
+                        $series = $d['call_scatter_data'] ?? [];
+                        $seriesWithColors = array_map(fn ($s, $i) => array_merge($s, ['color' => $scatterColors[$i % count($scatterColors)]]), $series, array_keys($series));
+                        $lunchMin = ($d['lunch_start'] ?? null) && ($d['scheduled_entry'] ?? '06:00') !== '--:--'
+                            ? (int) \Carbon\Carbon::parse($d['lunch_start'])->diffInMinutes(\Carbon\Carbon::today()->startOfDay(), false)
+                            : null;
+
                         $chartOptions = json_encode([
                             'chart' => [
                                 'type' => 'scatter',
@@ -348,37 +348,34 @@
                                 'offsetY' => 0,
                                 'parentHeightOffset' => 0,
                             ],
-                            'series' => [[
-                                'name' => 'Colas',
-                                'data' => $seriesData,
-                            ]],
+                            'colors' => $scatterColors,
+                            'series' => $seriesWithColors,
                             'xaxis' => [
-                                'title' => ['text' => 'T. Hablado Acumulado', 'style' => ['fontSize' => '11px']],
-                                'labels' => [
-                                    'formatter' => 'function(v) { let d = Math.floor(v/60); return String(d).padStart(2,"0") + ":" + String(Math.floor(v%60)).padStart(2,"0"); }',
-                                ],
+                                'title' => ['text' => 'Hora del día', 'style' => ['fontSize' => '11px']],
+                                'min' => $d['call_scatter_x_min'] ?? 300,
+                                'max' => $d['call_scatter_x_max'] ?? 900,
+                                'tickAmount' => 10,
+                                'labels' => ['formatter' => 'function(v) { let h=Math.floor(v/60); let m=Math.floor(v%60); return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }'],
                             ],
                             'yaxis' => [
-                                'title' => ['text' => 'AHT (segundos)', 'style' => ['fontSize' => '11px']],
+                                'title' => ['text' => 'Talk Time (segundos)', 'style' => ['fontSize' => '11px']],
                                 'labels' => ['formatter' => 'function(v) { return v.toFixed(0) + "s"; }'],
                             ],
                             'markers' => [
-                                'size' => 8,
-                                'colors' => ['#3b82f6'],
-                                'strokeColors' => ['#2563eb'],
+                                'size' => 6,
                                 'strokeWidth' => 1,
+                                'strokeOpacity' => 0.6,
                             ],
                             'tooltip' => [
                                 'custom' => 'function({seriesIndex, dataPointIndex, w}) {
                                     let d = w.config.series[seriesIndex].data[dataPointIndex];
-                                    let talkM = Math.floor(d.x / 60);
-                                    let talkS = Math.floor(d.x % 60);
-                                    let talkStr = String(talkM).padStart(2,"0") + ":" + String(talkS).padStart(2,"0");
+                                    let h = Math.floor(d.x / 60);
+                                    let m = Math.floor(d.x % 60);
+                                    let timeStr = String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0");
                                     return "<div class=\"px-3 py-2 text-xs\">" +
-                                        "<strong>" + d.name + "</strong><br>" +
-                                        "Llamadas: " + d.z + "<br>" +
-                                        "AHT: " + d.y.toFixed(1) + "s<br>" +
-                                        "T. Hablado: " + talkStr +
+                                        "<strong>" + w.config.series[seriesIndex].name + "</strong><br>" +
+                                        "Hora: " + timeStr + "<br>" +
+                                        "Talk Time: " + d.y + "s" +
                                         "</div>";
                                 }',
                             ],
@@ -386,25 +383,21 @@
                                 'show' => true,
                                 'borderColor' => '#e5e7eb',
                                 'strokeDashArray' => 2,
-                                'padding' => [
-                                    'left' => 20,
-                                    'right' => 10,
-                                    'top' => 10,
-                                    'bottom' => 10,
-                                ],
+                                'padding' => ['left' => 20, 'right' => 10, 'top' => 10, 'bottom' => 10],
                             ],
-                            'annotations' => [
-                                'yaxis' => [[
-                                    'y' => $avgAhtChart,
+                            'annotations' => array_filter([
+                                'xaxis' => $lunchMin !== null ? [[
+                                    'x' => $lunchMin,
                                     'borderColor' => '#f59e0b',
                                     'strokeDashArray' => 4,
                                     'label' => [
                                         'borderColor' => '#f59e0b',
-                                        'style' => ['color' => '#fff', 'background' => '#f59e0b', 'fontSize' => '10px'],
-                                        'text' => 'Prom AHT ' . $avgAhtChart . 's',
+                                        'position' => 'top',
+                                        'style' => ['color' => '#fff', 'background' => '#f59e0b', 'fontSize' => '9px'],
+                                        'text' => 'Almuerzo',
                                     ],
-                                ]],
-                            ],
+                                ]] : [],
+                            ]),
                         ]);
                     @endphp
                     <x-apex-chart id="aht-scatter" :options="$chartOptions" height="280" />
@@ -453,6 +446,5 @@
                 <x-wfm.kpi :value="gmdate('H:i:s', $d['aux_seconds'] ?? 0)" label="Tiempo Auxiliar" icon="clock" color="warning" />
             </div>
         </x-wfm.section>
-    @endif
     @endif
 </div>

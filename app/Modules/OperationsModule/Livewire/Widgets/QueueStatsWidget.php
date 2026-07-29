@@ -43,6 +43,7 @@ class QueueStatsWidget extends Component
         try {
             if (! $date->isToday()) {
                 $stats = $realtimeRepo->getQueuePerformanceReport($this->selectedDate)
+                    ->filter(fn ($row) => ($row->total_offered ?? 0) > 0 || ($row->handled ?? 0) > 0)
                     ->map(fn ($row) => [
                         'name' => $row->queue_name,
                         'waiting' => 0,

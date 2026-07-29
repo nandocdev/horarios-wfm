@@ -12,14 +12,44 @@ use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
 use App\Modules\OperationsModule\Livewire\AgentPerformanceDashboard;
 use App\Modules\OperationsModule\Livewire\AgentRealtimeCard;
 use App\Modules\OperationsModule\Livewire\AgentTimeline;
+use App\Modules\OperationsModule\Livewire\CallQuery;
+use App\Modules\OperationsModule\Livewire\CapacityAnalysis;
+use App\Modules\OperationsModule\Livewire\CapacityDashboard;
+use App\Modules\OperationsModule\Livewire\ComparisonDashboard;
+use App\Modules\OperationsModule\Livewire\ControlTower\ActivityFeedWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\AdherenceHeatmapWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\AlertFeedWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\ControlTowerDashboard;
+use App\Modules\OperationsModule\Livewire\ControlTower\CoverageMatrixWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\ForecastComparisonWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\HeaderWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\HeroStatsWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\NotificationCenterWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\OccupancyChartWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\OperationalStatusWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\PendingApprovalsWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\QueueTableWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\SlaAsaChartWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\TeamPerformanceWidget;
+use App\Modules\OperationsModule\Livewire\ControlTower\TimelineWidget;
 use App\Modules\OperationsModule\Livewire\DailyReport;
 use App\Modules\OperationsModule\Livewire\Dashboard;
+use App\Modules\OperationsModule\Livewire\DataExplorer;
+use App\Modules\OperationsModule\Livewire\ForecastManager;
+use App\Modules\OperationsModule\Livewire\IntervalDashboard;
 use App\Modules\OperationsModule\Livewire\IntradayAvailability;
+use App\Modules\OperationsModule\Livewire\KpiDashboard;
 use App\Modules\OperationsModule\Livewire\PerformanceScorecard;
 use App\Modules\OperationsModule\Livewire\QueuePerformanceReport;
 use App\Modules\OperationsModule\Livewire\RealtimeMonitoring;
 use App\Modules\OperationsModule\Livewire\ReportingFrameworkIndex;
+use App\Modules\OperationsModule\Livewire\ScenarioComparison;
+use App\Modules\OperationsModule\Livewire\ShrinkageDashboard;
+use App\Modules\OperationsModule\Livewire\SkillsHeatmap;
+use App\Modules\OperationsModule\Livewire\StaffingAnalysis;
+use App\Modules\OperationsModule\Livewire\StaffingDashboard;
 use App\Modules\OperationsModule\Livewire\TeamPerformanceSummary;
+use App\Modules\OperationsModule\Livewire\TrendsDashboard;
 use App\Modules\OperationsModule\Livewire\Widgets\CriticalAlertsWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\HeroKpiWidget;
 use App\Modules\OperationsModule\Livewire\Widgets\QueueStatsWidget;
@@ -67,6 +97,8 @@ class ModuleServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ReconcileAttendanceCommand::class,
@@ -84,6 +116,20 @@ class ModuleServiceProvider extends ServiceProvider
 
         Livewire::component('operations.realtime-monitoring', RealtimeMonitoring::class);
         Livewire::component('operations.intraday-availability', IntradayAvailability::class);
+        Livewire::component('operations.interval-dashboard', IntervalDashboard::class);
+        Livewire::component('operations.call-query', CallQuery::class);
+        Livewire::component('operations.forecast-manager', ForecastManager::class);
+        Livewire::component('operations.staffing-dashboard', StaffingDashboard::class);
+        Livewire::component('operations.staffing-analysis', StaffingAnalysis::class);
+        Livewire::component('operations.capacity-dashboard', CapacityDashboard::class);
+        Livewire::component('operations.shrinkage-dashboard', ShrinkageDashboard::class);
+        Livewire::component('operations.scenario-comparison', ScenarioComparison::class);
+        Livewire::component('operations.kpi-dashboard', KpiDashboard::class);
+        Livewire::component('operations.capacity-analysis', CapacityAnalysis::class);
+        Livewire::component('operations.trends-dashboard', TrendsDashboard::class);
+        Livewire::component('operations.skills-heatmap', SkillsHeatmap::class);
+        Livewire::component('operations.comparison-dashboard', ComparisonDashboard::class);
+        Livewire::component('operations.data-explorer', DataExplorer::class);
         Livewire::component('operations.queue-performance-report', QueuePerformanceReport::class);
         Livewire::component('operations.reporting-index', ReportingFrameworkIndex::class);
         Livewire::component('operations.performance-scorecard', PerformanceScorecard::class);
@@ -92,6 +138,22 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('operations.agent-realtime-card', AgentRealtimeCard::class);
         Livewire::component('operations.agent-timeline', AgentTimeline::class);
         Livewire::component('operations.dashboard', Dashboard::class);
+        Livewire::component('operations.control-tower', ControlTowerDashboard::class);
+        Livewire::component('operations.control-tower.header-widget', HeaderWidget::class);
+        Livewire::component('operations.control-tower.hero-stats-widget', HeroStatsWidget::class);
+        Livewire::component('operations.control-tower.operational-status-widget', OperationalStatusWidget::class);
+        Livewire::component('operations.control-tower.alert-feed-widget', AlertFeedWidget::class);
+        Livewire::component('operations.control-tower.occupancy-chart-widget', OccupancyChartWidget::class);
+        Livewire::component('operations.control-tower.sla-asa-chart-widget', SlaAsaChartWidget::class);
+        Livewire::component('operations.control-tower.coverage-matrix-widget', CoverageMatrixWidget::class);
+        Livewire::component('operations.control-tower.forecast-comparison-widget', ForecastComparisonWidget::class);
+        Livewire::component('operations.control-tower.team-performance-widget', TeamPerformanceWidget::class);
+        Livewire::component('operations.control-tower.pending-approvals-widget', PendingApprovalsWidget::class);
+        Livewire::component('operations.control-tower.adherence-heatmap-widget', AdherenceHeatmapWidget::class);
+        Livewire::component('operations.control-tower.queue-table-widget', QueueTableWidget::class);
+        Livewire::component('operations.control-tower.notification-center-widget', NotificationCenterWidget::class);
+        Livewire::component('operations.control-tower.activity-feed-widget', ActivityFeedWidget::class);
+        Livewire::component('operations.control-tower.timeline-widget', TimelineWidget::class);
         Livewire::component('operations.advanced-productivity-dashboard', AdvancedProductivityDashboard::class);
         Livewire::component('operations.agent-performance-dashboard', AgentPerformanceDashboard::class);
 

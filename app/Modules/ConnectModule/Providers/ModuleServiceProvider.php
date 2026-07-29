@@ -9,6 +9,7 @@ use App\Modules\ConnectModule\Console\Commands\CuicBackfillCommand;
 use App\Modules\ConnectModule\Console\Commands\CuicRealtimeSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\CuicSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\FinesseSyncCommand;
+use App\Modules\ConnectModule\Console\Commands\FinesseSyncQueuesCommand;
 use App\Modules\ConnectModule\Console\Commands\ImportUccxDataCommand;
 use App\Modules\ConnectModule\Console\Commands\TestCuicAgentDetailCommand;
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
@@ -63,6 +64,7 @@ class ModuleServiceProvider extends ServiceProvider
                 CuicSyncCommand::class,
                 CuicBackfillCommand::class,
                 FinesseSyncCommand::class,
+                FinesseSyncQueuesCommand::class,
                 CuicRealtimeSyncCommand::class,
             ]);
         }

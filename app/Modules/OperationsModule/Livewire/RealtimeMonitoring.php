@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire;
 
 use App\Modules\ConnectModule\Models\CallRecord;
-use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
@@ -63,7 +62,6 @@ class RealtimeMonitoring extends Component
         TelemetryRealtimeRepositoryInterface $realtimeRepo,
     ) {
         $this->authorize('monitorRealtime');
-        $this->authorize('viewAny', AttendanceIncident::class);
 
         $user = auth()->user();
         $employee = $user->employee;

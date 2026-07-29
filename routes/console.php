@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Modules\AnalyticsModule\Actions\CalculateDailyKpisAction;
+use App\Modules\AnalyticsModule\Jobs\RefreshDataMartJob;
+use App\Modules\OperationsModule\Jobs\AggregateIntervalMetricsJob;
 use App\Modules\QualityModule\Jobs\RecalculateQueueStats;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -49,4 +53,22 @@ Schedule::job(new RecalculateQueueStats)
 // WFM: Limpiar asignaciones temporales expiradas (swap de turnos)
 Schedule::command('wfm:clean-temporal-assignments')
     ->dailyAt('04:00')
+    ->withoutOverlapping();
+
+// Operaciones: Agregar métricas de intervalo cada 15 minutos
+Schedule::job(new AggregateIntervalMetricsJob)
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
+// Data Mart: Refrescar tablas de hechos y dimensiones cada hora
+Schedule::job(new RefreshDataMartJob)
+    ->hourly()
+    ->withoutOverlapping();
+
+// Analytics: Consolidar KPIs diarios (corre después del Data Mart)
+Schedule::call(function () {
+    app(CalculateDailyKpisAction::class)
+        ->execute(CarbonImmutable::yesterday());
+})->name('daily-kpis-calculation')
+    ->dailyAt('03:30')
     ->withoutOverlapping();

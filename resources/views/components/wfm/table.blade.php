@@ -1,6 +1,7 @@
 @props([
     'headers' => [],
     'rows' => [],
+    'paginate' => null,
     'striped' => false,
     'hover' => true,
     'compact' => false,
@@ -8,6 +9,12 @@
     'loading' => false,
     'custom' => false,
 ])
+
+@php
+    if (! is_null($paginate)) {
+        $rows = $paginate->items();
+    }
+@endphp
 
 <div {{ $attributes->merge(['class' => 'card-wfm overflow-hidden']) }}>
     <div class="overflow-x-auto p-3">
@@ -31,6 +38,10 @@
 
             @if($custom)
                 {{ $slot }}
+            @elseif($slot->isNotEmpty())
+                <tbody class="divide-y divide-wfm-surface-border bg-wfm-surface-card">
+                    {{ $slot }}
+                </tbody>
             @else
                 <tbody class="divide-y divide-wfm-surface-border bg-wfm-surface-card">
                     @if($loading)
@@ -42,7 +53,7 @@
                                 </div>
                             </td>
                         </tr>
-                    @elseif(count($rows) === 0 && ! ($slot ?? false))
+                    @elseif(count($rows) === 0)
                         <tr>
                             <td colspan="{{ count($headers) ?: 1 }}">
                                 <x-wfm.empty :message="$empty" />
@@ -65,8 +76,6 @@
                             </tr>
                         @endforeach
                     @endif
-
-                    {{ $slot ?? '' }}
                 </tbody>
             @endif
         </table>
@@ -75,6 +84,10 @@
     @if(($footer ?? false))
         <div class="px-3 py-2.5 border-t border-wfm-surface-border bg-wfm-surface text-xs text-wfm-surface-muted">
             {{ $footer }}
+        </div>
+    @elseif(! is_null($paginate) && $paginate->hasPages())
+        <div class="px-3 py-2.5 border-t border-wfm-surface-border bg-wfm-surface">
+            {{ $paginate->links() }}
         </div>
     @endif
 </div>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncCuicDataAction;
+use App\Modules\ConnectModule\Actions\SyncQueuesFromFinesseAction;
 use App\Modules\OperationsModule\Actions\ReconcileEmployeeAttendanceAction;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use Carbon\Carbon;
@@ -55,6 +56,12 @@ final class CuicSyncCommand extends Command
 
     private function performSync(SyncCuicDataAction $action): int
     {
+        try {
+            app(SyncQueuesFromFinesseAction::class)->execute();
+        } catch (\Throwable $e) {
+            Log::warning('[CUIC-SYNC] Error en sync de colas Finesse: '.$e->getMessage());
+        }
+
         if ($this->option('from') && $this->option('to')) {
             $start = Carbon::parse((string) $this->option('from'));
             $end = Carbon::parse((string) $this->option('to'));

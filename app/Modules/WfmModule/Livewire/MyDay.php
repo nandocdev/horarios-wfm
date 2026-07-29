@@ -335,11 +335,11 @@ class MyDay extends Component
             ->get(['start_time', 'talk_time', 'csq_name']);
 
         $shiftStartMinutes = $assignment?->start_time
-            ? (int) Carbon::parse($assignment->start_time)->diffInMinutes(Carbon::parse($today), false)
+            ? (int) Carbon::parse($assignment->start_time)->diffInMinutes(Carbon::parse($today))
             : 360;
 
         $shiftEndMinutes = $assignment?->end_time
-            ? (int) Carbon::parse($assignment->end_time)->diffInMinutes(Carbon::parse($today), false)
+            ? (int) Carbon::parse($assignment->end_time)->diffInMinutes(Carbon::parse($today))
             : $shiftStartMinutes + 480;
 
         $callScatterData = collect($agentCalls)
@@ -347,7 +347,7 @@ class MyDay extends Component
             ->map(fn ($calls, $queueName) => [
                 'name' => $queueName,
                 'data' => $calls->map(fn ($call) => [
-                    'x' => (int) Carbon::parse($call->start_time)->diffInMinutes(Carbon::parse($today), false),
+                    'x' => (int) Carbon::parse($call->start_time)->diffInMinutes(Carbon::parse($today)),
                     'y' => (int) $call->talk_time,
                     't' => Carbon::parse($call->start_time)->format('H:i'),
                 ])->values()->toArray(),

@@ -23,19 +23,23 @@ class OperationalStatusWidget extends Component
         $ids = $this->employeeIds;
 
         $states = $realtimeRepo->getRealtimeStates($ids);
-        $grouped = $states->groupBy(fn ($s) => strtoupper(trim($s->current_state ?? 'UNKNOWN')));
+        $connected = $states->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN']);
+        $connectedCount = $connected->count();
 
-        $total = max(1, $states->count());
+        $total = max(1, $connectedCount);
+
+        $grouped = $states->groupBy(fn ($s) => strtoupper(trim($s->current_state ?? 'UNKNOWN')));
 
         $statuses = [
             ['key' => 'TALKING', 'label' => 'En llamada', 'color' => 'bg-green-500', 'count' => $grouped->get('TALKING', collect())->count()],
             ['key' => 'READY', 'label' => 'Disponible', 'color' => 'bg-blue-500', 'count' => $grouped->get('READY', collect())->count()],
             ['key' => 'HOLD', 'label' => 'En espera', 'color' => 'bg-yellow-500', 'count' => $grouped->get('HOLD', collect())->count()],
             ['key' => 'WORK', 'label' => 'ACW', 'color' => 'bg-purple-500', 'count' => $grouped->get('WORK', collect())->count()],
-            ['key' => 'NOT_READY', 'label' => 'Auxiliar', 'color' => 'bg-orange-500', 'count' => $grouped->get('NOT_READY', collect())->get('AUX', collect())->count() + $grouped->get('NOT_READY', collect())->count()],
+            ['key' => 'NOT_READY', 'label' => 'Auxiliar', 'color' => 'bg-orange-500', 'count' => $grouped->get('NOT_READY', collect())->count()],
             ['key' => 'RESERVED', 'label' => 'Reservado', 'color' => 'bg-indigo-500', 'count' => $grouped->get('RESERVED', collect())->count()],
-            ['key' => 'LOGOUT', 'label' => 'Desconectado', 'color' => 'bg-zinc-400', 'count' => $grouped->get('LOGOUT', collect())->count() + $grouped->get('OFFLINE', collect())->count() + $grouped->get('UNKNOWN', collect())->count()],
         ];
+
+        $offlineCount = $states->count() - $connectedCount;
 
         foreach ($statuses as &$s) {
             $s['pct'] = round(($s['count'] / $total) * 100, 1);
@@ -43,7 +47,8 @@ class OperationalStatusWidget extends Component
 
         return view('operations::livewire.control-tower.operational-status-widget', [
             'statuses' => $statuses,
-            'total' => $states->count(),
+            'total' => $connectedCount,
+            'offlineCount' => $offlineCount,
         ]);
     }
 }

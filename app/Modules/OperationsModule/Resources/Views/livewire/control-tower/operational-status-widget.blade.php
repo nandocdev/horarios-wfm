@@ -18,4 +18,11 @@
             </div>
         @endforeach
     </div>
+
+    @if($offlineCount > 0)
+        <div class="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700 flex items-center justify-between text-xs">
+            <span class="text-zinc-500 dark:text-zinc-400">Desconectados</span>
+            <span class="font-bold text-zinc-400">{{ $offlineCount }}</span>
+        </div>
+    @endif
 </div>

@@ -124,13 +124,6 @@ class ControlTowerDashboard extends Component
 
     protected function resolveEmployeeIds(): array
     {
-        $employee = $this->getEmployee();
-        $user = $this->getCurrentUser();
-
-        if (! $employee) {
-            return [];
-        }
-
         if ($this->scope === 'team' && $this->teamId) {
             return Employee::where('team_id', $this->teamId)
                 ->where('is_active', true)
@@ -138,27 +131,6 @@ class ControlTowerDashboard extends Component
                 ->toArray();
         }
 
-        $role = $this->getUserRole();
-
-        if ($role === 'wfm') {
-            return Employee::where('is_active', true)->pluck('id')->toArray();
-        }
-
-        if ($role === 'chief') {
-            $teamIds = $employee->getManagedTeamIds();
-            $subordinateIds = $employee->getAllSubordinateIds();
-
-            return array_unique(array_merge(
-                [$employee->id],
-                $subordinateIds,
-                Employee::whereIn('team_id', $teamIds)->pluck('id')->toArray(),
-            ));
-        }
-
-        if ($role === 'supervisor') {
-            return array_unique([$employee->id, ...$employee->getAllSubordinateIds()]);
-        }
-
-        return [$employee->id];
+        return Employee::where('is_active', true)->pluck('id')->toArray();
     }
 }

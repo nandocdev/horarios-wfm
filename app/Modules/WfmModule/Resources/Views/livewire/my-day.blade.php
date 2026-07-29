@@ -335,7 +335,7 @@
                         $series = $d['call_scatter_data'] ?? [];
                         $seriesWithColors = array_map(fn ($s, $i) => array_merge($s, ['color' => $scatterColors[$i % count($scatterColors)]]), $series, array_keys($series));
                         $lunchMin = ($d['lunch_start'] ?? null) && ($d['scheduled_entry'] ?? '06:00') !== '--:--'
-                            ? max(0, (int) \Carbon\Carbon::parse($d['scheduled_entry'])->diffInMinutes(\Carbon\Carbon::parse($d['lunch_start']), false))
+                            ? (int) \Carbon\Carbon::parse($d['lunch_start'])->diffInMinutes(\Carbon\Carbon::today()->startOfDay(), false)
                             : null;
 
                         $chartOptions = json_encode([
@@ -351,7 +351,10 @@
                             'colors' => $scatterColors,
                             'series' => $seriesWithColors,
                             'xaxis' => [
-                                'title' => ['text' => 'Minutos desde inicio del turno', 'style' => ['fontSize' => '11px']],
+                                'title' => ['text' => 'Hora del día', 'style' => ['fontSize' => '11px']],
+                                'min' => $d['call_scatter_x_min'] ?? 300,
+                                'max' => $d['call_scatter_x_max'] ?? 900,
+                                'tickAmount' => 10,
                                 'labels' => ['formatter' => 'function(v) { let h=Math.floor(v/60); let m=Math.floor(v%60); return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }'],
                             ],
                             'yaxis' => [
@@ -371,8 +374,7 @@
                                     let timeStr = String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0");
                                     return "<div class=\"px-3 py-2 text-xs\">" +
                                         "<strong>" + w.config.series[seriesIndex].name + "</strong><br>" +
-                                        "Hora: " + d.t + "<br>" +
-                                        "Desde inicio: " + timeStr + "<br>" +
+                                        "Hora: " + timeStr + "<br>" +
                                         "Talk Time: " + d.y + "s" +
                                         "</div>";
                                 }',

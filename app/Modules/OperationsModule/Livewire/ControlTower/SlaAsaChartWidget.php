@@ -34,7 +34,7 @@ class SlaAsaChartWidget extends Component
         $yesterdayAsa = [];
         $categories = [];
 
-        $hours = range(7, 21);
+        $hours = range(6, 17);
         foreach ($hours as $h) {
             $label = sprintf('%02d:00', $h);
             $categories[] = $label;

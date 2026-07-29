@@ -50,7 +50,7 @@ class OccupancyChartWidget extends Component
             $yesterdayMetrics = collect();
         }
 
-        $hours = range(6, 22);
+        $hours = range(6, 17);
         $todaySeries = [];
         $yesterdaySeries = [];
         $categories = [];

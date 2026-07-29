@@ -39,7 +39,7 @@ class CoverageMatrixWidget extends Component
         $connectedNow = $currentStates->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])->count();
 
         $rows = collect();
-        for ($h = 7; $h <= 21; $h++) {
+        for ($h = 6; $h <= 17; $h++) {
             $label = sprintf('%02d:00', $h);
 
             $scheduled = $assignments->filter(function ($a) use ($label) {

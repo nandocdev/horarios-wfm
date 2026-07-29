@@ -45,7 +45,7 @@ class ForecastComparisonWidget extends Component
             $actualCalls = collect();
         }
 
-        $hours = range(7, 21);
+        $hours = range(6, 17);
         $forecastSeries = [];
         $actualSeries = [];
         $categories = [];

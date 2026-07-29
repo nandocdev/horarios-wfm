@@ -26,7 +26,7 @@ class AdherenceHeatmapWidget extends Component
     public function render()
     {
         $today = $this->selectedDate;
-        $hours = range(7, 21);
+        $hours = range(6, 17);
 
         $teams = Team::where('is_active', true)
             ->whereHas('employees', fn ($q) => $q->where('position_id', 5)->where('is_active', true))
@@ -51,7 +51,7 @@ class AdherenceHeatmapWidget extends Component
                 ->where('employees.is_active', true)
                 ->whereIn('employees.position_id', [1, 2])
                 ->whereDate('agent_state_transitions.transition_time', $today)
-                ->whereRaw('EXTRACT(HOUR FROM agent_state_transitions.transition_time) BETWEEN 7 AND 21')
+                ->whereRaw('EXTRACT(HOUR FROM agent_state_transitions.transition_time) BETWEEN 6 AND 17')
                 ->select(
                     'employees.team_id',
                     DB::raw('EXTRACT(HOUR FROM agent_state_transitions.transition_time) as hour'),

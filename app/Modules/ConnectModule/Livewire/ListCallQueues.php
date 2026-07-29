@@ -84,7 +84,7 @@ class ListCallQueues extends Component
         session()->flash('success', 'Cola eliminada correctamente.');
     }
 
-    protected function resetForm(): void
+    public function resetForm(): void
     {
         $this->form->name = '';
         $this->form->description = null;

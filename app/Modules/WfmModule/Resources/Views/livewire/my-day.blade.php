@@ -417,37 +417,100 @@
         @endif
     @endif
 
-    {{-- Estado Actual (solo hoy) --}}
+    {{-- Estado Actual (solo hoy) + Atendidas por Cola --}}
     @if(!$isHistorical)
-        <x-wfm.section title="Estado Actual">
-            <div class="space-y-2 text-xs">
-                @foreach([['TALKING', $d['talk'] ?? 0], ['READY', $d['ready'] ?? 0],
-                          ['ACW/WORK', $d['acw'] ?? 0], ['RESERVED', $d['reserved'] ?? 0],
-                          ['ALMUERZO', $d['lunch'] ?? 0], ['DESCANSO', $d['break'] ?? 0],
-                          ['NOT READY', $d['not_ready'] ?? 0], ['OFFLINE', $d['offline'] ?? 0]] as [$label, $seconds])
-                    @php
-                        $pct = ($d['total_seconds'] ?? 1) > 0 ? round(($seconds / max($d['total_seconds'], 1)) * 100, 1) : 0;
-                    @endphp
-                    <div class="flex items-center gap-2 p-1.5 bg-wfm-surface rounded">
-                        <span class="w-16 text-wfm-navy-700 font-medium">{{ $label }}</span>
-                        <div class="flex-1 h-2 bg-wfm-surface-border rounded-full overflow-hidden">
-                            <div class="h-full rounded-full {{ match($label) {
-                                'TALKING' => 'bg-wfm-info',
-                                'READY' => 'bg-wfm-success',
-                                'ACW/WORK' => 'bg-purple-500',
-                                'RESERVED' => 'bg-cyan-500',
-                                'ALMUERZO', 'DESCANSO' => 'bg-wfm-warning',
-                                'NOT READY' => 'bg-amber-500',
-                                'OFFLINE' => 'bg-wfm-danger',
-                                default => 'bg-wfm-surface-muted',
-                            } }}" style="width: {{ $pct }}%"></div>
+        @php
+            $queueHandled = collect($d['calls_by_queue'] ?? [])
+                ->filter(fn ($q) => ($q->handled ?? 0) > 0)
+                ->sortByDesc(fn ($q) => $q->handled)
+                ->values();
+        @endphp
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <x-wfm.section title="Estado Actual">
+                <div class="space-y-2 text-xs">
+                    @foreach([['TALKING', $d['talk'] ?? 0], ['READY', $d['ready'] ?? 0],
+                              ['ACW/WORK', $d['acw'] ?? 0], ['RESERVED', $d['reserved'] ?? 0],
+                              ['ALMUERZO', $d['lunch'] ?? 0], ['DESCANSO', $d['break'] ?? 0],
+                              ['NOT READY', $d['not_ready'] ?? 0], ['OFFLINE', $d['offline'] ?? 0]] as [$label, $seconds])
+                        @php
+                            $pct = ($d['total_seconds'] ?? 1) > 0 ? round(($seconds / max($d['total_seconds'], 1)) * 100, 1) : 0;
+                        @endphp
+                        <div class="flex items-center gap-2 p-1.5 bg-wfm-surface rounded">
+                            <span class="w-16 text-wfm-navy-700 font-medium">{{ $label }}</span>
+                            <div class="flex-1 h-2 bg-wfm-surface-border rounded-full overflow-hidden">
+                                <div class="h-full rounded-full {{ match($label) {
+                                    'TALKING' => 'bg-wfm-info',
+                                    'READY' => 'bg-wfm-success',
+                                    'ACW/WORK' => 'bg-purple-500',
+                                    'RESERVED' => 'bg-cyan-500',
+                                    'ALMUERZO', 'DESCANSO' => 'bg-wfm-warning',
+                                    'NOT READY' => 'bg-amber-500',
+                                    'OFFLINE' => 'bg-wfm-danger',
+                                    default => 'bg-wfm-surface-muted',
+                                } }}" style="width: {{ $pct }}%"></div>
+                            </div>
+                            <span class="font-mono text-wfm-navy-700 w-16 text-right">{{ gmdate('H:i:s', $seconds) }}</span>
+                            <span class="text-wfm-surface-muted w-10 text-right">{{ $pct }}%</span>
                         </div>
-                        <span class="font-mono text-wfm-navy-700 w-16 text-right">{{ gmdate('H:i:s', $seconds) }}</span>
-                        <span class="text-wfm-surface-muted w-10 text-right">{{ $pct }}%</span>
-                    </div>
-                @endforeach
-            </div>
-        </x-wfm.section>
+                    @endforeach
+                </div>
+            </x-wfm.section>
+
+            <x-wfm.section title="Atendidas por Cola">
+                @php
+                    $barOptions = json_encode([
+                        'chart' => [
+                            'type' => 'bar',
+                            'toolbar' => ['show' => false],
+                            'zoom' => ['enabled' => false],
+                            'animations' => ['enabled' => false],
+                            'parentHeightOffset' => 10,
+                        ],
+                        'plotOptions' => [
+                            'bar' => [
+                                'horizontal' => true,
+                                'distributed' => true,
+                                'borderRadius' => 2,
+                            ],
+                        ],
+                        'colors' => ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6','#e11d48','#84cc16','#d946ef','#0ea5e9','#fb923c','#22d3ee','#a855f7','#34d399','#f472b6'],
+                        'series' => [[
+                            'name' => 'Atendidas',
+                            'data' => $queueHandled->map(fn ($q) => [
+                                'x' => $q->queue_name,
+                                'y' => (int) ($q->handled ?? 0),
+                            ])->toArray(),
+                        ]],
+                        'xaxis' => [
+                            'labels' => ['formatter' => 'function(v) { return v.toFixed(0); }'],
+                        ],
+                        'yaxis' => [
+                            'labels' => ['style' => ['fontSize' => '10px']],
+                        ],
+                        'dataLabels' => [
+                            'enabled' => true,
+                            'offsetX' => 4,
+                            'style' => ['fontSize' => '10px', 'fontWeight' => 600],
+                            'formatter' => 'function(v) { return v.toFixed(0); }',
+                        ],
+                        'tooltip' => [
+                            'y' => ['formatter' => 'function(v) { return v.toFixed(0) + " llamadas"; }'],
+                        ],
+                        'grid' => [
+                            'show' => true,
+                            'borderColor' => '#e5e7eb',
+                            'strokeDashArray' => 2,
+                            'padding' => ['left' => 10, 'right' => 30, 'top' => 10, 'bottom' => 10],
+                        ],
+                    ]);
+                @endphp
+                @if($queueHandled->isNotEmpty())
+                    <x-apex-chart id="queue-handled-bar" :options="$barOptions" height="280" />
+                @else
+                    <x-wfm.empty icon="chart-bar" message="Sin llamadas atendidas hoy" />
+                @endif
+            </x-wfm.section>
+        </div>
     @else
         <x-wfm.section title="Resumen del Día">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">

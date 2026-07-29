@@ -52,7 +52,7 @@ class NotificationCenterWidget extends Component
         }
 
         $futureActivities = IntradayActivity::whereHas('activityType', fn ($q) => $q->where('name', 'like', '%coach%'))
-            ->whereDate('time_range', $today)->count();
+            ->whereRaw('lower(time_range)::date = ?', [$today->toDateString()])->count();
         if ($futureActivities > 0) {
             $notifications->push(['icon' => 'academic-cap', 'text' => "{$futureActivities} coaching(s) programados hoy", 'time' => 'Hoy']);
         }

@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Livewire\ControlTower;
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -28,21 +29,26 @@ class OccupancyChartWidget extends Component
         $yesterday = Carbon::parse($today)->subDay()->toDateString();
         $ids = $this->employeeIds;
 
-        $todayMetrics = AgentIntervalMetric::whereIn('employee_id', $ids)
-            ->whereDate('interval_start', $today)
-            ->selectRaw('EXTRACT(HOUR FROM interval_start) as hour, AVG(occupancy) as avg_occupancy')
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->get()
-            ->keyBy('hour');
+        try {
+            $todayMetrics = AgentIntervalMetric::whereIn('employee_id', $ids)
+                ->whereDate('interval_start', $today)
+                ->selectRaw('EXTRACT(HOUR FROM interval_start) as hour, AVG(occupancy) as avg_occupancy')
+                ->groupBy('hour')
+                ->orderBy('hour')
+                ->get()
+                ->keyBy('hour');
 
-        $yesterdayMetrics = AgentIntervalMetric::whereIn('employee_id', $ids)
-            ->whereDate('interval_start', $yesterday)
-            ->selectRaw('EXTRACT(HOUR FROM interval_start) as hour, AVG(occupancy) as avg_occupancy')
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->get()
-            ->keyBy('hour');
+            $yesterdayMetrics = AgentIntervalMetric::whereIn('employee_id', $ids)
+                ->whereDate('interval_start', $yesterday)
+                ->selectRaw('EXTRACT(HOUR FROM interval_start) as hour, AVG(occupancy) as avg_occupancy')
+                ->groupBy('hour')
+                ->orderBy('hour')
+                ->get()
+                ->keyBy('hour');
+        } catch (QueryException $e) {
+            $todayMetrics = collect();
+            $yesterdayMetrics = collect();
+        }
 
         $hours = range(6, 22);
         $todaySeries = [];

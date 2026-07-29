@@ -8,6 +8,7 @@ use App\Modules\AnalyticsModule\Models\ForecastInterval;
 use App\Modules\AnalyticsModule\Models\ForecastScenario;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -25,18 +26,24 @@ class ForecastComparisonWidget extends Component
     {
         $today = Carbon::parse($this->selectedDate);
 
-        $latestScenario = ForecastScenario::whereHas('version', fn ($q) => $q->where('status', 'published'))
-            ->latest()->first();
+        try {
+            $latestScenario = ForecastScenario::whereHas('version', fn ($q) => $q->where('status', 'published'))
+                ->latest()->first();
 
-        $forecastData = collect();
-        if ($latestScenario) {
-            $forecastData = ForecastInterval::where('forecast_scenario_id', $latestScenario->id)
-                ->whereDate('interval_start', $today)->orderBy('interval_start')->get();
+            $forecastData = collect();
+            if ($latestScenario) {
+                $forecastData = ForecastInterval::where('forecast_scenario_id', $latestScenario->id)
+                    ->whereDate('interval_start', $today)->orderBy('interval_start')->get();
+            }
+
+            $actualCalls = AgentCallPerformance::whereDate('start_time', $today)
+                ->selectRaw('EXTRACT(HOUR FROM start_time) as hour, COUNT(*) as calls')
+                ->groupBy('hour')->orderBy('hour')->get()->keyBy('hour');
+        } catch (QueryException $e) {
+            $latestScenario = null;
+            $forecastData = collect();
+            $actualCalls = collect();
         }
-
-        $actualCalls = AgentCallPerformance::whereDate('start_time', $today)
-            ->selectRaw('EXTRACT(HOUR FROM start_time) as hour, COUNT(*) as calls')
-            ->groupBy('hour')->orderBy('hour')->get()->keyBy('hour');
 
         $hours = range(7, 21);
         $forecastSeries = [];

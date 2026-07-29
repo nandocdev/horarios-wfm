@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Livewire\ControlTower;
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use Illuminate\Database\QueryException;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -36,15 +37,19 @@ class TeamPerformanceWidget extends Component
                     ->where('is_active', true)
                     ->pluck('id');
 
-                $metrics = AgentIntervalMetric::whereIn('employee_id', $teamEmployees)
-                    ->whereDate('interval_start', $today)
-                    ->selectRaw('
-                        AVG(occupancy) as avg_occupancy,
-                        AVG(adherence) as avg_adherence,
-                        AVG(utilization) as avg_utilization,
-                        SUM(calls_handled) as total_calls
-                    ')
-                    ->first();
+                try {
+                    $metrics = AgentIntervalMetric::whereIn('employee_id', $teamEmployees)
+                        ->whereDate('interval_start', $today)
+                        ->selectRaw('
+                            AVG(occupancy) as avg_occupancy,
+                            AVG(adherence) as avg_adherence,
+                            AVG(utilization) as avg_utilization,
+                            SUM(calls_handled) as total_calls
+                        ')
+                        ->first();
+                } catch (QueryException $e) {
+                    $metrics = null;
+                }
 
                 $occupancy = $metrics && $metrics->avg_occupancy ? round((float) $metrics->avg_occupancy, 1) : 0;
                 $adherence = $metrics && $metrics->avg_adherence ? round((float) $metrics->avg_adherence, 1) : 0;

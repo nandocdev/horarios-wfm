@@ -404,7 +404,7 @@ class MyDay extends Component
             'avg_acw_time' => $avgAcwTime,
             'aux_seconds' => $lunchSeconds + $breakSeconds + $notReadySeconds,
             'not_ready_by_reason' => $notReadyByReason,
-            'calls_by_queue' => $callsByQueue,
+            'calls_by_queue' => $callsByQueue->filter(fn ($q) => ($q->total_offered ?? 0) > 0 || ($q->handled ?? 0) > 0)->values(),
             'timeline_start' => $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '06:00',
             'timeline_end' => $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '18:00',
             'real_end' => $realEnd,

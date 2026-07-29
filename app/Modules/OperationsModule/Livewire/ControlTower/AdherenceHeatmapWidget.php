@@ -45,38 +45,41 @@ class AdherenceHeatmapWidget extends Component
 
         $metrics = collect();
         try {
-            $metrics = DB::table('teams')
-                ->join('employees', 'employees.team_id', '=', 'teams.id')
-                ->join('agent_interval_metrics', 'agent_interval_metrics.employee_id', '=', 'employees.id')
-                ->whereIn('teams.id', $teamIds)
+            $raw = DB::table('agent_state_transitions')
+                ->join('employees', 'employees.id', '=', 'agent_state_transitions.employee_id')
+                ->whereIn('employees.team_id', $teamIds)
                 ->where('employees.is_active', true)
                 ->whereIn('employees.position_id', [1, 2])
-                ->whereDate('agent_interval_metrics.interval_start', $today)
-                ->whereRaw('EXTRACT(HOUR FROM agent_interval_metrics.interval_start) BETWEEN 7 AND 21')
+                ->whereDate('agent_state_transitions.transition_time', $today)
+                ->whereRaw('EXTRACT(HOUR FROM agent_state_transitions.transition_time) BETWEEN 7 AND 21')
                 ->select(
-                    'teams.id as team_id',
-                    DB::raw('EXTRACT(HOUR FROM agent_interval_metrics.interval_start) as hour'),
-                    DB::raw('AVG(agent_interval_metrics.adherence) as avg_adherence')
+                    'employees.team_id',
+                    DB::raw('EXTRACT(HOUR FROM agent_state_transitions.transition_time) as hour'),
+                    DB::raw("COUNT(DISTINCT agent_state_transitions.employee_id) FILTER (WHERE TRIM(agent_state_transitions.agent_state) IN ('Talking','Ready','Work','Reserved')) as productive"),
+                    DB::raw('COUNT(DISTINCT agent_state_transitions.employee_id) as total')
                 )
-                ->groupBy('teams.id', 'hour')
-                ->orderBy('teams.id')
+                ->groupBy('employees.team_id', 'hour')
+                ->orderBy('employees.team_id')
                 ->orderBy('hour')
                 ->get()
                 ->groupBy('team_id');
         } catch (QueryException $e) {
+            $raw = collect();
         }
 
-        $result = $teams->map(function ($team) use ($hours, $metrics, $coordinators) {
-            $teamData = $metrics->get($team->id, collect())->keyBy('hour');
+        $result = $teams->map(function ($team) use ($hours, $raw, $coordinators) {
+            $teamData = $raw->get($team->id, collect())->keyBy('hour');
 
             $hoursData = collect();
             foreach ($hours as $h) {
                 $row = $teamData->get($h);
-                $avg = $row && $row->avg_adherence !== null ? round((float) $row->avg_adherence, 1) : null;
-                $class = $avg === null ? 'bg-zinc-100 dark:bg-zinc-700'
-                    : ($avg >= 95 ? 'bg-green-500' : ($avg >= 85 ? 'bg-yellow-500' : 'bg-red-500'));
+                $pct = $row && $row->total > 0
+                    ? round(($row->productive / $row->total) * 100, 1)
+                    : null;
+                $class = $pct === null ? 'bg-zinc-100 dark:bg-zinc-700'
+                    : ($pct >= 85 ? 'bg-green-500' : ($pct >= 70 ? 'bg-yellow-500' : 'bg-red-500'));
 
-                $hoursData->push(['hour' => $h, 'value' => $avg, 'class' => $class]);
+                $hoursData->push(['hour' => $h, 'value' => $pct, 'class' => $class]);
             }
 
             $coordinator = $coordinators->get($team->id);

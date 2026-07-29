@@ -296,8 +296,12 @@
     @endif
 
     {{-- Llamadas por Cola vs Distribución AHT --}}
-    @php $queueData = collect($d['calls_by_queue'] ?? []); @endphp
-    @if($queueData->isNotEmpty())
+    @php
+        $queueData = collect($d['calls_by_queue'] ?? []);
+        $scatterData = $d['call_scatter_data'] ?? [];
+        $hasAnyData = $queueData->isNotEmpty() || ! empty($scatterData);
+    @endphp
+    @if($hasAnyData)
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <x-wfm.section title="Llamadas por Cola">
                 <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado']" compact>
@@ -385,8 +389,8 @@
                                 'strokeDashArray' => 2,
                                 'padding' => ['left' => 20, 'right' => 10, 'top' => 10, 'bottom' => 10],
                             ],
-                            'annotations' => array_filter([
-                                'xaxis' => $lunchMin !== null ? [[
+                            'annotations' => $lunchMin !== null ? [
+                                'xaxis' => [[
                                     'x' => $lunchMin,
                                     'borderColor' => '#f59e0b',
                                     'strokeDashArray' => 4,
@@ -396,8 +400,8 @@
                                         'style' => ['color' => '#fff', 'background' => '#f59e0b', 'fontSize' => '9px'],
                                         'text' => 'Almuerzo',
                                     ],
-                                ]] : [],
-                            ]),
+                                ]],
+                            ] : new \stdClass(),
                         ]);
                     @endphp
                     <x-apex-chart id="aht-scatter" :options="$chartOptions" height="280" />

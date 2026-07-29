@@ -50,24 +50,32 @@ class OccupancyChartWidget extends Component
             $yesterdayMetrics = collect();
         }
 
-        $hours = range(6, 17);
-        $todaySeries = [];
-        $yesterdaySeries = [];
-        $categories = [];
+        $hasData = $todayMetrics->isNotEmpty() || $yesterdayMetrics->isNotEmpty();
 
-        foreach ($hours as $h) {
-            $categories[] = sprintf('%02d:00', $h);
-            $todaySeries[] = isset($todayMetrics[$h]) ? round((float) $todayMetrics[$h]->avg_occupancy, 1) : 0;
-            $yesterdaySeries[] = isset($yesterdayMetrics[$h]) ? round((float) $yesterdayMetrics[$h]->avg_occupancy, 1) : 0;
+        if ($hasData) {
+            $hours = range(6, 17);
+            $todaySeries = [];
+            $yesterdaySeries = [];
+            $categories = [];
+
+            foreach ($hours as $h) {
+                $categories[] = sprintf('%02d:00', $h);
+                $todaySeries[] = isset($todayMetrics[$h]) ? round((float) $todayMetrics[$h]->avg_occupancy, 1) : 0;
+                $yesterdaySeries[] = isset($yesterdayMetrics[$h]) ? round((float) $yesterdayMetrics[$h]->avg_occupancy, 1) : 0;
+            }
+
+            $series = [
+                ['name' => 'Hoy', 'data' => $todaySeries],
+                ['name' => 'Ayer', 'data' => $yesterdaySeries],
+            ];
+        } else {
+            $series = [];
+            $categories = [];
         }
 
-        $series = [
-            ['name' => 'Hoy', 'data' => $todaySeries],
-            ['name' => 'Ayer', 'data' => $yesterdaySeries],
-        ];
-
         return view('operations::livewire.control-tower.occupancy-chart-widget', [
-            'chartOptions' => [
+            'hasData' => $hasData,
+            'chartOptions' => $hasData ? [
                 'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit', 'height' => 220],
                 'series' => $series,
                 'xaxis' => ['categories' => $categories, 'labels' => ['style' => ['fontSize' => '10px']]],
@@ -78,7 +86,7 @@ class OccupancyChartWidget extends Component
                 'dataLabels' => ['enabled' => false],
                 'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px'],
                 'tooltip' => ['y' => ['formatter' => "function(v){return v+'%'}"]],
-            ],
+            ] : [],
         ]);
     }
 }

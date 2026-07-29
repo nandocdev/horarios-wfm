@@ -38,6 +38,10 @@
 
             @if($custom)
                 {{ $slot }}
+            @elseif($slot->isNotEmpty())
+                <tbody class="divide-y divide-wfm-surface-border bg-wfm-surface-card">
+                    {{ $slot }}
+                </tbody>
             @else
                 <tbody class="divide-y divide-wfm-surface-border bg-wfm-surface-card">
                     @if($loading)
@@ -49,7 +53,7 @@
                                 </div>
                             </td>
                         </tr>
-                    @elseif(count($rows) === 0 && ! ($slot ?? false))
+                    @elseif(count($rows) === 0)
                         <tr>
                             <td colspan="{{ count($headers) ?: 1 }}">
                                 <x-wfm.empty :message="$empty" />
@@ -72,8 +76,6 @@
                             </tr>
                         @endforeach
                     @endif
-
-                    {{ $slot ?? '' }}
                 </tbody>
             @endif
         </table>

@@ -74,9 +74,7 @@ class MenuHelper
                 'icon' => 'calendar-days',
                 'permission' => 'schedules.view_all',
                 'submenu' => [
-                    ['label' => __('Semanas'), 'route' => 'schedules.planning', 'pattern' => 'schedules/planning*', 'permission' => 'schedules.manage', 'icon' => 'calendar-date-range'],
-                    ['label' => __('Equipos'), 'route' => 'schedules.planning.teams', 'pattern' => 'schedules/planning/*/teams*', 'permission' => 'schedules.manage', 'icon' => 'users'],
-                    ['label' => __('Empleados'), 'route' => 'schedules.planning', 'pattern' => 'schedules/planning', 'permission' => 'schedules.view_team', 'icon' => 'user'],
+                    ['label' => __('Planificación Semanal'), 'route' => 'schedules.planning', 'pattern' => 'schedules/planning*', 'permission' => 'schedules.manage', 'icon' => 'calendar-date-range'],
                     ['label' => __('Forecast'), 'route' => 'operations.forecast', 'pattern' => 'operations/forecast*', 'icon' => 'chart-bar'],
                     ['label' => __('Staffing'), 'route' => 'operations.staffing', 'pattern' => 'operations/staffing*', 'icon' => 'users'],
                     ['label' => __('Capacity'), 'route' => 'operations.capacity', 'pattern' => 'operations/capacity*', 'icon' => 'chart-bar'],

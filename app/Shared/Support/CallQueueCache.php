@@ -14,10 +14,12 @@ class CallQueueCache
 
     public function active(): Collection
     {
-        return Cache::remember('call_queues:active', self::TTL, fn () => CallQueue::active()->orderBy('name')->get()
-        );
+        return once(fn () => CallQueue::active()->orderBy('name')->get());
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function names(): array
     {
         return Cache::remember('call_queues:names', self::TTL, fn () => CallQueue::active()->orderBy('name')->pluck('name')->toArray()
@@ -26,28 +28,26 @@ class CallQueueCache
 
     public function all(): Collection
     {
-        return Cache::remember('call_queues:all', self::TTL, fn () => CallQueue::orderBy('name')->get()
-        );
+        return once(fn () => CallQueue::orderBy('name')->get());
     }
 
-    public function ahtGoals(): Collection
+    /**
+     * @return array<string, int|null>
+     */
+    public function ahtGoals(): array
     {
-        return Cache::remember('call_queues:aht_goals', self::TTL, fn () => CallQueue::pluck('aht_goal', 'name')
+        return Cache::remember('call_queues:aht_goals', self::TTL, fn () => CallQueue::pluck('aht_goal', 'name')->toArray()
         );
     }
 
     public function selectIds(): Collection
     {
-        return Cache::remember('call_queues:select_ids', self::TTL, fn () => CallQueue::active()->orderBy('name')->get(['id', 'name'])
-        );
+        return once(fn () => CallQueue::active()->orderBy('name')->get(['id', 'name']));
     }
 
     public function refresh(): void
     {
-        Cache::forget('call_queues:active');
         Cache::forget('call_queues:names');
-        Cache::forget('call_queues:all');
         Cache::forget('call_queues:aht_goals');
-        Cache::forget('call_queues:select_ids');
     }
 }

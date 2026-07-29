@@ -55,7 +55,7 @@ final class EloquentTelemetryRealtimeRepository implements TelemetryRealtimeRepo
 
     public function getQueueAhtGoals(): Collection
     {
-        return app(CallQueueCache::class)->ahtGoals();
+        return collect(app(CallQueueCache::class)->ahtGoals());
     }
 
     public function getAllQueues(): Collection

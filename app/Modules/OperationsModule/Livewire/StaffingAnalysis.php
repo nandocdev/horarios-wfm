@@ -36,9 +36,9 @@ class StaffingAnalysis extends Component
         $overstaffed = $intervals->filter(fn ($i) => $i->gap < 0);
         $adequate = $intervals->filter(fn ($i) => $i->gap == 0);
 
-        $maxGap = $intervals->max('gap');
-        $maxOverstaff = abs($intervals->min('gap'));
-        $avgCoverage = $intervals->avg('coverage');
+        $maxGap = $intervals->max('gap') ?? 0;
+        $maxOverstaff = abs($intervals->min('gap') ?? 0);
+        $avgCoverage = $intervals->avg('coverage') ?? 0;
 
         return view('operations::livewire.staffing-analysis', [
             'queues' => $queues,

@@ -262,8 +262,9 @@ class MyDay extends Component
             $state = strtoupper(trim($t->agent_state ?? ''));
             $reason = strtoupper(trim($t->reason_code ?? ''));
             if ($state === 'NOT READY' && $reason) {
-                return $state . '_' . $reason;
+                return $state.'_'.$reason;
             }
+
             return $state;
         })->map(fn ($group) => $group->sum('duration'));
 
@@ -274,15 +275,15 @@ class MyDay extends Component
         $reservedSeconds = $timeByState->get('RESERVED', 0);
         $handleSeconds = $talkSeconds + $acwSeconds + $reservedSeconds;
         $readyAvailableSeconds = $handleSeconds + $readySeconds;
-        
+
         $lunchSeconds = $timeByState->get('NOT READY_LUNCH', 0) + $timeByState->get('NOT READY_ALMUERZO', 0) + $timeByState->get('LUNCH', 0);
         $breakSeconds = $timeByState->get('NOT READY_BREAK', 0) + $timeByState->get('NOT READY_DESCANSO', 0) + $timeByState->get('BREAK', 0);
-        
+
         // Sum all NOT READY states that aren't lunch or break (or just all NOT READY)
         $notReadySeconds = $timeByState->filter(function ($val, $key) {
             return str_starts_with($key, 'NOT READY');
         })->sum();
-        
+
         $offlineSeconds = $timeByState->get('LOGOUT', 0) + $timeByState->get('OFFLINE', 0);
 
         $productiveSeconds = $handleSeconds + $readySeconds;
@@ -358,8 +359,9 @@ class MyDay extends Component
                 $mean = $count > 0 ? array_sum($talkTimes) / $count : 0;
                 $variance = 0;
                 if ($count > 1) {
-                    $variance = array_sum(array_map(fn($x) => pow($x - $mean, 2), $talkTimes)) / ($count - 1);
+                    $variance = array_sum(array_map(fn ($x) => pow($x - $mean, 2), $talkTimes)) / ($count - 1);
                 }
+
                 return [
                     'max' => $count > 0 ? max($talkTimes) : 0,
                     'min' => $count > 0 ? min($talkTimes) : 0,
@@ -374,9 +376,9 @@ class MyDay extends Component
             $q->min_talk = $stats['min'] ?? 0;
             $q->mean_talk = $stats['mean'] ?? 0;
             $q->std_talk = $stats['std'] ?? 0;
+
             return $q;
         });
-
 
         $shiftStart = $assignment?->start_time
             ? Carbon::parse($assignment->start_time)->setDateFrom(Carbon::parse($today))
@@ -402,10 +404,10 @@ class MyDay extends Component
         $talkMax = $talkCount > 0 ? max($talkTimes) : 0;
         $talkMin = $talkCount > 0 ? min($talkTimes) : 0;
         $talkMean = $talkCount > 0 ? array_sum($talkTimes) / $talkCount : 0;
-        
+
         $talkVariance = 0;
         if ($talkCount > 1) {
-            $talkVariance = array_sum(array_map(fn($x) => pow($x - $talkMean, 2), $talkTimes)) / ($talkCount - 1);
+            $talkVariance = array_sum(array_map(fn ($x) => pow($x - $talkMean, 2), $talkTimes)) / ($talkCount - 1);
         }
         $talkStdDev = sqrt($talkVariance);
 
@@ -420,6 +422,7 @@ class MyDay extends Component
             ->filter(function ($t) {
                 $state = strtoupper(trim($t->agent_state ?? ''));
                 $reason = strtoupper(trim($t->reason_code ?? ''));
+
                 return in_array($state, ['LUNCH', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO']) ||
                        ($state === 'NOT READY' && in_array($reason, ['LUNCH', 'ALMUERZO']));
             })
@@ -430,6 +433,7 @@ class MyDay extends Component
             ->filter(function ($t) {
                 $state = strtoupper(trim($t->agent_state ?? ''));
                 $reason = strtoupper(trim($t->reason_code ?? ''));
+
                 return in_array($state, ['BREAK', 'NOT_READY_BREAK', 'NOT_READY_DESCANSO']) ||
                        ($state === 'NOT READY' && in_array($reason, ['BREAK', 'DESCANSO']));
             })

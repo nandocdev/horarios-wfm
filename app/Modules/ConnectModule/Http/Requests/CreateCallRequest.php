@@ -6,7 +6,6 @@ namespace App\Modules\ConnectModule\Http\Requests;
 
 use App\Modules\ConnectModule\Models\CallQueue;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Schema;
 
 class CreateCallRequest extends FormRequest
 {
@@ -19,9 +18,7 @@ class CreateCallRequest extends FormRequest
 
     public function rules(): array
     {
-        $queues = Schema::hasTable('call_queues')
-            ? CallQueue::activeNames()
-            : config('contact-center.valid_queues', []);
+        $queues = CallQueue::activeNames();
 
         $queueRule = ['required', 'string'];
         if (! empty($queues)) {

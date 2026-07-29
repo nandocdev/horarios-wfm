@@ -17,18 +17,6 @@ return [
         '203.0.113.42',
     ],
 
-    'valid_queues' => [
-        'CSQ_FARMACIA',
-        'CSQ_CRUCE_DE_JUAN_DIAZ',
-        'CSQ_CANCELACION_CITAS',
-        'CSQ_CONFIRMACION_CITAS',
-        'CSQ_CENTRO_CONTACTO',
-        'CSQ_INFORMACION_GENERAL',
-        'CSQ_SIPE',
-        'CSQ_Outbound_Cobros',
-        'CSQ_QUEJAS',
-    ],
-
     'citizen_id_pattern' => '/^\d{8,12}$/',
 
     /*

@@ -75,8 +75,8 @@ class MenuHelper
                 'permission' => 'schedules.view_all',
                 'submenu' => [
                     ['label' => __('Semanas'), 'route' => 'schedules.planning', 'pattern' => 'schedules/planning*', 'permission' => 'schedules.manage', 'icon' => 'calendar-date-range'],
-                    ['label' => __('Equipos'), 'route' => 'schedules.team-planning', 'pattern' => 'schedules/team-planning*', 'permission' => 'schedules.view_team', 'icon' => 'users'],
-                    ['label' => __('Empleados'), 'route' => 'schedules.employee-planning', 'pattern' => 'schedules/employee-planning*', 'permission' => 'schedules.view_team', 'icon' => 'user'],
+                    ['label' => __('Equipos'), 'route' => 'schedules.planning.teams', 'pattern' => 'schedules/planning/*/teams*', 'permission' => 'schedules.manage', 'icon' => 'users'],
+                    ['label' => __('Empleados'), 'route' => 'schedules.planning', 'pattern' => 'schedules/planning', 'permission' => 'schedules.view_team', 'icon' => 'user'],
                     ['label' => __('Forecast'), 'route' => 'operations.forecast', 'pattern' => 'operations/forecast*', 'icon' => 'chart-bar'],
                     ['label' => __('Staffing'), 'route' => 'operations.staffing', 'pattern' => 'operations/staffing*', 'icon' => 'users'],
                     ['label' => __('Capacity'), 'route' => 'operations.capacity', 'pattern' => 'operations/capacity*', 'icon' => 'chart-bar'],
@@ -99,7 +99,7 @@ class MenuHelper
                 'submenu' => [
                     ['label' => __('Control Tower'), 'route' => 'operations.dashboard', 'pattern' => 'operations/dashboard*', 'icon' => 'presentation-chart-line'],
                     ['label' => __('Tiempo Real'), 'route' => 'operations.realtime', 'pattern' => 'operations/realtime*', 'permission' => 'wfm.realtime.view', 'icon' => 'cpu-chip'],
-                    ['label' => __('Estados'), 'route' => 'operations.agent-timeline', 'pattern' => 'operations/agent-timeline*', 'icon' => 'clock'],
+                    ['label' => __('Estados'), 'route' => 'operations.availability', 'pattern' => 'operations/availability*', 'icon' => 'clock'],
                     ['label' => __('Colas'), 'route' => 'operations.queues', 'pattern' => 'operations/queues*', 'icon' => 'phone'],
                     ['label' => __('Intervalos'), 'route' => 'operations.intervals', 'pattern' => 'operations/intervals*', 'icon' => 'clock'],
                     ['label' => __('Llamadas'), 'route' => 'operations.calls', 'pattern' => 'operations/calls*', 'icon' => 'phone-arrow-down-left'],

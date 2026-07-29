@@ -30,7 +30,7 @@ class SendAdherenceAlertNotification implements ShouldQueue
             title: 'Alerta de adherencia',
             message: "{$employeeName} — {$event->label}.",
             summary: 'Se detectó una desviación respecto al horario planificado.',
-            actionUrl: route('operations.realtime-monitoring'),
+            actionUrl: route('operations.realtime'),
             icon: 'exclamation-triangle',
             level: 'critical',
             notificationType: NotificationType::AdherenceAlert->value,

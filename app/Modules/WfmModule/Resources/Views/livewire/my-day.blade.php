@@ -331,13 +331,23 @@
 
                 <x-wfm.section title="Distribución AHT por Cola">
                     @php
-                        $scatterColors = ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6','#e11d48','#84cc16','#d946ef','#0ea5e9','#fb923c','#22d3ee','#a855f7','#34d399','#f472b6'];
-                        $series = $d['call_scatter_data'] ?? [];
-                        $seriesWithColors = array_map(fn ($s, $i) => array_merge($s, ['color' => $scatterColors[$i % count($scatterColors)]]), $series, array_keys($series));
-                        $lunchMin = ($d['lunch_start'] ?? null) && ($d['scheduled_entry'] ?? '06:00') !== '--:--'
-                            ? max(0, (int) \Carbon\Carbon::parse($d['scheduled_entry'])->diffInMinutes(\Carbon\Carbon::parse($d['lunch_start']), false))
-                            : null;
-
+                        $seriesData = [];
+                        $ahtValues = [];
+                        $talkValues = [];
+                        foreach ($queueData as $q) {
+                            $qTalk = (int) ($q->total_talk ?? 0);
+                            $qaht = round((float) ($q->avg_aht ?? 0), 1);
+                            $qHandled = (int) ($q->handled ?? 0);
+                            $ahtValues[] = $qaht;
+                            $talkValues[] = $qTalk;
+                            $seriesData[] = [
+                                'x' => $qTalk,
+                                'y' => $qaht,
+                                'z' => max($qHandled, 1),
+                                'name' => $q->queue_name ?? '—',
+                            ];
+                        }
+                        $avgAhtChart = count($ahtValues) > 0 ? round(array_sum($ahtValues) / count($ahtValues), 1) : 0;
                         $chartOptions = json_encode([
                             'chart' => [
                                 'type' => 'scatter',
@@ -348,32 +358,37 @@
                                 'offsetY' => 0,
                                 'parentHeightOffset' => 0,
                             ],
-                            'colors' => $scatterColors,
-                            'series' => $seriesWithColors,
+                            'series' => [[
+                                'name' => 'Colas',
+                                'data' => $seriesData,
+                            ]],
                             'xaxis' => [
-                                'title' => ['text' => 'Minutos desde inicio del turno', 'style' => ['fontSize' => '11px']],
-                                'labels' => ['formatter' => 'function(v) { let h=Math.floor(v/60); let m=Math.floor(v%60); return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }'],
+                                'title' => ['text' => 'T. Hablado Acumulado', 'style' => ['fontSize' => '11px']],
+                                'labels' => [
+                                    'formatter' => 'function(v) { let d = Math.floor(v/60); return String(d).padStart(2,"0") + ":" + String(Math.floor(v%60)).padStart(2,"0"); }',
+                                ],
                             ],
                             'yaxis' => [
-                                'title' => ['text' => 'Talk Time (segundos)', 'style' => ['fontSize' => '11px']],
+                                'title' => ['text' => 'AHT (segundos)', 'style' => ['fontSize' => '11px']],
                                 'labels' => ['formatter' => 'function(v) { return v.toFixed(0) + "s"; }'],
                             ],
                             'markers' => [
-                                'size' => 6,
+                                'size' => 8,
+                                'colors' => ['#3b82f6'],
+                                'strokeColors' => ['#2563eb'],
                                 'strokeWidth' => 1,
-                                'strokeOpacity' => 0.6,
                             ],
                             'tooltip' => [
                                 'custom' => 'function({seriesIndex, dataPointIndex, w}) {
                                     let d = w.config.series[seriesIndex].data[dataPointIndex];
-                                    let h = Math.floor(d.x / 60);
-                                    let m = Math.floor(d.x % 60);
-                                    let timeStr = String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0");
+                                    let talkM = Math.floor(d.x / 60);
+                                    let talkS = Math.floor(d.x % 60);
+                                    let talkStr = String(talkM).padStart(2,"0") + ":" + String(talkS).padStart(2,"0");
                                     return "<div class=\"px-3 py-2 text-xs\">" +
-                                        "<strong>" + w.config.series[seriesIndex].name + "</strong><br>" +
-                                        "Hora: " + d.t + "<br>" +
-                                        "Desde inicio: " + timeStr + "<br>" +
-                                        "Talk Time: " + d.y + "s" +
+                                        "<strong>" + d.name + "</strong><br>" +
+                                        "Llamadas: " + d.z + "<br>" +
+                                        "AHT: " + d.y.toFixed(1) + "s<br>" +
+                                        "T. Hablado: " + talkStr +
                                         "</div>";
                                 }',
                             ],
@@ -381,21 +396,25 @@
                                 'show' => true,
                                 'borderColor' => '#e5e7eb',
                                 'strokeDashArray' => 2,
-                                'padding' => ['left' => 20, 'right' => 10, 'top' => 10, 'bottom' => 10],
+                                'padding' => [
+                                    'left' => 20,
+                                    'right' => 10,
+                                    'top' => 10,
+                                    'bottom' => 10,
+                                ],
                             ],
-                            'annotations' => array_filter([
-                                'xaxis' => $lunchMin !== null ? [[
-                                    'x' => $lunchMin,
+                            'annotations' => [
+                                'yaxis' => [[
+                                    'y' => $avgAhtChart,
                                     'borderColor' => '#f59e0b',
                                     'strokeDashArray' => 4,
                                     'label' => [
                                         'borderColor' => '#f59e0b',
-                                        'position' => 'top',
-                                        'style' => ['color' => '#fff', 'background' => '#f59e0b', 'fontSize' => '9px'],
-                                        'text' => 'Almuerzo',
+                                        'style' => ['color' => '#fff', 'background' => '#f59e0b', 'fontSize' => '10px'],
+                                        'text' => 'Prom AHT ' . $avgAhtChart . 's',
                                     ],
-                                ]] : [],
-                            ]),
+                                ]],
+                            ],
                         ]);
                     @endphp
                     <x-apex-chart id="aht-scatter" :options="$chartOptions" height="280" />

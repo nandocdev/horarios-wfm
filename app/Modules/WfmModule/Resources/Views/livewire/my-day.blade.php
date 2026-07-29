@@ -296,39 +296,38 @@
     @endif
 
     {{-- Llamadas por Cola vs Distribución AHT --}}
-    @if(!empty($d['calls_by_queue']))
-        @php $queueData = is_array($d['calls_by_queue']) ? $d['calls_by_queue'] : (method_exists($d['calls_by_queue'], 'toArray') ? $d['calls_by_queue']->toArray() : []); @endphp
-        @if(count($queueData) > 0)
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <x-wfm.section title="Llamadas por Cola">
-                    <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado']" compact>
-                        @php $qTotalCalls = 0; $qTotalTalk = 0; $qCount = 0; @endphp
-                        @foreach($queueData as $q)
-                            @php
-                                $qc = (int) ($q->handled ?? $q->total_offered ?? 0);
-                                $qaht = (float) ($q->avg_aht ?? 0);
-                                $qTalk = (int) ($q->total_talk ?? 0);
-                                $qTotalCalls += $qc;
-                                $qTotalTalk += $qTalk;
-                                $qCount++;
-                            @endphp
-                            <flux:table.row>
-                                <flux:table.cell class="font-medium text-xs">{{ $q->queue_name ?? '—' }}</flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '—' }}</span></flux:table.cell>
-                            </flux:table.row>
-                        @endforeach
-                        @if($qCount > 1)
-                            <flux:table.row class="font-bold">
-                                <flux:table.cell class="text-xs">Total</flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls > 0 ? number_format($qTotalTalk / $qTotalCalls, 1) . 's' : '—' }}</span></flux:table.cell>
-                                <flux:table.cell><span class="font-mono text-xs">{{ $qTotalTalk > 0 ? gmdate('H:i:s', $qTotalTalk) : '—' }}</span></flux:table.cell>
-                            </flux:table.row>
-                        @endif
-                    </x-wfm.table>
-                </x-wfm.section>
+    @php $queueData = collect($d['calls_by_queue'] ?? []); @endphp
+    @if($queueData->isNotEmpty())
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <x-wfm.section title="Llamadas por Cola">
+                <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado']" compact>
+                    @php $qTotalCalls = 0; $qTotalTalk = 0; $qCount = 0; @endphp
+                    @foreach($queueData as $q)
+                        @php
+                            $qc = (int) ($q->handled ?? $q->total_offered ?? 0);
+                            $qaht = $q->avg_aht ? (float) $q->avg_aht : 0;
+                            $qTalk = (int) ($q->total_talk ?? 0);
+                            $qTotalCalls += $qc;
+                            $qTotalTalk += $qTalk;
+                            $qCount++;
+                        @endphp
+                        <flux:table.row>
+                            <flux:table.cell class="font-medium text-xs">{{ $q->queue_name ?? '—' }}</flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '—' }}</span></flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                    @if($qCount > 1)
+                        <flux:table.row class="font-bold">
+                            <flux:table.cell class="text-xs">Total</flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls > 0 ? number_format($qTotalTalk / $qTotalCalls, 1) . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qTotalTalk > 0 ? gmdate('H:i:s', $qTotalTalk) : '—' }}</span></flux:table.cell>
+                        </flux:table.row>
+                    @endif
+                </x-wfm.table>
+            </x-wfm.section>
 
                 <x-wfm.section title="Distribución AHT por Cola">
                     @php

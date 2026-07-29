@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Cisco;
 
 use Exception;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -60,6 +61,10 @@ class CiscoFinesseClient
                 ->withHeaders(['Accept' => 'application/xml'])
                 ->when(! $this->verifySsl, fn ($http) => $http->withoutVerifying())
                 ->retry($this->maxRetries, fn (int $attempt) => $attempt * 1000, function (Exception $e) {
+                    if ($e instanceof RequestException && $e->response && $e->response->status() < 500) {
+                        return false;
+                    }
+
                     Log::warning("Retry por error de conexión Cisco: {$e->getMessage()}");
 
                     return true;

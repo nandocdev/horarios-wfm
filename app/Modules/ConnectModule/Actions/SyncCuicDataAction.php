@@ -44,6 +44,8 @@ final class SyncCuicDataAction
      */
     public function execute(CarbonInterface $start, CarbonInterface $end): array
     {
+        $this->primeQueueCache();
+
         $stats = [
             'transitions' => 0,
             'performance' => 0,
@@ -265,7 +267,34 @@ final class SyncCuicDataAction
     }
 
     /**
+     * Precarga el cache de colas desde call_queues.
+     * Indexado por nombre normalizado y por finesse_queue_id.
+     */
+    private function primeQueueCache(): void
+    {
+        $queues = CallQueue::select(['id', 'name', 'finesse_queue_id'])->get();
+
+        foreach ($queues as $queue) {
+            $normalized = $this->normalizeQueueName($queue->name);
+            $this->queueCache[$normalized] = $queue->id;
+
+            if ($queue->finesse_queue_id) {
+                $this->queueCache["finesse:{$queue->finesse_queue_id}"] = $queue->id;
+            }
+        }
+    }
+
+    /**
+     * Normaliza un nombre de cola para comparación: mayúsculas, sin '*' ni espacios extra.
+     */
+    private function normalizeQueueName(string $name): string
+    {
+        return strtoupper(trim(str_replace('*', '', $name)));
+    }
+
+    /**
      * Resuelve el ID de la cola a partir de su nombre raw de CUIC.
+     * Busca primero por nombre normalizado, luego por finesse_queue_id si aplica.
      */
     private function resolveQueueId(?string $rawName): ?int
     {
@@ -273,22 +302,11 @@ final class SyncCuicDataAction
             return null;
         }
 
-        // Limpiar nombre: CSQ_NAME* -> CSQ_NAME
-        $cleanName = trim(str_replace('*', '', $rawName));
+        $cleanName = $this->normalizeQueueName($rawName);
 
-        if (isset($this->queueCache[$cleanName])) {
-            return $this->queueCache[$cleanName];
-        }
-
-        $queue = CallQueue::where('name', 'ilike', $cleanName)->first();
-
-        if ($queue) {
-            $this->queueCache[$cleanName] = $queue->id;
-
-            return $queue->id;
-        }
-
-        return null;
+        return $this->queueCache[$cleanName]
+            ?? $this->queueCache["finesse:{$cleanName}"]
+            ?? null;
     }
 
     /**

@@ -11,7 +11,8 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Support\Facades\Log;
 
-class CiscoSyncCommand extends Command implements Isolatable {
+class CiscoSyncCommand extends Command implements Isolatable
+{
     /**
      * El nombre y la firma del comando.
      *
@@ -44,7 +45,7 @@ class CiscoSyncCommand extends Command implements Isolatable {
             $dataStats = $syncDataAction->execute();
             $this->info("Perfiles procesados: {$dataStats['total_cisco_users']}, Actualizados: {$dataStats['updated_employees']}, Desajustes de equipo: {$dataStats['team_mismatches']}");
         } catch (\Exception $e) {
-            $this->warn('No se pudieron sincronizar los datos maestros: ' . $e->getMessage());
+            $this->warn('No se pudieron sincronizar los datos maestros: '.$e->getMessage());
         }
 
         do {
@@ -62,8 +63,8 @@ class CiscoSyncCommand extends Command implements Isolatable {
                 $result = $syncStatesAction->execute();
                 $this->info("Resumen: {$result['success']} éxitos, {$result['error']} fallos.");
             } catch (\Exception $e) {
-                $this->error('Error en el ciclo de sincronización: ' . $e->getMessage());
-                Log::error('CiscoSyncCommand Failure: ' . $e->getMessage());
+                $this->error('Error en el ciclo de sincronización: '.$e->getMessage());
+                Log::error('CiscoSyncCommand Failure: '.$e->getMessage());
             }
 
             if ($loop) {

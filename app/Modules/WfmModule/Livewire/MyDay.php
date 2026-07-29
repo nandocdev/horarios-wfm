@@ -342,12 +342,16 @@ class MyDay extends Component
             ? (int) Carbon::parse($assignment->end_time)->diffInMinutes(Carbon::parse($today))
             : $shiftStartMinutes + 480;
 
+        $shiftDurationMinutes = $assignment?->start_time && $assignment?->end_time
+            ? $shiftEndMinutes - $shiftStartMinutes
+            : 480;
+
         $callScatterData = collect($agentCalls)
             ->groupBy(fn ($c) => $c->csq_name ?? 'Sin Cola')
             ->map(fn ($calls, $queueName) => [
                 'name' => $queueName,
                 'data' => $calls->map(fn ($call) => [
-                    'x' => (int) Carbon::parse($call->start_time)->diffInMinutes(Carbon::parse($today)),
+                    'x' => (int) Carbon::parse($call->start_time)->diffInMinutes(Carbon::parse($today)) - $shiftStartMinutes,
                     'y' => (int) $call->talk_time,
                     't' => Carbon::parse($call->start_time)->format('H:i'),
                 ])->values()->toArray(),
@@ -436,8 +440,8 @@ class MyDay extends Component
             'not_ready_by_reason' => $notReadyByReason,
             'calls_by_queue' => $callsByQueue->filter(fn ($q) => ($q->total_offered ?? 0) > 0 || ($q->handled ?? 0) > 0)->values(),
             'call_scatter_data' => $callScatterData,
-            'call_scatter_x_min' => max(0, $shiftStartMinutes - 60),
-            'call_scatter_x_max' => $shiftEndMinutes + 60,
+            'call_scatter_x_min' => -60,
+            'call_scatter_x_max' => $shiftDurationMinutes + 60,
             'timeline_start' => $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '06:00',
             'timeline_end' => $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '18:00',
             'real_end' => $realEnd,

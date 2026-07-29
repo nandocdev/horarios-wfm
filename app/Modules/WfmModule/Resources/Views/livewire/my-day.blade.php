@@ -338,8 +338,13 @@
                         $scatterColors = ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6','#e11d48','#84cc16','#d946ef','#0ea5e9','#fb923c','#22d3ee','#a855f7','#34d399','#f472b6'];
                         $series = $d['call_scatter_data'] ?? [];
                         $seriesWithColors = array_map(fn ($s, $i) => array_merge($s, ['color' => $scatterColors[$i % count($scatterColors)]]), $series, array_keys($series));
-                        $lunchMin = ($d['lunch_start'] ?? null) && ($d['scheduled_entry'] ?? '06:00') !== '--:--'
-                            ? (int) \Carbon\Carbon::parse($d['lunch_start'])->diffInMinutes(\Carbon\Carbon::today()->startOfDay(), false)
+
+                        $schedEntry = $d['scheduled_entry'] ?? '06:00';
+                        $shiftStartParts = explode(':', $schedEntry);
+                        $shiftStartTotal = ((int) ($shiftStartParts[0] ?? 6)) * 60 + ((int) ($shiftStartParts[1] ?? 0));
+
+                        $lunchMin = ($d['lunch_start'] ?? null) && $schedEntry !== '--:--'
+                            ? (int) \Carbon\Carbon::parse($d['lunch_start'])->diffInMinutes(\Carbon\Carbon::parse($schedEntry), false)
                             : null;
 
                         $chartOptions = json_encode([
@@ -356,10 +361,10 @@
                             'series' => $seriesWithColors,
                             'xaxis' => [
                                 'title' => ['text' => 'Hora del día', 'style' => ['fontSize' => '11px']],
-                                'min' => $d['call_scatter_x_min'] ?? 300,
-                                'max' => $d['call_scatter_x_max'] ?? 900,
+                                'min' => $d['call_scatter_x_min'] ?? -60,
+                                'max' => $d['call_scatter_x_max'] ?? 540,
                                 'tickAmount' => 10,
-                                'labels' => ['formatter' => 'function(v) { let h=Math.floor(v/60); let m=Math.floor(v%60); return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }'],
+                                'labels' => ['formatter' => 'function(v) { let t=' . $shiftStartTotal . '+v; if(t<0)t+=1440; let h=Math.floor(t/60)%24; let m=Math.floor(t%60); return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }'],
                             ],
                             'yaxis' => [
                                 'title' => ['text' => 'Talk Time (segundos)', 'style' => ['fontSize' => '11px']],
@@ -373,8 +378,10 @@
                             'tooltip' => [
                                 'custom' => 'function({seriesIndex, dataPointIndex, w}) {
                                     let d = w.config.series[seriesIndex].data[dataPointIndex];
-                                    let h = Math.floor(d.x / 60);
-                                    let m = Math.floor(d.x % 60);
+                                    let t = ' . $shiftStartTotal . ' + d.x;
+                                    if (t < 0) t += 1440;
+                                    let h = Math.floor(t / 60) % 24;
+                                    let m = Math.floor(t % 60);
                                     let timeStr = String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0");
                                     return "<div class=\"px-3 py-2 text-xs\">" +
                                         "<strong>" + w.config.series[seriesIndex].name + "</strong><br>" +

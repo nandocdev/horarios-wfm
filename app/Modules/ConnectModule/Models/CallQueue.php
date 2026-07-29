@@ -12,6 +12,7 @@ class CallQueue extends Model
     protected $table = 'call_queues';
 
     protected $fillable = [
+        'finesse_queue_id',
         'name',
         'description',
         'is_active',

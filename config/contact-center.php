@@ -40,6 +40,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Finesse - Cisco Finesse API
+    |--------------------------------------------------------------------------
+    | Configuración para consumir la API REST de Finesse para obtener
+    | información de colas (CSQ). Usa las mismas credenciales que CUIC.
+    */
+    'finesse' => [
+        'base_url' => env('FINESSE_BASE_URL'),
+        'username' => env('CUIC_USERNAME'),
+        'password' => env('CUIC_PASSWORD'),
+        'verify_ssl' => (bool) env('CUIC_VERIFY_SSL', false),
+        'timeout' => (int) env('CUIC_TIMEOUT', 30),
+        'max_queue_id' => (int) env('FINESSE_MAX_QUEUE_ID', 100),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | CUIC - Cisco Unified Intelligence Center
     |--------------------------------------------------------------------------
     | Configuración para consumir la API REST de CUIC.

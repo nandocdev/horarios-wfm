@@ -14,7 +14,7 @@
             </thead>
             <tbody class="divide-y divide-zinc-100 dark:divide-zinc-700/50">
                 @foreach ($rows as $row)
-                    <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors {{ $row['gap'] < 0 ? 'bg-red-50/50 dark:bg-red-900/10' : '' }}">
+                    <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors {{ $row['class'] }}">
                         <td class="py-2 px-2 font-medium text-zinc-700 dark:text-zinc-300">{{ $row['hour'] }}</td>
                         <td class="py-2 px-2 text-right text-zinc-600 dark:text-zinc-400">{{ $row['req'] }}</td>
                         <td class="py-2 px-2 text-right text-zinc-600 dark:text-zinc-400">{{ $row['prog'] }}</td>

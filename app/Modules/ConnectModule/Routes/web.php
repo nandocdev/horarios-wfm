@@ -6,6 +6,7 @@ use App\Modules\ConnectModule\Http\Controllers\CallRecordController;
 use App\Modules\ConnectModule\Http\Controllers\CiscoFinesseController;
 use App\Modules\ConnectModule\Livewire\AgentDashboard;
 use App\Modules\ConnectModule\Livewire\CreateCallRecord;
+use App\Modules\ConnectModule\Livewire\CreateCallRecordPublic;
 use App\Modules\ConnectModule\Livewire\EditCallRecord;
 use App\Modules\ConnectModule\Livewire\GeneralDashboard;
 use App\Modules\ConnectModule\Livewire\ListCallQueues;
@@ -66,4 +67,7 @@ Route::middleware(['web'])->group(function () {
             ->name('contact-center.admin.subtypes.index');
 
     });
+
+    Route::get('/contact-center/calls/create/public', CreateCallRecordPublic::class)
+        ->name('contact-center.calls.create.public');
 });

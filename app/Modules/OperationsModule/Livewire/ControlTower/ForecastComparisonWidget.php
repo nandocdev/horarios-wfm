@@ -56,26 +56,23 @@ class ForecastComparisonWidget extends Component
             $actualSeries[] = (int) ($actualCalls[$h]->calls ?? 0);
         }
 
-        $chartOptions = json_encode([
-            'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit', 'height' => 220],
-            'series' => [
-                ['name' => 'Forecast', 'data' => $forecastSeries, 'type' => 'line'],
-                ['name' => 'Real', 'data' => $actualSeries, 'type' => 'line'],
-            ],
-            'xaxis' => ['categories' => $categories, 'labels' => ['style' => ['fontSize' => '10px']]],
-            'yaxis' => ['labels' => ['formatter' => 'function(v){return Number.isInteger(v)?v:""}']],
-            'colors' => ['#6366f1', '#22c55e'],
-            'stroke' => ['width' => [3, 3], 'dashArray' => [4, 0], 'curve' => 'smooth'],
-            'fill' => ['opacity' => [0.08, 0.12]],
-            'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
-            'dataLabels' => ['enabled' => false],
-            'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px'],
-            'markers' => ['size' => 3],
-            'tooltip' => ['shared' => true, 'y' => ['formatter' => 'function(v){return Number.isInteger(v)?v+" llamadas":v}']],
-        ]);
-
         return view('operations::livewire.control-tower.forecast-comparison-widget', [
-            'chartOptions' => $chartOptions,
+            'chartOptions' => [
+                'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit', 'height' => 220],
+                'series' => [
+                    ['name' => 'Forecast', 'data' => $forecastSeries, 'type' => 'line'],
+                    ['name' => 'Real', 'data' => $actualSeries, 'type' => 'line'],
+                ],
+                'xaxis' => ['categories' => $categories, 'labels' => ['style' => ['fontSize' => '10px']]],
+                'colors' => ['#6366f1', '#22c55e'],
+                'stroke' => ['width' => [3, 3], 'dashArray' => [4, 0], 'curve' => 'smooth'],
+                'fill' => ['opacity' => [0.08, 0.12]],
+                'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
+                'dataLabels' => ['enabled' => false],
+                'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px'],
+                'markers' => ['size' => 3],
+                'tooltip' => ['shared' => true],
+            ],
             'hasForecast' => $latestScenario !== null,
         ]);
     }

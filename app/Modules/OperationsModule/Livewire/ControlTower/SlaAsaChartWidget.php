@@ -62,37 +62,23 @@ class SlaAsaChartWidget extends Component
             $yesterdayAsa[] = $yesterdayStats && $yesterdayStats->avg_asa ? round((float) $yesterdayStats->avg_asa, 0) : 0;
         }
 
-        $chartOptions = json_encode([
-            'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit', 'height' => 220],
-            'series' => [
-                ['name' => 'SLA Hoy', 'data' => $todaySla, 'yAxis' => 0],
-                ['name' => 'ASA Hoy (s)', 'data' => $todayAsa, 'yAxis' => 1],
-                ['name' => 'SLA Ayer', 'data' => $yesterdaySla, 'yAxis' => 0],
-                ['name' => 'ASA Ayer (s)', 'data' => $yesterdayAsa, 'yAxis' => 1],
-            ],
-            'xaxis' => ['categories' => $categories, 'labels' => ['style' => ['fontSize' => '10px']]],
-            'yaxis' => [
-                ['min' => 0, 'max' => 100, 'labels' => ['formatter' => 'function(v){return v+"%"}'], 'title' => ['text' => 'SLA', 'style' => ['fontSize' => '10px']]],
-                ['opposite' => true, 'labels' => ['formatter' => 'function(v){return v+"s"}'], 'title' => ['text' => 'ASA', 'style' => ['fontSize' => '10px']]],
-            ],
-            'colors' => ['#22c55e', '#3b82f6', '#86efac', '#93c5fd'],
-            'stroke' => ['width' => [2, 1.5, 2, 1.5], 'dashArray' => [0, 0, 4, 4], 'curve' => 'smooth'],
-            'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
-            'dataLabels' => ['enabled' => false],
-            'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '10px'],
-            'tooltip' => [
-                'shared' => true,
-                'y' => [
-                    ['formatter' => 'function(v){return v+"%"}'],
-                    ['formatter' => 'function(v){return v+"s"}'],
-                    ['formatter' => 'function(v){return v+"%"}'],
-                    ['formatter' => 'function(v){return v+"s"}'],
-                ],
-            ],
-        ]);
-
         return view('operations::livewire.control-tower.sla-asa-chart-widget', [
-            'chartOptions' => $chartOptions,
+            'chartOptions' => [
+                'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit', 'height' => 220],
+                'series' => [
+                    ['name' => 'SLA Hoy', 'data' => $todaySla, 'yAxis' => 0],
+                    ['name' => 'ASA Hoy (s)', 'data' => $todayAsa, 'yAxis' => 1],
+                    ['name' => 'SLA Ayer', 'data' => $yesterdaySla, 'yAxis' => 0],
+                    ['name' => 'ASA Ayer (s)', 'data' => $yesterdayAsa, 'yAxis' => 1],
+                ],
+                'xaxis' => ['categories' => $categories, 'labels' => ['style' => ['fontSize' => '10px']]],
+                'colors' => ['#22c55e', '#3b82f6', '#86efac', '#93c5fd'],
+                'stroke' => ['width' => [2, 1.5, 2, 1.5], 'dashArray' => [0, 0, 4, 4], 'curve' => 'smooth'],
+                'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
+                'dataLabels' => ['enabled' => false],
+                'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '10px'],
+                'tooltip' => ['shared' => true],
+            ],
         ]);
     }
 }

@@ -66,21 +66,19 @@ class OccupancyChartWidget extends Component
             ['name' => 'Ayer', 'data' => $yesterdaySeries],
         ];
 
-        $chartOptions = json_encode([
-            'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit', 'height' => 220],
-            'series' => $series,
-            'xaxis' => ['categories' => $categories, 'labels' => ['style' => ['fontSize' => '10px']]],
-            'yaxis' => ['min' => 0, 'max' => 100, 'labels' => ['formatter' => 'function(v){return v+"%"}']],
-            'colors' => ['#3b82f6', '#94a3b8'],
-            'stroke' => ['width' => [2, 2], 'dashArray' => [0, 4], 'curve' => 'smooth'],
-            'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
-            'dataLabels' => ['enabled' => false],
-            'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px'],
-            'tooltip' => ['y' => ['formatter' => 'function(v){return v+"%"}']],
-        ]);
-
         return view('operations::livewire.control-tower.occupancy-chart-widget', [
-            'chartOptions' => $chartOptions,
+            'chartOptions' => [
+                'chart' => ['type' => 'line', 'toolbar' => ['show' => false], 'zoom' => ['enabled' => false], 'fontFamily' => 'inherit', 'height' => 220],
+                'series' => $series,
+                'xaxis' => ['categories' => $categories, 'labels' => ['style' => ['fontSize' => '10px']]],
+                'yaxis' => ['min' => 0, 'max' => 100],
+                'colors' => ['#3b82f6', '#94a3b8'],
+                'stroke' => ['width' => [2, 2], 'dashArray' => [0, 4], 'curve' => 'smooth'],
+                'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
+                'dataLabels' => ['enabled' => false],
+                'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px'],
+                'tooltip' => ['y' => ['formatter' => "function(v){return v+'%'}"]],
+            ],
         ]);
     }
 }

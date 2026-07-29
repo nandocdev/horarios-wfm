@@ -419,68 +419,33 @@
 
     {{-- Estado Actual (solo hoy) --}}
     @if(!$isHistorical)
-        @php
-            $productive = ($d['talk'] ?? 0) + ($d['ready'] ?? 0) + ($d['acw'] ?? 0) + ($d['reserved'] ?? 0);
-            $nonProductive = ($d['lunch'] ?? 0) + ($d['break'] ?? 0) + ($d['not_ready'] ?? 0) + ($d['offline'] ?? 0);
-            $total = max($d['total_seconds'] ?? 1, 1);
-            $prodPct = round(($productive / $total) * 100, 1);
-            $nonProdPct = round(($nonProductive / $total) * 100, 1);
-        @endphp
         <x-wfm.section title="Estado Actual">
-            {{-- Row 1: KPIs principales --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                <x-wfm.kpi :value="$d['occupancy'] . '%'" label="Ocupación" icon="chart-bar" color="info" />
-                <x-wfm.kpi :value="($d['adherence'] ?? 0) . '%'" label="Adherencia" icon="check-badge" color="success" />
-                <x-wfm.kpi :value="$d['handled_calls'] ?? 0" label="Atendidas" icon="phone" color="success" />
-                <x-wfm.kpi :value="($d['avg_handle_time'] ?? 0) . 's'" label="AHT" icon="clock" />
-            </div>
-
-            {{-- Row 2: Tiempo Productivo --}}
-            <div class="mb-3">
-                <div class="flex items-center justify-between mb-1.5">
-                    <h4 class="text-xs font-semibold text-wfm-navy-700">Tiempo Productivo</h4>
-                    <span class="text-xs font-mono text-wfm-success">{{ $prodPct }}%</span>
-                </div>
-                <div class="space-y-1.5 text-xs">
-                    @foreach([['TALKING', $d['talk'] ?? 0, 'bg-wfm-info'],
-                              ['READY', $d['ready'] ?? 0, 'bg-wfm-success'],
-                              ['ACW/WORK', $d['acw'] ?? 0, 'bg-purple-500'],
-                              ['RESERVED', $d['reserved'] ?? 0, 'bg-cyan-500']] as [$label, $seconds, $barColor])
-                        @php $pct = round(($seconds / $total) * 100, 1); @endphp
-                        <div class="flex items-center gap-2 p-1.5 bg-wfm-surface rounded">
-                            <span class="w-16 text-wfm-navy-700 font-medium">{{ $label }}</span>
-                            <div class="flex-1 h-2 bg-wfm-surface-border rounded-full overflow-hidden">
-                                <div class="h-full rounded-full {{ $barColor }}" style="width: {{ $pct }}%"></div>
-                            </div>
-                            <span class="font-mono text-wfm-navy-700 w-16 text-right">{{ gmdate('H:i:s', $seconds) }}</span>
-                            <span class="text-wfm-surface-muted w-10 text-right">{{ $pct }}%</span>
+            <div class="space-y-2 text-xs">
+                @foreach([['TALKING', $d['talk'] ?? 0], ['READY', $d['ready'] ?? 0],
+                          ['ACW/WORK', $d['acw'] ?? 0], ['RESERVED', $d['reserved'] ?? 0],
+                          ['ALMUERZO', $d['lunch'] ?? 0], ['DESCANSO', $d['break'] ?? 0],
+                          ['NOT READY', $d['not_ready'] ?? 0], ['OFFLINE', $d['offline'] ?? 0]] as [$label, $seconds])
+                    @php
+                        $pct = ($d['total_seconds'] ?? 1) > 0 ? round(($seconds / max($d['total_seconds'], 1)) * 100, 1) : 0;
+                    @endphp
+                    <div class="flex items-center gap-2 p-1.5 bg-wfm-surface rounded">
+                        <span class="w-16 text-wfm-navy-700 font-medium">{{ $label }}</span>
+                        <div class="flex-1 h-2 bg-wfm-surface-border rounded-full overflow-hidden">
+                            <div class="h-full rounded-full {{ match($label) {
+                                'TALKING' => 'bg-wfm-info',
+                                'READY' => 'bg-wfm-success',
+                                'ACW/WORK' => 'bg-purple-500',
+                                'RESERVED' => 'bg-cyan-500',
+                                'ALMUERZO', 'DESCANSO' => 'bg-wfm-warning',
+                                'NOT READY' => 'bg-amber-500',
+                                'OFFLINE' => 'bg-wfm-danger',
+                                default => 'bg-wfm-surface-muted',
+                            } }}" style="width: {{ $pct }}%"></div>
                         </div>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- Row 3: Tiempo No Productivo --}}
-            <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <h4 class="text-xs font-semibold text-wfm-navy-700">Tiempo No Productivo</h4>
-                    <span class="text-xs font-mono text-wfm-warning">{{ $nonProdPct }}%</span>
-                </div>
-                <div class="space-y-1.5 text-xs">
-                    @foreach([['ALMUERZO', $d['lunch'] ?? 0, 'bg-wfm-warning'],
-                              ['DESCANSO', $d['break'] ?? 0, 'bg-wfm-warning'],
-                              ['NOT READY', $d['not_ready'] ?? 0, 'bg-amber-500'],
-                              ['OFFLINE', $d['offline'] ?? 0, 'bg-wfm-danger']] as [$label, $seconds, $barColor])
-                        @php $pct = round(($seconds / $total) * 100, 1); @endphp
-                        <div class="flex items-center gap-2 p-1.5 bg-wfm-surface rounded">
-                            <span class="w-16 text-wfm-navy-700 font-medium">{{ $label }}</span>
-                            <div class="flex-1 h-2 bg-wfm-surface-border rounded-full overflow-hidden">
-                                <div class="h-full rounded-full {{ $barColor }}" style="width: {{ $pct }}%"></div>
-                            </div>
-                            <span class="font-mono text-wfm-navy-700 w-16 text-right">{{ gmdate('H:i:s', $seconds) }}</span>
-                            <span class="text-wfm-surface-muted w-10 text-right">{{ $pct }}%</span>
-                        </div>
-                    @endforeach
-                </div>
+                        <span class="font-mono text-wfm-navy-700 w-16 text-right">{{ gmdate('H:i:s', $seconds) }}</span>
+                        <span class="text-wfm-surface-muted w-10 text-right">{{ $pct }}%</span>
+                    </div>
+                @endforeach
             </div>
         </x-wfm.section>
     @else

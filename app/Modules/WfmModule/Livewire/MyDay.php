@@ -14,6 +14,7 @@ use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -225,6 +226,7 @@ class MyDay extends Component
             'not_ready_by_reason' => [],
             'calls_by_queue' => [],
             'call_scatter_data' => [],
+            'call_scatter_stats' => ['max' => 0, 'min' => 0, 'mean' => 0, 'std' => 0],
             'call_scatter_x_min' => 300,
             'call_scatter_x_max' => 900,
             'timeline_start' => $report->scheduled_start?->format('H:i') ?? '06:00',
@@ -256,8 +258,14 @@ class MyDay extends Component
         ?string $breakStart,
         ?string $breakEnd,
     ): array {
-        $timeByState = $transitions->groupBy(fn ($t) => strtoupper(trim($t->agent_state)))
-            ->map(fn ($group) => $group->sum('duration'));
+        $timeByState = $transitions->groupBy(function ($t) {
+            $state = strtoupper(trim($t->agent_state ?? ''));
+            $reason = strtoupper(trim($t->reason_code ?? ''));
+            if ($state === 'NOT READY' && $reason) {
+                return $state . '_' . $reason;
+            }
+            return $state;
+        })->map(fn ($group) => $group->sum('duration'));
 
         $totalSeconds = $timeByState->sum();
         $talkSeconds = $timeByState->get('TALKING', 0);
@@ -266,9 +274,15 @@ class MyDay extends Component
         $reservedSeconds = $timeByState->get('RESERVED', 0);
         $handleSeconds = $talkSeconds + $acwSeconds + $reservedSeconds;
         $readyAvailableSeconds = $handleSeconds + $readySeconds;
-        $lunchSeconds = $timeByState->get('NOT_READY_LUNCH', 0) + $timeByState->get('NOT_READY_ALMUERZO', 0) + $timeByState->get('LUNCH', 0);
-        $breakSeconds = $timeByState->get('NOT_READY_BREAK', 0) + $timeByState->get('NOT_READY_DESCANSO', 0) + $timeByState->get('BREAK', 0);
-        $notReadySeconds = $timeByState->get('NOT_READY', 0);
+        
+        $lunchSeconds = $timeByState->get('NOT READY_LUNCH', 0) + $timeByState->get('NOT READY_ALMUERZO', 0) + $timeByState->get('LUNCH', 0);
+        $breakSeconds = $timeByState->get('NOT READY_BREAK', 0) + $timeByState->get('NOT READY_DESCANSO', 0) + $timeByState->get('BREAK', 0);
+        
+        // Sum all NOT READY states that aren't lunch or break (or just all NOT READY)
+        $notReadySeconds = $timeByState->filter(function ($val, $key) {
+            return str_starts_with($key, 'NOT READY');
+        })->sum();
+        
         $offlineSeconds = $timeByState->get('LOGOUT', 0) + $timeByState->get('OFFLINE', 0);
 
         $productiveSeconds = $handleSeconds + $readySeconds;
@@ -318,14 +332,13 @@ class MyDay extends Component
         $avgAcwTime = $handledCalls > 0 ? round($acwSeconds / $handledCalls, 1) : 0;
 
         $notReadyByReason = $transitions
-            ->whereIn('agent_state', ['NOT_READY'])
-            ->groupBy(fn ($t) => $t->reason_code ?? 'SIN_MOTIVO')
+            ->filter(function ($t) {
+                return strtoupper(trim($t->agent_state ?? '')) === 'NOT READY';
+            })
+            ->groupBy(fn ($t) => strtoupper(trim($t->reason_code ?? 'SIN_MOTIVO')))
             ->map(fn ($group) => $group->sum('duration'))
             ->sortDesc()
             ->toArray();
-
-        $callsByQueue = app(TelemetryRealtimeRepositoryInterface::class)
-            ->getQueuePerformanceReport($today, [$targetEmployee->id]);
 
         $agentCalls = AgentCallPerformance::where('employee_id', $targetEmployee->id)
             ->whereDate('start_time', $today)
@@ -334,35 +347,92 @@ class MyDay extends Component
             ->orderBy('start_time')
             ->get(['start_time', 'talk_time', 'csq_name']);
 
-        $shiftStartMinutes = $assignment?->start_time
-            ? (int) Carbon::parse($assignment->start_time)->diffInMinutes(Carbon::parse($today))
-            : 360;
+        $callsByQueue = app(TelemetryRealtimeRepositoryInterface::class)
+            ->getQueuePerformanceReport($today, [$targetEmployee->id]);
 
-        $shiftEndMinutes = $assignment?->end_time
-            ? (int) Carbon::parse($assignment->end_time)->diffInMinutes(Carbon::parse($today))
-            : $shiftStartMinutes + 480;
+        $queueStats = collect($agentCalls)
+            ->groupBy(fn ($c) => $c->csq_name ?? 'Sin Cola')
+            ->map(function ($calls) {
+                $talkTimes = $calls->pluck('talk_time')->toArray();
+                $count = count($talkTimes);
+                $mean = $count > 0 ? array_sum($talkTimes) / $count : 0;
+                $variance = 0;
+                if ($count > 1) {
+                    $variance = array_sum(array_map(fn($x) => pow($x - $mean, 2), $talkTimes)) / ($count - 1);
+                }
+                return [
+                    'max' => $count > 0 ? max($talkTimes) : 0,
+                    'min' => $count > 0 ? min($talkTimes) : 0,
+                    'mean' => round($mean, 1),
+                    'std' => round(sqrt($variance), 1),
+                ];
+            });
 
-        $shiftDurationMinutes = $assignment?->start_time && $assignment?->end_time
-            ? $shiftEndMinutes - $shiftStartMinutes
-            : 480;
+        $callsByQueue = $callsByQueue->map(function ($q) use ($queueStats) {
+            $stats = $queueStats->get($q->queue_name ?? 'Sin Cola');
+            $q->max_talk = $stats['max'] ?? 0;
+            $q->min_talk = $stats['min'] ?? 0;
+            $q->mean_talk = $stats['mean'] ?? 0;
+            $q->std_talk = $stats['std'] ?? 0;
+            return $q;
+        });
+
+
+        $shiftStart = $assignment?->start_time
+            ? Carbon::parse($assignment->start_time)->setDateFrom(Carbon::parse($today))
+            : Carbon::parse($today)->addHours(6);
+
+        $shiftEnd = $assignment?->end_time
+            ? Carbon::parse($assignment->end_time)->setDateFrom(Carbon::parse($today))
+            : $shiftStart->copy()->addHours(8);
 
         $callScatterData = collect($agentCalls)
             ->groupBy(fn ($c) => $c->csq_name ?? 'Sin Cola')
             ->map(fn ($calls, $queueName) => [
                 'name' => $queueName,
                 'data' => $calls->map(fn ($call) => [
-                    'x' => (int) Carbon::parse($call->start_time)->diffInMinutes(Carbon::parse($today)) - $shiftStartMinutes,
+                    'x' => Carbon::parse($call->start_time)->getTimestamp() * 1000,
                     'y' => (int) $call->talk_time,
-                    't' => Carbon::parse($call->start_time)->format('H:i'),
+                    't' => Carbon::parse($call->start_time)->timezone('America/Panama')->format('H:i'),
                 ])->values()->toArray(),
             ])->values()->toArray();
 
+        $talkTimes = collect($agentCalls)->pluck('talk_time')->filter(fn ($t) => $t > 0)->toArray();
+        $talkCount = count($talkTimes);
+        $talkMax = $talkCount > 0 ? max($talkTimes) : 0;
+        $talkMin = $talkCount > 0 ? min($talkTimes) : 0;
+        $talkMean = $talkCount > 0 ? array_sum($talkTimes) / $talkCount : 0;
+        
+        $talkVariance = 0;
+        if ($talkCount > 1) {
+            $talkVariance = array_sum(array_map(fn($x) => pow($x - $talkMean, 2), $talkTimes)) / ($talkCount - 1);
+        }
+        $talkStdDev = sqrt($talkVariance);
+
+        $callScatterStats = [
+            'max' => (int) $talkMax,
+            'min' => (int) $talkMin,
+            'mean' => round($talkMean, 1),
+            'std' => round($talkStdDev, 1),
+        ];
+
         $firstLunch = $transitions
-            ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['LUNCH', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO']))
+            ->filter(function ($t) {
+                $state = strtoupper(trim($t->agent_state ?? ''));
+                $reason = strtoupper(trim($t->reason_code ?? ''));
+                return in_array($state, ['LUNCH', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO']) ||
+                       ($state === 'NOT READY' && in_array($reason, ['LUNCH', 'ALMUERZO']));
+            })
             ->sortBy('transition_time')
             ->first();
+
         $firstBreak = $transitions
-            ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['BREAK', 'NOT_READY_BREAK', 'NOT_READY_DESCANSO']))
+            ->filter(function ($t) {
+                $state = strtoupper(trim($t->agent_state ?? ''));
+                $reason = strtoupper(trim($t->reason_code ?? ''));
+                return in_array($state, ['BREAK', 'NOT_READY_BREAK', 'NOT_READY_DESCANSO']) ||
+                       ($state === 'NOT READY' && in_array($reason, ['BREAK', 'DESCANSO']));
+            })
             ->sortBy('transition_time')
             ->first();
 
@@ -440,8 +510,9 @@ class MyDay extends Component
             'not_ready_by_reason' => $notReadyByReason,
             'calls_by_queue' => $callsByQueue->filter(fn ($q) => ($q->total_offered ?? 0) > 0 || ($q->handled ?? 0) > 0)->values(),
             'call_scatter_data' => $callScatterData,
-            'call_scatter_x_min' => -60,
-            'call_scatter_x_max' => $shiftDurationMinutes + 60,
+            'call_scatter_stats' => $callScatterStats,
+            'call_scatter_x_min' => $shiftStart->copy()->subHour()->getTimestamp() * 1000,
+            'call_scatter_x_max' => $shiftEnd->copy()->addHour()->getTimestamp() * 1000,
             'timeline_start' => $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '06:00',
             'timeline_end' => $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '18:00',
             'real_end' => $realEnd,

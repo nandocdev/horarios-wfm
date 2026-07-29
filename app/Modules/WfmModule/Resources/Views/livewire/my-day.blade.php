@@ -304,13 +304,17 @@
     @if($hasAnyData)
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <x-wfm.section title="Llamadas por Cola">
-                <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado']" compact>
+                <x-wfm.table :headers="['Cola', 'Llamadas', 'AHT', 'T. Acumulado Hablado', 'Máx', 'Mín', 'Media', 'Desv. Est.']" compact>
                     @php $qTotalCalls = 0; $qTotalTalk = 0; $qCount = 0; @endphp
                     @foreach($queueData as $q)
                         @php
                             $qc = (int) ($q->handled ?? $q->total_offered ?? 0);
                             $qaht = $q->avg_aht ? (float) $q->avg_aht : 0;
                             $qTalk = (int) ($q->total_talk ?? 0);
+                            $qMax = (int) ($q->max_talk ?? 0);
+                            $qMin = (int) ($q->min_talk ?? 0);
+                            $qMean = (float) ($q->mean_talk ?? 0);
+                            $qStd = (float) ($q->std_talk ?? 0);
                             $qTotalCalls += $qc;
                             $qTotalTalk += $qTalk;
                             $qCount++;
@@ -320,20 +324,43 @@
                             <flux:table.cell><span class="font-mono text-xs">{{ $qc }}</span></flux:table.cell>
                             <flux:table.cell><span class="font-mono text-xs">{{ $qaht > 0 ? number_format($qaht, 1) . 's' : '—' }}</span></flux:table.cell>
                             <flux:table.cell><span class="font-mono text-xs">{{ $qTalk > 0 ? gmdate('H:i:s', $qTalk) : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qMax > 0 ? $qMax . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $qMin > 0 ? $qMin . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs text-wfm-info">{{ $qMean > 0 ? number_format($qMean, 1) . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs text-wfm-warning">{{ $qStd > 0 ? '±' . number_format($qStd, 1) . 's' : '—' }}</span></flux:table.cell>
                         </flux:table.row>
                     @endforeach
                     @if($qCount > 1)
+                        @php 
+                            $sStats = $d['call_scatter_stats'] ?? ['max' => 0, 'min' => 0, 'mean' => 0, 'std' => 0]; 
+                        @endphp
                         <flux:table.row class="font-bold">
-                            <flux:table.cell class="text-xs">Total</flux:table.cell>
+                            <flux:table.cell class="text-xs">Total Global</flux:table.cell>
                             <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls }}</span></flux:table.cell>
                             <flux:table.cell><span class="font-mono text-xs">{{ $qTotalCalls > 0 ? number_format($qTotalTalk / $qTotalCalls, 1) . 's' : '—' }}</span></flux:table.cell>
                             <flux:table.cell><span class="font-mono text-xs">{{ $qTotalTalk > 0 ? gmdate('H:i:s', $qTotalTalk) : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $sStats['max'] > 0 ? $sStats['max'] . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs">{{ $sStats['min'] > 0 ? $sStats['min'] . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs text-wfm-info">{{ $sStats['mean'] > 0 ? number_format($sStats['mean'], 1) . 's' : '—' }}</span></flux:table.cell>
+                            <flux:table.cell><span class="font-mono text-xs text-wfm-warning">{{ $sStats['std'] > 0 ? '±' . number_format($sStats['std'], 1) . 's' : '—' }}</span></flux:table.cell>
                         </flux:table.row>
                     @endif
                 </x-wfm.table>
             </x-wfm.section>
 
                 <x-wfm.section title="Distribución AHT por Cola">
+                    <x-slot:actions>
+                        @php $sStats = $d['call_scatter_stats'] ?? ['max' => 0, 'min' => 0, 'mean' => 0, 'std' => 0]; @endphp
+                        <div class="flex items-center gap-3 text-[10px] text-wfm-surface-muted bg-wfm-surface px-2 py-1 rounded border border-wfm-surface-border/50">
+                            <div class="flex flex-col items-center"><span class="font-bold text-wfm-navy-800 dark:text-white leading-none">{{ number_format($sStats['max']) }}s</span><span class="text-[9px] mt-0.5">Máx</span></div>
+                            <div class="w-px h-5 bg-wfm-surface-border"></div>
+                            <div class="flex flex-col items-center"><span class="font-bold text-wfm-navy-800 dark:text-white leading-none">{{ number_format($sStats['min']) }}s</span><span class="text-[9px] mt-0.5">Mín</span></div>
+                            <div class="w-px h-5 bg-wfm-surface-border"></div>
+                            <div class="flex flex-col items-center"><span class="font-bold text-wfm-info leading-none">{{ number_format($sStats['mean'], 1) }}s</span><span class="text-[9px] mt-0.5">Media</span></div>
+                            <div class="w-px h-5 bg-wfm-surface-border"></div>
+                            <div class="flex flex-col items-center"><span class="font-bold text-wfm-warning leading-none">±{{ number_format($sStats['std'], 1) }}s</span><span class="text-[9px] mt-0.5">Desv. Est.</span></div>
+                        </div>
+                    </x-slot:actions>
                     @php
                         $scatterColors = ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6','#e11d48','#84cc16','#d946ef','#0ea5e9','#fb923c','#22d3ee','#a855f7','#34d399','#f472b6'];
                         $series = $d['call_scatter_data'] ?? [];
@@ -456,58 +483,63 @@
                 </div>
             </x-wfm.section>
 
-            <x-wfm.section title="Atendidas por Cola">
+            <x-wfm.section title="Desglose del TMO (AHT)">
                 @php
-                    $barOptions = json_encode([
-                        'chart' => [
-                            'type' => 'bar',
-                            'toolbar' => ['show' => false],
-                            'zoom' => ['enabled' => false],
-                            'animations' => ['enabled' => false],
-                            'parentHeightOffset' => 10,
-                        ],
-                        'plotOptions' => [
-                            'bar' => [
-                                'horizontal' => true,
-                                'distributed' => true,
-                                'borderRadius' => 2,
-                            ],
-                        ],
-                        'colors' => ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#6366f1','#14b8a6','#e11d48','#84cc16','#d946ef','#0ea5e9','#fb923c','#22d3ee','#a855f7','#34d399','#f472b6'],
-                        'series' => [[
-                            'name' => 'Atendidas',
-                            'data' => $queueHandled->map(fn ($q) => [
-                                'x' => $q->queue_name,
-                                'y' => (int) ($q->handled ?? 0),
-                            ])->toArray(),
-                        ]],
-                        'xaxis' => [
-                            'labels' => ['formatter' => 'function(v) { return v.toFixed(0); }'],
-                        ],
-                        'yaxis' => [
-                            'labels' => ['style' => ['fontSize' => '10px']],
-                        ],
-                        'dataLabels' => [
-                            'enabled' => true,
-                            'offsetX' => 4,
-                            'style' => ['fontSize' => '10px', 'fontWeight' => 600],
-                            'formatter' => 'function(v) { return v.toFixed(0); }',
-                        ],
-                        'tooltip' => [
-                            'y' => ['formatter' => 'function(v) { return v.toFixed(0) + " llamadas"; }'],
-                        ],
-                        'grid' => [
-                            'show' => true,
-                            'borderColor' => '#e5e7eb',
-                            'strokeDashArray' => 2,
-                            'padding' => ['left' => 10, 'right' => 30, 'top' => 10, 'bottom' => 10],
-                        ],
-                    ]);
+                    $aht = $d['avg_handle_time'] ?? 0;
+                    $att = $d['avg_talk_time'] ?? 0;
+                    $acw = $d['avg_acw_time'] ?? 0;
+                    $hold = max(0, $aht - $att - $acw);
                 @endphp
-                @if($queueHandled->isNotEmpty())
-                    <x-apex-chart id="queue-handled-bar" :options="$barOptions" height="280" />
+                @if($aht > 0)
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-end justify-between">
+                            <div class="text-3xl font-bold font-mono leading-none">{{ number_format($aht, 1) }}s</div>
+                            <div class="text-xs text-wfm-surface-muted">TMO Promedio Global</div>
+                        </div>
+                        
+                        <div class="flex h-6 rounded-md overflow-hidden bg-wfm-surface border border-wfm-surface-border">
+                            @php
+                                $pctAtt = ($att / $aht) * 100;
+                                $pctAcw = ($acw / $aht) * 100;
+                                $pctHold = ($hold / $aht) * 100;
+                            @endphp
+                            <div class="bg-wfm-info h-full transition-all duration-500" style="width: {{ $pctAtt }}%" title="Habla: {{ number_format($att, 1) }}s"></div>
+                            <div class="bg-purple-500 h-full transition-all duration-500" style="width: {{ $pctAcw }}%" title="Trabajo (ACW): {{ number_format($acw, 1) }}s"></div>
+                            @if($hold > 0)
+                                <div class="bg-amber-400 h-full transition-all duration-500" style="width: {{ $pctHold }}%" title="Espera: {{ number_format($hold, 1) }}s"></div>
+                            @endif
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                            <div class="flex flex-col gap-0.5 bg-wfm-surface p-2 rounded border border-wfm-surface-border/50">
+                                <div class="flex items-center gap-1.5 text-wfm-surface-muted font-medium">
+                                    <span class="w-2 h-2 rounded-sm bg-wfm-info"></span>
+                                    Habla (ATT)
+                                </div>
+                                <div class="font-mono text-sm font-semibold pl-3.5">{{ number_format($att, 1) }}s <span class="text-[10px] text-wfm-surface-muted font-normal ml-1">{{ round($pctAtt) }}%</span></div>
+                            </div>
+                            
+                            <div class="flex flex-col gap-0.5 bg-wfm-surface p-2 rounded border border-wfm-surface-border/50">
+                                <div class="flex items-center gap-1.5 text-wfm-surface-muted font-medium">
+                                    <span class="w-2 h-2 rounded-sm bg-purple-500"></span>
+                                    Trabajo (ACW)
+                                </div>
+                                <div class="font-mono text-sm font-semibold pl-3.5">{{ number_format($acw, 1) }}s <span class="text-[10px] text-wfm-surface-muted font-normal ml-1">{{ round($pctAcw) }}%</span></div>
+                            </div>
+                            
+                            @if($hold > 0)
+                            <div class="flex flex-col gap-0.5 bg-wfm-surface p-2 rounded border border-wfm-surface-border/50">
+                                <div class="flex items-center gap-1.5 text-wfm-surface-muted font-medium">
+                                    <span class="w-2 h-2 rounded-sm bg-amber-400"></span>
+                                    Espera (Hold)
+                                </div>
+                                <div class="font-mono text-sm font-semibold pl-3.5">{{ number_format($hold, 1) }}s <span class="text-[10px] text-wfm-surface-muted font-normal ml-1">{{ round($pctHold) }}%</span></div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
                 @else
-                    <x-wfm.empty icon="chart-bar" message="Sin llamadas atendidas hoy" />
+                    <x-wfm.empty icon="phone" message="No hay llamadas atendidas" class="h-32" />
                 @endif
             </x-wfm.section>
         </div>

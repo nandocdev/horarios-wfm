@@ -6,17 +6,19 @@
         <div class="min-w-max">
             <!-- Header -->
             <div class="flex items-center gap-1 mb-2">
-                <div class="w-24 shrink-0"></div>
+                <div class="w-36 shrink-0"></div>
                 @foreach ($hours as $h)
                     <div class="w-8 text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400">{{ sprintf('%02d', $h) }}</div>
                 @endforeach
             </div>
-            <!-- Rows -->
             <div class="space-y-1">
                 @foreach ($rows as $row)
                     <div class="flex items-center gap-1">
-                        <div class="w-24 shrink-0 text-xs font-medium text-zinc-700 dark:text-zinc-300 truncate pr-2" title="{{ $row['name'] }}">
-                            {{ $row['name'] }}
+                        <div class="w-36 shrink-0 pr-2 leading-tight" title="{{ $row['name'] }}">
+                            <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $row['name'] }}</div>
+                            @if ($row['coordinator'])
+                                <div class="text-[10px] text-zinc-400 dark:text-zinc-500 truncate">{{ $row['coordinator'] }}</div>
+                            @endif
                         </div>
                         @foreach ($row['hours'] as $cell)
                             <div class="w-8 h-8 rounded-sm flex items-center justify-center {{ $cell['class'] }}">

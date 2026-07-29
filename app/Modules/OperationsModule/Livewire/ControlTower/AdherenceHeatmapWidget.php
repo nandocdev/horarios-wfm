@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire\ControlTower;
 
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -28,39 +29,45 @@ class AdherenceHeatmapWidget extends Component
         $hours = range(7, 21);
 
         $teams = Team::where('is_active', true)
-            ->withCount(['employees' => fn ($q) => $q->where('is_active', true)])
+            ->whereHas('employees', fn ($q) => $q->where('position_id', 5)->where('is_active', true))
+            ->withCount(['employees' => fn ($q) => $q->where('is_active', true)->whereIn('position_id', [1, 2])])
+            ->orderBy('name')
             ->get()
-            ->filter(fn ($team) => $team->employees_count > 0)
-            ->take(6);
+            ->filter(fn ($team) => $team->employees_count > 0);
 
         $teamIds = $teams->pluck('id');
 
-        $metricsByTeamHour = collect();
+        $coordinators = Employee::whereIn('team_id', $teamIds)
+            ->where('position_id', 5)
+            ->where('is_active', true)
+            ->get()
+            ->keyBy('team_id');
+
+        $metrics = collect();
         try {
-            $rows = DB::table('teams')
+            $metrics = DB::table('teams')
                 ->join('employees', 'employees.team_id', '=', 'teams.id')
                 ->join('agent_interval_metrics', 'agent_interval_metrics.employee_id', '=', 'employees.id')
                 ->whereIn('teams.id', $teamIds)
                 ->where('employees.is_active', true)
+                ->whereIn('employees.position_id', [1, 2])
                 ->whereDate('agent_interval_metrics.interval_start', $today)
                 ->whereRaw('EXTRACT(HOUR FROM agent_interval_metrics.interval_start) BETWEEN 7 AND 21')
                 ->select(
                     'teams.id as team_id',
-                    'teams.name as team_name',
                     DB::raw('EXTRACT(HOUR FROM agent_interval_metrics.interval_start) as hour'),
                     DB::raw('AVG(agent_interval_metrics.adherence) as avg_adherence')
                 )
-                ->groupBy('teams.id', 'teams.name', 'hour')
-                ->orderBy('teams.name')
+                ->groupBy('teams.id', 'hour')
+                ->orderBy('teams.id')
                 ->orderBy('hour')
                 ->get()
                 ->groupBy('team_id');
         } catch (QueryException $e) {
-            $rows = collect();
         }
 
-        $result = $teams->map(function ($team) use ($hours, $rows) {
-            $teamData = $rows->get($team->id, collect())->keyBy('hour');
+        $result = $teams->map(function ($team) use ($hours, $metrics, $coordinators) {
+            $teamData = $metrics->get($team->id, collect())->keyBy('hour');
 
             $hoursData = collect();
             foreach ($hours as $h) {
@@ -72,8 +79,11 @@ class AdherenceHeatmapWidget extends Component
                 $hoursData->push(['hour' => $h, 'value' => $avg, 'class' => $class]);
             }
 
+            $coordinator = $coordinators->get($team->id);
+
             return [
                 'name' => $team->name,
+                'coordinator' => $coordinator?->full_name,
                 'hours' => $hoursData,
             ];
         });

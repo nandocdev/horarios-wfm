@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
+use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\DailyOperatorReport;
@@ -223,6 +224,7 @@ class MyDay extends Component
             'aux_seconds' => $report->lunch_seconds + $report->break_seconds + $report->not_ready_seconds,
             'not_ready_by_reason' => [],
             'calls_by_queue' => [],
+            'call_scatter_data' => [],
             'timeline_start' => $report->scheduled_start?->format('H:i') ?? '06:00',
             'timeline_end' => $report->scheduled_end?->format('H:i') ?? '18:00',
             'real_end' => null,
@@ -323,6 +325,28 @@ class MyDay extends Component
         $callsByQueue = app(TelemetryRealtimeRepositoryInterface::class)
             ->getQueuePerformanceReport($today, [$targetEmployee->id]);
 
+        $agentCalls = AgentCallPerformance::where('employee_id', $targetEmployee->id)
+            ->whereDate('start_time', $today)
+            ->whereNotNull('talk_time')
+            ->where('talk_time', '>', 0)
+            ->orderBy('start_time')
+            ->get(['start_time', 'talk_time', 'csq_name']);
+
+        $schedStart = $assignment?->start_time
+            ? Carbon::parse($today.' '.Carbon::parse($assignment->start_time)->format('H:i:s'))
+            : Carbon::parse($today.' 06:00:00');
+
+        $callScatterData = collect($agentCalls)
+            ->groupBy(fn ($c) => $c->csq_name ?? 'Sin Cola')
+            ->map(fn ($calls, $queueName) => [
+                'name' => $queueName,
+                'data' => $calls->map(fn ($call) => [
+                    'x' => max(0, (int) $schedStart->diffInMinutes(Carbon::parse($call->start_time), false)),
+                    'y' => (int) $call->talk_time,
+                    't' => Carbon::parse($call->start_time)->format('H:i'),
+                ])->values()->toArray(),
+            ])->values()->toArray();
+
         $firstLunch = $transitions
             ->filter(fn ($t) => in_array(strtoupper($t->agent_state ?? ''), ['LUNCH', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO']))
             ->sortBy('transition_time')
@@ -405,6 +429,7 @@ class MyDay extends Component
             'aux_seconds' => $lunchSeconds + $breakSeconds + $notReadySeconds,
             'not_ready_by_reason' => $notReadyByReason,
             'calls_by_queue' => $callsByQueue->filter(fn ($q) => ($q->total_offered ?? 0) > 0 || ($q->handled ?? 0) > 0)->values(),
+            'call_scatter_data' => $callScatterData,
             'timeline_start' => $assignment?->start_time ? Carbon::parse($assignment->start_time)->format('H:i') : '06:00',
             'timeline_end' => $assignment?->end_time ? Carbon::parse($assignment->end_time)->format('H:i') : '18:00',
             'real_end' => $realEnd,

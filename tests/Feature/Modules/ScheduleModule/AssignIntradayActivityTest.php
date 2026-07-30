@@ -10,11 +10,8 @@ use App\Modules\WfmModule\Actions\AssignIntradayActivityAction;
 use App\Modules\WfmModule\DTOs\IntradayActivityDTO;
 use App\Modules\WfmModule\Models\ActivityType;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
-uses(RefreshDatabase::class);
 
 test('wfm can assign intraday activity to employee via Action', function () {
     // 1. Setup Auth & Permissions (Guard name web por defecto en Fortify/Sanctum)

@@ -10,13 +10,10 @@ use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Livewire\ImportWeeklySchedule;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 it('requires schedules.manage permission to access import component', function () {
     $weekly = WeeklySchedule::create([

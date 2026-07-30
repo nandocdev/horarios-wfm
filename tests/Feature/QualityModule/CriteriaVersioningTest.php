@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 use App\Modules\QualityModule\Actions\CreateCriteriaVersionAction;
 use App\Modules\QualityModule\Models\Criteria;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('creates a new criteria version and inactivates the previous one', function () {
     $criteria = Criteria::create(['code' => 'V01']);

@@ -8,10 +8,7 @@ use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\CoreModule\Models\Permission;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     Permission::firstOrCreate(['name' => 'call_queues.manage', 'guard_name' => 'web']);

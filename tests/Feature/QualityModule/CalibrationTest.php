@@ -9,10 +9,7 @@ use App\Modules\QualityModule\DTOs\CreateCalibrationDTO;
 use App\Modules\QualityModule\Events\CalibrationCreated;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\Queue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-
-uses(RefreshDatabase::class);
 
 it('adds calibration to an evaluation and updates the score', function () {
     Event::fake();

@@ -13,10 +13,7 @@ use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ScheduleException;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->employee = Employee::factory()->create();

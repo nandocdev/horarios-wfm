@@ -18,11 +18,8 @@ use App\Modules\CoreModule\Models\Permission;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 it('creates, completes and closes a call record via actions', function () {
     $channel = Channel::create([

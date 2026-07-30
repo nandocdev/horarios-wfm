@@ -7,10 +7,7 @@ namespace Tests\Feature\Modules\WfmModule\Livewire;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Livewire\ManageSchedules;
 use App\Modules\WfmModule\Models\Schedule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();

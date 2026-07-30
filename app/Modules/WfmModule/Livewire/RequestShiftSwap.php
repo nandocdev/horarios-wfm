@@ -9,7 +9,6 @@ use App\Modules\WfmModule\Livewire\Forms\ShiftSwapForm;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use App\Modules\WfmModule\Notifications\SwapRequestNotification;
 use App\Shared\Events\ShiftSwapRequested;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -132,6 +131,27 @@ class RequestShiftSwap extends Component
             return;
         }
 
+        $swapStart = $this->requestedDate;
+        $swapEnd = $this->endDate ?: $this->requestedDate;
+
+        $existingSwap = ShiftSwapRequest::whereIn('status', ['pending', 'accepted'])
+            ->where(function ($q) use ($requester) {
+                $q->where('requester_id', $requester->id)
+                    ->where('recipient_id', $this->recipientId);
+            })->orWhere(function ($q) use ($requester) {
+                $q->where('requester_id', $this->recipientId)
+                    ->where('recipient_id', $requester->id);
+            })
+            ->where('start_date', '<=', $swapEnd)
+            ->where('end_date', '>=', $swapStart)
+            ->exists();
+
+        if ($existingSwap) {
+            $this->addError('general', 'Ya existe una solicitud de intercambio pendiente entre ambos empleados para las fechas seleccionadas.');
+
+            return;
+        }
+
         $swapRequest = ShiftSwapRequest::create([
             'requester_id' => $requester->id,
             'recipient_id' => $this->recipientId,
@@ -144,7 +164,6 @@ class RequestShiftSwap extends Component
         ]);
 
         ShiftSwapRequested::dispatch($swapRequest);
-
 
         \Flux::toast('Solicitud de cambio de turno enviada correctamente.');
 

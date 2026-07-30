@@ -11,16 +11,13 @@ use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use Livewire\Livewire;
 
 test('wfm approver can approve an accepted shift swap request', function () {
-    // 1. Setup wfm user and employee
     $user = User::factory()->create();
     $user->assignRole('wfm');
     $approver = Employee::factory()->create(['user_id' => $user->id]);
 
-    // 2. Setup requester and recipient
     $requester = Employee::factory()->create();
     $recipient = Employee::factory()->create();
 
-    // 3. Create a shift swap request in 'accepted' status
     $swap = ShiftSwapRequest::create([
         'requester_id' => $requester->id,
         'recipient_id' => $recipient->id,
@@ -30,7 +27,6 @@ test('wfm approver can approve an accepted shift swap request', function () {
 
     $this->actingAs($user);
 
-    // 4. Render component and call approveSwap
     Livewire::test(WfmSwapApprovals::class)
         ->call('approveSwap', $swap->id)
         ->assertHasNoErrors();
@@ -39,7 +35,6 @@ test('wfm approver can approve an accepted shift swap request', function () {
 });
 
 test('wfm approval throws error if user has no employee profile', function () {
-    // 1. Setup user with wfm role but NO employee profile
     $user = User::factory()->create();
     $user->assignRole('wfm');
 
@@ -55,11 +50,9 @@ test('wfm approval throws error if user has no employee profile', function () {
 
     $this->actingAs($user);
 
-    // This should fail or not succeed depending on the implementation
     Livewire::test(WfmSwapApprovals::class)
         ->call('approveSwap', $swap->id);
 
-    // If it threw an error and toast was triggered, status is still accepted
     expect($swap->fresh()->status)->toBe('accepted');
 });
 
@@ -71,7 +64,6 @@ test('wfm approvals can switch tabs to see processed requests', function () {
     $requester = Employee::factory()->create();
     $recipient = Employee::factory()->create();
 
-    // Create an approved request (processed)
     $swap = ShiftSwapRequest::create([
         'requester_id' => $requester->id,
         'recipient_id' => $recipient->id,

@@ -11,11 +11,8 @@ use App\Modules\QualityModule\Models\Criteria;
 use App\Modules\QualityModule\Models\CriteriaVersion;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\Queue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Spatie\Permission\Models\Role;
-
-uses(RefreshDatabase::class);
 
 it('creates an evaluation and dispatches event', function () {
     Event::fake();

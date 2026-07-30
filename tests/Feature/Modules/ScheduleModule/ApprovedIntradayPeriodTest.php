@@ -13,12 +13,9 @@ use App\Modules\WfmModule\DTOs\IntradayActivityDTO;
 use App\Modules\WfmModule\Models\ActivityType;
 use App\Modules\WfmModule\Models\ApprovedIntradayPeriod;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
-uses(RefreshDatabase::class);
 
 // -------------------------------------------------------------------------
 // Setup helper

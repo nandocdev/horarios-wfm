@@ -9,10 +9,7 @@ use App\Modules\QualityModule\DTOs\CreateFeedbackDTO;
 use App\Modules\QualityModule\Events\FeedbackAdded;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\Queue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-
-uses(RefreshDatabase::class);
 
 it('adds feedback to an evaluation', function () {
     Event::fake();

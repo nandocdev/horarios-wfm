@@ -71,6 +71,6 @@ test('partial leave cannot be created if overlapping existing leave exists', fun
         ->set('form.startTime', '11:00')
         ->set('form.endTime', '12:00')
         ->set('form.reason', 'Solapamiento de prueba (largo)')
-        ->call('submit');
-    // ->assertHasErrors(['form.date']); // Descomentar cuando se implemente la validación
-})->todo(); // Marcamos como TODO porque falta la lógica en el componente
+        ->call('submit')
+        ->assertHasErrors(['form.date']);
+});

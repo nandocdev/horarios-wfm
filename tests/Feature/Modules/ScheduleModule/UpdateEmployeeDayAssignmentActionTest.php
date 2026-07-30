@@ -9,9 +9,6 @@ use App\Modules\WfmModule\Actions\UpdateEmployeeDayAssignmentAction;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('updates an individual assignment for an employee', function () {
     $schedule = Schedule::create([

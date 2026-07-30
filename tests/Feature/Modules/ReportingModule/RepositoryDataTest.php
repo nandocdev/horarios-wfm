@@ -12,9 +12,6 @@ use App\Modules\ReportingModule\Repositories\EloquentReportDataRepository;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ScheduleException;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->repository = app(EloquentReportDataRepository::class);

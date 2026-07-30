@@ -14,10 +14,7 @@ use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Livewire\CreateEmployee;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();

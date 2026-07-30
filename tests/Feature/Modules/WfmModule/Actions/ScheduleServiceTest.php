@@ -9,10 +9,7 @@ use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Services\ScheduleService;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->employee = Employee::factory()->create();

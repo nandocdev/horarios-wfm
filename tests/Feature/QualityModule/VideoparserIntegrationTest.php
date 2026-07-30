@@ -6,9 +6,6 @@ use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\Queue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('can associate an evaluation with a clip id from videoparser', function () {
     $user = User::factory()->create();

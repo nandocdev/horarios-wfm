@@ -12,6 +12,7 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Livewire\RequestShiftSwap;
 use App\Modules\WfmModule\Models\Schedule;
+use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Livewire\Livewire;
@@ -106,6 +107,76 @@ test('operator can request a shift swap with another employee', function () {
 });
 
 test('cannot request duplicate swap for same date between same employees', function () {
-    // Reuse setup logic or mark as TODO if validation not in component
-    // Por ahora lo marcamos como TODO para enfocar la estabilización en la carga de clases y flujos básicos
-})->todo();
+    $directorate = Directorate::create(['name' => 'Dirección de Operaciones']);
+    $department = Department::create(['name' => 'Atención al Cliente', 'directorate_id' => $directorate->id]);
+    $position = Position::create([
+        'name' => 'Operador Asist. Serv. Aseg. I',
+        'department_id' => $department->id,
+        'position_code' => 'OP1',
+    ]);
+
+    $teamA = Team::create(['name' => 'Team Alpha']);
+    $teamB = Team::create(['name' => 'Team Beta']);
+
+    $user = User::factory()->create();
+    $user->assignRole('operator');
+    $requester = Employee::factory()->create([
+        'user_id' => $user->id,
+        'team_id' => $teamA->id,
+        'position_id' => $position->id,
+    ]);
+
+    $otherUser = User::factory()->create();
+    $recipient = Employee::factory()->create([
+        'user_id' => $otherUser->id,
+        'team_id' => $teamB->id,
+        'position_id' => $position->id,
+    ]);
+
+    $date = now()->addDays(5);
+    $monday = $date->copy()->startOfWeek();
+
+    $weeklySchedule = WeeklySchedule::create([
+        'week_start_date' => $monday->toDateString(),
+        'week_end_date' => $monday->copy()->addDays(6)->toDateString(),
+        'status' => 'published',
+    ]);
+
+    $schedule1 = Schedule::create(['name' => 'Turno Mañana', 'start_time' => '08:00:00', 'end_time' => '16:00:00', 'total_minutes' => 480]);
+    $schedule2 = Schedule::create(['name' => 'Turno Tarde', 'start_time' => '14:00:00', 'end_time' => '22:00:00', 'total_minutes' => 480]);
+
+    WeeklyScheduleAssignment::create([
+        'weekly_schedule_id' => $weeklySchedule->id,
+        'employee_id' => $requester->id,
+        'day_of_week' => $date->dayOfWeekIso,
+        'schedule_id' => $schedule1->id,
+        'start_time' => '08:00:00',
+        'end_time' => '16:00:00',
+    ]);
+
+    WeeklyScheduleAssignment::create([
+        'weekly_schedule_id' => $weeklySchedule->id,
+        'employee_id' => $recipient->id,
+        'day_of_week' => $date->dayOfWeekIso,
+        'schedule_id' => $schedule2->id,
+        'start_time' => '14:00:00',
+        'end_time' => '22:00:00',
+    ]);
+
+    ShiftSwapRequest::create([
+        'requester_id' => $requester->id,
+        'recipient_id' => $recipient->id,
+        'start_date' => $date->toDateString(),
+        'end_date' => $date->toDateString(),
+        'status' => 'pending',
+    ]);
+
+    $this->actingAs($user);
+
+    Livewire::test(RequestShiftSwap::class)
+        ->set('requestedDate', $date->toDateString())
+        ->set('recipientId', $recipient->id)
+        ->set('reason', 'Intento duplicado')
+        ->call('submit')
+        ->assertHasErrors(['general']);
+});

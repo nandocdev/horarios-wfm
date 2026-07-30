@@ -8,9 +8,6 @@ use App\Modules\HelpdeskModule\Enums\TicketStatus;
 use App\Modules\HelpdeskModule\Models\HelpdeskCategory;
 use App\Modules\HelpdeskModule\Models\HelpdeskTicket;
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->category = HelpdeskCategory::factory()->create(['sla_hours' => 48]);

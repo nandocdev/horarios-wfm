@@ -24,9 +24,6 @@ use App\Modules\WfmModule\Policies\ActivityTypePolicy;
 use App\Modules\WfmModule\Policies\AgentStatePolicy;
 use App\Modules\WfmModule\Policies\ScheduledActivityDefinitionPolicy;
 use App\Modules\WfmModule\Policies\SchedulePolicy;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();

@@ -29,7 +29,7 @@ class ReactionController extends Controller
             'message' => $reaction ? 'Reacción agregada.' : 'Reacción removida.',
             'data' => [
                 'reaction_added' => $reaction !== null,
-                'reaction_type' => $reaction?->type->value,
+                'reaction_type' => $reaction?->type?->value,
                 'reaction_count' => $shoutout->activeReactions()->where('type', $dto->type)->count(),
             ],
         ]);

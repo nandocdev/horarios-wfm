@@ -10,11 +10,8 @@ use App\Modules\WfmModule\Livewire\ManagerApprovals;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Shared\Events\LeaveRequestDecision;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     AbsenceReasonCode::insert([
@@ -110,7 +107,7 @@ it('does not allow approving own leave', function () {
 
     try {
         $component->call('approveLeave', $leave->id);
-    } catch (\Exception $e) {
+    } catch (\Throwable) {
         // Expected — manager cannot approve own leave
     }
 

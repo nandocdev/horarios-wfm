@@ -135,6 +135,24 @@ class RequestLeave extends Component
             return;
         }
 
+        $overlapping = LeaveRequest::where('employee_id', $employee->id)
+            ->whereIn('status', ['pending', 'approved'])
+            ->where(function ($q) use ($start, $end) {
+                $q->whereBetween('start_time', [$start, $end])
+                    ->orWhereBetween('end_time', [$start, $end])
+                    ->orWhere(function ($q) use ($start, $end) {
+                        $q->where('start_time', '<=', $start)
+                            ->where('end_time', '>=', $end);
+                    });
+            })
+            ->exists();
+
+        if ($overlapping) {
+            $this->addError('form.date', 'Ya existe una solicitud de permiso que se solapa con el horario seleccionado.');
+
+            return;
+        }
+
         $dto = new CreateLeaveRequestDTO(
             employeeId: (int) $employee->id,
             type: $this->form->type,

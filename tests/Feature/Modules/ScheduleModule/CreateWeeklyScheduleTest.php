@@ -6,9 +6,6 @@ namespace Tests\Feature\Modules\ScheduleModule;
 
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use Illuminate\Database\QueryException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('creates a weekly schedule with correct dates', function () {
     $weeklySchedule = WeeklySchedule::create([

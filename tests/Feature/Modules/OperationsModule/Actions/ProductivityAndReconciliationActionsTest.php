@@ -11,9 +11,6 @@ use App\Modules\OperationsModule\Actions\ReconcileEmployeeAttendanceAction;
 use App\Modules\OperationsModule\Models\IncidentType;
 use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->employee = Employee::factory()->create();

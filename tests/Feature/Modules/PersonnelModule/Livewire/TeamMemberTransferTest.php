@@ -7,10 +7,7 @@ use App\Modules\PersonnelModule\Livewire\TeamMemberTransfer;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\PersonnelModule\Models\TeamMember;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 it('renders the team member transfer component', function () {
     $team = Team::factory()->create();

@@ -11,10 +11,7 @@ use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Shared\Events\LeaveRequestDecision;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     AbsenceReasonCode::insert([

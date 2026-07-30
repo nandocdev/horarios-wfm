@@ -11,12 +11,9 @@ use App\Modules\WfmModule\Livewire\ManageIntradayActivities;
 use App\Modules\WfmModule\Models\ActivityType;
 use App\Modules\WfmModule\Models\ApprovedIntradayPeriod;
 use App\Modules\WfmModule\Models\ScheduledActivityDefinition;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
-uses(RefreshDatabase::class);
 
 function setupWfmUser(): array
 {
@@ -74,8 +71,8 @@ test('wfm can create approved period and assign activity to operator via Livewir
     expect($period->team_id)->toBe($team->id);
     expect($period->activity_definition_id)->toBe($definition->id);
     expect($period->date->toDateString())->toBe('2026-05-25');
-    expect($period->start_time)->toBe('14:00');
-    expect($period->end_time)->toBe('15:00');
+    expect($period->start_time)->toBe('14:00:00');
+    expect($period->end_time)->toBe('15:00:00');
     expect($period->max_slots)->toBe(2);
 
     // 2. Test assignment of activity to employee

@@ -6,10 +6,7 @@ use App\Modules\CoreModule\Models\Permission;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
-
-uses(RefreshDatabase::class);
 
 it('returns a cisco finesse agent snapshot for an authorized user', function () {
     config()->set('contact-center.cisco', [

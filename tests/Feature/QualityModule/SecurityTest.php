@@ -3,10 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
-
-uses(RefreshDatabase::class);
 
 it('redirects guests from quality module routes', function () {
     $response = $this->get('/quality/evaluaciones');

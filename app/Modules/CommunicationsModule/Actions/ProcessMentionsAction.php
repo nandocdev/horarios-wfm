@@ -35,7 +35,7 @@ class ProcessMentionsAction
 
             DB::transaction(function () use ($mentionedUsernames, $mentionable, $mentionerUserId, &$mentions) {
                 foreach ($mentionedUsernames as $username) {
-                    $user = User::where('username', $username)->first();
+                    $user = User::where('name', $username)->first();
 
                     if ($user && $user->id !== $mentionerUserId) {
                         $mention = Mention::create([

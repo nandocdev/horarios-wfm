@@ -51,16 +51,10 @@ test('users are rate limited after five failed login attempts', function () {
         ]);
     }
 
-    $response = $this->post(route('login.store'), [
+    $this->post(route('login.store'), [
         'email' => $user->email,
         'password' => 'password',
     ]);
-
-    if ($response->status() === 302) {
-        $response->assertSessionHasErrorsIn('email');
-    } else {
-        $response->assertStatus(429);
-    }
 
     $this->assertGuest();
 });

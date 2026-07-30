@@ -10,10 +10,7 @@ use App\Modules\WfmModule\Actions\RejectShiftSwapAction;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
 use App\Shared\Events\ShiftSwapApproved;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->approver = Employee::factory()->create();

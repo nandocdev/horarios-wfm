@@ -11,9 +11,6 @@ use App\Modules\WfmModule\Actions\AssignTeamWeeklyScheduleAction;
 use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyTeamAssignment;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
-uses(RefreshDatabase::class);
 
 it('assigns a schedule to an entire team for a week', function () {
     // 1. Setup

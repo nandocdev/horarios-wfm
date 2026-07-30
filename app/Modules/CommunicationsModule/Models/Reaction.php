@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\CommunicationsModule\Models;
 
+use App\Modules\CommunicationsModule\Enums\ReactionType;
 use App\Modules\CommunicationsModule\Events\ReactionAdded;
 use App\Modules\CommunicationsModule\Events\ReactionRemoved;
 use App\Modules\CoreModule\Concerns\Auditable;
@@ -29,17 +30,7 @@ class Reaction extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
-    ];
-
-    /**
-     * Tipos de reacción disponibles.
-     */
-    public const TYPES = [
-        'like' => '👍',
-        'love' => '❤️',
-        'celebrate' => '🎉',
-        'support' => '🙌',
-        'insightful' => '💡',
+        'type' => ReactionType::class,
     ];
 
     /**
@@ -63,7 +54,7 @@ class Reaction extends Model
      */
     public function getEmojiAttribute(): string
     {
-        return self::TYPES[$this->type] ?? '👍';
+        return $this->type instanceof ReactionType ? $this->type->emoji() : '👍';
     }
 
     /**

@@ -192,7 +192,7 @@ class MenuHelper
                 'icon' => 'book-open-text',
                 'submenu' => [
                     ['label' => __('Artículos'), 'route' => 'documentation.index', 'pattern' => 'docs*', 'icon' => 'document-text'],
-                    ['label' => __('Administrar Artículos'), 'route' => 'documentation.admin.articles', 'pattern' => 'admin/documentation*', 'icon' => 'pencil-square'],
+                    ['label' => __('Administrar Artículos'), 'route' => 'documentation.admin.articles', 'pattern' => 'admin/documentation*', 'permission' => 'articles.manage', 'icon' => 'pencil-square'],
                 ],
             ],
 
@@ -203,7 +203,7 @@ class MenuHelper
                 'submenu' => [
                     ['label' => __('Explorador de Archivos'), 'route' => 'filesystem.index', 'pattern' => 'filesystem*', 'icon' => 'folder-open'],
                     ['label' => __('Centro de Descargas'), 'route' => 'filesystem.download-center', 'pattern' => 'descargas*', 'icon' => 'folder-arrow-down'],
-                    ['label' => __('Cuotas de Almacenamiento'), 'route' => 'filesystem.quotas', 'pattern' => 'filesystem/quotas*', 'icon' => 'server'],
+                    ['label' => __('Cuotas de Almacenamiento'), 'route' => 'filesystem.quotas', 'pattern' => 'filesystem/quotas*', 'permission' => 'admin.system', 'icon' => 'server'],
                 ],
             ],
 
@@ -233,7 +233,7 @@ class MenuHelper
                         ],
                     ],
                     ['label' => __('Equipos'), 'route' => 'organization.teams.index', 'pattern' => 'organization/teams*', 'permission' => 'teams.viewAny', 'icon' => 'users'],
-                    ['label' => __('Ubicaciones'), 'route' => 'location.index', 'pattern' => 'location*', 'icon' => 'map-pin'],
+                    ['label' => __('Ubicaciones'), 'route' => 'location.index', 'pattern' => 'location*', 'permission' => 'directorates.viewAny', 'icon' => 'map-pin'],
                     ['label' => __('Usuarios'), 'route' => 'users.index', 'pattern' => 'admin/users*', 'permission' => 'users.view', 'icon' => 'user-circle'],
                     ['label' => __('Roles y Permisos'), 'route' => 'roles.index', 'pattern' => 'admin/roles*', 'permission' => 'roles.view', 'icon' => 'shield-check'],
                     ['label' => __('Configuración Operativa'), 'route' => 'schedules.operational-settings', 'pattern' => 'schedules/operational-settings*', 'permission' => 'wfm.settings.manage', 'icon' => 'cog'],
@@ -241,8 +241,8 @@ class MenuHelper
                     ['label' => __('Categorías y Etiquetas'), 'route' => 'communications.admin.categories.index', 'pattern' => 'admin/communications/categories*', 'permission' => 'communications.manage', 'icon' => 'tag'],
                     ['label' => __('Moderación de Contenido'), 'route' => 'communications.moderation.index', 'pattern' => 'admin/communications/moderation*', 'permission' => 'communications.moderate', 'icon' => 'shield-exclamation'],
                     ['label' => __('Reportes de Personal'), 'route' => 'personnel.staffing-summary', 'pattern' => 'personnel/reports*', 'permission' => 'reports.staffing', 'icon' => 'presentation-chart-line'],
-                    ['label' => __('Mantenimiento del Sistema'), 'route' => 'admin.system.maintenance', 'pattern' => 'admin/system/maintenance*', 'icon' => 'wrench-screwdriver'],
-                    ['label' => __('Notificaciones'), 'route' => 'admin.notifications', 'pattern' => 'admin/notifications*', 'icon' => 'bell'],
+                    ['label' => __('Mantenimiento del Sistema'), 'route' => 'admin.system.maintenance', 'pattern' => 'admin/system/maintenance*', 'permission' => 'admin.system', 'icon' => 'wrench-screwdriver'],
+                    ['label' => __('Notificaciones'), 'route' => 'admin.notifications', 'pattern' => 'admin/notifications*', 'permission' => 'admin.system', 'icon' => 'bell'],
                 ],
             ],
         ];

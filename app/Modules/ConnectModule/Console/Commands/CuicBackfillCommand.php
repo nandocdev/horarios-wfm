@@ -6,6 +6,7 @@ namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncCuicDataAction;
 use App\Modules\ConnectModule\Emails\CuicBackfillReport;
+use App\Shared\Events\SyncFailed;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -123,9 +124,17 @@ final class CuicBackfillCommand extends Command
 
                 $bar->advance();
             } catch (\Throwable $e) {
-                $this->newLine();
+                $failureCount++;
                 $errorMsg = "[{$currentIntervalStart->format('H:i')}] ".$e->getMessage();
                 $this->error('Error: '.$errorMsg);
+
+                Log::error("[CUIC-BACKFILL] Chunk fallido: {$errorMsg}");
+
+                event(new SyncFailed(
+                    source: 'CUIC Backfill Chunk',
+                    message: $e->getMessage(),
+                    consecutiveFailures: $failureCount
+                ));
 
                 $dailyStats['errors'][] = $errorMsg;
 

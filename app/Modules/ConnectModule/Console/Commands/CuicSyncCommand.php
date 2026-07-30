@@ -8,6 +8,7 @@ use App\Modules\ConnectModule\Actions\SyncCuicDataAction;
 use App\Modules\ConnectModule\Actions\SyncQueuesFromFinesseAction;
 use App\Modules\OperationsModule\Actions\ReconcileEmployeeAttendanceAction;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
+use App\Shared\Events\SyncFailed;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -60,6 +61,11 @@ final class CuicSyncCommand extends Command
             app(SyncQueuesFromFinesseAction::class)->execute();
         } catch (\Throwable $e) {
             Log::warning('[CUIC-SYNC] Error en sync de colas Finesse: '.$e->getMessage());
+            event(new SyncFailed(
+                source: 'Finesse Sync Queues',
+                message: $e->getMessage(),
+                consecutiveFailures: 1
+            ));
         }
 
         if ($this->option('from') && $this->option('to')) {
@@ -103,6 +109,12 @@ final class CuicSyncCommand extends Command
             Log::error('[CUIC-SYNC] Fallo en comando', [
                 'error' => $e->getMessage(),
             ]);
+
+            event(new SyncFailed(
+                source: 'CUIC Sync',
+                message: $e->getMessage(),
+                consecutiveFailures: 1
+            ));
 
             return self::FAILURE;
         }

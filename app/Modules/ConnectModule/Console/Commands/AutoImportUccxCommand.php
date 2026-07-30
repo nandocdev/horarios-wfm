@@ -8,13 +8,12 @@ use App\Modules\ConnectModule\Actions\ImportUccxChatAction;
 use App\Modules\ConnectModule\Actions\ImportUccxInboundAction;
 use App\Modules\ConnectModule\Actions\ImportUccxPerformanceAction;
 use App\Modules\ConnectModule\Actions\ImportUccxTransitionsAction;
-use App\Modules\ConnectModule\Emails\ImportErrorNotification;
 use App\Modules\OperationsModule\Actions\ReconcileEmployeeAttendanceAction;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
+use App\Shared\Events\SyncFailed;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class AutoImportUccxCommand extends Command
 {
@@ -105,19 +104,17 @@ class AutoImportUccxCommand extends Command
 
     private function notifyError(string $fileName, \Exception $e): void
     {
-        $recipient = env('UCCX_ERROR_RECIPIENT', 'ferncastillo@css.gob.pa');
-
         try {
-            Mail::to($recipient)->send(new ImportErrorNotification(
-                fileName: $fileName,
-                errorMessage: $e->getMessage(),
-                stackTrace: $e->getTraceAsString()
+            event(new SyncFailed(
+                source: "UCCX Auto Import ({$fileName})",
+                message: $e->getMessage(),
+                consecutiveFailures: 1
             ));
 
-            $this->info("Notificación de error enviada a {$recipient}");
-        } catch (\Exception $mailEx) {
-            Log::error('No se pudo enviar notificación de error UCCX: '.$mailEx->getMessage());
-            $this->error('Fallo al enviar correo de notificación.');
+            $this->info("Notificación de error enviada por evento SyncFailed para {$fileName}");
+        } catch (\Exception $ex) {
+            Log::error('No se pudo despachar evento SyncFailed en UCCX: '.$ex->getMessage());
+            $this->error('Fallo al despachar evento de notificación.');
         }
     }
 }

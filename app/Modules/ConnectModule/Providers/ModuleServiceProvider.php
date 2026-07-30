@@ -12,6 +12,7 @@ use App\Modules\ConnectModule\Console\Commands\FinesseSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\FinesseSyncQueuesCommand;
 use App\Modules\ConnectModule\Console\Commands\ImportUccxDataCommand;
 use App\Modules\ConnectModule\Console\Commands\TestCuicAgentDetailCommand;
+use App\Modules\ConnectModule\Listeners\SendSyncFailedNotification;
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
@@ -26,6 +27,8 @@ use App\Modules\ConnectModule\Repositories\EloquentTelemetryRealtimeRepository;
 use App\Modules\ConnectModule\Services\TelemetryService;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
+use App\Shared\Events\SyncFailed;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -74,5 +77,10 @@ class ModuleServiceProvider extends ServiceProvider
         Gate::policy(CaseSubtype::class, CaseSubtypePolicy::class);
         Gate::policy(Channel::class, ChannelPolicy::class);
         Gate::policy(AgentRealtimeState::class, AgentRealtimeStatePolicy::class);
+
+        Event::listen(
+            SyncFailed::class,
+            SendSyncFailedNotification::class,
+        );
     }
 }

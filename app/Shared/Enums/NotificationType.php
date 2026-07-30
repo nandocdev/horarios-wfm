@@ -18,4 +18,6 @@ enum NotificationType: string
     case IntradayActivity = 'intraday.activity';
     case AttendanceIncident = 'attendance.incident';
     case AdherenceAlert = 'adherence.alert';
+    case EvaluationCreated = 'quality.evaluation_created';
+    case SyncFailed = 'system.sync_failed';
 }

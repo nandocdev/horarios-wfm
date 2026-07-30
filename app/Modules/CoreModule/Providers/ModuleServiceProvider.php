@@ -6,7 +6,9 @@ namespace App\Modules\CoreModule\Providers;
 
 use App\Modules\CoreModule\Actions\Fortify\CreateNewUser;
 use App\Modules\CoreModule\Actions\Fortify\ResetUserPassword;
+use App\Modules\CoreModule\Console\Commands\SeedNotificationConfigs;
 use App\Modules\CoreModule\Listeners\UpdateLastLoginAtListener;
+use App\Modules\CoreModule\Livewire\Admin\NotificationAdmin;
 use App\Modules\CoreModule\Livewire\Roles\ListRoles;
 use App\Modules\CoreModule\Livewire\Shared\NotificationBell;
 use App\Modules\CoreModule\Livewire\Shared\NotificationHistory;
@@ -45,6 +47,9 @@ class ModuleServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // 0. Migraciones del módulo
+        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
+
         // 1. Carga de infraestructura modular
         $this->registerInfrastructure();
 
@@ -62,6 +67,9 @@ class ModuleServiceProvider extends ServiceProvider
 
         // 6. Autorización (RBAC)
         $this->registerPolicies();
+
+        // 7. Comandos
+        $this->registerCommands();
     }
 
     /**     * Registra observadores del módulo.
@@ -107,6 +115,7 @@ class ModuleServiceProvider extends ServiceProvider
             Livewire::component('core.toast', Toast::class);
             Livewire::component('core.shared.notification-bell', NotificationBell::class);
             Livewire::component('core.shared.notification-history', NotificationHistory::class);
+            Livewire::component('core.admin.notification-admin', NotificationAdmin::class);
         }
     }
 
@@ -151,5 +160,14 @@ class ModuleServiceProvider extends ServiceProvider
     protected function registerEventListeners(): void
     {
         Event::listen(Login::class, UpdateLastLoginAtListener::class);
+    }
+
+    protected function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                SeedNotificationConfigs::class,
+            ]);
+        }
     }
 }

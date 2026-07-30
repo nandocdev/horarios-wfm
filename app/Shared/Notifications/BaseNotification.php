@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Notifications;
 
 use App\Shared\DTOs\NotificationDTO;
+use App\Shared\Services\NotificationConfigService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
@@ -21,14 +22,20 @@ abstract class BaseNotification extends Notification implements ShouldQueue
 
     public function via($notifiable): array
     {
+        if ($this->dto->notificationType) {
+            $channels = app(NotificationConfigService::class)->getChannels($this->dto->notificationType);
+
+            if (! empty($channels)) {
+                return $channels;
+            }
+        }
+
         $channels = ['database', 'broadcast'];
 
         if (config('services.webex.bot_token') && config('services.webex.room_id')) {
             $channels[] = 'webex';
         }
 
-        // Si el notifiable tiene email y es un usuario, opcionalmente podríamos forzar 'mail' aquí.
-        // Pero para UI events, dejamos que las subclases agreguen 'mail' si es necesario.
         return $channels;
     }
 

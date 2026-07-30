@@ -224,7 +224,49 @@
 
 ---
 
-## 6. Sistema y Seguridad (Core / Connect)
+## 6. Alertas Operativas (OperationsModule — Alerts Subsystem)
+
+Sistema unificado de alertas en tiempo real. Cada alerta es una **regla evaluada periódicamente** por el comando `alerts:evaluate` (cada minuto vía scheduler).
+
+**Arquitectura**
+
+| Elemento | Descripción |
+|---|---|
+| `AlertRule` | Configuración de la alerta: umbral, escalamiento, canales, cooldown |
+| `AlertEvent` | Ocurrencia de una alerta (des-duplicada por empleado/cola + regla) |
+| `AlertEscalation` | Traza del escalamiento a roles superiores |
+| `BaseAlertEvaluator` | Clase base para evaluadores periódicos |
+| `alerts:evaluate` | Comando que recorre todas las reglas activas y ejecuta su evaluador |
+
+**Reglas implementadas**
+
+| Regla | Evaluador | Threshold Default | Escalamiento |
+|---|---|---|---|
+| `adherence.alert` | `AdherenceEvaluator` | 300s (5 min) | Supervisor → Coordinador → Jefatura |
+| `agent.no_login` | `NoLoginEvaluator` | 300s (5 min tras inicio turno) | Supervisor → Coordinador → Jefatura |
+| `agent.break_exceeded` | `BreakExceededEvaluator` | 900s (15 min) | Supervisor → Coordinador |
+| `agent.lunch_exceeded` | `LunchExceededEvaluator` | 3600s (60 min) | Supervisor → Coordinador |
+| `agent.unexpected_logout` | `UnexpectedLogoutEvaluator` | 60s (1 min) | Supervisor → Coordinador → Jefatura |
+| `agent.upcoming_shift_reminder` | `UpcomingShiftReminderEvaluator` | 1800s (30 min antes) | Sin escalamiento |
+
+**Migración desde sistema legacy**
+
+La alerta `AdherenceAlert` fue migrada del flujo antiguo (`AdherenceAlertTriggered` event + `SendAdherenceAlertNotification` listener en `RealtimeMonitoring.php`) al nuevo `AdherenceEvaluator`. El código legacy fue eliminado de `RealtimeMonitoring.php`.
+
+**Próximas alertas (P1/P2)**
+
+| Alerta | Prioridad |
+|---|---|
+| `queue.coverage` (skill descubierta) | P1 |
+| `queue.no_agents` (cola sin agentes) | P1 |
+| `queue.sla_degraded` (SLA degradado) | P1 |
+| `forecast.deviation` (volumen inesperado) | P2 |
+| `sync.recovered` (sincronización recuperada) | P2 |
+| `realtime.stale` (datos de monitoreo desactualizados) | P2 |
+
+---
+
+## 7. Sistema y Seguridad (Core / Connect)
 
 ### Restablecimiento de Contraseña
 
@@ -281,6 +323,21 @@
 
 ---
 
-## 8. Nota sobre duplicación de clases
+## 8. Mapa de Gaps (Post-implementación)
+
+| Gap identificado | Estado |
+|---|---|
+| `finesse:sync-queues` no emite `SyncFailed` | ✅ Corregido |
+| `finesse:sync` no emite `SyncFailed` | ✅ Corregido |
+| `cuic:sync-realtime` no emite `SyncFailed` | ✅ Corregido |
+| `SyncFailedNotification` hardcodeada a ferncastillo | 🔄 Pendiente — requiere migrar a role |
+| Alertas operativas acopladas a Livewire | ✅ Migrado a `Alerts/Evaluators` |
+| Sin alertas P0 (NoLogin, Break, Lunch, Logout) | ✅ Implementado |
+| Sin escalamiento de alertas | ✅ Implementado (vía `alert_rules.escalation_minutes`) |
+| Sin recordatorio de turno | ✅ Implementado (`UpcomingShiftReminderEvaluator`) |
+
+---
+
+## 9. Nota sobre duplicación de clases
 
 Cada evento base tiene **dos notificaciones** (una en WfmModule + otra en CommunicationsModule) que se envían simultáneamente desde ambos módulos. Esto es intencional: la duplicación refleja responsabilidades separadas dentro del Monolito Modular (WfmModule maneja la lógica de negocio/UI, CommunicationsModule maneja canales externos como Webex y mail con formatos específicos).

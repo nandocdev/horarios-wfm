@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Providers;
 
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
+use App\Modules\OperationsModule\Console\Commands\EvaluateAlertsCommand;
 use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
+use App\Modules\OperationsModule\Console\Commands\SeedAlertRules;
 use App\Modules\OperationsModule\Listeners\SendAdherenceAlertNotification;
 use App\Modules\OperationsModule\Listeners\SendAttendanceIncidentNotification;
 use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
@@ -102,6 +104,8 @@ class ModuleServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 ReconcileAttendanceCommand::class,
+                EvaluateAlertsCommand::class,
+                SeedAlertRules::class,
             ]);
         }
 

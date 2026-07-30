@@ -12,7 +12,6 @@ use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
-use App\Shared\Events\AdherenceAlertTriggered;
 use App\Shared\Support\Metrics\MetricFormulas;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -238,18 +237,6 @@ class RealtimeMonitoring extends Component
             $currentDuration = $lastChangeTs > 0 ? (int) max(0, now()->timestamp - $lastChangeTs) : 0;
 
             $alerts = $this->generateAlerts($real, $expected, $isAdherent, $isAbsent, $isDisconnected);
-
-            $hasAdherenceAlert = ! empty(array_filter($alerts, fn ($a) => ($a['type'] ?? '') === 'ADHERENCE'));
-
-            if ($hasAdherenceAlert && $currentDuration >= 300) {
-                $alert = current(array_filter($alerts, fn ($a) => ($a['type'] ?? '') === 'ADHERENCE'));
-                AdherenceAlertTriggered::dispatch(
-                    employee: $employee->id,
-                    alertType: $alert['type'],
-                    label: $alert['label'],
-                    durationSeconds: $currentDuration,
-                );
-            }
 
             return (object) [
                 'id' => $employee->id,

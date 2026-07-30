@@ -72,3 +72,9 @@ Schedule::call(function () {
 })->name('daily-kpis-calculation')
     ->dailyAt('03:30')
     ->withoutOverlapping();
+
+// Alerts operativas: evaluar reglas cada minuto
+Schedule::command('alerts:evaluate')
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->runInBackground();

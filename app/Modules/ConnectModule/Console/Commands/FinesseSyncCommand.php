@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncFinesseUsersAction;
+use App\Shared\Events\SyncFailed;
 use Illuminate\Console\Command;
 
 final class FinesseSyncCommand extends Command
@@ -44,6 +45,7 @@ final class FinesseSyncCommand extends Command
             return self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error('Error durante la sincronización: '.$e->getMessage());
+            event(new SyncFailed('finesse:sync', $e->getMessage(), 1));
 
             return self::FAILURE;
         }

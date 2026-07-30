@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncCsqRealtimeStatsAction;
+use App\Shared\Events\SyncFailed;
 use Illuminate\Console\Command;
 
 class CuicRealtimeSyncCommand extends Command
@@ -39,6 +40,7 @@ class CuicRealtimeSyncCommand extends Command
             }
         } catch (\Exception $e) {
             $this->error('['.now()->format('H:i:s').'] Error: '.$e->getMessage());
+            event(new SyncFailed('cuic:sync-realtime', $e->getMessage(), 1));
         }
     }
 

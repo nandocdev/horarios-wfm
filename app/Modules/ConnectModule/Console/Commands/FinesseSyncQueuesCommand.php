@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncQueuesFromFinesseAction;
+use App\Shared\Events\SyncFailed;
 use Illuminate\Console\Command;
 
 final class FinesseSyncQueuesCommand extends Command
@@ -17,20 +18,27 @@ final class FinesseSyncQueuesCommand extends Command
     {
         $this->info('=== Sincronizando colas desde Finesse ===');
 
-        $stats = $action->execute();
+        try {
+            $stats = $action->execute();
 
-        $this->table(
-            ['Métrica', 'Valor'],
-            [
-                ['Colas descubiertas', $stats['discovered']],
-                ['Colas creadas', $stats['created']],
-                ['Colas actualizadas', $stats['updated']],
-                ['Errores', $stats['errors']],
-            ]
-        );
+            $this->table(
+                ['Métrica', 'Valor'],
+                [
+                    ['Colas descubiertas', $stats['discovered']],
+                    ['Colas creadas', $stats['created']],
+                    ['Colas actualizadas', $stats['updated']],
+                    ['Errores', $stats['errors']],
+                ]
+            );
 
-        $this->info('Sincronización finalizada.');
+            $this->info('Sincronización finalizada.');
 
-        return self::SUCCESS;
+            return self::SUCCESS;
+        } catch (\Throwable $e) {
+            $this->error('Error durante la sincronización: '.$e->getMessage());
+            event(new SyncFailed('finesse:sync-queues', $e->getMessage(), 1));
+
+            return self::FAILURE;
+        }
     }
 }

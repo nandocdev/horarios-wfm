@@ -41,6 +41,7 @@
     <x-reporting.filters
         :category="$category"
         :subReport="$subReport"
+        :employeeOptions="$employeeOptions"
     />
 
     {{-- Botón Generar --}}

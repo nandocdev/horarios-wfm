@@ -45,32 +45,70 @@ final class EloquentReportDataRepository
 
     public function getRawAbsenteeismData(ReportFilterDTO $filters): Collection
     {
-        $scheduleExceptions = $this->baseAbsenceQuery($filters);
+        $rows = DB::table('weekly_schedule_assignments', 'wsa')
+            ->join('weekly_schedules AS ws', 'ws.id', '=', 'wsa.weekly_schedule_id')
+            ->join('employees AS e', 'e.id', '=', 'wsa.employee_id')
+            ->leftJoin('teams AS t', 't.id', '=', 'e.team_id')
+            ->leftJoin('daily_operator_reports AS dor', function ($join): void {
+                $join->on('dor.employee_id', '=', 'e.id')
+                    ->whereRaw('dor.report_date = (ws.week_start_date + (wsa.day_of_week - 1)::int)')
+                    ->whereNotNull('dor.real_entry');
+            })
+            ->leftJoin('schedule_exceptions AS se', function ($join): void {
+                $join->on('se.employee_id', '=', 'e.id')
+                    ->whereRaw('se.start_at::date <= (ws.week_start_date + (wsa.day_of_week - 1)::int)')
+                    ->whereRaw('se.end_at::date >= (ws.week_start_date + (wsa.day_of_week - 1)::int)');
+            })
+            ->where('ws.status', 'published')
+            ->whereRaw('(ws.week_start_date + (wsa.day_of_week - 1)::int) >= ?', [$filters->dateFrom])
+            ->whereRaw('(ws.week_start_date + (wsa.day_of_week - 1)::int) <= ?', [$filters->dateTo])
+            ->whereNull('dor.id')
+            ->whereNull('se.id');
 
-        $attendanceIncidents = AttendanceIncident::query()
+        if ($filters->teamId !== null) {
+            $rows->where('e.team_id', $filters->teamId);
+        }
+
+        if ($filters->employeeId !== null) {
+            $rows->where('e.id', $filters->employeeId);
+        }
+
+        $result = $rows
             ->select([
-                'employees.id as employee_id',
-                DB::raw("CONCAT(employees.first_name, ' ', employees.last_name) as employee_name"),
-                'employees.employee_number',
-                'teams.name as team_name',
-                'attendance_incidents.incident_date as date',
-                DB::raw("'attendance_incident' as origin_type"),
-                'incident_types.name as cause_name',
+                'e.id as employee_id',
+                DB::raw("CONCAT(e.first_name, ' ', e.last_name) as employee_name"),
+                'e.employee_number',
+                't.name as team_name',
+                DB::raw('(ws.week_start_date + (wsa.day_of_week - 1)::int)::date as date'),
+                DB::raw("'absent' as origin_type"),
+                DB::raw("'Sin inicio de sesión' as cause_name"),
                 DB::raw('false as is_justified'),
                 DB::raw('false as is_full_day'),
-                'attendance_incidents.start_time',
-                'attendance_incidents.end_time',
-                DB::raw('EXTRACT(EPOCH FROM attendance_incidents.end_time - attendance_incidents.start_time) / 60 as minutes_absent'),
-                'attendance_incidents.user_comment as remarks',
+                'wsa.start_time',
+                'wsa.end_time',
+                DB::raw('EXTRACT(EPOCH FROM wsa.end_time - wsa.start_time) / 60 as minutes_absent'),
+                DB::raw('NULL::text as remarks'),
             ])
-            ->join('employees', 'employees.id', '=', 'attendance_incidents.employee_id')
-            ->leftJoin('teams', 'teams.id', '=', 'employees.team_id')
-            ->join('incident_types', 'incident_types.id', '=', 'attendance_incidents.incident_type_id')
-            ->where('incident_types.code', 'ABSENT')
-            ->whereDate('attendance_incidents.incident_date', '>=', $filters->dateFrom)
-            ->whereDate('attendance_incidents.incident_date', '<=', $filters->dateTo);
+            ->orderBy('date')
+            ->orderBy('employee_name')
+            ->distinct()
+            ->get();
 
-        return $this->buildAbsenteeismUnion($scheduleExceptions, $attendanceIncidents, $filters);
+        return $result->map(fn (object $row): AbsenteeismRowDTO => new AbsenteeismRowDTO(
+            employeeId: (int) $row->employee_id,
+            employeeName: $row->employee_name,
+            employeeNumber: $row->employee_number,
+            teamName: $row->team_name,
+            date: $row->date,
+            originType: $row->origin_type,
+            causeName: $row->cause_name,
+            isJustified: (bool) $row->is_justified,
+            isFullDay: (bool) $row->is_full_day,
+            startAt: $row->start_time ? (string) $row->start_time : null,
+            endAt: $row->end_time ? (string) $row->end_time : null,
+            minutesAbsent: $row->minutes_absent !== null ? (int) round((float) $row->minutes_absent) : null,
+            remarks: $row->remarks,
+        ));
     }
 
     public function getTardinessData(ReportFilterDTO $filters): Collection
@@ -111,8 +149,8 @@ final class EloquentReportDataRepository
             employeeNumber: $row->employee_number,
             teamName: $row->team_name,
             date: $row->date,
-            scheduledStart: $row->start_at ?? null,
-            actualLogin: $row->actual_start ?? null,
+            scheduledStart: $row->start_at !== null ? (string) $row->start_at : null,
+            actualLogin: $row->actual_start !== null ? (string) $row->actual_start : null,
             minutesLate: isset($row->minutes_late) ? (int) round((float) $row->minutes_late) : (isset($row->minutes_absent) ? (int) round((float) $row->minutes_absent) : null),
             incidentType: $row->incident_type ?? $row->cause_name ?? null,
             justification: $row->justification ?? $row->remarks ?? null,
@@ -719,32 +757,6 @@ final class EloquentReportDataRepository
             ->whereIn('absence_reason_codes.short_code', self::LATENESS_REASON_CODES)
             ->whereDate('schedule_exceptions.start_at', '<=', $filters->dateTo)
             ->whereDate('schedule_exceptions.end_at', '>=', $filters->dateFrom);
-    }
-
-    private function buildAbsenteeismUnion(Builder $scheduleExceptions, Builder $attendanceIncidents, ReportFilterDTO $filters): Collection
-    {
-        $scheduleExceptions = $this->applyBaseFilters($scheduleExceptions, $filters);
-        $attendanceIncidents = $this->applyBaseFilters($attendanceIncidents, $filters);
-
-        $union = $scheduleExceptions->unionAll($attendanceIncidents);
-
-        $rows = $union->orderBy('date')->orderBy('employee_name')->get();
-
-        return $rows->map(fn (object $row): AbsenteeismRowDTO => new AbsenteeismRowDTO(
-            employeeId: (int) $row->employee_id,
-            employeeName: $row->employee_name,
-            employeeNumber: $row->employee_number,
-            teamName: $row->team_name,
-            date: $row->date,
-            originType: $row->origin_type,
-            causeName: $row->cause_name,
-            isJustified: (bool) $row->is_justified,
-            isFullDay: (bool) $row->is_full_day,
-            startAt: $row->start_at ? (string) $row->start_at : ($row->start_time ?? null),
-            endAt: $row->end_at ? (string) $row->end_at : ($row->end_time ?? null),
-            minutesAbsent: $row->minutes_absent !== null ? (int) round((float) $row->minutes_absent) : null,
-            remarks: $row->remarks,
-        ));
     }
 
     private function applyBaseFilters(Builder $query, ReportFilterDTO $filters): Builder

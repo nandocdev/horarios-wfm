@@ -25,8 +25,8 @@ fi
 
 DB_HOST="${DB_HOST:-127.0.0.1}"
 DB_PORT="${DB_PORT:-5432}"
-DB_DATABASE="${DB_DATABASE:-opsisdb}"
-DB_USERNAME="${DB_USERNAME:-ecmadmin}"
+DB_DATABASE="${DB_DATABASE:-dev_horarios}"
+DB_USERNAME="${DB_USERNAME:-dev_user}"
 DB_PASSWORD="${DB_PASSWORD:-}"
 
 ECM_DIR="database/data/ecm_db"

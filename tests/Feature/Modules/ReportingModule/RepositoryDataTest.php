@@ -10,7 +10,11 @@ use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
 use App\Modules\ReportingModule\Enums\ReportFormatEnum;
 use App\Modules\ReportingModule\Repositories\EloquentReportDataRepository;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
+use App\Modules\WfmModule\Models\DailyOperatorReport;
+use App\Modules\WfmModule\Models\Schedule;
 use App\Modules\WfmModule\Models\ScheduleException;
+use App\Modules\WfmModule\Models\WeeklySchedule;
+use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Carbon\Carbon;
 
 beforeEach(function () {
@@ -105,21 +109,57 @@ it('getVolumeDetailData returns call volume per queue', function () {
     expect($rows->first()->handled)->toBe(1);
 });
 
-it('getRawAbsenteeismData returns all absences', function () {
-    AbsenceReasonCode::create(['name' => 'Ausencia Justificada', 'short_code' => 'A.J.', 'is_excused' => true]);
-
-    ScheduleException::create([
+it('getRawAbsenteeismData returns scheduled employees without login', function () {
+    $schedule = Schedule::factory()->create();
+    $weeklySchedule = WeeklySchedule::factory()->create([
+        'week_start_date' => '2026-06-29',
+        'week_end_date' => '2026-07-05',
+        'status' => 'published',
+    ]);
+    WeeklyScheduleAssignment::factory()->create([
+        'weekly_schedule_id' => $weeklySchedule->id,
         'employee_id' => $this->employee->id,
-        'absence_reason_code_id' => AbsenceReasonCode::first()->id,
-        'start_at' => Carbon::parse('2026-07-15 09:00:00'),
-        'end_at' => Carbon::parse('2026-07-15 17:00:00'),
-        'is_full_day' => false,
+        'schedule_id' => $schedule->id,
+        'day_of_week' => 3, // Wednesday = 2026-07-01
+        'start_time' => '08:00:00',
+        'end_time' => '17:00:00',
     ]);
 
     $rows = $this->repository->getRawAbsenteeismData($this->filters);
 
     expect($rows)->toHaveCount(1);
-    expect($rows->first()->causeName)->toBe('Ausencia Justificada');
+    expect($rows->first()->employeeName)->toBe('Juan Perez');
+    expect($rows->first()->causeName)->toBe('Sin inicio de sesión');
+    expect($rows->first()->isJustified)->toBeFalse();
+});
+
+it('getRawAbsenteeismData excludes employees who logged in', function () {
+    $schedule = Schedule::factory()->create();
+    $weeklySchedule = WeeklySchedule::factory()->create([
+        'week_start_date' => '2026-06-29',
+        'week_end_date' => '2026-07-05',
+        'status' => 'published',
+    ]);
+    WeeklyScheduleAssignment::factory()->create([
+        'weekly_schedule_id' => $weeklySchedule->id,
+        'employee_id' => $this->employee->id,
+        'schedule_id' => $schedule->id,
+        'day_of_week' => 3,
+        'start_time' => '08:00:00',
+        'end_time' => '17:00:00',
+    ]);
+
+    DailyOperatorReport::create([
+        'employee_id' => $this->employee->id,
+        'report_date' => '2026-07-01',
+        'real_entry' => '2026-07-01 08:05:00',
+        'scheduled_start' => '08:00:00',
+        'scheduled_end' => '17:00:00',
+    ]);
+
+    $rows = $this->repository->getRawAbsenteeismData($this->filters);
+
+    expect($rows)->toHaveCount(0);
 });
 
 it('filters repository data by team', function () {

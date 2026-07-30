@@ -40,26 +40,25 @@ final class FetchReportDataAction
 
         $totalMinutes = $rows->sum(fn ($r) => $r->minutesAbsent ?? 0);
         $uniqueEmployees = $rows->pluck('employeeId')->unique()->count();
-        $justified = $rows->where('isJustified', true)->count();
 
         return new ReportPreviewResult(
             title: 'Ausentismo',
-            description: 'Detalle de ausencias no justificadas por agente, fecha y causa.',
+            description: 'Empleados programados que no iniciaron sesión en el rango de fechas seleccionado.',
             rows: $rows,
             columns: [
                 ['label' => 'Empleado', 'key' => 'employeeName'],
                 ['label' => 'Número', 'key' => 'employeeNumber'],
                 ['label' => 'Equipo', 'key' => 'teamName'],
                 ['label' => 'Fecha', 'key' => 'date'],
-                ['label' => 'Causa', 'key' => 'causeName'],
-                ['label' => 'Justificado', 'key' => 'isJustified'],
+                ['label' => 'Programado', 'key' => 'startAt'],
+                ['label' => 'Salida', 'key' => 'endAt'],
                 ['label' => 'Minutos', 'key' => 'minutesAbsent'],
             ],
             summary: [
                 ['label' => 'Total Registros', 'value' => (string) $rows->count(), 'icon' => 'clipboard-document-list'],
                 ['label' => 'Empleados Afectados', 'value' => (string) $uniqueEmployees, 'icon' => 'users'],
                 ['label' => 'Minutos Perdidos', 'value' => $this->formatDuration($totalMinutes), 'icon' => 'clock'],
-                ['label' => 'Justificados', 'value' => $rows->count() > 0 ? round($justified / $rows->count() * 100).'%' : '0%', 'icon' => 'check-badge'],
+                ['label' => 'Minutos Promedio', 'value' => $rows->count() > 0 ? round($totalMinutes / $rows->count()).' min' : '0 min', 'icon' => 'chart-bar'],
             ],
         );
     }

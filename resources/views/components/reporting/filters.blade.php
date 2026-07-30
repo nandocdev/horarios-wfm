@@ -1,6 +1,7 @@
 @props([
     'category' => 'attendance',
     'subReport' => 'absenteeism',
+    'employeeOptions' => [],
 ])
 
 <div class="rounded-lg border border-zinc-200 bg-white p-5">
@@ -23,13 +24,21 @@
         @if ($category !== 'activities')
             <div>
                 <label class="mb-1 block text-xs font-medium text-zinc-500">Equipo</label>
-                <flux:input type="number" wire:model="form.teamId" placeholder="Filtrar por equipo" />
+                <flux:select wire:model.live="form.teamId" placeholder="Seleccionar equipo">
+                    @foreach ($this->teams as $team)
+                        <option value="{{ $team['id'] }}">{{ $team['name'] }}</option>
+                    @endforeach
+                </flux:select>
             </div>
         @endif
 
         <div>
             <label class="mb-1 block text-xs font-medium text-zinc-500">Empleado</label>
-            <flux:input type="number" wire:model="form.employeeId" placeholder="Filtrar por empleado" />
+            <flux:select wire:model="form.employeeId" placeholder="Seleccionar empleado">
+                @foreach ($employeeOptions as $emp)
+                    <option value="{{ $emp['id'] }}">{{ $emp['name'] }}</option>
+                @endforeach
+            </flux:select>
         </div>
 
         @if (in_array($category, ['volume', 'performance']))

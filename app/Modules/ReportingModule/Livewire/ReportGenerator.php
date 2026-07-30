@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\ReportingModule\Livewire;
 
 use App\Modules\CoreModule\Models\User;
+use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\ReportingModule\Actions\ExportAgentPerformanceAction;
 use App\Modules\ReportingModule\Actions\ExportAttendanceSummaryAction;
 use App\Modules\ReportingModule\Actions\ExportIntradayActivitiesAction;
@@ -40,12 +42,42 @@ class ReportGenerator extends Component
 
     public bool $loading = false;
 
+    /** @var list<array{id: int, name: string}> */
+    public array $employeeOptions = [];
+
     public function mount(?string $category = null, ?string $subReport = null): void
     {
         if ($category !== null && $subReport !== null) {
             $this->category = $category;
             $this->subReport = $subReport;
         }
+        $this->loadEmployeeOptions();
+    }
+
+    public function updatedFormTeamId(string|int|null $value): void
+    {
+        $this->form->employeeId = null;
+        $this->loadEmployeeOptions();
+    }
+
+    private function loadEmployeeOptions(): void
+    {
+        if (! $this->form->teamId) {
+            $this->employeeOptions = [];
+
+            return;
+        }
+
+        $this->employeeOptions = Employee::where('team_id', $this->form->teamId)
+            ->active()
+            ->orderBy('first_name')
+            ->get(['id', 'first_name', 'last_name'])
+            ->map(fn (Employee $e): array => [
+                'id' => $e->id,
+                'name' => "{$e->first_name} {$e->last_name}",
+            ])
+            ->values()
+            ->toArray();
     }
 
     public function selectCategory(string $category): void
@@ -152,6 +184,12 @@ class ReportGenerator extends Component
             'performance' => 'agent',
             default => 'absenteeism',
         };
+    }
+
+    #[Computed]
+    public function teams(): array
+    {
+        return Team::active()->orderBy('name')->get(['id', 'name'])->toArray();
     }
 
     public function generate(): void

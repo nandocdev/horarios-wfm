@@ -8,14 +8,8 @@ use App\Modules\CommunicationsModule\Events\CommentCreated;
 use App\Modules\CommunicationsModule\Events\MentionCreated;
 use App\Modules\CommunicationsModule\Events\ReactionAdded;
 use App\Modules\CommunicationsModule\Listeners\SendCommentNotificationListener;
-use App\Modules\CommunicationsModule\Listeners\SendLeaveRequestCreatedNotification;
-use App\Modules\CommunicationsModule\Listeners\SendLeaveRequestDecisionNotification;
 use App\Modules\CommunicationsModule\Listeners\SendMentionNotificationListener;
 use App\Modules\CommunicationsModule\Listeners\SendReactionNotificationListener;
-use App\Modules\CommunicationsModule\Listeners\SendScheduleAssignmentUpdatedNotification;
-use App\Modules\CommunicationsModule\Listeners\SendShiftSwapApprovedNotification;
-use App\Modules\CommunicationsModule\Listeners\SendShiftSwapReceivedNotification;
-use App\Modules\CommunicationsModule\Listeners\SendWeeklySchedulePublishedNotification;
 use App\Modules\CommunicationsModule\Livewire\CreateNews;
 use App\Modules\CommunicationsModule\Livewire\EditNews;
 use App\Modules\CommunicationsModule\Livewire\Home;
@@ -48,12 +42,6 @@ use App\Modules\CommunicationsModule\Policies\PollPolicy;
 use App\Modules\CommunicationsModule\Policies\ReactionPolicy;
 use App\Modules\CommunicationsModule\Policies\ShoutoutPolicy;
 use App\Modules\CommunicationsModule\Policies\TagPolicy;
-use App\Shared\Events\LeaveRequestCreated;
-use App\Shared\Events\LeaveRequestDecision;
-use App\Shared\Events\ScheduleAssignmentUpdated;
-use App\Shared\Events\ShiftSwapApproved;
-use App\Shared\Events\ShiftSwapRequested;
-use App\Shared\Events\WeeklySchedulePublished;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -139,13 +127,6 @@ class ModuleServiceProvider extends ServiceProvider
             MentionCreated::class,
             SendMentionNotificationListener::class
         );
-
-        Event::listen(WeeklySchedulePublished::class, SendWeeklySchedulePublishedNotification::class);
-        Event::listen(ScheduleAssignmentUpdated::class, SendScheduleAssignmentUpdatedNotification::class);
-        Event::listen(LeaveRequestCreated::class, SendLeaveRequestCreatedNotification::class);
-        Event::listen(LeaveRequestDecision::class, SendLeaveRequestDecisionNotification::class);
-        Event::listen(ShiftSwapApproved::class, SendShiftSwapApprovedNotification::class);
-        Event::listen(ShiftSwapRequested::class, SendShiftSwapReceivedNotification::class);
     }
 
     private function loadViews(): void

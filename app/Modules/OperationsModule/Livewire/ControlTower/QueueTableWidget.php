@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire\ControlTower;
 
-use App\Shared\Support\CallQueueCache;
+use App\Modules\ConnectModule\Models\CsqRealtimeStat;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -25,38 +25,62 @@ class QueueTableWidget extends Component
     {
         $today = $this->selectedDate;
 
-        $stats = DB::table('call_records')
-            ->select('queue_id',
+        $callStats = DB::table('call_records')
+            ->join('call_queues', 'call_queues.id', '=', 'call_records.queue_id')
+            ->whereDate('call_records.ivr_started_at', $today)
+            ->whereNotNull('call_records.queue_id')
+            ->select(
+                'call_queues.name as queue_name',
                 DB::raw('COUNT(*) as total'),
-                DB::raw('COUNT(*) FILTER (WHERE contact_disposition = 2) as handled'),
-                DB::raw('COUNT(*) FILTER (WHERE contact_disposition = 2 AND queue_time <= 20) as sla_calls'),
+                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition = 2) as handled'),
+                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition IN (1, 4, 13)) as abandoned'),
+                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition = 2 AND call_records.queue_time <= 20) as sla_calls'),
+                DB::raw('AVG(call_records.talk_time + call_records.work_time) FILTER (WHERE call_records.contact_disposition = 2) as avg_aht'),
+                DB::raw('AVG(call_records.queue_time) FILTER (WHERE call_records.contact_disposition IN (1, 4, 13)) as avg_abandon_time'),
+                DB::raw('MAX(call_records.queue_time) as max_queue_time'),
             )
-            ->whereDate('ivr_started_at', $today)
-            ->whereNotNull('queue_id')
-            ->groupBy('queue_id')
+            ->groupBy('call_queues.name')
             ->get()
-            ->keyBy('queue_id');
+            ->keyBy('queue_name');
 
-        $queues = app(CallQueueCache::class)->active()
-            ->map(function ($queue) use ($stats) {
-                $s = $stats->get($queue->id);
-                $handled = (int) ($s->handled ?? 0);
-                $total = (int) ($s->total ?? 0);
-                $waiting = max(0, $total - $handled);
-                $slaPct = $handled > 0 ? round((($s->sla_calls ?? 0) / $handled) * 100, 1) : 0;
+        $realtime = CsqRealtimeStat::all()->keyBy('csq_name');
 
-                return [
-                    'name' => $queue->name,
-                    'sla' => $slaPct,
-                    'slaClass' => $slaPct >= 90 ? 'text-green-600' : ($slaPct >= 80 ? 'text-yellow-600' : 'text-red-600'),
-                    'waiting' => $waiting,
-                    'calls' => $handled,
-                ];
-            })
-            ->filter(fn ($q) => $q['calls'] > 0 || $q['waiting'] > 0)
-            ->sortByDesc('calls')
+        $allNames = $callStats->keys()
+            ->merge($realtime->keys())
+            ->unique()
+            ->sort()
+            ->values();
+
+        $queues = $allNames->map(function ($name) use ($callStats, $realtime) {
+            $s = $callStats->get($name);
+            $r = $realtime->get($name);
+
+            $total = (int) ($s->total ?? 0);
+            $handled = (int) ($s->handled ?? 0);
+            $abandoned = (int) ($s->abandoned ?? 0);
+            $slaCount = (int) ($s->sla_calls ?? 0);
+            $waiting = (int) ($r->calls_waiting ?? 0);
+            $avgAht = (float) ($s->avg_aht ?? 0);
+            $avgAbandonTime = (float) ($s->avg_abandon_time ?? 0);
+            $maxWait = (int) ($s->max_queue_time ?? 0);
+            $slaPct = $handled > 0 ? round(($slaCount / $handled) * 100, 1) : ($r && $r->service_level_long_term !== null ? round($r->service_level_long_term, 1) : 0);
+
+            return [
+                'name' => $name,
+                'recibidas' => $total,
+                'atendidas' => $handled,
+                'abandonadas' => $abandoned,
+                'espera' => $waiting,
+                'tmo_abandono' => $avgAbandonTime > 0 ? round($avgAbandonTime, 1) : null,
+                'aht' => $avgAht > 0 ? round($avgAht, 1) : null,
+                'max_espera' => $maxWait,
+                'sla' => $slaPct,
+                'slaClass' => $slaPct >= 90 ? 'text-green-600' : ($slaPct >= 80 ? 'text-yellow-600' : 'text-red-600'),
+            ];
+        })->filter(fn ($q) => $q['recibidas'] > 0 || $q['espera'] > 0 || $q['atendidas'] > 0)
+            ->sortByDesc('recibidas')
             ->values()
-            ->take(8);
+            ->take(12);
 
         return view('operations::livewire.control-tower.queue-table-widget', [
             'queues' => $queues,

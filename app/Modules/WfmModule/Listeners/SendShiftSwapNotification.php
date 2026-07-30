@@ -63,7 +63,7 @@ class SendShiftSwapNotification implements ShouldQueue
         );
 
         if ($swap->recipient?->user) {
-            $swap->recipient->user->notify(new SwapRequestNotification($swap));
+            $swap->recipient->user->notify(new SwapRequestNotification($dto));
         }
 
         if ($swap->recipient?->team?->supervisor?->user) {
@@ -84,7 +84,7 @@ class SendShiftSwapNotification implements ShouldQueue
                 resourceType: 'shift_swap',
                 resourceId: (string) $swap->id,
             );
-            $swap->recipient->team->supervisor->user->notify(new SwapRequestNotification($swap));
+            $swap->recipient->team->supervisor->user->notify(new SwapRequestNotification($supervisorDto));
         }
     }
 

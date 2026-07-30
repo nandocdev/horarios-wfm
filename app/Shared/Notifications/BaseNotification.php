@@ -8,6 +8,7 @@ use App\Shared\DTOs\NotificationDTO;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 abstract class BaseNotification extends Notification implements ShouldQueue
@@ -15,7 +16,7 @@ abstract class BaseNotification extends Notification implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        protected NotificationDTO $dto
+        public NotificationDTO $dto
     ) {}
 
     public function via($notifiable): array
@@ -26,7 +27,39 @@ abstract class BaseNotification extends Notification implements ShouldQueue
             $channels[] = 'webex';
         }
 
+        // Si el notifiable tiene email y es un usuario, opcionalmente podríamos forzar 'mail' aquí.
+        // Pero para UI events, dejamos que las subclases agreguen 'mail' si es necesario.
         return $channels;
+    }
+
+    public function toMail($notifiable): MailMessage
+    {
+        $message = (new MailMessage)
+            ->subject($this->dto->title)
+            ->greeting('Hola, '.($notifiable->first_name ?? 'colaborador'))
+            ->line($this->dto->message);
+
+        if ($this->dto->summary) {
+            $message->line($this->dto->summary);
+        }
+
+        if (! empty($this->dto->facts)) {
+            foreach ($this->dto->facts as $fact) {
+                if (isset($fact['label']) && isset($fact['value'])) {
+                    $message->line("**{$fact['label']}:** {$fact['value']}");
+                }
+            }
+        }
+
+        if (! empty($this->dto->recommendation)) {
+            $message->line($this->dto->recommendation);
+        }
+
+        if (! empty($this->dto->actionUrl)) {
+            $message->action('Ver Detalles', $this->dto->actionUrl);
+        }
+
+        return $message;
     }
 
     public function toDatabase($notifiable): array

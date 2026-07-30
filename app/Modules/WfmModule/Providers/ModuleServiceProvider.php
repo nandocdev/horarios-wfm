@@ -10,12 +10,14 @@ use App\Modules\WfmModule\Console\Commands\CleanExpiredTemporalAssignments;
 use App\Modules\WfmModule\Listeners\ApplyShiftSwapToSchedule;
 use App\Modules\WfmModule\Listeners\NotifyShiftSwapApproved;
 use App\Modules\WfmModule\Listeners\SendLeaveRequestNotification;
+use App\Modules\WfmModule\Listeners\SendScheduleNotification;
 use App\Modules\WfmModule\Listeners\SendShiftSwapNotification;
 use App\Modules\WfmModule\Livewire\EmployeeWeeklyPlanning;
 use App\Modules\WfmModule\Livewire\ManageAbsenceReasons;
 use App\Modules\WfmModule\Livewire\ManageActivityTypes;
 use App\Modules\WfmModule\Livewire\ManageAgentStates;
 use App\Modules\WfmModule\Livewire\ManageScheduledActivities;
+use App\Modules\WfmModule\Livewire\ManageScheduleExceptions;
 use App\Modules\WfmModule\Livewire\ManageSchedules;
 use App\Modules\WfmModule\Livewire\MyDay;
 use App\Modules\WfmModule\Livewire\MySchedule;
@@ -63,12 +65,14 @@ use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
 use App\Shared\Contracts\WfmModule\ScheduleValidationInterface;
 use App\Shared\Events\LeaveRequestCreated;
 use App\Shared\Events\LeaveRequestDecision;
+use App\Shared\Events\ScheduleAssignmentUpdated;
 use App\Shared\Events\ShiftSwapAccepted;
 use App\Shared\Events\ShiftSwapApproved;
 use App\Shared\Events\ShiftSwapCancelled;
 use App\Shared\Events\ShiftSwapRejected;
 use App\Shared\Events\ShiftSwapRejectedByPeer;
 use App\Shared\Events\ShiftSwapRequested;
+use App\Shared\Events\WeeklySchedulePublished;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -173,6 +177,14 @@ class ModuleServiceProvider extends ServiceProvider
         Event::listen(
             LeaveRequestDecision::class,
             [SendLeaveRequestNotification::class, 'handleLeaveRequestDecision']
+        );
+        Event::listen(
+            WeeklySchedulePublished::class,
+            [SendScheduleNotification::class, 'handleWeeklySchedulePublished']
+        );
+        Event::listen(
+            ScheduleAssignmentUpdated::class,
+            [SendScheduleNotification::class, 'handleScheduleAssignmentUpdated']
         );
 
         $this->registerCommands();

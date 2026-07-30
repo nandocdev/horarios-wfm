@@ -145,9 +145,6 @@ class RequestShiftSwap extends Component
 
         ShiftSwapRequested::dispatch($swapRequest);
 
-        if ($recipient->user) {
-            $recipient->user->notify(new SwapRequestNotification($swapRequest));
-        }
 
         \Flux::toast('Solicitud de cambio de turno enviada correctamente.');
 

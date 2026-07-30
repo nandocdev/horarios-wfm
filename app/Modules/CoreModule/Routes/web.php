@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Modules\CoreModule\Livewire\Admin\NotificationAdmin;
 use App\Modules\CoreModule\Livewire\Roles\ListRoles;
 use App\Modules\CoreModule\Livewire\Shared\NotificationHistory;
 use App\Modules\CoreModule\Livewire\SystemMaintenance;
@@ -32,5 +33,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Configuración del Sistema
     Route::get('admin/system/maintenance', SystemMaintenance::class)
         ->name('admin.system.maintenance')
+        ->can('admin.system');
+
+    // Administración de Notificaciones
+    Route::get('admin/notifications', NotificationAdmin::class)
+        ->name('admin.notifications')
         ->can('admin.system');
 });

@@ -151,11 +151,35 @@ class SyncFinesseAgentStatesAction
             $reasonCode = strtoupper((string) $reasonCode);
         }
 
-        $lastChangedAt = now()->utc();
-
         $existingState = DB::table('agent_realtime_states')
             ->where('employee_id', $employeeId)
             ->first();
+
+        // Ignorar fallos de teléfono transitorios para no romper trazabilidad de WFM
+        $isPhoneFailure = $reasonCode !== null && (
+            (str_contains($reasonCode, 'PHONE') && str_contains($reasonCode, 'FAIL')) ||
+            str_contains($reasonCode, 'PHONEFAIULER')
+        );
+
+        if ($isPhoneFailure && $existingState) {
+            // Actualizamos solo metadatos, manteniendo el estado y tiempo anterior
+            DB::table('agent_realtime_states')
+                ->where('employee_id', $employeeId)
+                ->update([
+                    'external_id' => $externalId,
+                    'metadata' => json_encode(array_merge($data, [
+                        'ignored_transient_state' => $state,
+                        'ignored_transient_reason' => $reasonCode,
+                        'last_sync_at' => now()->utc()->toIso8601String(),
+                        'call_info' => $dialogInfo,
+                    ])),
+                    'updated_at' => now(),
+                ]);
+
+            return;
+        }
+
+        $lastChangedAt = now()->utc();
 
         if ($stateChangeTime) {
             try {

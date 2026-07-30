@@ -242,6 +242,7 @@ class MenuHelper
                     ['label' => __('Moderación de Contenido'), 'route' => 'communications.moderation.index', 'pattern' => 'admin/communications/moderation*', 'permission' => 'communications.moderate', 'icon' => 'shield-exclamation'],
                     ['label' => __('Reportes de Personal'), 'route' => 'personnel.staffing-summary', 'pattern' => 'personnel/reports*', 'permission' => 'reports.staffing', 'icon' => 'presentation-chart-line'],
                     ['label' => __('Mantenimiento del Sistema'), 'route' => 'admin.system.maintenance', 'pattern' => 'admin/system/maintenance*', 'icon' => 'wrench-screwdriver'],
+                    ['label' => __('Notificaciones'), 'route' => 'admin.notifications', 'pattern' => 'admin/notifications*', 'icon' => 'bell'],
                 ],
             ],
         ];

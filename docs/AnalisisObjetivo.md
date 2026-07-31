@@ -440,13 +440,13 @@ Proveer herramientas de monitoreo en tiempo real, alarmas operativas y cálculos
 
 1. **[Crítico] Fallo Clásico del SLA (Resuelto):** El cálculo histórico de SLA dividía sobre `Handled` en vez de `Offered`. Corregido en Reporting y Operations.
 2. **[Alto] Fórmulas Matemáticas en la Interfaz (Resuelto):** Los componentes Livewire hacían los cálculos (ej: Ocupación en `HeroStatsWidget`). Delegado 100% a las Actions y Metrics de `Shared`.
-3. **[Medio] Ausencia de Agregación Diaria:** Los dashboards recalculan `call_records` en cada carga. Necesario un Job ETL a futuro.
+3. **[Medio] Ausencia de Agregación Diaria (Resuelto):** Los dashboards recalculaban `call_records` en cada carga. Se implementó el proceso ETL (`CalculateDailyMetricsAction`) y las tablas agrupadas `queue_daily_metrics` y `agent_daily_metrics`.
 
 ### Recomendaciones finales
 
 1. **Cambios imprescindibles:**
    - Mantener el bloqueo estricto en PRs: Ningún componente Livewire debe contener símbolos de división o multiplicación para KPIs. Todo debe fluir hacia `App\Shared\Support\Metrics`.
-2. **Cambios recomendados:**
-   - Crear un proceso ETL que pueble las tablas `agent_daily_metrics` y `queue_daily_metrics` a la medianoche, permitiendo que `ReportingModule` consuma de allí en lugar de leer directamente `call_records`.
+2. **Cambios recomendados (Implementados):**
+   - ~~Crear un proceso ETL que pueble las tablas `agent_daily_metrics` y `queue_daily_metrics` a la medianoche, permitiendo que `ReportingModule` consuma de allí en lugar de leer directamente `call_records`.~~ (Implementado mediante el comando `operations:calculate-daily-metrics`).
 3. **Cambios opcionales:**
    - Mover la lógica de validación de adherencia (`checkAdherence`) a un Domain Event en caso de que futuros módulos necesiten reaccionar automáticamente cuando un agente sale de su esquema.

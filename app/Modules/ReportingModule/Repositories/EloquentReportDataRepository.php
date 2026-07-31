@@ -27,6 +27,7 @@ use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\DailyOperatorReport;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\ScheduleException;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -486,15 +487,13 @@ final class EloquentReportDataRepository
             received: (int) $row->received,
             handled: (int) $row->handled,
             abandoned: (int) $row->abandoned,
-            abandonmentRate: $row->received > 0 ? round(((int) $row->abandoned / (int) $row->received) * 100, 2) : 0,
+            abandonmentRate: ServiceQualityMetrics::abandonmentRate((int) $row->abandoned, (int) $row->received),
             aht: $row->aht !== null ? (float) $row->aht : null,
             asa: $row->asa !== null ? (float) $row->asa : null,
             maxWaitTime: $row->max_wait_time !== null ? (int) $row->max_wait_time : null,
             minWaitTime: $row->min_wait_time !== null ? (int) $row->min_wait_time : null,
             avgAbandonTime: $row->avg_abandon_time !== null ? (float) $row->avg_abandon_time : null,
-            slaPercentage: (int) $row->handled > 0
-                ? round(((int) $row->sl_count / (int) $row->handled) * 100, 2)
-                : null,
+            slaPercentage: ServiceQualityMetrics::serviceLevel((int) $row->sl_count, (int) $row->received),
         ));
     }
 
@@ -534,7 +533,7 @@ final class EloquentReportDataRepository
             offered: (int) $row->offered,
             handled: (int) $row->handled,
             abandoned: (int) $row->abandoned,
-            abandonmentRate: $row->offered > 0 ? round(((int) $row->abandoned / (int) $row->offered) * 100, 2) : 0,
+            abandonmentRate: ServiceQualityMetrics::abandonmentRate((int) $row->abandoned, (int) $row->offered),
             aht: $row->aht !== null ? (float) $row->aht : null,
             asa: $row->asa !== null ? (float) $row->asa : null,
             maxWaitTime: $row->max_wait_time !== null ? (int) $row->max_wait_time : null,
@@ -568,7 +567,7 @@ final class EloquentReportDataRepository
             received: (int) $row->received,
             handled: (int) $row->handled,
             abandoned: (int) $row->abandoned,
-            abandonmentRate: $row->received > 0 ? round(((int) $row->abandoned / (int) $row->received) * 100, 2) : 0,
+            abandonmentRate: ServiceQualityMetrics::abandonmentRate((int) $row->abandoned, (int) $row->received),
             aht: $row->aht !== null ? (float) $row->aht : null,
             asa: $row->asa !== null ? (float) $row->asa : null,
         ));
@@ -680,7 +679,7 @@ final class EloquentReportDataRepository
         $maxAht = $rows->max('aht') ?: 1;
         $ahtRange = $maxAht - $minAht > 0 ? $maxAht - $minAht : 1;
 
-        $ranked = $rows->map(function (array $row) use ($maxCalls, $minAht, $ahtRange): array {
+        $ranked = $rows->map(function (object $row) use ($maxCalls, $minAht, $ahtRange): object {
             $callsScore = ((int) $row->calls_handled / $maxCalls) * 50;
             $ahtScore = (1 - (((float) ($row->aht ?? 0) - $minAht) / $ahtRange)) * 30;
             $occScore = ((float) ($row->occupancy ?? 0) / 100) * 20;
@@ -692,7 +691,7 @@ final class EloquentReportDataRepository
 
         $position = 0;
 
-        return $ranked->map(function (array $row) use (&$position): RankingRowDTO {
+        return $ranked->map(function (object $row) use (&$position): RankingRowDTO {
             $position++;
 
             return new RankingRowDTO(

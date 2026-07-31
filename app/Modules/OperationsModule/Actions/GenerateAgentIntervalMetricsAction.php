@@ -7,7 +7,8 @@ namespace App\Modules\OperationsModule\Actions;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
-use App\Shared\Support\Metrics\MetricFormulas;
+use App\Shared\Support\Metrics\RealtimeMetrics;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
@@ -27,9 +28,13 @@ final class GenerateAgentIntervalMetricsAction
         $availableSeconds = $productiveSeconds + $stateDurations['ready'];
         $loggedSeconds = $productiveSeconds + $stateDurations['ready'] + $stateDurations['not_ready'];
 
-        $occupancy = $availableSeconds > 0
-            ? round(($productiveSeconds / $availableSeconds) * 100, 2)
-            : 0.0;
+        $occupancy = RealtimeMetrics::occupancy(
+            (float) $stateDurations['talk'],
+            (float) $stateDurations['hold'],
+            (float) $stateDurations['wrap'],
+            (float) $loggedSeconds,
+            (float) $stateDurations['not_ready']
+        );
 
         $utilization = $totalSeconds > 0
             ? round(($loggedSeconds / $totalSeconds) * 100, 2)
@@ -39,10 +44,11 @@ final class GenerateAgentIntervalMetricsAction
             ? round(($productiveSeconds / $totalSeconds) * 100, 2)
             : 0.0;
 
-        $aht = MetricFormulas::aht(
+        $aht = ServiceQualityMetrics::aht(
             (float) $stateDurations['talk'],
+            (float) $stateDurations['hold'],
             (float) $stateDurations['wrap'],
-            $callMetrics['calls_handled'],
+            $callMetrics['calls_handled']
         );
 
         return AgentIntervalMetric::updateOrCreate(

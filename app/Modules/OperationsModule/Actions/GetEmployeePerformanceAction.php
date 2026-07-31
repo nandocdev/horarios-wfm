@@ -10,7 +10,8 @@ use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use App\Shared\DTOs\Operations\AgentStateTransitionDTO;
-use App\Shared\Support\Metrics\MetricFormulas;
+use App\Shared\Support\Metrics\RealtimeMetrics;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -144,7 +145,7 @@ final class GetEmployeePerformanceAction
             // Normalizar fecha de entrada programada a la fecha de la actividad
             $scheduledDateTime = (clone $actualEntryTime)->setTime($scheduledEntryTime->hour, $scheduledEntryTime->minute, $scheduledEntryTime->second);
 
-            $status = MetricFormulas::checkLate($scheduledDateTime, $actualEntryTime) ? 'tardanza' : 'a_tiempo';
+            $status = RealtimeMetrics::checkLate($scheduledDateTime, $actualEntryTime) ? 'tardanza' : 'a_tiempo';
             $diff = (int) $scheduledDateTime->diffInMinutes($actualEntryTime, false);
         } elseif ($scheduledEntry && ! $actualEntry) {
             $status = $exception ? 'excepción' : 'ausente';
@@ -290,7 +291,7 @@ final class GetEmployeePerformanceAction
             }
         }
 
-        $denominator = MetricFormulas::utilizationDenominator(
+        $denominator = RealtimeMetrics::utilizationDenominator(
             $scheduledMinutes,
             $date->isToday(),
             $start,
@@ -309,9 +310,9 @@ final class GetEmployeePerformanceAction
             'total_scheduled_minutes' => $scheduledMinutes,
             'total_productive_minutes' => $productiveMinutes,
             'total_connected_minutes' => $connectedMinutes,
-            'productivity_percentage' => MetricFormulas::productivity((float) $productiveSeconds / 60, $connectedMinutes),
-            'utilization_percentage' => MetricFormulas::utilization($productiveMinutes, $denominator),
-            'occupancy' => MetricFormulas::occupancy($talkTime, $holdTime, $workTime, $totalConnectedSeconds, $auxSeconds),
+            'productivity_percentage' => RealtimeMetrics::productivity((float) $productiveSeconds / 60, $connectedMinutes),
+            'utilization_percentage' => RealtimeMetrics::utilization($productiveMinutes, $denominator),
+            'occupancy' => RealtimeMetrics::occupancy($talkTime, $holdTime, $workTime, $totalConnectedSeconds, $auxSeconds),
         ];
     }
 
@@ -320,8 +321,9 @@ final class GetEmployeePerformanceAction
         return $calls->groupBy('csq_name')
             ->map(fn ($group) => [
                 'total_calls' => $group->count(),
-                'avg_handle_time' => MetricFormulas::aht(
+                'avg_handle_time' => ServiceQualityMetrics::aht(
                     (float) $group->sum('talk_time'),
+                    (float) $group->sum('hold_time'),
                     (float) $group->sum('work_time'),
                     $group->count()
                 ),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Providers;
 
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
+use App\Modules\OperationsModule\Console\Commands\CalculateDailyMetricsCommand;
 use App\Modules\OperationsModule\Console\Commands\EvaluateAlertsCommand;
 use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
 use App\Modules\OperationsModule\Console\Commands\SeedAlertRules;
@@ -103,6 +104,7 @@ class ModuleServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                CalculateDailyMetricsCommand::class,
                 ReconcileAttendanceCommand::class,
                 EvaluateAlertsCommand::class,
                 SeedAlertRules::class,

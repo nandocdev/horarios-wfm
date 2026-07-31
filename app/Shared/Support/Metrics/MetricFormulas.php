@@ -5,104 +5,79 @@ declare(strict_types=1);
 namespace App\Shared\Support\Metrics;
 
 /**
- * Librería de fórmulas estandarizadas para el cálculo de métricas de desempeño.
- * Asegura que todos los módulos utilicen la misma lógica matemática.
+ * Fachada de compatibilidad hacia atrás para fórmulas de métricas.
+ *
+ * Las implementaciones canónicas ahora viven en clases especializadas por dominio:
+ * - ForecastMetrics
+ * - CapacityMetrics
+ * - SchedulingMetrics
+ * - RealtimeMetrics
+ * - ServiceQualityMetrics
+ * - CostWorkforceMetrics
+ *
+ * @deprecated Preferir las clases especializadas para nuevo código.
+ * @see docs/INDICADORES_CORE.md
  */
 final class MetricFormulas
 {
     /**
      * Calcula el porcentaje de productividad.
-     * Intensidad del trabajo mientras el agente estuvo conectado.
+     *
+     * @deprecated Use RealtimeMetrics::productivity().
      */
     public static function productivity(float $productiveMinutes, float $connectedMinutes): float
     {
-        if ($connectedMinutes <= 0) {
-            return 0.0;
-        }
-
-        return round(($productiveMinutes / $connectedMinutes) * 100, 1);
+        return RealtimeMetrics::productivity($productiveMinutes, $connectedMinutes);
     }
 
     /**
      * Calcula el porcentaje de utilización.
-     * Rendimiento contra lo planificado (ajustado por tiempo transcurrido si es hoy).
+     *
+     * @deprecated Use RealtimeMetrics::utilization().
      */
     public static function utilization(float $productiveMinutes, float $baseMinutes): float
     {
-        if ($baseMinutes <= 0) {
-            // Si el agente está produciendo pero no tiene tiempo base (ej. antes del turno),
-            // la utilización técnica es 100% de su tiempo transcurrido (o 0 si queremos castigar extra-jornada).
-            // Por simplicidad para el dashboard: si hay producción pero no base, devolvemos 100%
-            // solo si queremos incentivar la conexión temprana, o 0 si medimos apego estricto.
-            return $productiveMinutes > 0 ? 100.0 : 0.0;
-        }
-
-        $rate = ($productiveMinutes / $baseMinutes) * 100;
-
-        return round(min($rate, 100.0), 1); // Capeamos al 100% para evitar distorsiones
+        return RealtimeMetrics::utilization($productiveMinutes, $baseMinutes);
     }
 
     /**
      * Calcula el tiempo base (denominador) para la utilización.
-     * Si es el día de hoy y el turno está en curso, devuelve los minutos transcurridos.
-     * De lo contrario, devuelve los minutos totales del turno.
+     *
+     * @deprecated Use RealtimeMetrics::utilizationDenominator().
      */
     public static function utilizationDenominator(
         int $scheduledMinutes,
         bool $isToday,
         ?\DateTimeInterface $startTime = null,
-        ?\DateTimeInterface $endTime = null
+        ?\DateTimeInterface $endTime = null,
     ): int {
-        if (! $isToday || $startTime === null || $endTime === null) {
-            return max(1, $scheduledMinutes);
-        }
-
-        $now = new \DateTimeImmutable;
-
-        // Si el turno aún no empieza
-        if ($now < $startTime) {
-            return 0; // El turno no ha iniciado, la base es cero.
-        }
-
-        // Si el turno ya terminó
-        if ($now > $endTime) {
-            return max(1, $scheduledMinutes);
-        }
-
-        // Si estamos en curso del turno
-        $elapsed = (int) floor(($now->getTimestamp() - $startTime->getTimestamp()) / 60);
-
-        return max(1, min($scheduledMinutes, $elapsed));
+        return RealtimeMetrics::utilizationDenominator($scheduledMinutes, $isToday, $startTime, $endTime);
     }
 
     /**
      * Determina si una marca de tiempo constituye una tardanza.
+     *
+     * @deprecated Use RealtimeMetrics::checkLate().
      */
-    public static function checkLate(string|\DateTimeInterface $scheduledEntry, string|\DateTimeInterface $actualEntry, int $graceMinutes = 5): bool
-    {
-        $scheduled = $scheduledEntry instanceof \DateTimeInterface
-            ? $scheduledEntry
-            : new \DateTimeImmutable($scheduledEntry);
-
-        $actual = $actualEntry instanceof \DateTimeInterface
-            ? $actualEntry
-            : new \DateTimeImmutable($actualEntry);
-
-        $diffMinutes = ($actual->getTimestamp() - $scheduled->getTimestamp()) / 60;
-
-        return $diffMinutes > $graceMinutes;
+    public static function checkLate(
+        string|\DateTimeInterface $scheduledEntry,
+        string|\DateTimeInterface $actualEntry,
+        int $graceMinutes = 5,
+    ): bool {
+        return RealtimeMetrics::checkLate($scheduledEntry, $actualEntry, $graceMinutes);
     }
 
     /**
-     * Calcula el AHT (Average Handle Time).
+     * Calcula el AHT (Talk + ACW).
+     *
+     * Mantenido por compatibilidad con callers que no desagregan Hold.
+     * El catálogo canónico usa Talk + Hold + ACW (ServiceQualityMetrics::aht).
+     *
+     * @deprecated Use ServiceQualityMetrics::aht() con los 3 componentes.
      */
     public static function aht(float $totalTalkTime, float $totalWorkTime, int $totalCalls): float
     {
-        if ($totalCalls <= 0) {
-            return 0.0;
-        }
-
-        return round(($totalTalkTime + $totalWorkTime) / $totalCalls);
+        return ServiceQualityMetrics::aht($totalTalkTime, 0.0, $totalWorkTime, $totalCalls);
     }
 
     /**
@@ -127,40 +102,20 @@ final class MetricFormulas
 
     /**
      * Verifica la adherencia de un estado real frente a un tipo esperado.
+     *
+     * @deprecated Use RealtimeMetrics::checkAdherence().
      */
     public static function checkAdherence(?string $realState, ?string $expectedType): bool
     {
-        $real = strtoupper($realState ?? 'OFFLINE');
-        $isLogoutOrOffline = in_array($real, ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
-        $productiveStates = ['READY', 'TALKING', 'WORK', 'RESERVED', 'HOLD', 'OUTBOUND'];
-
-        // Si el usuario está desconectado
-        if ($isLogoutOrOffline) {
-            // Solo es adherente si se esperaba que estuviera fuera de jornada
-            return $expectedType === 'OFF';
-        }
-
-        // Si está conectado pero debería estar fuera de jornada -> No Adherente
-        if ($expectedType === 'OFF') {
-            return false;
-        }
-
-        if ($expectedType === 'SHIFT') {
-            return in_array($real, $productiveStates);
-        }
-
-        if ($expectedType === 'INTRADAY' || $expectedType === 'EXCEPTION') {
-            // Se espera que esté en NOT_READY (auxiliar) para actividades o excepciones
-            // NOTA: Algunos sistemas cuentan TALKING como adherente en INTRADAY (ej. si entra llamada justo al irse)
-            // pero por rigor WFM, debe estar en Auxiliar.
-            return $real === 'NOT_READY';
-        }
-
-        return false;
+        return RealtimeMetrics::checkAdherence($realState, $expectedType);
     }
 
     /**
-     * Calcula la Cobertura Operativa (Coverage Rate).
+     * Calcula la Cobertura Operativa (presencia: Available / Scheduled).
+     *
+     * No confundir con SchedulingMetrics::coverage(), que usa Required/Scheduled.
+     *
+     * @deprecated Use RealtimeMetrics::availabilityRatio() o SchedulingMetrics::coverage().
      */
     public static function coverageRate(int $availableAgents, int $scheduledAgents): float
     {
@@ -173,6 +128,8 @@ final class MetricFormulas
 
     /**
      * Calcula la Tasa de Ausentismo.
+     *
+     * @deprecated Use CapacityMetrics::shrinkage() o RealtimeMetrics::conformance() según caso.
      */
     public static function absenteeismRate(float $absentMinutes, float $scheduledProductiveMinutes): float
     {
@@ -185,10 +142,6 @@ final class MetricFormulas
 
     /**
      * Calcula la cantidad de personal ausente (Headcount).
-     *
-     * @param  int  $scheduled  Cantidad de personal programado para estar PRODUCTIVO
-     *                          (Turno activo y SIN excepciones aprobadas).
-     * @param  int  $actual  Cantidad de personal que efectivamente está conectado/presente.
      */
     public static function absentPersonnel(int $scheduled, int $actual): int
     {
@@ -197,57 +150,46 @@ final class MetricFormulas
 
     /**
      * Calcula la Ocupación (Occupancy).
-     * Presión operativa sobre el tiempo disponible real (excluyendo auxiliares).
+     *
+     * @deprecated Use RealtimeMetrics::occupancy().
      */
     public static function occupancy(
         float $talkTime,
         float $holdTime,
         float $workTime,
         float $totalLoggedTime,
-        float $auxTime
+        float $auxTime,
     ): float {
-        $denominator = $totalLoggedTime - $auxTime;
-        if ($denominator <= 0) {
-            return 0.0;
-        }
-
-        return round((($talkTime + $holdTime + $workTime) / $denominator) * 100, 1);
+        return RealtimeMetrics::occupancy($talkTime, $holdTime, $workTime, $totalLoggedTime, $auxTime);
     }
 
     /**
      * Calcula el Conformance.
-     * Cumplimiento de la cantidad total de tiempo programada.
+     *
+     * @deprecated Use RealtimeMetrics::conformance().
      */
     public static function conformance(float $actualWorkedMinutes, float $scheduledWorkedMinutes): float
     {
-        if ($scheduledWorkedMinutes <= 0) {
-            return 0.0;
-        }
-
-        return round(($actualWorkedMinutes / $scheduledWorkedMinutes) * 100, 1);
+        return RealtimeMetrics::conformance($actualWorkedMinutes, $scheduledWorkedMinutes);
     }
 
     /**
      * Calcula el ASA (Average Speed of Answer).
+     *
+     * @deprecated Use ServiceQualityMetrics::asa().
      */
     public static function asa(float $totalQueueWaitTime, int $answeredCalls): float
     {
-        if ($answeredCalls <= 0) {
-            return 0.0;
-        }
-
-        return round($totalQueueWaitTime / $answeredCalls, 1);
+        return ServiceQualityMetrics::asa($totalQueueWaitTime, $answeredCalls);
     }
 
     /**
      * Calcula el Service Level (Nivel de Servicio).
+     *
+     * @deprecated Use ServiceQualityMetrics::serviceLevel().
      */
     public static function serviceLevel(int $callsWithinThreshold, int $totalOfferedCalls): float
     {
-        if ($totalOfferedCalls <= 0) {
-            return 0.0;
-        }
-
-        return round(($callsWithinThreshold / $totalOfferedCalls) * 100, 1);
+        return ServiceQualityMetrics::serviceLevel($callsWithinThreshold, $totalOfferedCalls);
     }
 }

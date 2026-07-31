@@ -58,15 +58,21 @@ class HeroStatsWidget extends Component
         $requiredMinimum = (int) round($scheduledToday * 0.85);
         $deficit = $connectedCount - $requiredMinimum;
 
-        $occupancy = RealtimeMetrics::occupancy($talkingCount, 0, 0, $talkingCount + $readyCount, 0);
-
         try {
-            $intervalMetrics = AgentIntervalMetric::whereIn('employee_id', $ids)
-                ->whereDate('interval_start', $today)->latest('interval_start')->limit(count($ids))->get();
-            $avgAdherence = $intervalMetrics->avg('adherence') ?? 95.5;
+            $intervalQuery = AgentIntervalMetric::whereIn('employee_id', $ids)
+                ->whereDate('interval_start', $today);
+
+            $avgAdherence = (float) (clone $intervalQuery)->avg('adherence');
+            $avgOccupancy = (float) (clone $intervalQuery)->avg('occupancy');
         } catch (QueryException $e) {
-            $avgAdherence = 95.5; // Demo fallback si la tabla aún no existe
+            $avgAdherence = 0;
+            $avgOccupancy = 0;
         }
+
+        // Occupancy en tiempo real (agentes conectados vs programados)
+        $occupancyRealtime = RealtimeMetrics::occupancy($talkingCount, 0, 0, $talkingCount + $readyCount, 0);
+        // Usar el mayor entre el cálculo en tiempo real y el promedio de intervalos
+        $occupancy = round(max($occupancyRealtime, $avgOccupancy), 1);
 
         $handledCalls = CallRecord::whereIn('employee_id', $ids)->whereDate('ivr_started_at', $today)
             ->where('contact_disposition', ContactDisposition::Handled->value);

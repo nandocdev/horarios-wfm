@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\ReportingModule\Repositories;
 
-use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\ConnectModule\Models\CallRecord;
+use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Modules\OperationsModule\Models\AttendanceIncident;
+use App\Modules\OperationsModule\Models\QueueDailyMetric;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\ReportingModule\DTOs\AbsenteeismRowDTO;
 use App\Modules\ReportingModule\DTOs\AgentPerformanceRowDTO;
@@ -352,42 +353,33 @@ final class EloquentReportDataRepository
 
     public function getAhtDetailData(ReportFilterDTO $filters): Collection
     {
-        $query = AgentCallPerformance::query()
+        $query = AgentDailyMetric::query()
             ->select([
                 DB::raw("CONCAT(employees.first_name, ' ', employees.last_name) as agent_name"),
-                'agent_call_performance.csq_name as queue_name',
-                DB::raw('agent_call_performance.start_time::date as date'),
-                DB::raw('COUNT(*) as calls_handled'),
-                DB::raw('AVG(agent_call_performance.talk_time) as avg_talk_time'),
-                DB::raw('AVG(agent_call_performance.work_time) as avg_work_time'),
-                DB::raw('AVG(agent_call_performance.hold_time) as avg_hold_time'),
-                DB::raw('AVG(agent_call_performance.talk_time + agent_call_performance.work_time) as aht'),
-                DB::raw('MIN(agent_call_performance.talk_time + agent_call_performance.work_time) as min_aht'),
-                DB::raw('MAX(agent_call_performance.talk_time + agent_call_performance.work_time) as max_aht'),
-                'call_queues.aht_goal',
+                DB::raw("'N/A' as queue_name"), // Historically mapped to csq_name, but we don't have queue dist here easily, or we can use empty
+                DB::raw('agent_daily_metrics.metric_date as date'),
+                DB::raw('SUM(agent_daily_metrics.handled_calls) as calls_handled'),
+                DB::raw('AVG(agent_daily_metrics.talk_seconds) as avg_talk_time'),
+                DB::raw('AVG(agent_daily_metrics.work_seconds) as avg_work_time'),
+                DB::raw('AVG(agent_daily_metrics.hold_seconds) as avg_hold_time'),
+                DB::raw('AVG(agent_daily_metrics.talk_seconds + agent_daily_metrics.work_seconds) as aht'),
+                DB::raw('MIN(agent_daily_metrics.talk_seconds + agent_daily_metrics.work_seconds) as min_aht'),
+                DB::raw('MAX(agent_daily_metrics.talk_seconds + agent_daily_metrics.work_seconds) as max_aht'),
+                DB::raw('NULL as aht_goal'), // Queues have goals, agents generally don't directly here
             ])
-            ->leftJoin('employees', 'employees.id', '=', 'agent_call_performance.employee_id')
-            ->leftJoin('call_queues', 'call_queues.name', '=', 'agent_call_performance.csq_name')
-            ->whereDate('agent_call_performance.start_time', '>=', $filters->dateFrom)
-            ->whereDate('agent_call_performance.start_time', '<=', $filters->dateTo)
-            ->whereNotNull('agent_call_performance.employee_id')
+            ->join('employees', 'employees.id', '=', 'agent_daily_metrics.employee_id')
+            ->whereDate('agent_daily_metrics.metric_date', '>=', $filters->dateFrom)
+            ->whereDate('agent_daily_metrics.metric_date', '<=', $filters->dateTo)
             ->groupBy(
                 'employees.id',
-                'agent_call_performance.csq_name',
-                DB::raw('agent_call_performance.start_time::date'),
-                'call_queues.aht_goal',
+                'employees.first_name',
+                'employees.last_name',
+                'agent_daily_metrics.metric_date'
             )
-            ->orderBy('date')
-            ->orderBy('queue_name');
-
-        if ($filters->queueId !== null) {
-            $query->whereIn('agent_call_performance.csq_name', function ($q) use ($filters) {
-                $q->select('name')->from('call_queues')->where('id', $filters->queueId);
-            });
-        }
+            ->orderBy('date');
 
         if ($filters->employeeId !== null) {
-            $query->where('agent_call_performance.employee_id', $filters->employeeId);
+            $query->where('agent_daily_metrics.employee_id', $filters->employeeId);
         }
 
         if ($filters->teamId !== null) {
@@ -403,8 +395,8 @@ final class EloquentReportDataRepository
             avgWorkTime: (float) ($row->avg_work_time ?? 0),
             avgHoldTime: (float) ($row->avg_hold_time ?? 0),
             aht: (float) ($row->aht ?? 0),
-            ahtGoal: $row->aht_goal !== null ? (int) $row->aht_goal : null,
-            deviation: $row->aht !== null && $row->aht_goal !== null ? (float) ($row->aht - $row->aht_goal) : null,
+            ahtGoal: null,
+            deviation: null,
             minAht: $row->min_aht !== null ? (float) $row->min_aht : null,
             maxAht: $row->max_aht !== null ? (float) $row->max_aht : null,
         ));
@@ -412,32 +404,30 @@ final class EloquentReportDataRepository
 
     public function getAhtSummaryData(ReportFilterDTO $filters): Collection
     {
-        $query = AgentCallPerformance::query()
+        $query = QueueDailyMetric::query()
             ->select([
-                'agent_call_performance.csq_name as queue_name',
-                DB::raw('agent_call_performance.start_time::date as date'),
-                DB::raw('COUNT(*) as calls_handled'),
-                DB::raw('AVG(agent_call_performance.talk_time + agent_call_performance.work_time) as aht'),
-                DB::raw('AVG(agent_call_performance.talk_time) as avg_talk_time'),
-                DB::raw('AVG(agent_call_performance.work_time) as avg_work_time'),
-                DB::raw('AVG(agent_call_performance.hold_time) as avg_hold_time'),
+                'call_queues.name as queue_name',
+                'queue_daily_metrics.metric_date as date',
+                DB::raw('SUM(queue_daily_metrics.handled_calls) as calls_handled'),
+                DB::raw('SUM(queue_daily_metrics.total_talk_seconds + queue_daily_metrics.total_work_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as aht'),
+                DB::raw('SUM(queue_daily_metrics.total_talk_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as avg_talk_time'),
+                DB::raw('SUM(queue_daily_metrics.total_work_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as avg_work_time'),
+                DB::raw('SUM(queue_daily_metrics.total_hold_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as avg_hold_time'),
                 'call_queues.aht_goal',
             ])
-            ->leftJoin('call_queues', 'call_queues.name', '=', 'agent_call_performance.csq_name')
-            ->whereDate('agent_call_performance.start_time', '>=', $filters->dateFrom)
-            ->whereDate('agent_call_performance.start_time', '<=', $filters->dateTo)
+            ->join('call_queues', 'call_queues.id', '=', 'queue_daily_metrics.queue_id')
+            ->whereDate('queue_daily_metrics.metric_date', '>=', $filters->dateFrom)
+            ->whereDate('queue_daily_metrics.metric_date', '<=', $filters->dateTo)
             ->groupBy(
-                'agent_call_performance.csq_name',
-                DB::raw('agent_call_performance.start_time::date'),
+                'call_queues.name',
+                'queue_daily_metrics.metric_date',
                 'call_queues.aht_goal',
             )
             ->orderBy('date')
             ->orderBy('queue_name');
 
         if ($filters->queueId !== null) {
-            $query->whereIn('agent_call_performance.csq_name', function ($q) use ($filters) {
-                $q->select('name')->from('call_queues')->where('id', $filters->queueId);
-            });
+            $query->where('queue_daily_metrics.queue_id', $filters->queueId);
         }
 
         return $query->get()->map(fn (object $row): AhtRowDTO => new AhtRowDTO(
@@ -456,29 +446,29 @@ final class EloquentReportDataRepository
 
     public function getVolumeDetailData(ReportFilterDTO $filters): Collection
     {
-        $query = CallRecord::query()
+        $query = QueueDailyMetric::query()
             ->select([
                 'call_queues.name as queue_name',
-                DB::raw('call_records.ivr_started_at::date as date'),
-                DB::raw('COUNT(*) as received'),
-                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition = 2) as handled'),
-                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition IN (1, 4, 13)) as abandoned'),
-                DB::raw('AVG(call_records.talk_time + call_records.work_time) FILTER (WHERE call_records.contact_disposition = 2) as aht'),
-                DB::raw('AVG(call_records.queue_time) FILTER (WHERE call_records.contact_disposition = 2) as asa'),
-                DB::raw('MAX(call_records.queue_time) as max_wait_time'),
-                DB::raw('MIN(call_records.queue_time) as min_wait_time'),
-                DB::raw('AVG(call_records.queue_time) FILTER (WHERE call_records.contact_disposition IN (1, 4, 13)) as avg_abandon_time'),
-                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition = 2 AND call_records.queue_time <= 20) as sl_count'),
+                'queue_daily_metrics.metric_date as date',
+                DB::raw('SUM(queue_daily_metrics.offered_calls) as received'),
+                DB::raw('SUM(queue_daily_metrics.handled_calls) as handled'),
+                DB::raw('SUM(queue_daily_metrics.abandoned_calls) as abandoned'),
+                DB::raw('SUM(queue_daily_metrics.total_talk_seconds + queue_daily_metrics.total_work_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as aht'),
+                DB::raw('SUM(queue_daily_metrics.total_wait_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as asa'),
+                DB::raw('MAX(queue_daily_metrics.max_wait_seconds) as max_wait_time'),
+                DB::raw('MIN(queue_daily_metrics.min_wait_seconds) as min_wait_time'),
+                DB::raw('SUM(queue_daily_metrics.total_abandon_seconds) / NULLIF(SUM(queue_daily_metrics.abandoned_calls), 0) as avg_abandon_time'),
+                DB::raw('SUM(queue_daily_metrics.sl_calls) as sl_count'),
             ])
-            ->join('call_queues', 'call_queues.id', '=', 'call_records.queue_id')
-            ->whereDate('call_records.ivr_started_at', '>=', $filters->dateFrom)
-            ->whereDate('call_records.ivr_started_at', '<=', $filters->dateTo)
-            ->groupBy('call_queues.name', DB::raw('call_records.ivr_started_at::date'))
+            ->join('call_queues', 'call_queues.id', '=', 'queue_daily_metrics.queue_id')
+            ->whereDate('queue_daily_metrics.metric_date', '>=', $filters->dateFrom)
+            ->whereDate('queue_daily_metrics.metric_date', '<=', $filters->dateTo)
+            ->groupBy('call_queues.name', 'queue_daily_metrics.metric_date')
             ->orderBy('date')
             ->orderBy('queue_name');
 
         if ($filters->queueId !== null) {
-            $query->where('call_records.queue_id', $filters->queueId);
+            $query->where('queue_daily_metrics.queue_id', $filters->queueId);
         }
 
         return $query->get()->map(fn (object $row): VolumeRowDTO => new VolumeRowDTO(
@@ -542,23 +532,23 @@ final class EloquentReportDataRepository
 
     public function getVolumeSummaryData(ReportFilterDTO $filters): Collection
     {
-        $query = CallRecord::query()
+        $query = QueueDailyMetric::query()
             ->select([
                 'call_queues.name as queue_name',
-                DB::raw('COUNT(*) as received'),
-                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition = 2) as handled'),
-                DB::raw('COUNT(*) FILTER (WHERE call_records.contact_disposition IN (1, 4, 13)) as abandoned'),
-                DB::raw('AVG(call_records.talk_time + call_records.work_time) FILTER (WHERE call_records.contact_disposition = 2) as aht'),
-                DB::raw('AVG(call_records.queue_time) FILTER (WHERE call_records.contact_disposition = 2) as asa'),
+                DB::raw('SUM(queue_daily_metrics.offered_calls) as received'),
+                DB::raw('SUM(queue_daily_metrics.handled_calls) as handled'),
+                DB::raw('SUM(queue_daily_metrics.abandoned_calls) as abandoned'),
+                DB::raw('SUM(queue_daily_metrics.total_talk_seconds + queue_daily_metrics.total_work_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as aht'),
+                DB::raw('SUM(queue_daily_metrics.total_wait_seconds) / NULLIF(SUM(queue_daily_metrics.handled_calls), 0) as asa'),
             ])
-            ->join('call_queues', 'call_queues.id', '=', 'call_records.queue_id')
-            ->whereDate('call_records.ivr_started_at', '>=', $filters->dateFrom)
-            ->whereDate('call_records.ivr_started_at', '<=', $filters->dateTo)
+            ->join('call_queues', 'call_queues.id', '=', 'queue_daily_metrics.queue_id')
+            ->whereDate('queue_daily_metrics.metric_date', '>=', $filters->dateFrom)
+            ->whereDate('queue_daily_metrics.metric_date', '<=', $filters->dateTo)
             ->groupBy('call_queues.name')
             ->orderBy('queue_name');
 
         if ($filters->queueId !== null) {
-            $query->where('call_records.queue_id', $filters->queueId);
+            $query->where('queue_daily_metrics.queue_id', $filters->queueId);
         }
 
         return $query->get()->map(fn (object $row): VolumeRowDTO => new VolumeRowDTO(

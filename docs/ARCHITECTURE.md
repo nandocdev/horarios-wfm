@@ -176,14 +176,22 @@ Eventos de dominio compartidos entre módulos:
 - `$incrementing = false`, `$keyType = 'string'`
 - La base de datos usa `$table->id()` (bigint auto-incremental) como PK física. ULID es la identidad lógica manejada por Eloquent.
 
-### 5.2 MetricFormulas
+### 5.2 Motor de métricas canónicas
 
-`app/Shared/Support/Metrics/MetricFormulas.php` — Clase `final` con 16 métodos `static` que centralizan las fórmulas de cálculo:
+`app/Shared/Support/Metrics/` — Librería pura de fórmulas WFM organizada por dominio funcional. Cada clase es `final` con métodos `static`, sin estado, I/O ni dependencias del container. Las Actions de cada módulo cargan datos y llaman a estas fórmulas; no se duplica lógica matemática en vivo ni en reportes.
 
-- `productivity()`, `utilization()`, `utilizationDenominator()`
-- `checkLate()`, `aht()`, `secondsToMinutes()`, `formatDuration()`
-- `checkAdherence()`, `coverageRate()`, `absenteeismRate()`
-- `absentPersonnel()`, `occupancy()`, `conformance()`, `asa()`, `serviceLevel()`
+Clases especializadas (ver `docs/INDICADORES_CORE.md` para el mapeo IND-*):
+
+| Clase | Responsabilidad | Métodos representativos |
+| --- | --- | --- |
+| `ForecastMetrics` | Forecast & Modelos | `mape()`, `bias()`, `rmse()`, `wape()`, `intradayReforecast()`, `channelMix()` |
+| `CapacityMetrics` | Capacity Planning | `offeredLoad()`, `erlangC()`, `erlangA()`, `requiredStaff()`, `shrinkage()`, `expectedWaitTime()` |
+| `SchedulingMetrics` | Scheduling | `coverage()`, `scheduleFitScore()`, `staffingEfficiency()`, `scheduleComplianceScore()` |
+| `RealtimeMetrics` | Real-Time Operations | `occupancy()`, `adherenceRate()`, `conformance()`, `netStaffingPosition()`, `queueBacklog()`, `availabilityRatio()` |
+| `ServiceQualityMetrics` | Service Quality | `serviceLevel()`, `asa()`, `abandonmentRate()`, `aht()`, `fcr()` |
+| `CostWorkforceMetrics` | Cost & Workforce Health | `costPerContact()`, `costPerResolution()`, `attritionRate()` |
+
+`MetricFormulas.php` se mantiene como **fachada de compatibilidad hacia atrás** (BC). Sus métodos delegan a las clases especializadas y están marcados `@deprecated` para nuevo código. Solo conserva helpers que no son KPIs del catálogo (`formatDuration()`, `secondsToMinutes()`, `absentPersonnel()`).
 
 ### 5.3 BaseNotification
 

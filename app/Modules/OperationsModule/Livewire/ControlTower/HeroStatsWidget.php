@@ -10,6 +10,8 @@ use App\Modules\OperationsModule\Models\AgentIntervalMetric;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
+use App\Shared\Support\Metrics\RealtimeMetrics;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Illuminate\Database\QueryException;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -56,7 +58,7 @@ class HeroStatsWidget extends Component
         $requiredMinimum = (int) round($scheduledToday * 0.85);
         $deficit = $connectedCount - $requiredMinimum;
 
-        $occupancy = ($talkingCount + $readyCount) > 0 ? round(($talkingCount / ($talkingCount + $readyCount)) * 100, 1) : 0.0;
+        $occupancy = RealtimeMetrics::occupancy($talkingCount, 0, 0, $talkingCount + $readyCount, 0);
 
         try {
             $intervalMetrics = AgentIntervalMetric::whereIn('employee_id', $ids)
@@ -70,8 +72,11 @@ class HeroStatsWidget extends Component
             ->where('contact_disposition', ContactDisposition::Handled->value);
         $totalHandled = (int) (clone $handledCalls)->count();
         $avgQueueTime = (float) ((clone $handledCalls)->avg('queue_time') ?? 0);
-        $slaCalls = (clone $handledCalls)->where('queue_time', '<=', 20)->count();
-        $slaPct = $totalHandled > 0 ? round(($slaCalls / $totalHandled) * 100, 1) : 0;
+        // Para el SLA total, no filtramos por employee_id ya que los abandonos en cola no tienen agente asignado.
+        $globalCallStats = CallRecord::whereDate('ivr_started_at', $today)
+            ->selectRaw('COUNT(*) as total_offered, SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sla_calls')
+            ->first();
+        $slaPct = ServiceQualityMetrics::serviceLevel((int) $globalCallStats->sla_calls, (int) $globalCallStats->total_offered);
 
         $yesterdayConnected = $realtimeRepo->getRealtimeStates($ids)
             ->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])->count();

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Livewire\ControlTower;
 
-use App\Modules\ConnectModule\Enums\ContactDisposition;
 use App\Modules\ConnectModule\Models\CallRecord;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Carbon\Carbon;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -39,26 +39,20 @@ class SlaAsaChartWidget extends Component
             $label = sprintf('%02d:00', $h);
             $categories[] = $label;
 
-            $todayStats = CallRecord::whereIn('employee_id', $this->employeeIds)
-                ->whereDate('ivr_started_at', $today)
+            $todayStats = CallRecord::whereDate('ivr_started_at', $today)
                 ->whereRaw('EXTRACT(HOUR FROM ivr_started_at) = ?', [$h])
-                ->where('contact_disposition', ContactDisposition::Handled->value)
-                ->selectRaw('COUNT(*) as total, AVG(queue_time) as avg_asa, SUM(CASE WHEN queue_time <= 20 THEN 1 ELSE 0 END) as sla_count')
+                ->selectRaw('COUNT(*) as total_offered, AVG(CASE WHEN contact_disposition = 2 THEN queue_time ELSE NULL END) as avg_asa, SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sla_count')
                 ->first();
 
-            $todaySla[] = $todayStats && $todayStats->total > 0
-                ? round(($todayStats->sla_count / $todayStats->total) * 100, 1) : 0;
+            $todaySla[] = $todayStats ? ServiceQualityMetrics::serviceLevel((int) $todayStats->sla_count, (int) $todayStats->total_offered) : 0;
             $todayAsa[] = $todayStats && $todayStats->avg_asa ? round((float) $todayStats->avg_asa, 0) : 0;
 
-            $yesterdayStats = CallRecord::whereIn('employee_id', $this->employeeIds)
-                ->whereDate('ivr_started_at', $yesterday)
+            $yesterdayStats = CallRecord::whereDate('ivr_started_at', $yesterday)
                 ->whereRaw('EXTRACT(HOUR FROM ivr_started_at) = ?', [$h])
-                ->where('contact_disposition', ContactDisposition::Handled->value)
-                ->selectRaw('COUNT(*) as total, AVG(queue_time) as avg_asa, SUM(CASE WHEN queue_time <= 20 THEN 1 ELSE 0 END) as sla_count')
+                ->selectRaw('COUNT(*) as total_offered, AVG(CASE WHEN contact_disposition = 2 THEN queue_time ELSE NULL END) as avg_asa, SUM(CASE WHEN contact_disposition = 2 AND queue_time <= 20 THEN 1 ELSE 0 END) as sla_count')
                 ->first();
 
-            $yesterdaySla[] = $yesterdayStats && $yesterdayStats->total > 0
-                ? round(($yesterdayStats->sla_count / $yesterdayStats->total) * 100, 1) : 0;
+            $yesterdaySla[] = $yesterdayStats ? ServiceQualityMetrics::serviceLevel((int) $yesterdayStats->sla_count, (int) $yesterdayStats->total_offered) : 0;
             $yesterdayAsa[] = $yesterdayStats && $yesterdayStats->avg_asa ? round((float) $yesterdayStats->avg_asa, 0) : 0;
         }
 

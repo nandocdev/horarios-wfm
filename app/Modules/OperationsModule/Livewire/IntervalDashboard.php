@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Livewire;
 use App\Modules\AnalyticsModule\Models\ForecastInterval;
 use App\Modules\AnalyticsModule\Models\ForecastScenario;
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +47,7 @@ class IntervalDashboard extends Component
                 'occupancy' => $real?->occupancy !== null ? round((float) $real->occupancy, 1) : null,
                 'aht' => $real?->aht !== null ? round((float) $real->aht, 0) : ($forecast?->forecast_aht !== null ? round((float) $forecast->forecast_aht, 0) : null),
                 'asa' => $calls?->avg_asa !== null ? round((float) $calls->avg_asa, 0) : null,
-                'sl' => $calls && $calls->total > 0 ? round(($calls->sl_count / $calls->total) * 100, 1) : null,
+                'sl' => $calls && $calls->total > 0 ? ServiceQualityMetrics::serviceLevel((int) $calls->sl_count, (int) $calls->total) : null,
                 'adherence' => $real?->adherence !== null ? round((float) $real->adherence, 1) : null,
                 'calls_handled' => $real?->calls ?? 0,
             ];

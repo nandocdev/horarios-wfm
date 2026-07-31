@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire\ControlTower;
 
 use App\Modules\ConnectModule\Models\CsqRealtimeStat;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -63,7 +64,7 @@ class QueueTableWidget extends Component
             $avgAht = (float) ($s->avg_aht ?? 0);
             $avgAbandonTime = (float) ($s->avg_abandon_time ?? 0);
             $maxWait = (int) ($s->max_queue_time ?? 0);
-            $slaPct = $handled > 0 ? round(($slaCount / $handled) * 100, 1) : ($r && $r->service_level_long_term !== null ? round($r->service_level_long_term, 1) : 0);
+            $slaPct = $total > 0 ? ServiceQualityMetrics::serviceLevel($slaCount, $total) : ($r && $r->service_level_long_term !== null ? round($r->service_level_long_term, 1) : 0);
 
             return [
                 'name' => $name,

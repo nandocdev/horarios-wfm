@@ -13,6 +13,8 @@ use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use App\Shared\Contracts\WfmModule\ExpectedAgentStateInterface;
+use App\Shared\Support\Metrics\RealtimeMetrics;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -218,10 +220,8 @@ class MyDay extends Component
             'shrinkage' => null,
             'productivity_pct' => $report->productivity_pct,
             'avg_handle_time' => $report->avg_handle_time,
-            'avg_talk_time' => $report->handled_calls > 0
-                ? round($report->talk_seconds / $report->handled_calls, 1) : 0,
-            'avg_acw_time' => $report->handled_calls > 0
-                ? round($report->acw_seconds / $report->handled_calls, 1) : 0,
+            'avg_talk_time' => ServiceQualityMetrics::ahtComponents($report->talk_seconds, 0, $report->acw_seconds, $report->handled_calls)['talk'],
+            'avg_acw_time' => ServiceQualityMetrics::ahtComponents($report->talk_seconds, 0, $report->acw_seconds, $report->handled_calls)['acw'],
             'aux_seconds' => $report->lunch_seconds + $report->break_seconds + $report->not_ready_seconds,
             'not_ready_by_reason' => [],
             'calls_by_queue' => [],
@@ -287,9 +287,13 @@ class MyDay extends Component
         $offlineSeconds = $timeByState->get('LOGOUT', 0) + $timeByState->get('OFFLINE', 0);
 
         $productiveSeconds = $handleSeconds + $readySeconds;
-        $occupancy = $readyAvailableSeconds > 0
-            ? round(($handleSeconds / $readyAvailableSeconds) * 100, 1)
-            : 0;
+        $occupancy = RealtimeMetrics::occupancy(
+            $talkSeconds,
+            0,
+            $acwSeconds,
+            $totalSeconds - $offlineSeconds,
+            $notReadySeconds + $lunchSeconds + $breakSeconds
+        );
 
         $sortedTransitions = $transitions->sortBy('transition_time');
         $firstTransition = $sortedTransitions->first();
@@ -329,8 +333,10 @@ class MyDay extends Component
 
         $shrinkage = $performanceService->calculateShrinkage([$targetEmployee->id], $now);
 
-        $avgTalkTime = $handledCalls > 0 ? round($talkSeconds / $handledCalls, 1) : 0;
-        $avgAcwTime = $handledCalls > 0 ? round($acwSeconds / $handledCalls, 1) : 0;
+        $ahtComponents = ServiceQualityMetrics::ahtComponents($talkSeconds, 0, $acwSeconds, $handledCalls);
+        $avgTalkTime = $ahtComponents['talk'];
+        $avgAcwTime = $ahtComponents['acw'];
+        $avgHandleTime = $ahtComponents['aht'];
 
         $notReadyByReason = $transitions
             ->filter(function ($t) {
@@ -502,12 +508,8 @@ class MyDay extends Component
             'events' => $events->toArray(),
             'transitions' => $transitions->sortByDesc('transition_time')->take(20)->values()->toArray(),
             'shrinkage' => $shrinkage,
-            'productivity_pct' => $totalSeconds > 0
-                ? round(($productiveSeconds / $totalSeconds) * 100, 1)
-                : 0,
-            'avg_handle_time' => $handledCalls > 0
-                ? round(($talkSeconds + $acwSeconds) / $handledCalls, 1)
-                : null,
+            'productivity_pct' => RealtimeMetrics::productivity($productiveSeconds, $totalSeconds - $offlineSeconds),
+            'avg_handle_time' => $avgHandleTime > 0 ? $avgHandleTime : null,
             'avg_talk_time' => $avgTalkTime,
             'avg_acw_time' => $avgAcwTime,
             'aux_seconds' => $lunchSeconds + $breakSeconds + $notReadySeconds,
@@ -628,27 +630,6 @@ class MyDay extends Component
 
     private function isStateAdherent(string $actualState, string $expectedType): bool
     {
-        if ($actualState === 'UNKNOWN') {
-            return false;
-        }
-
-        if ($expectedType === 'OFF') {
-            return in_array($actualState, ['OFFLINE', 'LOGOUT', 'UNKNOWN']);
-        }
-
-        if ($expectedType === 'INTRADAY') {
-            return in_array($actualState, ['NOT_READY', 'NOT_READY_LUNCH', 'NOT_READY_ALMUERZO',
-                'NOT_READY_BREAK', 'NOT_READY_DESCANSO', 'LUNCH', 'BREAK']);
-        }
-
-        if ($expectedType === 'SHIFT') {
-            return in_array($actualState, ['READY', 'TALKING', 'WORK', 'ACW', 'RESERVED', 'NOT_READY']);
-        }
-
-        if ($expectedType === 'EXCEPTION') {
-            return in_array($actualState, ['NOT_READY', 'OFFLINE', 'LOGOUT']);
-        }
-
-        return false;
+        return RealtimeMetrics::checkAdherence($actualState, $expectedType);
     }
 }

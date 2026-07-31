@@ -9,6 +9,8 @@ use App\Modules\WfmModule\Models\DailyOperatorReport;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
+use App\Shared\Support\Metrics\RealtimeMetrics;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -90,17 +92,17 @@ class CalculateDailyOperatorReportAction
         $exceptionCount = $this->scheduleQueries->getExceptionCount([$employeeId], $today);
 
         // 6. Calculate KPIs
-        $occupancyPct = $effectiveSeconds > 0
-            ? round(($productiveSeconds / $effectiveSeconds) * 100, 2)
-            : null;
+        $occupancyPct = RealtimeMetrics::occupancy(
+            $talkSeconds,
+            0,
+            $acwSeconds,
+            $totalSeconds - $offlineSeconds,
+            $notReadySeconds + $lunchSeconds + $breakSeconds
+        );
 
-        $productivityPct = $totalSeconds > 0
-            ? round(($productiveSeconds / $totalSeconds) * 100, 2)
-            : null;
+        $productivityPct = RealtimeMetrics::productivity($productiveSeconds, $totalSeconds - $offlineSeconds);
 
-        $avgHandleTime = $handledCalls > 0
-            ? round(($talkSeconds + $acwSeconds) / $handledCalls, 2)
-            : null;
+        $avgHandleTime = ServiceQualityMetrics::aht($talkSeconds, 0, $acwSeconds, $handledCalls);
 
         return DailyOperatorReport::updateOrCreate(
             ['employee_id' => $employeeId, 'report_date' => $today],

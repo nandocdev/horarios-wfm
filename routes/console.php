@@ -60,6 +60,11 @@ Schedule::job(new AggregateIntervalMetricsJob)
     ->everyFifteenMinutes()
     ->withoutOverlapping();
 
+// Operaciones: Agregar métricas diarias (ETL)
+Schedule::command('operations:calculate-daily-metrics')
+    ->dailyAt('01:00')
+    ->withoutOverlapping();
+
 // Data Mart: Refrescar tablas de hechos y dimensiones cada hora
 Schedule::job(new RefreshDataMartJob)
     ->hourly()

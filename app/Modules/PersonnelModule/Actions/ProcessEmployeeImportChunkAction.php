@@ -84,6 +84,7 @@ class ProcessEmployeeImportChunkAction
                     $employee = Employee::query()->create([
                         'employee_number' => $normalized['employee_number'],
                         'username' => $normalized['username'],
+                        'cisco_username' => $normalized['cisco_username'],
                         'first_name' => $normalized['first_name'],
                         'last_name' => $normalized['last_name'],
                         'email' => $normalized['email'],
@@ -184,7 +185,7 @@ class ProcessEmployeeImportChunkAction
      */
     private function validateRequiredColumns(array $row): void
     {
-        foreach (['employee_number', 'username', 'first_name', 'last_name', 'email', 'position_id', 'team_id', 'employment_status_id'] as $column) {
+        foreach (['employee_number', 'username', 'cisco_username', 'first_name', 'last_name', 'email', 'position_id', 'team_id', 'employment_status_id'] as $column) {
             if (! filled($row[$column] ?? null)) {
                 throw new \RuntimeException("columna requerida ausente: {$column}");
             }

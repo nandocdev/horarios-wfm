@@ -8,6 +8,7 @@ use App\Modules\OperationsModule\Alerts\Models\AlertRule;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class LunchExceededEvaluator extends BaseAlertEvaluator
 {
@@ -20,9 +21,11 @@ class LunchExceededEvaluator extends BaseAlertEvaluator
     {
         $realtimeRepo = app(TelemetryRealtimeRepositoryInterface::class);
 
-        $employees = Employee::where('is_active', true)
-            ->whereHas('user')
-            ->get();
+        $employees = Cache::remember('active_employees_with_user', 300, function () {
+            return Employee::where('is_active', true)
+                ->whereHas('user')
+                ->get();
+        });
 
         foreach ($employees as $employee) {
             $states = $realtimeRepo->getRealtimeStates([$employee->id]);

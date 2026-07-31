@@ -7,6 +7,7 @@ namespace App\Modules\OperationsModule\Alerts\Evaluators;
 use App\Modules\OperationsModule\Alerts\Models\AlertRule;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Shared\Contracts\Schedules\DashboardScheduleQueriesInterface;
+use Illuminate\Support\Facades\Cache;
 
 class UpcomingShiftReminderEvaluator extends BaseAlertEvaluator
 {
@@ -21,10 +22,12 @@ class UpcomingShiftReminderEvaluator extends BaseAlertEvaluator
 
         $today = now()->toDateString();
         $dayOfWeek = now()->dayOfWeekIso;
-        $employees = Employee::where('is_active', true)
-            ->whereHas('user')
-            ->whereHas('team')
-            ->get();
+        $employees = Cache::remember('active_employees_with_team', 300, function () {
+            return Employee::where('is_active', true)
+                ->whereHas('user')
+                ->whereHas('team')
+                ->get();
+        });
 
         $employeeIds = $employees->pluck('id')->toArray();
         $reminderMinutes = $rule->threshold_seconds ? (int) ($rule->threshold_seconds / 60) : 30;

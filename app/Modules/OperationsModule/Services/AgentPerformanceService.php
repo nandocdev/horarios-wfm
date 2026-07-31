@@ -9,6 +9,7 @@ use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\OperationsModule\Actions\GetEmployeePerformanceAction;
 use App\Modules\OperationsModule\DTOs\AgentPerformanceSummaryDTO;
+use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Modules\WfmModule\Models\ScheduleException;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Employees\EmployeeInterface;
@@ -99,16 +100,21 @@ final class AgentPerformanceService
             ? (int) round(($teamAhtData->total_talk + $teamAhtData->total_work) / $teamAhtData->total_calls)
             : 0;
 
+        $teamMetrics = AgentDailyMetric::whereIn('employee_id', $teamEmployeeIds)
+            ->whereBetween('metric_date', [$startDateStr, $endDateStr])
+            ->selectRaw('AVG(availability_pct) as avg_adherence, AVG(efficiency_pct) as avg_occupancy, MAX(availability_pct) as best_adherence, MAX(efficiency_pct) as best_occupancy')
+            ->first();
+
         $summary['team_comparison'] = [
             'calls' => $teamAvgCalls,
             'aht' => $teamAvgAht,
-            'adherence' => 90.2,
-            'occupancy' => 83.5,
+            'adherence' => $teamMetrics ? round((float) $teamMetrics->avg_adherence, 1) : 0,
+            'occupancy' => $teamMetrics ? round((float) $teamMetrics->avg_occupancy, 1) : 0,
             'best' => [
                 'calls' => (int) round($teamAvgCalls * 1.3) ?: 48,
                 'aht' => (int) round($teamAvgAht * 0.82) ?: 290,
-                'adherence' => 96.8,
-                'occupancy' => 88.5,
+                'adherence' => $teamMetrics ? round((float) $teamMetrics->best_adherence, 1) : 0,
+                'occupancy' => $teamMetrics ? round((float) $teamMetrics->best_occupancy, 1) : 0,
             ],
         ];
 

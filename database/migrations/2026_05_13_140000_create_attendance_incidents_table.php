@@ -25,7 +25,7 @@ return new class extends Migration
             $table->text('admin_comment')->nullable();
             $table->timestamps();
 
-            $table->index(['employee_id', 'incident_date']);
+            $table->unique(['employee_id', 'incident_date']);
         });
     }
 

@@ -7,8 +7,10 @@ namespace App\Modules\OperationsModule\Actions;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
+use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Support\Metrics\RealtimeMetrics;
 use App\Shared\Support\Metrics\ServiceQualityMetrics;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
@@ -16,18 +18,25 @@ final class GenerateAgentIntervalMetricsAction
 {
     public function __construct(
         private readonly AgentPerformanceRepositoryInterface $performanceRepo,
+        private readonly ScheduleServiceInterface $scheduleService,
     ) {}
 
-    public function execute(int $employeeId, CarbonInterface $intervalStart, CarbonInterface $intervalEnd): AgentIntervalMetric
+    public function execute(int $employeeId, CarbonInterface $intervalStart, CarbonInterface $intervalEnd): ?AgentIntervalMetric
     {
+        // Si el empleado no tiene turno en este intervalo, no generar métricas
+        $scheduledSeconds = $this->calculateScheduledSeconds($employeeId, $intervalStart, $intervalEnd);
+        if ($scheduledSeconds <= 0) {
+            return null;
+        }
+
         $stateDurations = $this->calculateStateDurations($employeeId, $intervalStart, $intervalEnd);
         $callMetrics = $this->calculateCallMetrics($employeeId, $intervalStart, $intervalEnd);
 
         $totalSeconds = $intervalStart->diffInSeconds($intervalEnd);
         $productiveSeconds = $stateDurations['talk'] + $stateDurations['hold'] + $stateDurations['wrap'];
-        $availableSeconds = $productiveSeconds + $stateDurations['ready'];
         $loggedSeconds = $productiveSeconds + $stateDurations['ready'] + $stateDurations['not_ready'];
 
+        // Occupancy: (Talk + Hold + ACW) / (Logged - Aux) × 100
         $occupancy = RealtimeMetrics::occupancy(
             (float) $stateDurations['talk'],
             (float) $stateDurations['hold'],
@@ -36,13 +45,18 @@ final class GenerateAgentIntervalMetricsAction
             (float) $stateDurations['not_ready']
         );
 
-        $utilization = $totalSeconds > 0
-            ? round(($loggedSeconds / $totalSeconds) * 100, 2)
-            : 0.0;
+        // Utilization: Productive / Scheduled × 100 (IND-024)
+        $utilization = RealtimeMetrics::utilization(
+            (float) $productiveSeconds / 60,
+            (float) $scheduledSeconds / 60
+        );
 
-        $adherence = $totalSeconds > 0
-            ? round(($productiveSeconds / $totalSeconds) * 100, 2)
-            : 0.0;
+        // Adherence: Productive_in_Scheduled_State / Scheduled_Time × 100 (IND-025)
+        // Para un intervalo de 15 min, la adherencia = tiempo productivo dentro del turno / tiempo programado
+        $adherence = RealtimeMetrics::adherenceRate(
+            (float) $productiveSeconds,
+            (float) $scheduledSeconds
+        );
 
         $aht = ServiceQualityMetrics::aht(
             (float) $stateDurations['talk'],
@@ -73,6 +87,32 @@ final class GenerateAgentIntervalMetricsAction
         );
     }
 
+    /**
+     * Calcula los segundos programados para el empleado dentro del intervalo dado.
+     * Retorna 0 si el empleado no tiene turno en ese intervalo.
+     */
+    private function calculateScheduledSeconds(int $employeeId, CarbonInterface $intervalStart, CarbonInterface $intervalEnd): int
+    {
+        $dayInfo = $this->scheduleService->getScheduleForEmployee($employeeId, $intervalStart);
+
+        if ($dayInfo->is_off || ! $dayInfo->start_time || ! $dayInfo->end_time) {
+            return 0;
+        }
+
+        $shiftStart = Carbon::parse($dayInfo->start_time)->setDate($intervalStart->year, $intervalStart->month, $intervalStart->day);
+        $shiftEnd = Carbon::parse($dayInfo->end_time)->setDate($intervalStart->year, $intervalStart->month, $intervalStart->day);
+
+        if ($shiftEnd->lessThan($shiftStart)) {
+            $shiftEnd = $shiftEnd->addDay();
+        }
+
+        // Overlap: [max(intervalStart, shiftStart), min(intervalEnd, shiftEnd)]
+        $overlapStart = max($intervalStart->getTimestamp(), $shiftStart->getTimestamp());
+        $overlapEnd = min($intervalEnd->getTimestamp(), $shiftEnd->getTimestamp());
+
+        return max(0, $overlapEnd - $overlapStart);
+    }
+
     private function calculateStateDurations(int $employeeId, CarbonInterface $start, CarbonInterface $end): array
     {
         $transitions = $this->getTransitionsIncludingPreceding($employeeId, $start, $end);
@@ -97,7 +137,10 @@ final class GenerateAgentIntervalMetricsAction
             $transitionTime = $transition->transition_time;
 
             if ($transitionTime > $currentTime) {
-                $seconds = min($transitionTime->diffInSeconds($currentTime), $currentTime->diffInSeconds($end));
+                $seconds = min(
+                    abs($transitionTime->diffInSeconds($currentTime)),
+                    abs($currentTime->diffInSeconds($end))
+                );
                 $this->addToDuration($durations, $currentState, (int) $seconds);
                 $currentTime = $transitionTime;
             }
@@ -105,7 +148,7 @@ final class GenerateAgentIntervalMetricsAction
             $currentState = $this->mapState($transition->agent_state);
         }
 
-        $remainingSeconds = $currentTime->diffInSeconds($end);
+        $remainingSeconds = abs($currentTime->diffInSeconds($end));
         if ($remainingSeconds > 0) {
             $this->addToDuration($durations, $currentState, (int) $remainingSeconds);
         }
@@ -138,7 +181,7 @@ final class GenerateAgentIntervalMetricsAction
 
     private function mapState(string $agentState): string
     {
-        return match (strtoupper($agentState)) {
+        return match (strtoupper(trim($agentState))) {
             'TALKING' => 'talk',
             'HOLD' => 'hold',
             'READY', 'RESERVED' => 'ready',

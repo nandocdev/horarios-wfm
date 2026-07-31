@@ -34,8 +34,10 @@ final class AggregateIntervalMetricsJob implements ShouldQueue
         $processed = 0;
         foreach ($employees as $employeeId) {
             try {
-                $action->execute($employeeId, $intervalStart, $intervalEnd);
-                $processed++;
+                $result = $action->execute($employeeId, $intervalStart, $intervalEnd);
+                if ($result !== null) {
+                    $processed++;
+                }
             } catch (\Throwable $e) {
                 Log::warning('Error generando métricas de intervalo', [
                     'employee_id' => $employeeId,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Providers;
 
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
+use App\Modules\OperationsModule\Console\Commands\BackfillIntervalMetricsCommand;
 use App\Modules\OperationsModule\Console\Commands\CalculateDailyMetricsCommand;
 use App\Modules\OperationsModule\Console\Commands\EvaluateAlertsCommand;
 use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
@@ -104,6 +105,7 @@ class ModuleServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                BackfillIntervalMetricsCommand::class,
                 CalculateDailyMetricsCommand::class,
                 ReconcileAttendanceCommand::class,
                 EvaluateAlertsCommand::class,

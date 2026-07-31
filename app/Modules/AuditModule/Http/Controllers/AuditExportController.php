@@ -38,7 +38,7 @@ class AuditExportController extends Controller
                     $log->action,
                     json_encode($log->before, JSON_UNESCAPED_UNICODE),
                     json_encode($log->after, JSON_UNESCAPED_UNICODE),
-                    optional($log->user)->name,
+                    $log->actor_label,
                     $log->ip_address,
                     $log->created_at?->toDateTimeString(),
                 ]);

@@ -88,9 +88,9 @@ class AuditLog extends Model
     {
         $query->when($filters['search'] ?? null, fn ($q, $v) => $q->where(function ($sub) use ($v) {
             $pattern = '%'.$v.'%';
-            $sub->where(DB::raw('LOWER(entity_type)'), 'like', strtolower($pattern))
-                ->orWhere(DB::raw('LOWER(action)'), 'like', strtolower($pattern))
-                ->orWhere(DB::raw('LOWER(ip_address)'), 'like', strtolower($pattern));
+            $sub->where('entity_type', 'ILIKE', $pattern)
+                ->orWhere('action', 'ILIKE', $pattern)
+                ->orWhere('ip_address', 'ILIKE', $pattern);
         }))
             ->when($filters['action'] ?? null, fn ($q, $v) => $q->where('action', $v))
             ->when($filters['entity_type'] ?? null, fn ($q, $v) => $q->where('entity_type', $v))

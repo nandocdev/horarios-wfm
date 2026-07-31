@@ -20,6 +20,14 @@ use App\Modules\WfmModule\Livewire\ManageScheduledActivities;
 use App\Modules\WfmModule\Livewire\ManageScheduleExceptions;
 use App\Modules\WfmModule\Livewire\ManageSchedules;
 use App\Modules\WfmModule\Livewire\MyDay;
+use App\Modules\WfmModule\Livewire\MyDay\HeaderWidget;
+use App\Modules\WfmModule\Livewire\MyDay\KpiWidget;
+use App\Modules\WfmModule\Livewire\MyDay\NotReadyBreakdownWidget;
+use App\Modules\WfmModule\Livewire\MyDay\QueuePerformanceWidget;
+use App\Modules\WfmModule\Livewire\MyDay\RecentTransitionsWidget;
+use App\Modules\WfmModule\Livewire\MyDay\ScheduleComplianceWidget;
+use App\Modules\WfmModule\Livewire\MyDay\StateDistributionWidget;
+use App\Modules\WfmModule\Livewire\MyDay\TimelineWidget;
 use App\Modules\WfmModule\Livewire\MySchedule;
 use App\Modules\WfmModule\Livewire\TeamDashboard;
 use App\Modules\WfmModule\Livewire\TeamWeeklyPlanning;
@@ -133,6 +141,16 @@ class ModuleServiceProvider extends ServiceProvider
         Livewire::component('wfm.my-day', MyDay::class);
         Livewire::component('wfm.team-dashboard', TeamDashboard::class);
         Livewire::component('wfm.manage-schedule-exceptions', ManageScheduleExceptions::class);
+
+        // My Day Widgets
+        Livewire::component('wfm.my-day.header-widget', HeaderWidget::class);
+        Livewire::component('wfm.my-day.timeline-widget', TimelineWidget::class);
+        Livewire::component('wfm.my-day.kpi-widget', KpiWidget::class);
+        Livewire::component('wfm.my-day.recent-transitions-widget', RecentTransitionsWidget::class);
+        Livewire::component('wfm.my-day.schedule-compliance-widget', ScheduleComplianceWidget::class);
+        Livewire::component('wfm.my-day.not-ready-breakdown-widget', NotReadyBreakdownWidget::class);
+        Livewire::component('wfm.my-day.queue-performance-widget', QueuePerformanceWidget::class);
+        Livewire::component('wfm.my-day.state-distribution-widget', StateDistributionWidget::class);
 
         // Registro de Observadores
         LeaveRequest::observe(LeaveRequestObserver::class);

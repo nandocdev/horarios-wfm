@@ -8,6 +8,7 @@ use App\Modules\AnalyticsModule\Models\ForecastAccuracy;
 use App\Modules\AnalyticsModule\Models\ForecastInterval;
 use App\Modules\AnalyticsModule\Models\ForecastScenario;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
+use App\Shared\Support\Metrics\ForecastMetrics;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +38,7 @@ final class CalculateForecastAccuracyAction
 
         $dates = [];
 
-        DB::transaction(function () use ($forecastIntervals, $actualData, $scenario, $queueId, &$dates) {
+        DB::transaction(function () use ($forecastScenarioId, $forecastIntervals, $actualData, $scenario, $queueId, &$dates) {
             $dailyForecasts = $forecastIntervals->groupBy(fn ($fi) => $fi->interval_start->toDateString());
             $dailyActuals = $this->indexActualsByDateInterval($actualData);
 
@@ -49,7 +50,7 @@ final class CalculateForecastAccuracyAction
                 $dailyForecastAhtSum = 0;
                 $dailyActualAhtSum = 0;
                 $dailyIntervalCount = 0;
-                $squaredErrors = [];
+                $errors = [];
                 $apeValues = [];
 
                 foreach ($intervals as $fi) {
@@ -68,9 +69,8 @@ final class CalculateForecastAccuracyAction
                     $dailyIntervalCount++;
 
                     $error = $forecastVolume - $actualVolume;
-                    $absError = abs($error);
-                    $ape = $actualVolume > 0 ? round(($absError / $actualVolume) * 100, 2) : 0;
-                    $squaredErrors[] = $error * $error;
+                    $ape = ForecastMetrics::mape($actualVolume, $forecastVolume);
+                    $errors[] = $error;
                     $apeValues[] = $ape;
                 }
 
@@ -78,20 +78,13 @@ final class CalculateForecastAccuracyAction
                     ? round(array_sum($apeValues) / $dailyIntervalCount, 2)
                     : 0.0;
 
-                $dailyMse = ! empty($squaredErrors)
-                    ? array_sum($squaredErrors) / count($squaredErrors)
-                    : 0.0;
-                $dailyRmse = round(sqrt($dailyMse), 2);
+                $dailyRmse = ForecastMetrics::rmse($errors);
 
-                $dailyBias = $dailyActualVolume > 0
-                    ? round((($dailyForecastVolume - $dailyActualVolume) / $dailyActualVolume) * 100, 2)
-                    : 0.0;
+                $dailyBias = ForecastMetrics::bias($dailyActualVolume, $dailyForecastVolume);
 
                 $dailyAccuracy = round(max(0, 100 - $dailyMape), 2);
 
-                $volumeApe = $dailyActualVolume > 0
-                    ? round((abs($dailyForecastVolume - $dailyActualVolume) / $dailyActualVolume) * 100, 2)
-                    : 0.0;
+                $volumeApe = ForecastMetrics::mape($dailyActualVolume, $dailyForecastVolume);
 
                 ForecastAccuracy::updateOrCreate(
                     [

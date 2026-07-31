@@ -9,6 +9,8 @@ use App\Modules\AnalyticsModule\Models\ForecastScenario;
 use App\Modules\AnalyticsModule\Models\StaffingRequirement;
 use App\Modules\WfmModule\Models\WeeklySchedule;
 use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
+use App\Shared\Support\Metrics\CapacityMetrics;
+use App\Shared\Support\Metrics\SchedulingMetrics;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
@@ -50,16 +52,14 @@ final class CalculateStaffingRequirementsAction
                 $intervalEnd,
             );
 
-            $requiredAgents = $this->calculateRequiredAgents(
+            $requiredAgents = CapacityMetrics::offeredLoad(
                 $interval->call_volume_forecast,
                 $interval->aht_seconds_forecast,
-                $intervalMinutes,
+                $intervalMinutes * 60,
             );
 
             $availableAgents = round($scheduledCount * (1 - ($shrinkageRate / 100)), 2);
-            $coverage = $requiredAgents > 0
-                ? round(($availableAgents / $requiredAgents) * 100, 2)
-                : 0.0;
+            $coverage = SchedulingMetrics::coverage($availableAgents, $requiredAgents);
             $gap = round($requiredAgents - $availableAgents, 2);
 
             $requirement = StaffingRequirement::updateOrCreate(
@@ -123,20 +123,5 @@ final class CalculateStaffingRequirementsAction
 
             return $scheduledStart < $endTime && $scheduledEnd > $startTime;
         })->count();
-    }
-
-    private function calculateRequiredAgents(
-        int $callVolume,
-        float $ahtSeconds,
-        int $intervalMinutes,
-    ): float {
-        if ($callVolume <= 0 || $ahtSeconds <= 0) {
-            return 0.0;
-        }
-
-        $intervalSeconds = $intervalMinutes * 60;
-        $workloadSeconds = $callVolume * $ahtSeconds;
-
-        return round($workloadSeconds / $intervalSeconds, 2);
     }
 }

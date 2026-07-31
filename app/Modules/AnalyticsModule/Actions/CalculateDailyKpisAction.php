@@ -13,6 +13,9 @@ use App\Modules\OperationsModule\Models\AgentDailyMetric;
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\QualityModule\Models\Evaluation;
+use App\Shared\Support\Metrics\CapacityMetrics;
+use App\Shared\Support\Metrics\RealtimeMetrics;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -80,13 +83,9 @@ final class CalculateDailyKpisAction
         $avgAdherence = $intervalMetrics->avg('adherence') ?? 0;
 
         $productiveSeconds = $totalTalk + $totalHold + $totalWrap;
-        $ahtSeconds = $totalCalls > 0
-            ? round($productiveSeconds / $totalCalls, 2)
-            : 0;
+        $ahtSeconds = ServiceQualityMetrics::aht($totalTalk, $totalHold, $totalWrap, $totalCalls);
 
-        $productivity = $totalLogged > 0
-            ? round(($productiveSeconds / $totalLogged) * 100, 2)
-            : 0;
+        $productivity = RealtimeMetrics::productivity($productiveSeconds, $totalLogged);
 
         $acwSeconds = $totalCalls > 0
             ? round($totalWrap / $totalCalls, 2)
@@ -96,17 +95,13 @@ final class CalculateDailyKpisAction
             ? (int) round($dailyMetric->login_seconds / 60)
             : 0;
 
-        $conformance = $scheduledMinutes > 0
-            ? round((($totalLogged / 60) / $scheduledMinutes) * 100, 2)
-            : 0;
+        $conformance = RealtimeMetrics::conformance($totalLogged / 60, $scheduledMinutes);
 
         $shrinkageMinutes = (int) HistoricalShrinkage::where('employee_id', $employeeId)
             ->whereDate('date', $dateStr)
             ->sum('duration_minutes');
 
-        $shrinkagePct = $scheduledMinutes > 0
-            ? round(($shrinkageMinutes / $scheduledMinutes) * 100, 2)
-            : 0;
+        $shrinkagePct = CapacityMetrics::shrinkage($scheduledMinutes - $shrinkageMinutes, $scheduledMinutes);
 
         $qualityScore = Evaluation::where('employee_id', $employeeId)
             ->whereDate('dteval', $dateStr)
@@ -292,7 +287,7 @@ final class CalculateDailyKpisAction
 
         $within = (int) (clone $handled)->where('queue_time', '<=', $thresholdSeconds)->count();
 
-        return round(($within / $total) * 100, 2);
+        return ServiceQualityMetrics::serviceLevel($within, $total);
     }
 
     private function calculateFcr(int $employeeId, string $dateStr, int $repeatDays = 7): ?float
@@ -301,7 +296,8 @@ final class CalculateDailyKpisAction
             ->whereDate('ivr_started_at', $dateStr)
             ->where('contact_disposition', ContactDisposition::Handled->value)
             ->whereNotNull('phone_number')
-            ->get(['id', 'phone_number', 'case_subtype_id']);
+            ->get(['id', 'phone_number', 'case_subtype_id'])
+            ->unique('phone_number');
 
         if ($todayCalls->isEmpty()) {
             return null;
@@ -325,9 +321,8 @@ final class CalculateDailyKpisAction
         }
 
         $total = $todayCalls->count();
-        $firstContact = $total - $repeatCount;
 
-        return round(($firstContact / $total) * 100, 2);
+        return ServiceQualityMetrics::fcr($repeatCount, $total);
     }
 
     private function calculateTransferRate(): ?float

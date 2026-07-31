@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Services;
 
 use App\Modules\ConnectModule\Enums\ContactDisposition;
+use App\Shared\Support\Metrics\ServiceQualityMetrics;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -71,8 +72,8 @@ final class CallCenterAnalyticsService
             'total_calls' => $totalCalls,
             'handled' => $handled,
             'abandoned' => $abandonedCount,
-            'abandon_rate' => $totalCalls > 0 ? round(($abandonedCount / $totalCalls) * 100, 1) : 0.0,
-            'service_level' => $handled > 0 ? round(($withinSla / $handled) * 100, 1) : 0.0,
+            'abandon_rate' => ServiceQualityMetrics::abandonmentRate($abandonedCount, $totalCalls),
+            'service_level' => ServiceQualityMetrics::serviceLevel($withinSla, $totalCalls),
             'avg_talk_time' => (float) ($stats->avg_talk_time ?? 0),
             'avg_handle_time' => (float) ($stats->avg_handle_time ?? 0),
             'avg_queue_time' => (float) ($stats->avg_queue_time ?? 0),
@@ -93,30 +94,43 @@ final class CallCenterAnalyticsService
         $conditions = $this->buildDateCondition('cr.ivr_started_at', $dateFrom, $dateTo);
         $conditions .= $this->buildEmployeeCondition('cr.employee_id', $employeeIds);
 
-        return DB::select("
+        $results = DB::select("
             SELECT 
                 cq.name as queue_name,
                 cq.aht_goal,
                 COUNT(*) as total_calls,
                 SUM(CASE WHEN cr.status = 'closed' THEN 1 ELSE 0 END) as handled,
                 SUM(CASE WHEN cr.status = 'abandoned' OR cr.contact_disposition IN ({$abandoned}) THEN 1 ELSE 0 END) as abandoned,
-                ROUND(
-                    SUM(CASE WHEN cr.status = 'abandoned' OR cr.contact_disposition IN ({$abandoned}) THEN 1 ELSE 0 END)::numeric 
-                    / NULLIF(COUNT(*), 0) * 100, 1
-                ) as abandon_rate,
                 ROUND(AVG(cr.queue_time), 1) as avg_queue_time,
                 MAX(cr.queue_time) as max_queue_time,
                 ROUND(AVG(CASE WHEN cr.status = 'closed' THEN cr.talk_time + cr.work_time END), 1) as avg_handle_time,
-                ROUND(
-                    SUM(CASE WHEN cr.status = 'closed' AND cr.queue_time <= ? THEN 1 ELSE 0 END)::numeric 
-                    / NULLIF(SUM(CASE WHEN cr.status = 'closed' THEN 1 ELSE 0 END), 0) * 100, 1
-                ) as sla_pct
+                SUM(CASE WHEN cr.status = 'closed' AND cr.queue_time <= ? THEN 1 ELSE 0 END) as within_sla
             FROM call_records cr
             JOIN call_queues cq ON cr.queue_id = cq.id
             WHERE {$conditions}
             GROUP BY cq.name, cq.aht_goal
             ORDER BY total_calls DESC
         ", $this->buildParams($this->slaThresholdSeconds, $dateFrom, $dateTo, $employeeIds));
+
+        return array_map(function ($row) {
+            $totalCalls = (int) $row->total_calls;
+            $handled = (int) $row->handled;
+            $abandoned = (int) $row->abandoned;
+            $withinSla = (int) $row->within_sla;
+
+            return [
+                'queue_name' => $row->queue_name,
+                'aht_goal' => $row->aht_goal,
+                'total_calls' => $totalCalls,
+                'handled' => $handled,
+                'abandoned' => $abandoned,
+                'abandon_rate' => ServiceQualityMetrics::abandonmentRate($abandoned, $totalCalls),
+                'avg_queue_time' => (float) $row->avg_queue_time,
+                'max_queue_time' => (float) $row->max_queue_time,
+                'avg_handle_time' => (float) $row->avg_handle_time,
+                'sla_pct' => ServiceQualityMetrics::serviceLevel($withinSla, $totalCalls),
+            ];
+        }, $results);
     }
 
     /**
@@ -148,9 +162,7 @@ final class CallCenterAnalyticsService
             'total_calls' => (int) $row->total_calls,
             'handled' => (int) $row->handled,
             'abandoned' => (int) $row->abandoned,
-            'abandon_rate' => $row->total_calls > 0
-                ? round(((int) $row->abandoned / (int) $row->total_calls) * 100, 1)
-                : 0.0,
+            'abandon_rate' => ServiceQualityMetrics::abandonmentRate((int) $row->abandoned, (int) $row->total_calls),
             'avg_talk_time' => (float) $row->avg_talk_time,
             'avg_queue_time' => (float) $row->avg_queue_time,
         ], $results);
@@ -212,8 +224,8 @@ final class CallCenterAnalyticsService
         return [
             'total_volume' => $totalVolume,
             'total_handled' => $totalHandled,
-            'abandon_rate' => $totalVolume > 0 ? round(($totalAbandoned / $totalVolume) * 100, 1) : 0.0,
-            'sla' => $totalVolume > 0 ? round(($callsWithinSla / $totalVolume) * 100, 1) : 0.0,
+            'abandon_rate' => ServiceQualityMetrics::abandonmentRate($totalAbandoned, $totalVolume),
+            'sla' => ServiceQualityMetrics::serviceLevel($callsWithinSla, $totalVolume),
         ];
     }
 

@@ -22,7 +22,7 @@ class SyncFinesseAgentStatesAction
         $ciscoUsers = $this->getCiscoUserIds();
 
         if (empty($ciscoUsers)) {
-            Log::warning('Lista de usuarios Finesse vacía, saltando sincronización de estados.');
+            Log::debug('Lista de usuarios Finesse vacía, saltando sincronización de estados.');
 
             return ['success' => 0, 'error' => 0, 'skipped' => 0];
         }
@@ -62,7 +62,7 @@ class SyncFinesseAgentStatesAction
 
             } catch (\Throwable $e) {
                 $errorCount++;
-                Log::warning("Error sincronizando estado del agente {$uccxId}: ".$e->getMessage());
+                Log::debug("Error sincronizando estado del agente {$uccxId}: ".$e->getMessage());
             }
         }
 

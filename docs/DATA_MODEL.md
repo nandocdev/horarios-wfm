@@ -757,6 +757,8 @@ Registro de llamadas del CUIC. Tabla más grande del sistema.
 | queue_id            | BIGINT UNSIGNED | FK → call_queues(id)                 |
 | phone_number        | VARCHAR(255)    |                                      |
 | destination_number  | VARCHAR(255)    |                                      |
+| dialed_number       | VARCHAR(255)    | Número marcado originalmente         |
+| application_name    | VARCHAR(255)    | Aplicación Unified CCX / IP IVR      |
 | ivr_started_at      | TIMESTAMP TZ    |                                      |
 | ivr_ended_at        | TIMESTAMP TZ    |                                      |
 | talk_time           | INTEGER         | Segundos                             |
@@ -769,7 +771,7 @@ Registro de llamadas del CUIC. Tabla más grande del sistema.
 | citizen_identifier  | VARCHAR(12)     | Cédula del ciudadano                 |
 | case_subtype_id     | BIGINT UNSIGNED | FK → case_subtypes(id)               |
 | description         | TEXT            |                                      |
-| status              | VARCHAR(255)    | `pending_operator`, `open`, `closed` |
+| status              | VARCHAR(255)    | `pending_operator`, `open`, `closed`, `abandoned`, `aborted`, `rejected`, `cleansed` |
 | closed_at           | TIMESTAMP TZ    |                                      |
 
 ### 10.5 agent_realtime_states

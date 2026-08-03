@@ -146,6 +146,8 @@ sequence_number
 queue_id
 phone_number
 destination_number
+dialed_number
+application_name
 ivr_started_at
 ivr_ended_at
 talk_time

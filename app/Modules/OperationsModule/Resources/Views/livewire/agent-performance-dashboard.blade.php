@@ -149,40 +149,36 @@
         <div class="lg:col-span-2">
             <flux:card>
                 <flux:heading size="lg" class="mb-6">Historial de Adherencia y Ocupación</flux:heading>
-                <div x-data="{
-                    chart: null,
-                    init() {
-                        this.chart = new ApexCharts(this.$refs.historyChart, {
-                            chart: { 
-                                type: 'line', 
-                                height: 280, 
-                                toolbar: { show: false }, 
-                                animations: { enabled: true, easing: 'easeinout', speed: 800 } 
-                            },
-                            series: [
-                                { name: 'Adherencia', data: @js($perf['dailyAdherence'] ?? []) },
-                                { name: 'Ocupación', data: @js($perf['dailyOccupancy'] ?? []) },
-                            ],
-                            xaxis: { 
-                                categories: @js($perf['dailyLabels'] ?? []), 
-                                labels: { style: { colors: '#64748b', fontSize: '12px' } } 
-                            },
-                            yaxis: { 
-                                max: 100, 
-                                labels: { formatter: v => v + '%', style: { colors: '#64748b' } } 
-                            },
-                            colors: ['#3b82f6', '#16a34a'],
-                            stroke: { curve: 'smooth', width: 3 },
-                            markers: { size: 5, hover: { size: 7 } },
-                            tooltip: { theme: 'dark', y: { formatter: v => v + '%' } },
-                            grid: { borderColor: '#cbd5e1' },
-                            legend: { position: 'top', labels: { colors: '#64748b' } },
-                        });
-                        this.chart.render();
-                    }
-                }" x-init="init()" wire:ignore>
-                    <div x-ref="historyChart" class="w-full min-h-[280px]"></div>
-                </div>
+                <x-apex-chart
+                    id="agent-performance-history-chart"
+                    :options="[
+                        'chart' => [
+                            'type' => 'line',
+                            'height' => 280,
+                            'toolbar' => ['show' => false],
+                            'animations' => ['enabled' => true, 'easing' => 'easeinout', 'speed' => 800],
+                        ],
+                        'series' => [
+                            ['name' => 'Adherencia', 'data' => $perf['dailyAdherence'] ?? []],
+                            ['name' => 'Ocupación', 'data' => $perf['dailyOccupancy'] ?? []],
+                        ],
+                        'xaxis' => [
+                            'categories' => $perf['dailyLabels'] ?? [],
+                            'labels' => ['style' => ['colors' => '#64748b', 'fontSize' => '12px']],
+                        ],
+                        'yaxis' => [
+                            'max' => 100,
+                            'labels' => ['formatter' => ['__callback' => 'percent'], 'style' => ['colors' => '#64748b']],
+                        ],
+                        'colors' => ['#3b82f6', '#16a34a'],
+                        'stroke' => ['curve' => 'smooth', 'width' => 3],
+                        'markers' => ['size' => 5, 'hover' => ['size' => 7]],
+                        'tooltip' => ['theme' => 'dark', 'y' => ['formatter' => ['__callback' => 'percent']]],
+                        'grid' => ['borderColor' => '#cbd5e1'],
+                        'legend' => ['position' => 'top', 'labels' => ['colors' => '#64748b']],
+                    ]"
+                    height="280px"
+                />
             </flux:card>
         </div>
 
@@ -190,42 +186,33 @@
         <div class="lg:col-span-1">
             <flux:card>
                 <flux:heading size="lg" class="mb-6">Distribución de Tiempo</flux:heading>
-                <div x-data="{
-                    chart: null,
-                    init() {
-                        this.chart = new ApexCharts(this.$refs.stateChart, {
-                            chart: { type: 'donut', height: 240, sparkline: { enabled: false } },
-                            series: @js(array_map(fn($s) => $s['minutes'], $perf['stateDistribution'] ?? [])),
-                            labels: @js(array_map(fn($s) => $s['label'], $perf['stateDistribution'] ?? [])),
-                            colors: @js(array_map(fn($s) => $s['color'], $perf['stateDistribution'] ?? [])),
-                            dataLabels: { enabled: false },
-                            legend: { show: false },
-                            stroke: { width: 2, colors: ['transparent'] },
-                            plotOptions: {
-                                pie: {
-                                    donut: {
-                                        size: '70%',
-                                        labels: {
-                                            show: true,
-                                            name: { show: true, offsetY: -10, fontSize: '12px', color: '#64748b' },
-                                            value: { show: true, offsetY: 5, fontSize: '18px', fontWeight: 'bold', color: '#ffffff' },
-                                            total: { 
-                                                show: true, 
-                                                label: 'Total', 
-                                                color: '#64748b', 
-                                                formatter: w => w.globals.seriesTotals.reduce((a, b) => a + b, 0) + ' min' 
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            tooltip: { theme: 'dark' }
-                        });
-                        this.chart.render();
-                    }
-                }" x-init="init()" wire:ignore>
-                    <div x-ref="stateChart" class="w-full min-h-[240px]"></div>
-                </div>
+                <x-apex-chart
+                    id="agent-performance-state-chart"
+                    :options="[
+                        'chart' => ['type' => 'donut', 'height' => 240, 'sparkline' => ['enabled' => false]],
+                        'series' => array_map(fn ($state) => $state['minutes'], $perf['stateDistribution'] ?? []),
+                        'labels' => array_map(fn ($state) => $state['label'], $perf['stateDistribution'] ?? []),
+                        'colors' => array_map(fn ($state) => $state['color'], $perf['stateDistribution'] ?? []),
+                        'dataLabels' => ['enabled' => false],
+                        'legend' => ['show' => false],
+                        'stroke' => ['width' => 2, 'colors' => ['transparent']],
+                        'plotOptions' => [
+                            'pie' => [
+                                'donut' => [
+                                    'size' => '70%',
+                                    'labels' => [
+                                        'show' => true,
+                                        'name' => ['show' => true, 'offsetY' => -10, 'fontSize' => '12px', 'color' => '#64748b'],
+                                        'value' => ['show' => true, 'offsetY' => 5, 'fontSize' => '18px', 'fontWeight' => 'bold', 'color' => '#ffffff'],
+                                        'total' => ['show' => true, 'label' => 'Total', 'color' => '#64748b', 'formatter' => ['__callback' => 'totalMinutes']],
+                                    ],
+                                ],
+                            ],
+                        ],
+                        'tooltip' => ['theme' => 'dark'],
+                    ]"
+                    height="240px"
+                />
                 <div class="mt-6 space-y-2">
                     @foreach($perf['stateDistribution'] ?? [] as $state)
                         <div class="flex justify-between items-center text-sm">

@@ -272,7 +272,7 @@ class Dashboard extends Component
                 ['name' => 'Disponible', 'data' => $coverageSeries->pluck('available')->toArray()],
             ],
             'xaxis' => ['categories' => $coverageSeries->pluck('hour')->toArray(), 'labels' => ['style' => ['fontSize' => '10px']]],
-            'yaxis' => ['min' => 0, 'labels' => ['formatter' => 'function(v){return v+"%"}'], 'forceNiceScale' => true],
+            'yaxis' => ['min' => 0, 'labels' => ['formatter' => ['__callback' => 'percent']], 'forceNiceScale' => true],
             'colors' => ['#94a3b8', '#3b82f6'],
             'fill' => ['opacity' => [0.12, 0.15]],
             'stroke' => ['width' => [2, 2], 'dashArray' => [4, 0], 'curve' => 'smooth'],
@@ -291,7 +291,7 @@ class Dashboard extends Component
             'dataLabels' => ['enabled' => false],
             'legend' => ['show' => false],
             'stroke' => ['show' => false],
-            'tooltip' => ['y' => ['formatter' => 'function(v){return v+" agentes"}']],
+            'tooltip' => ['y' => ['formatter' => ['__callback' => 'agentCount']]],
             'responsive' => [['breakpoint' => 480, 'options' => ['chart' => ['height' => 200]]]],
         ]);
 

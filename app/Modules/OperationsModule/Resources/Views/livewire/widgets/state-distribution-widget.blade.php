@@ -1,53 +1,38 @@
 <flux:card>
     <flux:heading size="lg" class="mb-8">Distribución de Estados ({{ $this->isHistorical ? 'Histórico' : 'Realtime' }})</flux:heading>
 
-    <div class="relative flex items-center justify-center py-2" x-data="{
-            chart: null,
-            init() {
-                this.chart = new ApexCharts(this.$refs.chart, {
-                    chart: {
-                        type: 'donut',
-                        height: 260,
-                        sparkline: { enabled: false },
-                        animations: { enabled: true, easing: 'easeinout', speed: 800 }
-                    },
-                    series: @js(array_values($stateDistribution)),
-                    labels: @js(array_keys($stateDistribution)),
-                    colors: ['#22c55e', '#3b82f6', '#f59e0b', '#94a3b8'],
-                    dataLabels: { enabled: false },
-                    legend: { show: false },
-                    stroke: { width: 2, colors: ['transparent'] },
-                    plotOptions: {
-                        pie: {
-                            donut: {
-                                size: '75%',
-                                labels: {
-                                    show: true,
-                                    name: { show: true, offsetY: -10, fontSize: '12px', color: '#64748b' },
-                                    value: { show: true, offsetY: 5, fontSize: '20px', fontWeight: 'bold', color: '#0f172a' },
-                                    total: {
-                                        show: true,
-                                        label: 'Agentes',
-                                        color: '#64748b',
-                                        formatter: function (w) {
-                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    tooltip: { enabled: true, theme: 'dark' }
-                });
-                this.chart.render();
-            },
-            updateChart() {
-                if (this.chart) {
-                    this.chart.updateSeries(@js(array_values($stateDistribution)));
-                }
-            }
-        }" x-init="init()" x-effect="updateChart()" wire:ignore>
-        <div x-ref="chart" class="w-full min-h-[260px]"></div>
+    @php
+        $apexChartOptions = [
+            'chart' => [
+                'type' => 'donut',
+                'height' => 260,
+                'sparkline' => ['enabled' => false],
+                'animations' => ['enabled' => true, 'easing' => 'easeinout', 'speed' => 800],
+            ],
+            'series' => array_values($stateDistribution),
+            'labels' => array_keys($stateDistribution),
+            'colors' => ['#22c55e', '#3b82f6', '#f59e0b', '#94a3b8'],
+            'dataLabels' => ['enabled' => false],
+            'legend' => ['show' => false],
+            'stroke' => ['width' => 2, 'colors' => ['transparent']],
+            'plotOptions' => [
+                'pie' => [
+                    'donut' => [
+                        'size' => '75%',
+                        'labels' => [
+                            'show' => true,
+                            'name' => ['show' => true, 'offsetY' => -10, 'fontSize' => '12px', 'color' => '#64748b'],
+                            'value' => ['show' => true, 'offsetY' => 5, 'fontSize' => '20px', 'fontWeight' => 'bold', 'color' => '#0f172a'],
+                            'total' => ['show' => true, 'label' => 'Agentes', 'color' => '#64748b', 'formatter' => ['__callback' => 'agentTotal']],
+                        ],
+                    ],
+                ],
+            ],
+            'tooltip' => ['enabled' => true, 'theme' => 'dark'],
+        ];
+    @endphp
+    <div class="relative flex items-center justify-center py-2">
+        <x-apex-chart id="state-distribution-chart" :options="$apexChartOptions" height="260px" />
     </div>
 
     <div class="mt-8 space-y-2">

@@ -3,20 +3,17 @@
         <h3 class="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Forecast vs Real (15 min)</h3>
     </div>
     @if ($hasForecast)
-        <div wire:ignore
-             x-data='{
-                 chart: null,
-                 opts: @json($chartOptions),
-                 init() {
-                     if (typeof ApexCharts === "undefined") return;
-                     this.opts.yaxis = { labels: { formatter: v => Number.isInteger(v) ? v : "" } };
-                     this.opts.tooltip = { shared: true, y: { formatter: v => Number.isInteger(v) ? v + " llamadas" : v } };
-                     this.chart = new ApexCharts(this.$refs.chart, this.opts);
-                     this.chart.render();
-                 }
-             }'>
-            <div x-ref="chart"></div>
-        </div>
+        @php
+            $apexChartOptions = array_merge($chartOptions, [
+                'yaxis' => ['labels' => ['formatter' => ['__callback' => 'integer']]],
+                'tooltip' => ['shared' => true, 'y' => ['formatter' => ['__callback' => 'calls']]],
+            ]);
+        @endphp
+        <x-apex-chart
+            id="forecast-comparison-chart"
+            :options="$apexChartOptions"
+            height="220px"
+        />
     @else
         <div class="flex flex-col items-center justify-center h-48 text-sm text-zinc-400 dark:text-zinc-500">
             <flux:icon name="chart-bar-square" class="w-8 h-8 mb-3 text-zinc-300 dark:text-zinc-600" />

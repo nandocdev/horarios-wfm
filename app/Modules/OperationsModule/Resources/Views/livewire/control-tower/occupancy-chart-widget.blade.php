@@ -3,23 +3,18 @@
         <h3 class="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Occupancy por Hora</h3>
     </div>
     @if($hasData)
-        <div wire:ignore
-             x-data='{
-                 chart: null,
-                 opts: @json($chartOptions),
-                 init() {
-                     if (typeof ApexCharts === "undefined") return;
-                     this.opts.yaxis = { min: 0, max: 100, labels: { formatter: v => v + "%" } };
-                     this.opts.tooltip = { y: { formatter: v => v + "%" } };
-                     this.chart = new ApexCharts(this.$refs.chart, this.opts);
-                     this.chart.render();
-                     this.$wire.$on("control-tower-refresh", () => {
-                         if (this.chart) this.chart.updateOptions(this.opts);
-                     });
-                 }
-             }'>
-            <div x-ref="chart"></div>
-        </div>
+        @php
+            $apexChartOptions = array_merge($chartOptions, [
+                'yaxis' => ['min' => 0, 'max' => 100, 'labels' => ['formatter' => ['__callback' => 'percent']]],
+                'tooltip' => ['y' => ['formatter' => ['__callback' => 'percent']]],
+            ]);
+        @endphp
+        <x-apex-chart
+            id="occupancy-chart"
+            :options="$apexChartOptions"
+            refresh-event="control-tower-refresh"
+            height="220px"
+        />
     @else
         <div class="flex flex-col items-center justify-center py-10 text-zinc-400 dark:text-zinc-500">
             <flux:icon.chart-bar class="w-10 h-10 mb-2" />

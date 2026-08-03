@@ -85,7 +85,7 @@ class OccupancyChartWidget extends Component
                 'grid' => ['borderColor' => '#e2e8f0', 'strokeDashArray' => 2],
                 'dataLabels' => ['enabled' => false],
                 'legend' => ['show' => true, 'position' => 'top', 'fontSize' => '11px'],
-                'tooltip' => ['y' => ['formatter' => "function(v){return v+'%'}"]],
+                'tooltip' => ['y' => ['formatter' => ['__callback' => 'percent']]],
             ] : [],
         ]);
     }

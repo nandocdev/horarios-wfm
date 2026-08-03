@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Jobs\CiscoSync;
 use App\Modules\AnalyticsModule\Actions\CalculateDailyKpisAction;
 use App\Modules\AnalyticsModule\Jobs\RefreshDataMartJob;
 use App\Modules\OperationsModule\Jobs\AggregateIntervalMetricsJob;
@@ -83,3 +84,9 @@ Schedule::command('alerts:evaluate')
     ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();
+
+// Disparar el primer eslabón de la cadena de sincronización a las 05:00 AM
+Schedule::job(new CiscoSync(true))->dailyAt('05:00');
+
+// Ejecutar el ETL cada 5 minutos
+Schedule::command('cuic:sync')->everyFiveMinutes()->withoutOverlapping();

@@ -6,7 +6,6 @@ namespace App\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncFinesseAgentStatesAction;
 use App\Modules\PersonnelModule\Actions\SyncEmployeeDataWithCiscoAction;
-use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Isolatable;
 use Illuminate\Support\Facades\Log;
@@ -31,12 +30,12 @@ class CiscoSyncCommand extends Command implements Isolatable
      * Ejecuta el comando.
      */
     public function handle(
-        CiscoFinesseClient $client,
         SyncFinesseAgentStatesAction $syncStatesAction,
         SyncEmployeeDataWithCiscoAction $syncDataAction,
-    ) {
+    ): int {
         $loop = $this->option('loop');
         $interval = (int) $this->option('interval');
+        $stateSyncFailed = false;
 
         $this->info('Iniciando trabajador de sincronización UCCX...');
 
@@ -63,6 +62,7 @@ class CiscoSyncCommand extends Command implements Isolatable
                 $result = $syncStatesAction->execute();
                 $this->info("Resumen: {$result['success']} éxitos, {$result['error']} fallos.");
             } catch (\Exception $e) {
+                $stateSyncFailed = true;
                 $this->error('Error en el ciclo de sincronización: '.$e->getMessage());
                 Log::error('CiscoSyncCommand Failure: '.$e->getMessage());
             }
@@ -80,5 +80,7 @@ class CiscoSyncCommand extends Command implements Isolatable
         } while ($loop);
 
         $this->info('Sincronización finalizada.');
+
+        return $stateSyncFailed ? self::FAILURE : self::SUCCESS;
     }
 }

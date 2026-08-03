@@ -6,7 +6,7 @@ LOG_FILE="/var/log/cisco-sync.log"
 
 # Lista de comandos a ejecutar en segundo plano
 COMMANDS=(
-    "php artisan cisco:sync --loop --interval=5"
+    "php artisan cisco:sync --loop --interval=5 --isolated=1"
     
 )
 

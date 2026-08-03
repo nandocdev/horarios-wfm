@@ -77,7 +77,7 @@ class CiscoFinesseClient
                 $this->recordFailure();
                 Log::warning("Cisco Finesse respondió con error {$response->status()} en {$endpoint}");
 
-                return $this->parseXml($response->body());
+                throw new Exception("Cisco Finesse HTTP {$response->status()} en {$endpoint}");
             }
 
             $this->recordSuccess();

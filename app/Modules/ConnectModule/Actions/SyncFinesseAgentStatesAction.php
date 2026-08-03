@@ -27,7 +27,9 @@ class SyncFinesseAgentStatesAction
             return ['success' => 0, 'error' => 0, 'skipped' => 0];
         }
 
-        $employees = Cache::remember('cisco_active_employees', 3600, function () use ($ciscoUsers) {
+        $employeeCacheKey = 'cisco_active_employees:'.sha1(implode('|', $ciscoUsers));
+
+        $employees = Cache::remember($employeeCacheKey, 3600, function () use ($ciscoUsers) {
             return Employee::where('is_active', true)
                 ->whereNotNull('username')
                 ->whereIn('username', $ciscoUsers)
@@ -58,8 +60,9 @@ class SyncFinesseAgentStatesAction
                 $this->updateAgentRealtimeState($employee['id'], $uccxId, $data, $dialogInfo);
                 $successCount++;
 
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $errorCount++;
+                Log::warning("Error sincronizando estado del agente {$uccxId}: ".$e->getMessage());
             }
         }
 
@@ -71,22 +74,31 @@ class SyncFinesseAgentStatesAction
      */
     private function getCiscoUserIds(): array
     {
-        return Cache::remember('cisco_finesse_user_ids', 300, function () {
-            try {
-                $data = $this->client->getAllUsers();
-                $users = $data['User'] ?? [];
+        $cachedUsers = Cache::get('cisco_finesse_user_ids');
+        if (is_array($cachedUsers) && $cachedUsers !== []) {
+            return $cachedUsers;
+        }
 
-                if (isset($users['loginId'])) {
-                    $users = [$users];
-                }
+        try {
+            $data = $this->client->getAllUsers();
+            $users = $data['User'] ?? [];
 
-                return collect($users)->pluck('loginId')->filter()->values()->toArray();
-            } catch (\Exception $e) {
-                Log::warning('No se pudo obtener lista de usuarios Finesse: '.$e->getMessage());
-
-                return [];
+            if (isset($users['loginId'])) {
+                $users = [$users];
             }
-        });
+
+            $userIds = collect($users)->pluck('loginId')->filter()->values()->toArray();
+
+            if ($userIds !== []) {
+                Cache::put('cisco_finesse_user_ids', $userIds, 300);
+            }
+
+            return $userIds;
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo obtener lista de usuarios Finesse: '.$e->getMessage());
+
+            return [];
+        }
     }
 
     /**

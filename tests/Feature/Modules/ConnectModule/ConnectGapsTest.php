@@ -19,7 +19,7 @@ test('CiscoFinesseClient tiene timeout diferenciado para batch', function () {
 
 test('SyncFinesseAgentStatesAction usa Cache para employee mapping', function () {
     $contents = file_get_contents(app_path('Modules/ConnectModule/Actions/SyncFinesseAgentStatesAction.php'));
-    expect($contents)->toContain("Cache::remember('cisco_active_employees'");
+    expect($contents)->toContain('Cache::remember($employeeCacheKey');
     expect($contents)->toContain('3600'); // 1 hora TTL
 });
 

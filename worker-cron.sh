@@ -14,7 +14,7 @@ while true; do
   fi
 
   # Tu comando real aquí
-  php artisan cisco:sync --loop 
+  php artisan cisco:sync --loop --isolated=1
 
   sleep 5
 done

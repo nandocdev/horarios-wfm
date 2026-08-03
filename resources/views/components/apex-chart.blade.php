@@ -1,40 +1,34 @@
 @props([
     'id' => 'chart-' . uniqid(),
     'options' => '{}',
-    'height' => '100px'
+    'legend' => null,
+    'height' => '100px',
+    'refreshEvent' => null,
+    'updateEvent' => null,
 ])
 
+@php
+    $optionsArray = is_string($options)
+        ? json_decode($options, true) ?? []
+        : $options;
+
+    if ($legend !== null) {
+        $optionsArray['legend'] = is_string($legend)
+            ? json_decode($legend, true) ?? []
+            : $legend;
+    }
+
+    $serializedOptions = json_encode($optionsArray, JSON_THROW_ON_ERROR);
+@endphp
+
 <div wire:ignore class="h-full">
-    <div id="{{ $id }}" style="height: {{ $height }}" x-data="{
-            chart: null,
-            baseOptions: JSON.parse(atob('{{ base64_encode($options) }}')),
-            init() {
-                if (this.chart) {
-                    this.chart.destroy();
-                    this.chart = null;
-                }
-                let opts = this.buildOptions();
-                this.chart = new ApexCharts(this.$el, opts);
-                this.chart.render();
-            },
-            buildOptions() {
-                let opts = JSON.parse(JSON.stringify(this.baseOptions));
-                if (opts.xaxis?.labels?.formatter && typeof opts.xaxis.labels.formatter === 'string') {
-                    opts.xaxis.labels.formatter = (new Function('return ' + opts.xaxis.labels.formatter))();
-                }
-                if (opts.yaxis?.labels?.formatter && typeof opts.yaxis.labels.formatter === 'string') {
-                    opts.yaxis.labels.formatter = (new Function('return ' + opts.yaxis.labels.formatter))();
-                }
-                if (opts.tooltip?.custom && typeof opts.tooltip.custom === 'string') {
-                    opts.tooltip.custom = (new Function('return ' + opts.tooltip.custom))();
-                }
-                return opts;
-            },
-            destroy() {
-                if (this.chart) {
-                    this.chart.destroy();
-                    this.chart = null;
-                }
-            },
-         }" x-init="init" x-on:livewire:navigating.window="destroy"></div>
+    <div
+        id="{{ $id }}"
+        style="height: {{ $height }}"
+        x-data="apexChart('{{ base64_encode($serializedOptions) }}')"
+        @if ($refreshEvent) x-on:{{ $refreshEvent }}.window="refresh()" @endif
+        @if ($updateEvent) x-on:{{ $updateEvent }}.window="update($event.detail)" @endif
+        x-init="init"
+        x-on:livewire:navigating.window="destroy"
+    ></div>
 </div>

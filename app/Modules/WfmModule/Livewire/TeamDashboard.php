@@ -415,7 +415,7 @@ class TeamDashboard extends Component
             ],
             'yaxis' => [
                 'title' => ['text' => 'AHT (segundos)'],
-                'labels' => ['formatter' => 'function(v){return Number(v).toFixed(0)+"s"}'],
+                'labels' => ['formatter' => ['__callback' => 'seconds']],
             ],
             'plotOptions' => [
                 'bar' => [
@@ -428,7 +428,7 @@ class TeamDashboard extends Component
             'tooltip' => [
                 'shared' => true,
                 'intersect' => false,
-                'y' => ['formatter' => 'function(v){return v ? Number(v).toFixed(1)+"s" : "-"}'],
+                'y' => ['formatter' => ['__callback' => 'aht']],
             ],
             'colors' => array_slice($palette, 0, count($queueNames)),
             'legend' => [

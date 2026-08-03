@@ -1,3 +1,4 @@
+<div class="contents">
 @if(!empty($d['not_ready_by_reason']) && count($d['not_ready_by_reason']) > 0)
     @php
         $nrTotal = array_sum($d['not_ready_by_reason']);
@@ -28,3 +29,4 @@
         </div>
     </x-wfm.section>
 @endif
+</div>

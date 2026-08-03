@@ -1,3 +1,4 @@
+<div class="contents">
 @if(!$isHistorical)
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <x-wfm.section title="Estado Actual">
@@ -91,3 +92,4 @@
         </x-wfm.section>
     </div>
 @endif
+</div>

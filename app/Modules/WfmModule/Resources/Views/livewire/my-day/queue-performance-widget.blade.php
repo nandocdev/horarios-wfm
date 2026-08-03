@@ -1,3 +1,4 @@
+<div class="contents">
 @php
     $queueData = collect($d['calls_by_queue'] ?? []);
     $scatterData = $d['call_scatter_data'] ?? [];
@@ -93,11 +94,11 @@
                         'min' => $d['call_scatter_x_min'] ?? -60,
                         'max' => $d['call_scatter_x_max'] ?? 540,
                         'tickAmount' => 10,
-                        'labels' => ['formatter' => 'function(v) { let t=' . $shiftStartTotal . '+v; if(t<0)t+=1440; let h=Math.floor(t/60)%24; let m=Math.floor(t%60); return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0"); }'],
+                        'labels' => ['formatter' => ['__callback' => 'timeOfDay', 'params' => ['shiftStart' => $shiftStartTotal]]],
                     ],
                     'yaxis' => [
                         'title' => ['text' => 'Talk Time (segundos)', 'style' => ['fontSize' => '11px']],
-                        'labels' => ['formatter' => 'function(v) { return v.toFixed(0) + "s"; }'],
+                        'labels' => ['formatter' => ['__callback' => 'seconds']],
                     ],
                     'markers' => [
                         'size' => 6,
@@ -105,19 +106,7 @@
                         'strokeOpacity' => 0.6,
                     ],
                     'tooltip' => [
-                        'custom' => 'function({seriesIndex, dataPointIndex, w}) {
-                            let d = w.config.series[seriesIndex].data[dataPointIndex];
-                            let t = ' . $shiftStartTotal . ' + d.x;
-                            if (t < 0) t += 1440;
-                            let h = Math.floor(t / 60) % 24;
-                            let m = Math.floor(t % 60);
-                            let timeStr = String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0");
-                            return "<div class=\"px-3 py-2 text-xs\">" +
-                                "<strong>" + w.config.series[seriesIndex].name + "</strong><br>" +
-                                "Hora: " + timeStr + "<br>" +
-                                "Talk Time: " + d.y + "s" +
-                                "</div>";
-                        }',
+                        'custom' => ['__callback' => 'scatterTooltip', 'params' => ['shiftStart' => $shiftStartTotal]],
                     ],
                     'grid' => [
                         'show' => true,
@@ -144,3 +133,4 @@
         </x-wfm.section>
     </div>
 @endif
+</div>

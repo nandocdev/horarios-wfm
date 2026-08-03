@@ -1,3 +1,4 @@
+<div class="contents">
 @if(!empty($d['timeline_start']))
     @php
         $startH = (int) substr($d['timeline_start'], 0, 2);
@@ -119,3 +120,4 @@
         @endif
     </div>
 @endif
+</div>

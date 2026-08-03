@@ -9,6 +9,7 @@ use App\Modules\PersonnelModule\Actions\SyncEmployeeDataWithCiscoAction;
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\Log;
 
 class CiscoSync implements ShouldQueue
@@ -25,16 +26,6 @@ class CiscoSync implements ShouldQueue
      */
     public int $timeout = 120;
 
-    /**
-     * La conexión de cola que debe manejar este job.
-     */
-    public string $connection = 'database';
-
-    /**
-     * La cola específica donde se despachará el job (para no bloquear correos u otros procesos).
-     */
-    public string $queue = 'realtime-sync';
-
     protected bool $syncMasterData;
 
     /**
@@ -45,6 +36,18 @@ class CiscoSync implements ShouldQueue
     public function __construct(bool $syncMasterData = false)
     {
         $this->syncMasterData = $syncMasterData;
+        $this->onConnection('database');
+        $this->onQueue('realtime-sync');
+    }
+
+    /**
+     * Get the middleware the job should pass through.
+     *
+     * @return array<int, object>
+     */
+    public function middleware(): array
+    {
+        return [new WithoutOverlapping('cisco_sync')];
     }
 
     /**

@@ -40,4 +40,16 @@ enum ContactDisposition: int
     {
         return in_array($value, self::ABANDONED_IDS, true);
     }
+
+    public static function statusFor(int $value): string
+    {
+        return match (true) {
+            $value === self::Abandoned->value => 'abandoned',
+            $value === self::Handled->value => 'closed',
+            $value === self::Aborted->value => 'aborted',
+            $value >= 5 && $value <= 98 => 'rejected',
+            $value === self::Cleansed->value => 'cleansed',
+            default => 'pending_operator',
+        };
+    }
 }

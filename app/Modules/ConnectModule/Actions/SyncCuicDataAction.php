@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Actions;
 
+use App\Modules\ConnectModule\Enums\ContactDisposition;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\ConnectModule\Models\CallQueue;
@@ -47,7 +48,7 @@ final class SyncCuicDataAction
         $this->primeQueueCache();
 
         $stats = [
-            'transitions' => 0,
+            'transitions' => [],
             'performance' => 0,
             'calls' => 0,
             'chats' => 0,
@@ -56,47 +57,34 @@ final class SyncCuicDataAction
         // Ventana operativa: 05:00 a 18:00 para la mayoría de los reportes
         $isWithinWindow = $this->isWithinOperatingWindow($start, $end);
 
-        try {
-            if ($isWithinWindow) {
-                $stats['transitions'] = $this->syncTransitions($start, $end);
-            }
-        } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncTransitions: '.$e->getMessage());
+        if ($isWithinWindow) {
+            $stats['transitions'] = $this->syncTransitions($start, $end);
+            $stats['performance'] = $this->syncPerformance($start, $end);
         }
 
-        try {
-            if ($isWithinWindow) {
-                $stats['performance'] = $this->syncPerformance($start, $end);
-            }
-        } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncPerformance: '.$e->getMessage());
+        // Este reporte se registra TODO (sin restricción de ventana) según solicitud
+        $stats['calls'] = $this->syncCalls($start, $end);
+
+        if ($isWithinWindow) {
+            $stats['chats'] = $this->syncChats($start, $end);
         }
 
-        try {
-            // Este reporte se registra TODO (sin restricción de ventana) según solicitud
-            $stats['calls'] = $this->syncCalls($start, $end);
-        } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncCalls: '.$e->getMessage());
-            Log::warning('[CUIC-ETL] Es posible que el usuario no tenga permisos para el reporte agent_csq_detail.');
-        }
-
-        try {
-            if ($isWithinWindow) {
-                $stats['chats'] = $this->syncChats($start, $end);
-            }
-        } catch (\Exception $e) {
-            Log::error('[CUIC-ETL] Error en syncChats: '.$e->getMessage());
-        }
-
-        Log::info('[CUIC-ETL] Sincronización finalizada', $stats);
+        Log::info('[CUIC-ETL] Sincronización finalizada', [
+            'transitions' => count($stats['transitions']),
+            'performance' => $stats['performance'],
+            'calls' => $stats['calls'],
+            'chats' => $stats['chats'],
+        ]);
 
         return $stats;
     }
 
     /**
      * Sincroniza Estados y Transiciones (Voz).
+     *
+     * @return array<int> IDs de empleados actualizados
      */
-    private function syncTransitions(CarbonInterface $start, CarbonInterface $end): int
+    private function syncTransitions(CarbonInterface $start, CarbonInterface $end): array
     {
         $rows = $this->cuic->executeReportWithFilter('agent_detail', $start, $end);
 
@@ -114,7 +102,7 @@ final class SyncCuicDataAction
             ->toArray();
 
         if (empty($upserts)) {
-            return 0;
+            return [];
         }
 
         AgentStateTransition::upsert(
@@ -123,7 +111,7 @@ final class SyncCuicDataAction
             ['reason_code', 'duration', 'employee_id', 'updated_at']
         );
 
-        return count($upserts);
+        return collect($upserts)->pluck('employee_id')->filter()->unique()->values()->toArray();
     }
 
     /**
@@ -176,38 +164,58 @@ final class SyncCuicDataAction
         $rows = $this->cuic->executeReportWithFilter('agent_csq_detail', $start, $end);
         Log::info('[CUIC-ETL] Datos de llamadas: '.count($rows));
 
-        $upserts = $rows->map(function (array $row) {
+        $upserts = $rows->map(function (array $row): ?array {
+            $ciscoCallId = trim((string) ($row['session_id_seq'] ?? ''));
+            $sequenceNumber = $row['sequence_num'] ?? null;
+            $startTimestamp = (int) ($row['start_time'] ?? 0);
+            $endTimestamp = (int) ($row['end_time'] ?? 0);
+
+            if ($ciscoCallId === '' || ! is_numeric($sequenceNumber) || $startTimestamp <= 0) {
+                Log::warning('[CUIC-ETL] Segmento de llamada omitido por identidad o fecha incompleta.', [
+                    'session_id_seq' => $row['session_id_seq'] ?? null,
+                    'sequence_num' => $sequenceNumber,
+                    'start_time' => $row['start_time'] ?? null,
+                ]);
+
+                return null;
+            }
+
             // En algunos CUIC la columna es 'resource_name', en otros es 'agent_name' o simplemente no existe si no hubo agente
             $agentLoginId = $row['resource_name'] ?? $row['agent_login_id'] ?? null;
             $agentName = $row['agent_name'] ?? $row['resource_name'] ?? null;
-
-            $status = 'abandoned';
-            if ((int) ($row['contact_disposition'] ?? 0) === 2) {
-                $status = 'closed';
-            }
+            $contactDisposition = (int) ($row['contact_disposition'] ?? 0);
+            $rawQueueName = $row['csq_names'] ?? null;
+            $rawQueueName = is_array($rawQueueName)
+                ? implode(', ', array_map(static fn (mixed $name): string => (string) $name, $rawQueueName))
+                : (string) $rawQueueName;
 
             $employeeId = $this->employees->resolve($agentLoginId, $agentName);
 
             return [
-                'cisco_call_id' => $row['session_id_seq'],
-                'sequence_number' => (int) $row['sequence_num'],
+                'cisco_call_id' => $ciscoCallId,
+                'sequence_number' => (int) $sequenceNumber,
                 'phone_number' => $row['originator_dn'] ?? 'Unknown',
                 'destination_number' => $row['destination_dn'] ?? null,
-                'ivr_started_at' => Carbon::createFromTimestampMs((int) $row['start_time'], 'UTC')->tz(config('app.timezone')),
-                'ivr_ended_at' => Carbon::createFromTimestampMs((int) $row['end_time'], 'UTC')->tz(config('app.timezone')),
+                'dialed_number' => $row['dialed_number'] ?? $row['called_number'] ?? $row['dialed_dn'] ?? null,
+                'application_name' => $row['application_name'] ?? $row['application'] ?? $row['app_name'] ?? null,
+                'ivr_started_at' => Carbon::createFromTimestampMs($startTimestamp, 'UTC')->tz(config('app.timezone')),
+                'ivr_ended_at' => $endTimestamp > 0
+                    ? Carbon::createFromTimestampMs($endTimestamp, 'UTC')->tz(config('app.timezone'))
+                    : null,
                 'talk_time' => (int) ($row['talk_time'] ?? 0),
                 'ring_time' => (int) ($row['ring_time'] ?? 0),
                 'queue_time' => (int) ($row['queue_time'] ?? 0),
                 'work_time' => (int) ($row['work_time'] ?? 0),
-                'contact_disposition' => (int) ($row['contact_disposition'] ?? 0),
-                'queue_id' => $this->resolveQueueId($row['csq_names'] ?? ''),
+                'contact_disposition' => $contactDisposition,
+                'queue_id' => $this->resolveQueueId($rawQueueName),
                 'employee_id' => $employeeId,
                 'raw_agent_name' => $agentName,
-                'status' => $status,
+                'status' => ContactDisposition::statusFor($contactDisposition),
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
-        })->unique(fn ($item) => $item['cisco_call_id'].$item['sequence_number'])
+        })->filter()
+            ->unique(fn (array $item): string => $item['cisco_call_id'].'-'.$item['sequence_number'])
             ->values()
             ->toArray();
         Log::info('[CUIC-ETL] Intentando upsert de '.count($upserts).' registros en call_records');
@@ -219,7 +227,12 @@ final class SyncCuicDataAction
         CallRecord::upsert(
             $upserts,
             ['cisco_call_id', 'sequence_number'],
-            ['ivr_ended_at', 'talk_time', 'ring_time', 'queue_time', 'work_time', 'contact_disposition', 'employee_id', 'queue_id', 'raw_agent_name', 'status', 'updated_at']
+            [
+                'phone_number', 'destination_number', 'dialed_number', 'application_name',
+                'ivr_started_at', 'ivr_ended_at', 'talk_time', 'ring_time', 'queue_time',
+                'work_time', 'contact_disposition', 'employee_id', 'queue_id', 'raw_agent_name',
+                'status', 'updated_at',
+            ]
         );
 
         return count($upserts);

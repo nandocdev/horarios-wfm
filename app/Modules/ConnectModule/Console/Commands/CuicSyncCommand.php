@@ -11,6 +11,7 @@ use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use App\Shared\Events\SyncFailed;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 final class CuicSyncCommand extends Command
@@ -72,9 +73,16 @@ final class CuicSyncCommand extends Command
             $start = Carbon::parse((string) $this->option('from'));
             $end = Carbon::parse((string) $this->option('to'));
         } else {
-            $minutes = (int) $this->option('minutes');
+            // Usar checkpoint con backup de 5 minutos, o el fallback en minutos
             $end = now();
-            $start = now()->subMinutes($minutes);
+
+            $lastSync = Cache::get('cuic_last_sync_timestamp');
+            if ($lastSync) {
+                $start = Carbon::parse($lastSync)->subMinutes(5); // Solapamiento de seguridad
+            } else {
+                $minutes = (int) $this->option('minutes');
+                $start = now()->subMinutes($minutes);
+            }
         }
 
         $this->line('['.now()->format('H:i:s')."] Rango: <comment>{$start->toDateTimeString()}</comment> a <comment>{$end->toDateTimeString()}</comment>");
@@ -82,25 +90,33 @@ final class CuicSyncCommand extends Command
         try {
             $stats = $action->execute($start, $end);
 
+            $statsOutput = $stats;
+            $statsOutput['transitions'] = count($stats['transitions'] ?? []);
+
             $this->table(
                 ['Tipo de Datos', 'Registros'],
-                array_map(fn ($k, $v) => [ucfirst($k), $v], array_keys($stats), array_values($stats))
+                array_map(fn ($k, $v) => [ucfirst($k), $v], array_keys($statsOutput), array_values($statsOutput))
             );
 
             // Trigger reconciliation for today and yesterday if transitions were synced
-            if (($stats['transitions'] ?? 0) > 0) {
-                $this->line('Iniciando reconciliación de asistencia post-sync...');
+            $employeeIdsWithTransitions = $stats['transitions'] ?? [];
+            if (! empty($employeeIdsWithTransitions)) {
+                $this->line('Iniciando reconciliación de asistencia post-sync para '.count($employeeIdsWithTransitions).' empleados...');
                 $reconcileAction = app(ReconcileEmployeeAttendanceAction::class);
                 $employeeRepo = app(EmployeeRepositoryInterface::class);
-                $employees = $employeeRepo->findActive();
 
                 foreach ([now(), now()->subDay()] as $date) {
-                    foreach ($employees as $employee) {
-                        $reconcileAction->execute($employee, $date);
+                    foreach ($employeeIdsWithTransitions as $employeeId) {
+                        $employee = $employeeRepo->find($employeeId);
+                        if ($employee) {
+                            $reconcileAction->execute($employee, $date);
+                        }
                     }
                 }
                 $this->info('Reconciliación completada.');
             }
+
+            Cache::put('cuic_last_sync_timestamp', $end->toDateTimeString(), 86400); // 24h ttl
 
             return self::SUCCESS;
         } catch (\Throwable $e) {

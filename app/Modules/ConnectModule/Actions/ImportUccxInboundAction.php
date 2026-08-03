@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Actions;
 
 use App\Modules\ConnectModule\DTOs\UccxCallDataDTO;
+use App\Modules\ConnectModule\Enums\ContactDisposition;
 use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\ConnectModule\Models\CallRecord;
 use App\Shared\Contracts\Employees\EmployeeLookupRepositoryInterface;
@@ -149,21 +150,6 @@ final class ImportUccxInboundAction
 
     private function mapStatus(int $disposition): string
     {
-        /**
-         * Cisco Disposition:
-         * 1: abandoned
-         * 2: handled (closed)
-         * 4: aborted
-         * 5-98: rejected
-         * 99: cleansed
-         */
-        return match (true) {
-            $disposition === 1 => 'abandoned',
-            $disposition === 2 => 'closed',
-            $disposition === 4 => 'aborted',
-            $disposition >= 5 && $disposition <= 98 => 'rejected',
-            $disposition === 99 => 'cleansed',
-            default => 'pending_operator',
-        };
+        return ContactDisposition::statusFor($disposition);
     }
 }

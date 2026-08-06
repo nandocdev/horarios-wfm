@@ -97,6 +97,7 @@ return [
         'redis:default' => 60,
         'redis:wfm-heavy' => 120, // Mayor tolerancia para planificación masiva
         'redis:notifications' => 30,
+        'redis:realtime-sync' => 30, // Sync de estados de agentes Cisco
     ],
 
     /*
@@ -198,7 +199,7 @@ return [
     'defaults' => [
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default', 'notifications'],
+            'queue' => ['default', 'notifications', 'realtime-sync'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 10,
@@ -215,7 +216,7 @@ return [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default', 'notifications'],
+                'queue' => ['default', 'notifications', 'realtime-sync'],
                 'balance' => 'auto',
                 'autoScalingStrategy' => 'time',
                 'maxProcesses' => 10,

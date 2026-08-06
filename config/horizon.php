@@ -234,6 +234,12 @@ return [
             'supervisor-1' => [
                 'maxProcesses' => 3,
             ],
+            'supervisor-wfm' => [
+                'queue' => ['wfm-heavy'], // Aislamiento de carga intensiva WFM
+                'balance' => 'simple',
+                'processes' => 2,
+                'timeout' => 300, // 5 minutos máximo por cálculo WFM
+            ],
         ],
     ],
 

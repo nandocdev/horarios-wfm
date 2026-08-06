@@ -1,7 +1,7 @@
 <div class="bg-white dark:bg-zinc-800 rounded-md border border-zinc-200 dark:border-zinc-700 p-4 shadow-sm"
     wire:poll.300s>
     <div class="flex items-center justify-between mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-700">
-        <h3 class="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Actividad por Equipo
+        <h3 class="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">Adherencia por Equipo
         </h3>
     </div>
     <div class="overflow-x-auto pb-2">

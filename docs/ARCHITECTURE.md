@@ -597,14 +597,20 @@ El rol `admin` (nivel 99) tiene acceso total a todo. Retorna `true` para cualqui
 | Local      | SQLite (dev) / PostgreSQL | Database (dev)  | Database (array) |
 | Producción | PostgreSQL 16             | Redis (Horizon) | Redis            |
 
-### 12.2 Scripts de Producción
+### 12.2 Servicios en Background
 
-| Script                | Propósito                                                        |
-| --------------------- | ---------------------------------------------------------------- |
-| `start-cisco-sync.sh` | Daemon de sincronización Cisco Finesse (loop 5s)                 |
-| `start-cuic-sync.sh`  | Daemon de sincronización CUIC (realtime cada 15s, ETL cada 300s) |
-| `worker-cron.sh`      | Worker queue con horario laboral (5AM-7PM)                       |
-| `sincroniza.sh`       | Rsync de develop → servidor producción                           |
+Las tareas en background corren vía systemd + scheduler de Laravel:
+
+| Servicio                 | Comando                  | Responsabilidad                                                       |
+| ------------------------ | ------------------------ | --------------------------------------------------------------------- |
+| `scheduler.service`      | `php artisan schedule:work` | Ejecuta el scheduler (ETL, reportes, alertas, cadenas de sync)     |
+| `horizon.service`        | `php artisan horizon`    | Procesa colas Redis (`default`, `notifications`, `realtime-sync`, `wfm-heavy`) |
+| `cuic:sync` (scheduler)  | `everyFiveMinutes`       | ETL incremental CUIC                                                  |
+| `CiscoSync` + `CuicRealtimeSyncJob` | cadenas por cola | Sincronización en tiempo real Cisco Finesse (5s) y CUIC CSQ (15s)  |
+
+Los antiguos daemons `start-cisco-sync.sh`, `start-cuic-sync.sh` y `worker-cron.sh` fueron
+reemplazados por este esquema y se eliminaron para evitar sincronización duplicada.
+El script `sincroniza.sh` (rsync develop → producción) se mantiene para despliegues.
 
 ### 12.3 Commands de Consola
 

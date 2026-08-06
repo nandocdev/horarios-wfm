@@ -188,7 +188,7 @@ app/Modules/{Modulo}/
 - **Cisco UCCX/Finesse** (CTI telemetry) — `config/contact-center.php`.
 - **Cisco CUIC** (historical reports, mapped by UUID) — `config/contact-center.php`.
 - **Webex** (notifications) — `app/Services/WebexService.php`.
-- Production sync loops: `start-cuic-sync.sh`, `start-cisco-sync.sh`, `worker-cron.sh`.
+- Background tasks: `scheduler.service` (`schedule:work`) + `horizon.service` (colas Redis: `default`, `notifications`, `realtime-sync`, `wfm-heavy`). Cadenas realtime: `CiscoSync` y `CuicRealtimeSyncJob`.
 
 ---
 

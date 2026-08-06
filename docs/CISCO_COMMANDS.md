@@ -82,8 +82,8 @@ php artisan cisco:sync --loop --interval=5
 4. Opera solo dentro del horario 05:00–19:00. Fuera de ese horario, espera 60s y reintenta.
 5. Implementa `Isolatable` para evitar ejecuciones concurrentes.
 
-**Daemon:** `start-cisco-sync.sh`
-**Log:** `/var/log/cisco-sync.log`
+**Daemon:** `CiscoSync` job en cola `realtime-sync` (cadena cada 5s, vía Horizon + scheduler 05:00)
+**Log:** `laravel.log` (registro de `CiscoSync`) y `/var/log/cisco-sync.log` (solo si se usa `cisco:sync --loop` manualmente)
 **Cliente HTTP:** `app/Shared/Infrastructure/Cisco/CiscoFinesseClient.php`
 
 ---
@@ -142,7 +142,7 @@ php artisan cuic:sync --loop --interval=300                    # Continuo cada 5
 
 **Post-sincronización:** Si se importaron transiciones, ejecuta `ReconcileEmployeeAttendanceAction` para hoy y ayer.
 
-**Daemon:** `start-cuic-sync.sh`
+**Ejecución:** `cuic:sync` se programa en el scheduler cada 5 minutos (`schedule:work`).
 **Servicio:** `app/Modules/ConnectModule/Services/CuicReportService.php`
 
 ---
@@ -162,7 +162,7 @@ php artisan cuic:sync-realtime --loop --interval=10
 
 **Datos sincronizados:** `csq_realtime_stats` — agentes por estado, llamadas en espera, nivel de servicio, etc.
 
-**Daemon:** `start-cuic-sync.sh`
+**Ejecución:** cadena de `CuicRealtimeSyncJob` en cola `realtime-sync` (cada 15s, vía Horizon + scheduler 05:00).
 
 ---
 
@@ -256,15 +256,17 @@ php artisan uccx:auto-import
 
 ---
 
-## Scripts de Daemon (Producción)
+## Sincronización en Producción (systemd + Scheduler)
 
-| Script                | Comandos que ejecuta                                                          | Gestión de procesos |
-| --------------------- | ----------------------------------------------------------------------------- | ------------------- |
-| `start-cisco-sync.sh` | `cisco:sync --loop --interval=5`                                              | `nohup` + PID file  |
-| `start-cuic-sync.sh`  | `cuic:sync-realtime --loop --interval=15` + `cuic:sync --loop --interval=300` | `nohup` + PID file  |
-| `worker-cron.sh`      | `cisco:sync --loop` (con guardia de horario)                                  | Shell loop          |
+| Mecanismo                   | Cadencia | Ejecución                                                     |
+| --------------------------- | -------- | ------------------------------------------------------------- |
+| `CiscoSync` (job)           | 5s       | Cadena en cola `realtime-sync`, disparada por scheduler 05:00 |
+| `CuicRealtimeSyncJob` (job) | 15s      | Cadena en cola `realtime-sync`, disparada por scheduler 05:00 |
+| `cuic:sync` (ETL)           | 5 min    | Scheduler `everyFiveMinutes()`                                |
 
-> **⚠️ Riesgo:** Los scripts usan `nohup` + archivos PID. No hay supervisord/systemd para auto-recovery en caso de crash. Ver `docs/ARCHITECTURE.md` §8.5 para la matriz completa de riesgos.
+> Los daemons `start-cisco-sync.sh`, `start-cuic-sync.sh` y `worker-cron.sh` fueron eliminados
+> y reemplazados por el scheduler + Horizon (colas Redis), evitando sincronización duplicada.
+> El comando `cisco:sync --loop` se conserva solo para operación manual.
 
 ---
 
@@ -312,58 +314,14 @@ Reportes CUIC pre-configurados (7 tipos con UUIDs específicos del entorno CSS P
 
 ## Referencias en el Código
 
-| Componente                  | Ubicación                                                              |
-| --------------------------- | ---------------------------------------------------------------------- |
-| Cliente HTTP Finesse        | `app/Shared/Infrastructure/Cisco/CiscoFinesseClient.php`               |
-| Servicio CUIC               | `app/Modules/ConnectModule/Services/CuicReportService.php`             |
-| Sync Finesse (Job legacy)   | `app/Jobs/CiscoSync.php`                                               |
-| Comandos globales           | `app/Console/Commands/CiscoSyncCommand.php`, `TestCiscoConnection.php` |
-| Comandos del módulo Connect | `app/Modules/ConnectModule/Console/Commands/`                          |
-| Configuración               | `config/contact-center.php`                                            |
-| Scripts daemon              | `start-cisco-sync.sh`, `start-cuic-sync.sh`, `worker-cron.sh`          |
+| Componente                  | Ubicación                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------- |
+| Cliente HTTP Finesse        | `app/Shared/Infrastructure/Cisco/CiscoFinesseClient.php`                           |
+| Servicio CUIC               | `app/Modules/ConnectModule/Services/CuicReportService.php`                         |
+| Sync Finesse (Job legacy)   | `app/Jobs/CiscoSync.php`                                                           |
+| Comandos globales           | `app/Console/Commands/CiscoSyncCommand.php`, `TestCiscoConnection.php`             |
+| Comandos del módulo Connect | `app/Modules/ConnectModule/Console/Commands/`                                      |
+| Configuración               | `config/contact-center.php`                                                        |
+| Cadenas realtime            | `app/Jobs/CiscoSync.php`, `app/Modules/ConnectModule/Jobs/CuicRealtimeSyncJob.php` |
 
-
-
-Dime si puedes diseñat esto: 
-
-
-```text
-[ turno actual ▾ ]
-┌─────────────────────────────────────────────────────────┐
-│  [ estado actual ]            [ conectado / productivo ]│
-└─────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│  linea de tiempo del turno                               │
-│  ───────────────────────────────────────────────────    │
-│  05:00      08:00      11:00      14:00      18:00      │
-└─────────────────────────────────────────────────────────┘
-
-  trafico y calidad
-┌──────────────┬──────────────┬──────────────┬─────────────┐
-│ llamadas/sla │     aht      │  adherencia  │productividad│
-└──────────────┴──────────────┴──────────────┴─────────────┘
-
-┌───────────────────────────────┐  ┌────────────────────────┐
-│ transiciones recientes (scroll)│  │ cumplimiento horario    │
-│ 18:42 talking      [====] 00:12│  │ entrada    [retraso]    │
-│ 18:28 not ready     [===] 13:37│  │ almuerzo   [a tiempo]   │
-│ 18:25 talking     [======]02:33│  │                        │
-└───────────────────────────────┘  └────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│ desglose not ready por motivo                            │
-│ [████ bano ███ tecnico ██ coaching ██ no programado]     │
-└─────────────────────────────────────────────────────────┘
-
-  llamadas por cola vs distribucion aht
-┌────────────────────────────────┐  ┌────────────────────────┐
-│ cola      llamadas  aht  talkt.│  │ llamadas(x) vs aht(y)  │
-│ cola 1      —        —    —   │  │      o                 │
-│ cola 2      —        —    —   │  │           O            │
-│ cola 3      —        —    —   │  │                  o     │
-│ total/prom  —        —    —   │  │  burbuja = cola        │
-└────────────────────────────────┘  └────────────────────────┘
-
-```
 

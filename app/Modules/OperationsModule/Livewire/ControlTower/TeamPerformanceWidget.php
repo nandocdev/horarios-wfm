@@ -75,8 +75,17 @@ class TeamPerformanceWidget extends Component
             ->values()
             ->take(8);
 
+        $hasData = $teams->contains(fn (array $team): bool => $team['calls'] > 0
+            || $team['occupancy'] > 0
+            || $team['adherence'] > 0);
+
+        if (! $hasData) {
+            $teams = collect();
+        }
+
         return view('operations::livewire.control-tower.team-performance-widget', [
             'teams' => $teams,
+            'hasData' => $hasData,
         ]);
     }
 }

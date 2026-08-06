@@ -36,7 +36,7 @@ class CiscoSync implements ShouldQueue
     public function __construct(bool $syncMasterData = false)
     {
         $this->syncMasterData = $syncMasterData;
-        $this->onConnection('database');
+        $this->onConnection('redis');
         $this->onQueue('realtime-sync');
     }
 

@@ -122,7 +122,7 @@ class MyTeam extends Component
         );
     }
 
-    public function deleteIncident(?int $id, DeleteScheduleExceptionAction $action): void
+    public function deleteIncident(DeleteScheduleExceptionAction $action, ?int $id = null): void
     {
         $id = $id ?: $this->incidentForm->id;
 

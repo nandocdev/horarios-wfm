@@ -90,3 +90,8 @@ Schedule::job(new CiscoSync(true))->dailyAt('05:00');
 
 // Ejecutar el ETL cada 5 minutos
 Schedule::command('cuic:sync')->everyFiveMinutes()->withoutOverlapping();
+
+// WFM: Calcular reportes diarios de operadores (después de la sync de telemetría)
+Schedule::command('wfm:calculate-daily-reports')
+    ->dailyAt('06:00')
+    ->withoutOverlapping();

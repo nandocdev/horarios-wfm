@@ -61,6 +61,7 @@ use App\Modules\WfmModule\Policies\WeeklySchedulePolicy;
 use App\Modules\WfmModule\Repositories\EloquentDashboardScheduleQueries;
 use App\Modules\WfmModule\Repositories\EloquentScheduleRepository;
 use App\Modules\WfmModule\Services\LeaveRequestService;
+use App\Modules\WfmModule\Services\MyDayService;
 use App\Modules\WfmModule\Services\ScheduleService;
 use App\Modules\WfmModule\Services\ScheduleValidationService;
 use App\Modules\WfmModule\Services\ShiftSwapService;
@@ -257,5 +258,7 @@ class ModuleServiceProvider extends ServiceProvider
             DashboardScheduleQueriesInterface::class,
             EloquentDashboardScheduleQueries::class
         );
+
+        $this->app->singleton(MyDayService::class);
     }
 }

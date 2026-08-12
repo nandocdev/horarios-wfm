@@ -7,9 +7,11 @@ namespace App\Modules\AnalyticsModule\Actions;
 use App\Modules\AnalyticsModule\Models\ForecastGroup;
 use App\Modules\AnalyticsModule\Models\ForecastVersion;
 use App\Modules\ConnectModule\Models\AgentCallPerformance;
+use App\Modules\ConnectModule\Models\CallQueue;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class GenerateForecastAction
 {
@@ -88,6 +90,7 @@ final class GenerateForecastAction
                         : 0.0;
 
                     $batch[] = [
+                        'id' => (string) Str::ulid(),
                         'forecast_scenario_id' => $scenario->id,
                         'interval_start' => $intervalStart,
                         'interval_end' => $intervalEnd,
@@ -113,7 +116,8 @@ final class GenerateForecastAction
         $query = AgentCallPerformance::whereBetween('start_time', [$start, $end]);
 
         if ($referenceId !== null) {
-            $query->where('csq_name', $referenceId);
+            $queueName = CallQueue::where('id', $referenceId)->value('name') ?? $referenceId;
+            $query->where('csq_name', $queueName);
         }
 
         $records = $query->get(['start_time', 'talk_time', 'hold_time', 'work_time', 'csq_name']);
@@ -159,7 +163,7 @@ final class GenerateForecastAction
 
         while ($current->lte($endDay)) {
             $dates[] = $current->copy();
-            $current->addDay();
+            $current = $current->addDay();
         }
 
         return $dates;

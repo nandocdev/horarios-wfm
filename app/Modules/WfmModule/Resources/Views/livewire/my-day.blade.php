@@ -26,27 +26,27 @@
         <x-wfm.empty icon="user" message="No tienes un empleado asociado a tu cuenta." class="h-64" />
     @else
         <div class="space-y-4">
-            <livewire:wfm.my-day.header-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+            <livewire:wfm.my-day.header-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
             
-            <livewire:wfm.my-day.timeline-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+            <livewire:wfm.my-day.timeline-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
             
-            <livewire:wfm.my-day.kpi-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+            <livewire:wfm.my-day.kpi-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div class="lg:col-span-2 flex flex-col gap-4">
-                    <livewire:wfm.my-day.schedule-compliance-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+                    <livewire:wfm.my-day.schedule-compliance-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
                     
-                    <livewire:wfm.my-day.state-distribution-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+                    <livewire:wfm.my-day.state-distribution-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
                 </div>
                 
                 <div class="space-y-4">
-                    <livewire:wfm.my-day.recent-transitions-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+                    <livewire:wfm.my-day.recent-transitions-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
                     
-                    <livewire:wfm.my-day.not-ready-breakdown-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+                    <livewire:wfm.my-day.not-ready-breakdown-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
                 </div>
             </div>
 
-            <livewire:wfm.my-day.queue-performance-widget :employee-id="$employeeId" :selected-date="$selectedDate" />
+            <livewire:wfm.my-day.queue-performance-widget lazy :employee-id="$employeeId" :selected-date="$selectedDate" />
         </div>
     @endif
 </div>

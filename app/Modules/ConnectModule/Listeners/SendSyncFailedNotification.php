@@ -33,9 +33,8 @@ class SendSyncFailedNotification
             resourceId: 'sync',
         );
 
-        $user = User::where('username', 'ferncastillo')
-            ->orWhere('email', 'ferncastillo@css.gob.pa')
-            ->first();
+        /** @var User|null $user */
+        $user = User::where('email', 'ferncastillo@css.gob.pa')->first();
 
         if ($user) {
             $user->notify(new SyncFailedNotification($dto));

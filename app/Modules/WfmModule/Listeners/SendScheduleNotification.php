@@ -17,6 +17,7 @@ class SendScheduleNotification implements ShouldQueue
     public function handleWeeklySchedulePublished(WeeklySchedulePublished $event): void
     {
         $schedule = $event->weeklySchedule;
+        $schedule->loadMissing('assignments.employee.user');
 
         $dto = new NotificationDTO(
             title: 'Nuevo Horario Publicado',
@@ -43,6 +44,8 @@ class SendScheduleNotification implements ShouldQueue
     public function handleScheduleAssignmentUpdated(ScheduleAssignmentUpdated $event): void
     {
         $assignment = $event->assignment;
+        $assignment->loadMissing(['employee.user', 'weeklySchedule']);
+
         $employee = $assignment->employee;
         $schedule = $assignment->weeklySchedule;
 

@@ -91,20 +91,26 @@ final class ImportUccxInboundAction
 
     private function primeCaches(): void
     {
-        $this->queueCache = CallQueue::pluck('id', 'name')->toArray();
+        $queues = CallQueue::pluck('id', 'name')->toArray();
+        $this->queueCache = [];
+        foreach ($queues as $name => $id) {
+            $this->queueCache[strtoupper(trim(str_replace('*', '', (string) $name)))] = $id;
+        }
 
         // EmployeeLookupRepository ya precargó en el constructor (warmup)
     }
 
     private function persistRecord(UccxCallDataDTO $dto): void
     {
+        /** @var CallRecord|null $record */
         $record = CallRecord::where('cisco_call_id', $dto->ciscoCallId)
             ->where('sequence_number', $dto->sequenceNumber)
             ->first();
 
         $queueId = null;
         if ($dto->queueName) {
-            $cleanQueueName = rtrim($dto->queueName, '*');
+            $firstQueue = explode(',', $dto->queueName)[0];
+            $cleanQueueName = strtoupper(trim(str_replace('*', '', $firstQueue)));
             $queueId = $this->queueCache[$cleanQueueName] ?? null;
         }
 

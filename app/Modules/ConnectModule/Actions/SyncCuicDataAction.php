@@ -184,7 +184,7 @@ final class SyncCuicDataAction
             $agentLoginId = $row['resource_name'] ?? $row['agent_login_id'] ?? null;
             $agentName = $row['agent_name'] ?? $row['resource_name'] ?? null;
             $contactDisposition = (int) ($row['contact_disposition'] ?? 0);
-            $rawQueueName = $row['csq_names'] ?? null;
+            $rawQueueName = $row['csq_name'] ?? $row['csq_names'] ?? $row['call_routed_csq'] ?? null;
             $rawQueueName = is_array($rawQueueName)
                 ? implode(', ', array_map(static fn (mixed $name): string => (string) $name, $rawQueueName))
                 : (string) $rawQueueName;
@@ -315,7 +315,8 @@ final class SyncCuicDataAction
             return null;
         }
 
-        $cleanName = $this->normalizeQueueName($rawName);
+        $firstQueue = explode(',', $rawName)[0];
+        $cleanName = $this->normalizeQueueName($firstQueue);
 
         return $this->queueCache[$cleanName]
             ?? $this->queueCache["finesse:{$cleanName}"]

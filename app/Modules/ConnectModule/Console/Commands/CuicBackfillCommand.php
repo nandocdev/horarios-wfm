@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncCuicDataAction;
-use App\Modules\ConnectModule\Emails\CuicBackfillReport;
+use App\Services\WebexService;
 use App\Shared\Events\SyncFailed;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 final class CuicBackfillCommand extends Command
 {
@@ -77,6 +76,7 @@ final class CuicBackfillCommand extends Command
         $currentIntervalStart = $startDate->copy();
         $lastProcessedDay = $currentIntervalStart->toDateString();
         $dailyStats = $this->resetDailyStats();
+        $failureCount = 0;
 
         while ($currentIntervalStart->lessThan($endDate)) {
             // Calculamos donde termina este bloque
@@ -117,7 +117,8 @@ final class CuicBackfillCommand extends Command
             try {
                 $batchStats = $action->execute($currentIntervalStart, $currentIntervalEnd);
 
-                foreach ($batchStats as $type => $count) {
+                foreach ($batchStats as $type => $value) {
+                    $count = is_array($value) ? count($value) : (int) $value;
                     $dailyStats['by_type'][$type] = ($dailyStats['by_type'][$type] ?? 0) + $count;
                     $dailyStats['total_records'] += $count;
                 }
@@ -190,13 +191,29 @@ final class CuicBackfillCommand extends Command
         }
 
         try {
-            Mail::to('ferncastillo@css.gob.pa')
-                ->send(new CuicBackfillReport($date, $stats));
+            $markdown = "### Reporte Diario CUIC Backfill: {$date}\n\n";
+            $markdown .= "**Total de registros:** {$stats['total_records']}\n\n";
+            $markdown .= '- Transitions: '.($stats['by_type']['transitions'] ?? 0)."\n";
+            $markdown .= '- Performance: '.($stats['by_type']['performance'] ?? 0)."\n";
+            $markdown .= '- Calls: '.($stats['by_type']['calls'] ?? 0)."\n";
+            $markdown .= '- Chats: '.($stats['by_type']['chats'] ?? 0)."\n";
 
-            $this->line(' <info>✔</info> Reporte diario enviado a ferncastillo@css.gob.pa');
+            if (! empty($stats['errors'])) {
+                $markdown .= "\n**Errores:**\n";
+                foreach ($stats['errors'] as $error) {
+                    $markdown .= "- {$error}\n";
+                }
+            }
+
+            app(WebexService::class)->sendDirect([
+                'toPersonEmail' => 'ferncastillo@css.gob.pa',
+                'markdown' => $markdown,
+            ]);
+
+            $this->line(' <info>✔</info> Reporte diario enviado por Webex a ferncastillo@css.gob.pa');
         } catch (\Throwable $e) {
-            $this->error('No se pudo enviar el reporte diario: '.$e->getMessage());
-            Log::error('[CUIC-BACKFILL] Fallo envío reporte email', ['error' => $e->getMessage()]);
+            $this->error('No se pudo enviar el reporte diario por Webex: '.$e->getMessage());
+            Log::error('[CUIC-BACKFILL] Fallo envío reporte webex', ['error' => $e->getMessage()]);
         }
     }
 }

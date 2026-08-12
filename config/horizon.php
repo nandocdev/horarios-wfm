@@ -236,6 +236,7 @@ return [
                 'maxProcesses' => 3,
             ],
             'supervisor-wfm' => [
+                'connection' => 'redis',
                 'queue' => ['wfm-heavy'], // Aislamiento de carga intensiva WFM
                 'balance' => 'simple',
                 'processes' => 2,

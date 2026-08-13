@@ -157,56 +157,77 @@ final class SyncCuicDataAction
     }
 
     /**
-     * Sincroniza Registros Técnicos de Llamadas (CSQ).
+     * Sincroniza Registros Técnicos de Llamadas (CCDR / CSQ).
      */
     private function syncCalls(CarbonInterface $start, CarbonInterface $end): int
     {
-        $rows = $this->cuic->executeReportWithFilter('agent_csq_detail', $start, $end);
-        Log::info('[CUIC-ETL] Datos de llamadas: '.count($rows));
+        $reportKey = config()->has('contact-center.cuic.reports.detailed_call_by_call_ccdr')
+            ? 'detailed_call_by_call_ccdr'
+            : 'agent_csq_detail';
+
+        $rows = $this->cuic->executeReportWithFilter($reportKey, $start, $end);
+        Log::info("[CUIC-ETL] Datos de llamadas obtenidos de '{$reportKey}': ".count($rows));
 
         $upserts = $rows->map(function (array $row): ?array {
-            $ciscoCallId = trim((string) ($row['session_id_seq'] ?? ''));
-            $sequenceNumber = $row['sequence_num'] ?? null;
-            $startTimestamp = (int) ($row['start_time'] ?? 0);
-            $endTimestamp = (int) ($row['end_time'] ?? 0);
+            $ciscoCallId = trim((string) ($row['session_id'] ?? $row['session_id_seq'] ?? $row['call_id'] ?? ''));
+            $sequenceNumber = $row['sequence_num'] ?? $row['session_seq_num'] ?? $row['sequence_number'] ?? null;
+            $startTimestamp = (int) ($row['start_time'] ?? $row['start_datetime'] ?? $row['call_start_time'] ?? 0);
+            $endTimestamp = (int) ($row['end_time'] ?? $row['end_datetime'] ?? $row['call_end_time'] ?? 0);
 
             if ($ciscoCallId === '' || ! is_numeric($sequenceNumber) || $startTimestamp <= 0) {
                 Log::warning('[CUIC-ETL] Segmento de llamada omitido por identidad o fecha incompleta.', [
-                    'session_id_seq' => $row['session_id_seq'] ?? null,
+                    'session_id' => $ciscoCallId,
                     'sequence_num' => $sequenceNumber,
-                    'start_time' => $row['start_time'] ?? null,
+                    'start_time' => $startTimestamp,
                 ]);
 
                 return null;
             }
 
-            // En algunos CUIC la columna es 'resource_name', en otros es 'agent_name' o simplemente no existe si no hubo agente
-            $agentLoginId = $row['resource_name'] ?? $row['agent_login_id'] ?? null;
-            $agentName = $row['agent_name'] ?? $row['resource_name'] ?? null;
+            $nodeId = isset($row['node_id']) && is_numeric($row['node_id']) ? (int) $row['node_id'] : null;
+            $contactType = isset($row['contact_type']) && is_numeric($row['contact_type']) ? (int) $row['contact_type'] : null;
             $contactDisposition = (int) ($row['contact_disposition'] ?? 0);
+
+            $originatorType = isset($row['originator_type']) && is_numeric($row['originator_type']) ? (int) $row['originator_type'] : null;
+            $originatorId = ! empty($row['originator_id']) ? trim((string) $row['originator_id']) : null;
+            $destinationType = isset($row['destination_type']) && is_numeric($row['destination_type']) ? (int) $row['destination_type'] : null;
+            $destinationId = ! empty($row['destination_id']) ? trim((string) $row['destination_id']) : null;
+
+            // En llamadas entrantes/atendidas el agente suele ser el destino; en salientes o internas puede ser el originador
+            $agentLoginId = $destinationId ?? $originatorId ?? $row['resource_name'] ?? $row['agent_login_id'] ?? null;
+            $agentName = $row['agent_name'] ?? $row['resource_name'] ?? null;
+
+            $employeeId = $this->employees->resolve($agentLoginId, $agentName);
+
             $rawQueueName = $row['csq_name'] ?? $row['csq_names'] ?? $row['call_routed_csq'] ?? null;
             $rawQueueName = is_array($rawQueueName)
                 ? implode(', ', array_map(static fn (mixed $name): string => (string) $name, $rawQueueName))
                 : (string) $rawQueueName;
 
-            $employeeId = $this->employees->resolve($agentLoginId, $agentName);
-
             return [
                 'cisco_call_id' => $ciscoCallId,
                 'sequence_number' => (int) $sequenceNumber,
-                'phone_number' => $row['originator_dn'] ?? 'Unknown',
-                'destination_number' => $row['destination_dn'] ?? null,
+                'node_id' => $nodeId,
+                'contact_type' => $contactType,
+                'phone_number' => $row['originator_dn'] ?? $row['originator_number'] ?? $row['calling_number'] ?? 'Unknown',
+                'destination_number' => $row['destination_dn'] ?? $row['destination_number'] ?? null,
                 'dialed_number' => $row['dialed_number'] ?? $row['called_number'] ?? $row['dialed_dn'] ?? null,
+                'original_dialed_number' => $row['original_dialed_number'] ?? $row['original_dialed_dn'] ?? null,
                 'application_name' => $row['application_name'] ?? $row['application'] ?? $row['app_name'] ?? null,
                 'ivr_started_at' => Carbon::createFromTimestampMs($startTimestamp, 'UTC')->tz(config('app.timezone')),
                 'ivr_ended_at' => $endTimestamp > 0
                     ? Carbon::createFromTimestampMs($endTimestamp, 'UTC')->tz(config('app.timezone'))
                     : null,
                 'talk_time' => (int) ($row['talk_time'] ?? 0),
+                'hold_time' => (int) ($row['hold_time'] ?? 0),
                 'ring_time' => (int) ($row['ring_time'] ?? 0),
                 'queue_time' => (int) ($row['queue_time'] ?? 0),
                 'work_time' => (int) ($row['work_time'] ?? 0),
                 'contact_disposition' => $contactDisposition,
+                'originator_type' => $originatorType,
+                'originator_id' => $originatorId,
+                'destination_type' => $destinationType,
+                'destination_id' => $destinationId,
                 'queue_id' => $this->resolveQueueId($rawQueueName),
                 'employee_id' => $employeeId,
                 'raw_agent_name' => $agentName,
@@ -228,10 +249,11 @@ final class SyncCuicDataAction
             $upserts,
             ['cisco_call_id', 'sequence_number'],
             [
-                'phone_number', 'destination_number', 'dialed_number', 'application_name',
-                'ivr_started_at', 'ivr_ended_at', 'talk_time', 'ring_time', 'queue_time',
-                'work_time', 'contact_disposition', 'employee_id', 'queue_id', 'raw_agent_name',
-                'status', 'updated_at',
+                'node_id', 'contact_type', 'phone_number', 'destination_number', 'dialed_number',
+                'original_dialed_number', 'application_name', 'ivr_started_at', 'ivr_ended_at',
+                'talk_time', 'hold_time', 'ring_time', 'queue_time', 'work_time', 'contact_disposition',
+                'originator_type', 'originator_id', 'destination_type', 'destination_id',
+                'employee_id', 'queue_id', 'raw_agent_name', 'status', 'updated_at',
             ]
         );
 

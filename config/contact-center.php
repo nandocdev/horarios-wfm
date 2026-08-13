@@ -127,6 +127,37 @@ return [
                 ],
             ],
 
+            // ContactCallDetail
+            /**
+             * {"reportId":"FCF5DE621000019F000011E80A0B1455",
+             * "hardRefresh":false,
+             * "filter":{
+             * "repType":"STPROC",
+             * "filterParams":[
+             *  {"paramId":"5A18B127100001345BE2E30E3F57F543",
+             * "paramType":"DATETIME",
+             * "relativeDate":false,
+             * "date":"08/13/2026 00:00:00",
+             * "value":"08/13/2026 00:00:00"},
+             * {"paramId":"5A18B1281000013434902F833F57F543",
+             * "paramType":"DATETIME",
+             * "relativeDate":false,
+             * "date":"08/13/2026 23:59:59",
+             * "value":"08/13/2026 23:59:59"},
+             * {"paramId":"75ACE9481000016C000000850A4E5E1D",
+             * "paramType":"STRING",
+             * "value":"CCX\\ferncastillo"}]}}
+             */
+            'detailed_call_by_call_ccdr' => [
+                'id' => env('CUIC_REPORT_CONTACT_CALL_DETAIL', 'FCF5DE621000019F000011E80A0B1455'),
+                'locale' => 'es_ES',
+                'params' => [
+                    'start_datetime' => '5A18B127100001345BE2E30E3F57F543',
+                    'end_datetime' => '5A18B1281000013434902F833F57F543',
+                    'current_user' => '75ACE9481000016C000000850A4E5E1D',
+                ],
+            ],
+
             // Voice CSQ Summary Report (Realtime Snapshot)
             'voice_csq_summary' => [
                 'id' => env('CUIC_REPORT_VOICE_CSQ_SUMMARY', 'F42547F51000019D00020F7D0A0B1855'),

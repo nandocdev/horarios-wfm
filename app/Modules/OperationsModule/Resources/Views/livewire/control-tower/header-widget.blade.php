@@ -66,6 +66,8 @@
             <flux:button size="sm" wire:click="$dispatch('control-tower-refresh')" icon="arrow-path" class="!p-1.5" title="Actualizar ahora">
                 <span class="sr-only">Actualizar</span>
             </flux:button>
+
+            <x-wfm.tour-button :tour="'operations.control-tower'" />
         </div>
     </div>
 </div>

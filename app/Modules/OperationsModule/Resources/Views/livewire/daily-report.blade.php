@@ -1,11 +1,12 @@
 <div class="space-y-6">
     {{-- Header --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div data-tour="daily-report-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
             <flux:heading size="xl" level="1">Reporte Diario</flux:heading>
             <flux:subheading>{{ \Carbon\Carbon::parse($date)->locale('es')->translatedFormat('l d F Y') }}</flux:subheading>
         </div>
         <div class="flex items-center gap-2">
+            <x-wfm.tour-button :tour="'operations.daily-report'" />
             <flux:button wire:click="previousDay" icon="chevron-left" size="sm" variant="subtle" />
             <flux:button wire:click="nextDay" icon="chevron-right" size="sm" variant="subtle" />
             <flux:button wire:click="$set('date', '{{ now()->toDateString() }}')" size="sm" variant="subtle">Hoy</flux:button>
@@ -13,7 +14,7 @@
     </div>
 
     {{-- Toggle + Filters --}}
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div data-tour="daily-report-view-toggle" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
             <button wire:click="switchView('operator')"
                     class="px-4 py-2 text-sm font-medium rounded-md transition-colors duration-150
@@ -39,7 +40,7 @@
         @php $d = $reportData; @endphp
         {{-- Operator View --}}
         {{-- Row 1: Cards de horario --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div data-tour="daily-report-content" class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <flux:card>
                 <div class="space-y-2">
                     <div class="flex items-center gap-2">
@@ -222,7 +223,7 @@
         </div>
     @elseif($view === 'coordinator')
         {{-- Coordinator View --}}
-        <flux:card class="overflow-x-auto">
+        <flux:card data-tour="daily-report-content" class="overflow-x-auto">
             @if($reportData->isEmpty())
                 <div class="text-center py-12">
                     <flux:icon name="users" class="w-12 h-12 text-slate-200 mx-auto mb-3" />

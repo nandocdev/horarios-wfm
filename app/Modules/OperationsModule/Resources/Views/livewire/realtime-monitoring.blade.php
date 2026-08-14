@@ -1,6 +1,6 @@
 <div wire:poll.10s class="space-y-8">
     {{-- Header con Estadísticas --}}
-    <div
+    <div data-tour="realtime-header"
         class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-md shadow-sm border border-slate-200 dark:border-slate-800">
         <div class="space-y-1">
             <div class="flex items-center gap-3">
@@ -53,6 +53,7 @@
         </div>
 
         <div class="flex flex-col xl:flex-row items-center gap-4">
+            <x-wfm.tour-button :tour="'operations.realtime'" />
             <div class="flex flex-wrap items-center gap-2">
                 {{-- Stat: Total --}}
                 <div
@@ -137,10 +138,10 @@
     </div>
 
     {{-- Filtros y Tabla --}}
-    <flux:card>
+    <flux:card data-tour="realtime-grid">
         <div class="space-y-4">
             {{-- Barra de herramientas superior --}}
-            <div class="flex flex-col md:flex-row gap-3">
+            <div data-tour="realtime-filters" class="flex flex-col md:flex-row gap-3">
                 <div class="flex-grow flex items-center gap-4">
                     <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre o usuario..."
                         icon="magnifying-glass" size="sm" class="flex-grow" />

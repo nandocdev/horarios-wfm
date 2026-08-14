@@ -1,7 +1,8 @@
 <div wire:poll.{{ $refreshInterval }}s class="space-y-8">
-    <div class="flex items-center justify-between">
+    <div data-tour="availability-header" class="flex items-center justify-between">
         <flux:heading size="xl" level="1">Operación en Tiempo Real</flux:heading>
-        <div class="flex items-center gap-2 text-sm text-slate-500">
+        <div class="flex items-center gap-3 text-sm text-slate-500">
+            <x-wfm.tour-button :tour="'operations.availability'" />
             <span class="relative flex h-3 w-3">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-sm bg-green-600 opacity-75"></span>
               <span class="relative inline-flex rounded-sm h-3 w-3 bg-green-600"></span>
@@ -11,7 +12,7 @@
     </div>
 
     <!-- KPIs -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div data-tour="availability-kpis" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Adherencia -->
         <flux:card>
             <div class="flex flex-col gap-1">
@@ -91,7 +92,7 @@
         </div>
 
         <!-- Tabla detallada (CSQs en atención) -->
-        <div class="lg:col-span-2">
+        <div data-tour="availability-queues" class="lg:col-span-2">
             <flux:card>
                 <flux:heading size="lg" class="mb-4">Colas en Atención (CSQs)</flux:heading>
                 

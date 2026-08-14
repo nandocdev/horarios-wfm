@@ -1,5 +1,5 @@
 <div class="space-y-8">
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <header data-tour="performance-header" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div class="flex items-center gap-2">
             <div>
                 <flux:heading size="xl" level="1">Desempeño {{ $employeeId ? ($employees->firstWhere('id', (int)$employeeId)?->full_name ?? 'Seleccionado') : 'Selecciona un empleado' }}</flux:heading>
@@ -12,6 +12,7 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
+            <x-wfm.tour-button :tour="'operations.performance'" />
             <flux:input wire:model.live.debounce.300ms="search" placeholder="Buscar por nombre..." icon="magnifying-glass" class="w-64" />
 
             <flux:select wire:model.live="teamId" placeholder="Todos los Equipos" class="w-56">
@@ -138,7 +139,7 @@
     </flux:modal>
 
     @if(!empty($performanceData))
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+        <div data-tour="performance-metrics" class="grid grid-cols-1 md:grid-cols-6 gap-4">
             <flux:tooltip position="top" content="Intensidad: Tiempo productivo vs Tiempo total de conexión.">
                 <flux:card class="flex flex-col gap-1 p-4 border-l-4 border-l-blue-600">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Productividad</span>
@@ -221,7 +222,7 @@
             </flux:tooltip>
         </div>
 
-        <div class="space-y-4">
+        <div data-tour="performance-detail" class="space-y-4">
             @foreach($performanceData as $day)
                 <flux:card class="overflow-hidden">
                     <div class="flex items-center justify-between gap-4 px-6 py-4 border-b border-slate-200">

@@ -1,5 +1,5 @@
 <div class="py-2 px-4 space-y-8 bg-slate-50 min-h-screen">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 bg-white py-2 rounded-md shadow-sm border border-slate-200">
+    <div data-tour="queue-performance-header" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-4 bg-white py-2 rounded-md shadow-sm border border-slate-200">
         <div>
             <flux:heading size="xl" level="1" class="flex items-center gap-2">
                 <flux:icon name="phone" variant="mini" class="text-blue-600" />
@@ -14,7 +14,8 @@
             </flux:subheading>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+            <x-wfm.tour-button :tour="'operations.queue-performance'" />
             <flux:select wire:model.live="queueId" size="sm" class="md:w-56">
                 <option value="">Todas las colas</option>
                 @foreach($queues as $queue)
@@ -25,7 +26,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div data-tour="queue-performance-kpis" class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <flux:card>
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-blue-50 rounded-md">
@@ -128,7 +129,7 @@
         @endif
     @endif
 
-    <flux:card class="p-0 overflow-hidden">
+    <flux:card data-tour="queue-performance-table" class="p-0 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead class="sticky top-0 z-10 bg-slate-50 text-[10px] font-semibold text-slate-500 uppercase tracking-widest border-b">

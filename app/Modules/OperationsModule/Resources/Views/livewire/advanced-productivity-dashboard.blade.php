@@ -1,6 +1,6 @@
 <div class="py-2 px-4 space-y-8 bg-slate-50 min-h-screen">
     {{-- Header --}}
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gapy-2 px-4 bg-white py-2 px-4 rounded-md shadow-sm border border-slate-200">
+    <div data-tour="advanced-header" class="flex flex-col md:flex-row md:items-center md:justify-between gapy-2 px-4 bg-white py-2 px-4 rounded-md shadow-sm border border-slate-200">
         <div>
             <flux:heading size="xl" level="1" class="flex items-center gap-2">
                 <flux:icon name="presentation-chart-line" variant="mini" class="text-blue-600" />
@@ -10,6 +10,7 @@
         </div>
 
         <div class="flex items-center gapy-2 px-4">
+            <x-wfm.tour-button :tour="'operations.advanced-analytics'" />
             <div class="w-64">
                 <flux:select wire:model.live="teamId" placeholder="Todos los Equipos">
                     <flux:select.option value="">Todos los Equipos</flux:select.option>
@@ -23,7 +24,7 @@
     </div>
 
     {{-- Resumen de KPIs Superiores --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gapy-2 px-4">
+    <div data-tour="advanced-kpis" class="grid grid-cols-1 md:grid-cols-4 gapy-2 px-4">
         <flux:card class="bg-blue-600 text-white rounded-md overflow-hidden relative">
             <div class="absolute right-0 bottom-0 opacity-10">
                 <flux:icon name="bolt" class="w-24 h-24" />
@@ -52,7 +53,7 @@
         </flux:card>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gapy-2 px-4">
+    <div data-tour="advanced-detail" class="grid grid-cols-1 lg:grid-cols-3 gapy-2 px-4">
         {{-- Rankings --}}
         <div class="space-y-4">
             <flux:card class="space-y-4">

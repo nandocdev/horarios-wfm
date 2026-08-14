@@ -82,8 +82,8 @@ export const tourDefinitions = {
         ],
     },
 
-    // 🔄 Torre de Control / Operaciones
-    'control-tower': {
+    // 🔄 Operaciones / Torre de Control
+    'operations.control-tower': {
         title: 'Torre de Control Operativa',
         version: 1,
         steps: [
@@ -139,6 +139,216 @@ export const tourDefinitions = {
                     description: 'Contrasta la curva de llamadas reales frente al pronóstico modelado.',
                     side: 'top',
                     align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 📡 Operaciones / Monitoreo en Tiempo Real
+    'operations.realtime': {
+        title: 'Monitoreo en Tiempo Real',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="realtime-header"]',
+                popover: {
+                    title: 'Estado de la Operación',
+                    description: 'Resumen en vivo de agentes (total, listos, hablando, auxiliares, ausentes), adherencia y estado de la sincronización.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="realtime-filters"]',
+                popover: {
+                    title: 'Filtros',
+                    description: 'Busca por nombre, restringe a activos y filtra por equipo, cargo, cola, estado, motivo o turno esperado.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="realtime-grid"]',
+                popover: {
+                    title: 'Agentes en Vivo',
+                    description: 'Estado real y programado de cada agente, alertas operativas y duración. Haz clic en el ojo para ver el detalle del agente.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 📊 Operaciones / Disponibilidad Intradía
+    'operations.availability': {
+        title: 'Disponibilidad Intradía',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="availability-header"]',
+                popover: {
+                    title: 'Operación en Tiempo Real',
+                    description: 'Indicador de actualización automática de los datos de disponibilidad.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="availability-kpis"]',
+                popover: {
+                    title: 'KPIs de Disponibilidad',
+                    description: 'Adherencia real intradía, agentes conectados vs agendados, en llamada y disponibles.',
+                    side: 'bottom',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="availability-queues"]',
+                popover: {
+                    title: 'Colas en Atención (CSQs)',
+                    description: 'Estado del tráfico por cola: llamadas en espera, SLA, abandonos y agentes atendiendo.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 📋 Operaciones / Reporte Diario
+    'operations.daily-report': {
+        title: 'Reporte Diario',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="daily-report-header"]',
+                popover: {
+                    title: 'Navegación de Fecha',
+                    description: 'Navega entre días o vuelve a hoy para consultar el reporte operativo de cada jornada.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="daily-report-view-toggle"]',
+                popover: {
+                    title: 'Vista Operador / Equipo',
+                    description: 'Alterna entre tu reporte individual y el consolidado del equipo. En vista de equipo puedes filtrar por equipo.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="daily-report-content"]',
+                popover: {
+                    title: 'Detalle del Reporte',
+                    description: 'Horarios programados vs reales (entrada, almuerzo, descanso), llamadas, actividades y desconexiones.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // ☎️ Operaciones / Desempeño por Cola
+    'operations.queue-performance': {
+        title: 'Dashboard de Colas',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="queue-performance-header"]',
+                popover: {
+                    title: 'Selección de Cola y Fecha',
+                    description: 'Elige una cola específica o consulta el resumen general para la fecha seleccionada.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="queue-performance-kpis"]',
+                popover: {
+                    title: 'Volumen y SLA',
+                    description: 'Llamadas ofrecidas, atendidas, abandonadas y porcentaje de servicio (SLA) en el periodo.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="queue-performance-table"]',
+                popover: {
+                    title: 'Rendimiento por Cola',
+                    description: 'Detalle por cola: abandono, SLA, ASA y AHT real contra la meta.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 📈 Operaciones / Scorecard de Desempeño
+    'operations.performance': {
+        title: 'Scorecard de Desempeño',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="performance-header"]',
+                popover: {
+                    title: 'Filtros del Scorecard',
+                    description: 'Busca y selecciona empleado, equipo, periodo y fecha para personalizar el análisis.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="performance-metrics"]',
+                popover: {
+                    title: 'Métricas Principales',
+                    description: 'Productividad, adherencia, utilización, tiempo productivo, conexión y llamadas del periodo.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="performance-detail"]',
+                popover: {
+                    title: 'Detalle por Día',
+                    description: 'Asistencia y entrada, pausas programadas, tiempo por estado, motivos de auxiliar y rendimiento por cola.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 🧮 Operaciones / Analítica Avanzada
+    'operations.advanced-analytics': {
+        title: 'Analítica de Productividad Avanzada',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="advanced-header"]',
+                popover: {
+                    title: 'Filtros de Analítica',
+                    description: 'Selecciona el equipo y la fecha para consultar métricas del modelo WU/PWI.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="advanced-kpis"]',
+                popover: {
+                    title: 'KPIs del Modelo WU/PWI',
+                    description: 'PWI promedio, work units atendidos, capacidad teórica y brecha de capacidad (gap).',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="advanced-detail"]',
+                popover: {
+                    title: 'Rankings y Desglose',
+                    description: 'Top PWI, mayores gaps y desglose por agente (availability, efficiency, capacidad, PWI). El diccionario de indicadores está al final.',
+                    side: 'top',
+                    align: 'center',
                 },
             },
         ],

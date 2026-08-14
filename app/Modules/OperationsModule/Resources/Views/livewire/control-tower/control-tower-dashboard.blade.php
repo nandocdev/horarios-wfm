@@ -1,4 +1,4 @@
-<div>
+<div data-tour-auto="operations.control-tower">
     {{-- ROW 1: Header --}}
     <div data-tour="control-tower-header">
         <livewire:operations.control-tower.header-widget :selected-date="$selectedDate" :scope="$scope"

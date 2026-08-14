@@ -1,13 +1,13 @@
-<div class="space-y-8 flex-1 flex flex-col">
-    <div class="flex items-center justify-between">
+<div class="space-y-4 sm:space-y-6 flex-1 flex flex-col">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
             <flux:heading size="xl">Mi Horario Semanal</flux:heading>
             <flux:subheading>Visualiza tus turnos y actividades programadas</flux:subheading>
         </div>
 
-        <div class="flex items-center gap-2">
-            <flux:dropdown>
-                <flux:button icon-trailing="chevron-down">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <flux:dropdown class="w-full sm:w-auto">
+                <flux:button icon-trailing="chevron-down" class="w-full sm:w-auto justify-between">
                     {{ $currentWeek ? 'Semana del ' . $currentWeek->week_start_date->format('d M') : 'Seleccionar Semana' }}
                 </flux:button>
 
@@ -28,14 +28,14 @@
     </div>
 
     @if(!$currentWeek)
-        <flux:card class="flex flex-col items-center justify-center p-12 text-center">
+        <flux:card class="flex flex-col items-center justify-center p-8 sm:p-12 text-center">
             <flux:icon name="calendar" class="mb-4 size-12 text-slate-400" />
             <flux:heading>No hay semanas planificadas</flux:heading>
             <flux:subheading>Contacta a tu coordinador de WFM para más información.</flux:subheading>
         </flux:card>
     @else
         {{-- Fila de los 7 días --}}
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-7">
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-3">
             @foreach($days as $num => $name)
                 @php
                     $assignment = $assignments[$num] ?? null;
@@ -49,40 +49,40 @@
                 @endphp
  
                 <flux:card wire:click="selectDay({{ $num }})" @class([
-                    'p-4 flex flex-col h-full cursor-pointer transition-opacity duration-150 ease-out',
+                    'p-2.5 sm:p-3.5 flex flex-col h-full cursor-pointer transition-all duration-150 ease-out select-none active:scale-95',
                     'ring-2 ring-primary-500 shadow-md scale-[1.02] bg-primary-50/30 dark:bg-primary-900/10' => $isSelected,
                     'hover:bg-slate-100 dark:hover:bg-slate-800' => !$isSelected,
                     'bg-slate-50 dark:bg-slate-900/50' => !$isToday && !$assignment && !$isSelected && !$dayException,
                     'border-l-4 border-l-amber-500' => $dayException,
                 ])>
-                    <div class="mb-4 border-b pb-2 dark:border-slate-700">
-                        <div class="flex items-center justify-between">
+                    <div class="mb-2 sm:mb-3 border-b pb-1.5 dark:border-slate-700">
+                        <div class="flex items-center justify-between gap-1">
                             <span @class([
-                                'font-bold',
+                                'font-bold text-xs sm:text-sm truncate',
                                 'text-primary-600 dark:text-primary-400' => $isSelected,
                                 'text-slate-800 dark:text-slate-200' => !$isSelected,
                             ])>{{ $name }}</span>
                             @if($isToday)
-                                <flux:badge size="sm" variant="primary">Hoy</flux:badge>
+                                <flux:badge size="sm" variant="primary" class="!px-1 !text-[9px]">Hoy</flux:badge>
                             @endif
                         </div>
-                        <span class="text-xs text-slate-500">{{ $currentDate->format('d M') }}</span>
+                        <span class="text-[10px] sm:text-xs text-slate-500">{{ $currentDate->format('d M') }}</span>
                     </div>
  
                     <div class="flex-grow">
                         @if($dayException)
                             <div class="flex flex-col gap-1">
-                                <flux:badge :color="$dayException->reason?->color ?? 'amber'" size="sm" class="font-bold text-[9px] uppercase">
+                                <flux:badge :color="$dayException->reason?->color ?? 'amber'" size="sm" class="font-bold text-[8px] sm:text-[9px] uppercase truncate">
                                     {{ $dayException->reason?->name ?? 'EXCEPCIÓN' }}
                                 </flux:badge>
                             </div>
                         @elseif($assignment)
-                            <div class="flex items-center gap-2 text-xs font-semibold text-slate-900 dark:text-slate-100">
-                                <flux:icon name="clock" size="xs" />
-                                <span>{{ \Illuminate\Support\Carbon::parse($assignment->start_time)->format('H:i') }}</span>
+                            <div class="flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold text-slate-900 dark:text-slate-100">
+                                <flux:icon name="clock" size="xs" class="flex-shrink-0" />
+                                <span class="truncate">{{ \Illuminate\Support\Carbon::parse($assignment->start_time)->format('H:i') }}</span>
                             </div>
                         @else
-                            <div class="flex flex-col items-center justify-center py-2 text-center opacity-40">
+                            <div class="flex flex-col items-center justify-center py-1 sm:py-2 text-center opacity-40">
                                 <flux:icon name="moon" size="xs" />
                             </div>
                         @endif
@@ -92,7 +92,7 @@
         </div>
  
         {{-- Sección inferior dividida --}}
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-6">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4 sm:mt-6">
             {{-- Izquierda: Actividades Programadas --}}
             <div class="space-y-4">
                 <div class="flex items-center justify-between">

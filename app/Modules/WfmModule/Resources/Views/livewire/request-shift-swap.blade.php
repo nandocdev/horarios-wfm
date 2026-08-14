@@ -13,7 +13,7 @@
                 </flux:callout>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 <flux:field>
                     <flux:label>Fecha Inicio</flux:label>
                     <flux:input type="date" wire:model.live="requestedDate" />
@@ -26,7 +26,7 @@
                     <flux:error name="endDate" />
                 </flux:field>
 
-                <flux:field>
+                <flux:field class="sm:col-span-2 md:col-span-1">
                     <flux:label>Compañero (Swap with)</flux:label>
                     <flux:select wire:model.live="recipientId" placeholder="Selecciona un compañero...">
                         @foreach($peers as $peer)
@@ -151,7 +151,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 pt-4 border-t dark:border-slate-700">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-4 border-t dark:border-slate-700">
                 <flux:button type="submit" variant="primary">Enviar Solicitud</flux:button>
                 <flux:button href="{{ route('schedules.my-schedule') }}" wire:navigate variant="subtle">Cancelar
                 </flux:button>

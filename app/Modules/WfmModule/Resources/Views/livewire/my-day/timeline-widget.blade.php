@@ -43,54 +43,56 @@
 
         $totalSegSecs = $timelineSegments->sum('duration') ?: 1;
     @endphp
-    <div class="card-wfm p-4">
+    <div class="card-wfm p-3 sm:p-4">
         <div class="flex items-center text-[10px] text-wfm-surface-muted mb-3">
             <flux:icon.clock class="w-3 h-3 mr-1" />
             Turno {{ $d['timeline_start'] }} - {{ $d['timeline_end'] }}
         </div>
 
-        <div class="relative h-14">
-            {{-- Hour grid lines + labels --}}
-            @for($i = 0; $i <= ($endH - $startH); $i++)
-                @php $hPos = ($endH - $startH) > 0 ? ($i / ($endH - $startH)) * 100 : 0; @endphp
-                <div class="absolute top-0 border-l border-wfm-surface-border/20" style="left: {{ $hPos }}%; height: 0.75rem;"></div>
-                <span class="absolute text-[10px] text-wfm-surface-muted font-mono -ml-2" style="left: {{ $hPos }}%;">{{ sprintf('%02d:00', $startH + $i) }}</span>
-            @endfor
-            <div class="absolute top-0 right-0 border-l border-wfm-surface-border/20" style="height: 0.75rem;"></div>
+        <div class="overflow-x-auto touch-scroll pb-2">
+            <div class="relative h-14 min-w-[460px] sm:min-w-0">
+                {{-- Hour grid lines + labels --}}
+                @for($i = 0; $i <= ($endH - $startH); $i++)
+                    @php $hPos = ($endH - $startH) > 0 ? ($i / ($endH - $startH)) * 100 : 0; @endphp
+                    <div class="absolute top-0 border-l border-wfm-surface-border/20" style="left: {{ $hPos }}%; height: 0.75rem;"></div>
+                    <span class="absolute text-[10px] text-wfm-surface-muted font-mono -ml-2" style="left: {{ $hPos }}%;">{{ sprintf('%02d:00', $startH + $i) }}</span>
+                @endfor
+                <div class="absolute top-0 right-0 border-l border-wfm-surface-border/20" style="height: 0.75rem;"></div>
 
-            {{-- Base barra completa gris --}}
-            <div class="absolute bg-wfm-surface-muted/20 rounded-sm" style="top: 14px; height: 1.25rem; left: 0; right: 0;"></div>
+                {{-- Base barra completa gris --}}
+                <div class="absolute bg-wfm-surface-muted/20 rounded-sm" style="top: 14px; height: 1.25rem; left: 0; right: 0;"></div>
 
-            {{-- Segments by state (ultimos 60 min) --}}
-            @if($timelineSegments->isNotEmpty())
-                <div class="absolute flex gap-px" style="top: 14px; height: 1.25rem; left: {{ $sincePct }}%; width: {{ $windowWidth }}%;">
-                    @foreach($timelineSegments as $t)
-                        @php
-                            $st = strtoupper($t['agent_state'] ?? '');
-                            $color = $stateColorMap[$st] ?? 'bg-wfm-surface-muted/30';
-                            $pct = max(0.3, ($t['duration'] / $totalSegSecs) * 100);
-                        @endphp
-                        <div class="h-full {{ $color }} rounded-sm group relative cursor-default"
-                             style="width: {{ $pct }}%"
-                             title="{{ $stateLabels[$st] ?? $st }}: {{ gmdate('H:i:s', $t['duration']) }}">
-                            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-                                <div class="bg-wfm-navy-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap shadow-lg">
-                                    {{ $stateLabels[$st] ?? $st }}<br>
-                                    {{ \Carbon\Carbon::parse($t['transition_time'])->timezone('America/Panama')->format('H:i') }}
-                                    · {{ gmdate('H:i:s', $t['duration']) }}
+                {{-- Segments by state (ultimos 60 min) --}}
+                @if($timelineSegments->isNotEmpty())
+                    <div class="absolute flex gap-px" style="top: 14px; height: 1.25rem; left: {{ $sincePct }}%; width: {{ $windowWidth }}%;">
+                        @foreach($timelineSegments as $t)
+                            @php
+                                $st = strtoupper($t['agent_state'] ?? '');
+                                $color = $stateColorMap[$st] ?? 'bg-wfm-surface-muted/30';
+                                $pct = max(0.3, ($t['duration'] / $totalSegSecs) * 100);
+                            @endphp
+                            <div class="h-full {{ $color }} rounded-sm group relative cursor-default"
+                                 style="width: {{ $pct }}%"
+                                 title="{{ $stateLabels[$st] ?? $st }}: {{ gmdate('H:i:s', $t['duration']) }}">
+                                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
+                                    <div class="bg-wfm-navy-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                                        {{ $stateLabels[$st] ?? $st }}<br>
+                                        {{ \Carbon\Carbon::parse($t['transition_time'])->timezone('America/Panama')->format('H:i') }}
+                                        · {{ gmdate('H:i:s', $t['duration']) }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+                        @endforeach
+                    </div>
+                @endif
 
-            {{-- Now indicator --}}
-            @if($isToday)
-                <div class="absolute top-0 w-0.5 bg-wfm-danger z-10" style="left: {{ $nowPct }}%; height: 3rem;">
-                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] text-wfm-danger font-bold whitespace-nowrap">Ahora</span>
-                </div>
-            @endif
+                {{-- Now indicator --}}
+                @if($isToday)
+                    <div class="absolute top-0 w-0.5 bg-wfm-danger z-10" style="left: {{ $nowPct }}%; height: 3rem;">
+                        <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[9px] text-wfm-danger font-bold whitespace-nowrap">Ahora</span>
+                    </div>
+                @endif
+            </div>
         </div>
 
         {{-- Legend --}}
@@ -108,7 +110,7 @@
                 }
             @endphp
             @if(count($legend) > 0)
-                <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-3">
+                <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
                     @foreach($legend as $li)
                         <span class="inline-flex items-center gap-1 text-[10px] text-wfm-surface-muted">
                             <span class="w-2 h-2 rounded-sm {{ $li['color'] }}"></span>

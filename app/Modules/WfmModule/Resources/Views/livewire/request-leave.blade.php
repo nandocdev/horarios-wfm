@@ -66,7 +66,7 @@
             </div>
 
             @if(!$form->isFullDay)
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <flux:field>
                         <flux:label>Hora Inicio</flux:label>
                         <flux:input type="time" wire:model="form.startTime" />
@@ -86,7 +86,7 @@
                 <flux:error name="form.reason" />
             </flux:field>
 
-            <div class="flex items-center gap-2 pt-4 border-t dark:border-slate-700">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-4 border-t dark:border-slate-700">
                 <flux:button type="submit" variant="primary">Enviar Solicitud</flux:button>
                 <flux:button href="{{ route('schedules.my-schedule') }}" wire:navigate variant="subtle">Cancelar</flux:button>
             </div>

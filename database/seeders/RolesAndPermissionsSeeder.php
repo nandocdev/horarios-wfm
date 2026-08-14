@@ -231,6 +231,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'quality.criteria.update',
             'quality.queues.manage',
             'quality.dashboard.view',
+
+            // Workflows Module
+            'workflows.viewAny',
+            'workflows.create',
+            'workflows.approve',
         ];
 
         // Registro masivo de permisos ANTES de cualquier asignación
@@ -298,6 +303,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'articles.viewAny',
             'knowledge.viewAny',
             'quality.evaluations.view',
+            'workflows.viewAny',
+            'workflows.approve',
             'reports.export',
             'reports.attendance.view',
             'reports.activities.view',
@@ -342,6 +349,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'quality.evaluations.view',
             'quality.evaluations.create',
             'quality.feedback.create',
+            'workflows.viewAny',
+            'workflows.approve',
         ]);
 
         // Chief
@@ -373,8 +382,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'notifications.view',
             'articles.viewAny',
             'knowledge.viewAny',
-            'quality.evaluations.view',
-            'quality.dashboard.view',
+            'workflows.viewAny',
+            'workflows.approve',
         ]);
 
         // Director

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire;
 
 use App\Modules\AnalyticsModule\Models\DailyKpi;
-use App\Modules\OrganizationModule\Models\Team;
 use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\PersonnelModule\Models\Team;
 use Carbon\Carbon;
 use Livewire\Component;
 

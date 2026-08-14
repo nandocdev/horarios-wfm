@@ -17,28 +17,28 @@
         </x-slot:actions>
         <x-slot:filters>
             <x-wfm.filter-bar clear clearWire="clearFilters">
-                <flux:select wire:model.live="department_id" placeholder="Departamento" class="!w-44">
+                <flux:select wire:model.live="department_id" placeholder="Departamento" class="w-full sm:!w-44">
                     <flux:select.option value="">Todos los departamentos</flux:select.option>
                     @foreach($filterOptions['departments'] as $id => $name)
                         <flux:select.option value="{{ $id }}">{{ $name }}</flux:select.option>
                     @endforeach
                 </flux:select>
 
-                <flux:select wire:model.live="position_id" placeholder="Posición" class="!w-44">
+                <flux:select wire:model.live="position_id" placeholder="Posición" class="w-full sm:!w-44">
                     <flux:select.option value="">Todas las posiciones</flux:select.option>
                     @foreach($filterOptions['positions'] as $id => $name)
                         <flux:select.option value="{{ $id }}">{{ $name }}</flux:select.option>
                     @endforeach
                 </flux:select>
 
-                <flux:select wire:model.live="is_active" placeholder="Estado" class="!w-36">
+                <flux:select wire:model.live="is_active" placeholder="Estado" class="w-full sm:!w-32">
                     <flux:select.option value="">Todos</flux:select.option>
                     <flux:select.option value="1">Activo</flux:select.option>
                     <flux:select.option value="0">Inactivo</flux:select.option>
                 </flux:select>
 
-                <flux:input type="date" wire:model.live="date_from" label="Desde" class="!w-36" />
-                <flux:input type="date" wire:model.live="date_to" label="Hasta" class="!w-36" />
+                <flux:input type="date" wire:model.live="date_from" label="Desde" class="w-full sm:!w-36" />
+                <flux:input type="date" wire:model.live="date_to" label="Hasta" class="w-full sm:!w-36" />
             </x-wfm.filter-bar>
         </x-slot:filters>
     </x-wfm.page-header>

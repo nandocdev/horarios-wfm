@@ -8,7 +8,12 @@
                 </flux:heading>
                 <flux:subheading>Planes de capacidad y análisis de cobertura</flux:subheading>
             </div>
-            <flux:button wire:click="showGenerate" icon="plus">Nuevo Plan</flux:button>
+            <div class="flex items-center gap-2">
+                <flux:button href="{{ route('operations.capacity-analysis') }}" icon="chart-bar" size="sm" variant="ghost" wire:navigate>
+                    Análisis
+                </flux:button>
+                <flux:button wire:click="showGenerate" icon="plus">Nuevo Plan</flux:button>
+            </div>
         </div>
 
         <div class="space-y-4">

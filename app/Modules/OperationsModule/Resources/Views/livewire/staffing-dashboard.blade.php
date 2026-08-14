@@ -19,6 +19,9 @@
             <flux:button wire:click="calculate" icon="arrow-path" size="sm" :disabled="!$scenario">
                 Calcular
             </flux:button>
+            <flux:button href="{{ route('operations.staffing-analysis') }}" icon="chart-bar" size="sm" variant="ghost" wire:navigate>
+                Análisis
+            </flux:button>
         </div>
     </div>
 

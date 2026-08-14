@@ -148,6 +148,7 @@
 
             {{ $slot }}
         <livewire:core.toast />
+        <livewire:core.shared.user-tour-progress />
         @fluxScripts
         </div>
     </div>

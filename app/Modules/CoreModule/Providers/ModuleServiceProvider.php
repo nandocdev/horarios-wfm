@@ -12,6 +12,7 @@ use App\Modules\CoreModule\Livewire\Admin\NotificationAdmin;
 use App\Modules\CoreModule\Livewire\Roles\ListRoles;
 use App\Modules\CoreModule\Livewire\Shared\NotificationBell;
 use App\Modules\CoreModule\Livewire\Shared\NotificationHistory;
+use App\Modules\CoreModule\Livewire\Shared\UserTourProgress;
 use App\Modules\CoreModule\Livewire\Toast;
 use App\Modules\CoreModule\Livewire\Users\CreateUser;
 use App\Modules\CoreModule\Livewire\Users\EditUser;
@@ -115,6 +116,7 @@ class ModuleServiceProvider extends ServiceProvider
             Livewire::component('core.toast', Toast::class);
             Livewire::component('core.shared.notification-bell', NotificationBell::class);
             Livewire::component('core.shared.notification-history', NotificationHistory::class);
+            Livewire::component('core.shared.user-tour-progress', UserTourProgress::class);
             Livewire::component('core.admin.notification-admin', NotificationAdmin::class);
         }
     }

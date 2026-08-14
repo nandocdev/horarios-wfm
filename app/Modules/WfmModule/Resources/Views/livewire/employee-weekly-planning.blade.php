@@ -1,18 +1,20 @@
 <div class="p-6 lg:p-8  mx-auto flex-1 flex flex-col">
-    <div class="flex items-center gap-4">
+    <div data-tour="planning-header" class="flex items-center gap-4">
         <flux:button href="{{ route('schedules.planning.team', ['week' => $week->id, 'team' => $employee->team_id]) }}"
             icon="arrow-left" variant="ghost" wire:navigate />
-        <div>
+        <div class="flex-1">
             <flux:heading size="xl">{{ __('Editar Horario Semanal') }}: {{ $employee->full_name }}</flux:heading>
             <flux:subheading class="mt-1">
                 {{ __('Semana del') }} {{ $week->week_start_date->format('d M') }} {{ __('al') }}
                 {{ $week->week_end_date->format('d M, Y') }}
             </flux:subheading>
         </div>
+        <x-wfm.tour-button :tour="'wfm-planning'" />
     </div>
 
     <form wire:submit="save" class="mt-8 space-y-4">
-        <flux:table>
+        <div data-tour="planning-grid">
+            <flux:table>
             <flux:table.columns class="sticky top-0 z-10 bg-white">
                 <flux:table.column>{{ __('Día') }}</flux:table.column>
                 <flux:table.column>{{ __('Turno') }}</flux:table.column>
@@ -75,12 +77,13 @@
                             <flux:input wire:model="assignments.{{ $dayNum }}.break_start_time" type="time" icon="clock"
                                 :disabled="(bool)$dayException" />
                         </flux:table.cell>
-                    </flux:table.row>
-                @endforeach
+                </flux:table.row>
+            @endforeach
             </flux:table.rows>
         </flux:table>
+        </div>
 
-        <div class="flex justify-end gap-3">
+        <div data-tour="planning-actions" class="flex justify-end gap-3">
             <flux:button
                 href="{{ route('schedules.planning.team', ['week' => $week->id, 'team' => $employee->team_id]) }}"
                 variant="ghost" wire:navigate>

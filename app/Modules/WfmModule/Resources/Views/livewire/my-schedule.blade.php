@@ -1,11 +1,12 @@
 <div class="space-y-4 sm:space-y-6 flex-1 flex flex-col">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div data-tour="my-schedule-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
             <flux:heading size="xl">Mi Horario Semanal</flux:heading>
             <flux:subheading>Visualiza tus turnos y actividades programadas</flux:subheading>
         </div>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto">
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
+            <x-wfm.tour-button :tour="'my-schedule'" />
             <flux:dropdown class="w-full sm:w-auto">
                 <flux:button icon-trailing="chevron-down" class="w-full sm:w-auto justify-between">
                     {{ $currentWeek ? 'Semana del ' . $currentWeek->week_start_date->format('d M') : 'Seleccionar Semana' }}
@@ -35,7 +36,7 @@
         </flux:card>
     @else
         {{-- Fila de los 7 días --}}
-        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-3">
+        <div data-tour="my-schedule-current-day" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-3">
             @foreach($days as $num => $name)
                 @php
                     $assignment = $assignments[$num] ?? null;
@@ -214,7 +215,7 @@
             </div>
 
             {{-- Derecha: Solicitudes --}}
-            <div class="space-y-4">
+            <div data-tour="my-schedule-actions" class="space-y-4">
                 <flux:heading size="lg">Solicitudes y Trámites</flux:heading>
 
                 <div class="grid grid-cols-1 gap-4">

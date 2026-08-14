@@ -3,33 +3,25 @@
  */
 
 export const tourDefinitions = {
-    // 🗓 Planificación Semanal
+    // 🗓 Planificación Semanal (matriz de horarios por equipo / empleado)
     'wfm-planning': {
-        title: 'Guía de Planificación Semanal',
+        title: 'Planificación Semanal',
+        version: 1,
         steps: [
             {
                 element: '[data-tour="planning-header"]',
                 popover: {
-                    title: 'Planificación de Turnos',
-                    description: 'Desde aquí puedes gestionar, ajustar y publicar la malla de horarios del personal para la semana seleccionada.',
+                    title: 'Planificación de Horarios',
+                    description: 'Estás editando la malla de horarios de la semana seleccionada. Usa la flecha para volver al nivel anterior.',
                     side: 'bottom',
                     align: 'start',
                 },
             },
             {
-                element: '[data-tour="planning-week-selector"]',
+                element: '[data-tour="planning-bulk-assign"]',
                 popover: {
-                    title: 'Selector de Semana',
-                    description: 'Navega entre semanas previas o futuras para planificar con anticipación.',
-                    side: 'bottom',
-                    align: 'center',
-                },
-            },
-            {
-                element: '[data-tour="planning-filters"]',
-                popover: {
-                    title: 'Filtros y Búsqueda',
-                    description: 'Filtra rápidamente por departamento, supervisor, equipo o busca un empleado específico.',
+                    title: 'Asignación Masiva',
+                    description: 'Aplica un turno base a todos los miembros del equipo para la semana completa en una sola operación.',
                     side: 'bottom',
                     align: 'start',
                 },
@@ -38,7 +30,7 @@ export const tourDefinitions = {
                 element: '[data-tour="planning-grid"]',
                 popover: {
                     title: 'Matriz de Horarios',
-                    description: 'Visualiza la asignación diaria de turnos, descansos y actividades especiales para cada colaborador.',
+                    description: 'Visualiza y edita la asignación diaria de turnos, almuerzos y descansos por empleado o por día.',
                     side: 'top',
                     align: 'center',
                 },
@@ -46,9 +38,9 @@ export const tourDefinitions = {
             {
                 element: '[data-tour="planning-actions"]',
                 popover: {
-                    title: 'Acciones y Publicación',
-                    description: 'Publica los cambios para que sean visibles para los agentes o exporta la planificación en CSV/Excel.',
-                    side: 'left',
+                    title: 'Guardado',
+                    description: 'Guarda los cambios del horario. La publicación de la semana se gestiona desde el listado de semanas.',
+                    side: 'top',
                     align: 'start',
                 },
             },
@@ -58,6 +50,7 @@ export const tourDefinitions = {
     // 🗓 Mi Horario / Mi Trabajo
     'my-schedule': {
         title: 'Mi Horario y Jornada',
+        version: 1,
         steps: [
             {
                 element: '[data-tour="my-schedule-header"]',
@@ -92,6 +85,7 @@ export const tourDefinitions = {
     // 🔄 Torre de Control / Operaciones
     'control-tower': {
         title: 'Torre de Control Operativa',
+        version: 1,
         steps: [
             {
                 element: '[data-tour="control-tower-header"]',
@@ -153,6 +147,7 @@ export const tourDefinitions = {
     // 📞 Centro de Contacto / Registro de Llamadas
     'contact-center-calls': {
         title: 'Registro de Llamadas',
+        version: 1,
         steps: [
             {
                 element: '[data-tour="calls-header"]',
@@ -187,6 +182,7 @@ export const tourDefinitions = {
     // ⭐ Calidad / Evaluaciones
     'quality-evaluations': {
         title: 'Evaluaciones de Calidad',
+        version: 1,
         steps: [
             {
                 element: '[data-tour="quality-header"]',
@@ -212,6 +208,7 @@ export const tourDefinitions = {
     // 👥 Personal / Asignación de Equipos
     'team-assignments': {
         title: 'Asignación de Equipos',
+        version: 1,
         steps: [
             {
                 element: '[data-tour="team-assign-unassigned"]',
@@ -225,8 +222,8 @@ export const tourDefinitions = {
             {
                 element: '[data-tour="team-assign-boards"]',
                 popover: {
-                    title: 'Equipos de Trabajo',
-                    description: 'Arrastra y suelta a los colaboradores para balancear las cargas de trabajo entre supervisores.',
+                    title: 'Empleados en el Equipo',
+                    description: 'Usa las casillas para seleccionar y los botones centrales para asignar o desasignar empleados del equipo seleccionado.',
                     side: 'left',
                     align: 'start',
                 },

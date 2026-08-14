@@ -1,5 +1,5 @@
 <div class="p-6 lg:p-8 mx-auto flex-1 flex flex-col">
-    <div class="flex items-center gap-4">
+    <div data-tour="planning-header" class="flex items-center gap-4">
         <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" icon="arrow-left"
             variant="ghost" wire:navigate />
         <div class="flex-1">
@@ -9,9 +9,12 @@
                 {{ $week->week_end_date->format('d M, Y') }}
             </flux:subheading>
         </div>
-        <flux:button wire:click="$set('showBulkAssignModal', true)" variant="primary" icon="users">
-            {{ __('Asignación Masiva') }}
-        </flux:button>
+        <div data-tour="planning-bulk-assign" class="flex items-center gap-2">
+            <x-wfm.tour-button :tour="'wfm-planning'" />
+            <flux:button wire:click="$set('showBulkAssignModal', true)" variant="primary" icon="users">
+                {{ __('Asignación Masiva') }}
+            </flux:button>
+        </div>
     </div>
 
     @php
@@ -19,7 +22,7 @@
         $dayNames = [1 => 'Lun', 2 => 'Mar', 3 => 'Mié', 4 => 'Jue', 5 => 'Vie', 6 => 'Sáb', 7 => 'Dom'];
     @endphp
 
-    <div class="mt-8 flex-1 overflow-x-auto">
+    <div data-tour="planning-grid" class="mt-8 flex-1 overflow-x-auto">
         <flux:table>
             <flux:table.columns class="sticky top-0 z-10 bg-white dark:bg-zinc-900">
                 <flux:table.column sticky class="w-48">{{ __('Empleado') }}</flux:table.column>
@@ -260,7 +263,7 @@
         }
         $avgDaily = $employeeCount > 0 ? intdiv($grandTotalMinutes, max($employeeCount * 7, 1)) : 0;
     @endphp
-    <div class="sticky bottom-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur border-t border-slate-200 dark:border-zinc-700 p-3 flex items-center justify-between text-sm z-20">
+    <div data-tour="planning-actions" class="sticky bottom-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur border-t border-slate-200 dark:border-zinc-700 p-3 flex items-center justify-between text-sm z-20">
         <div class="flex gap-6 text-slate-600 dark:text-zinc-400">
             <span><strong>{{ $employeeCount }}</strong> {{ __('empleados') }}</span>
             <span>{{ __('Total Semanal') }}: <strong>{{ intdiv($grandTotalMinutes, 60) }}h {{ $grandTotalMinutes % 60 }}m</strong></span>

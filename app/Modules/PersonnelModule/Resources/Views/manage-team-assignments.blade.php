@@ -1,7 +1,10 @@
 <div class="space-y-8">
-    <div>
-        <flux:heading size="xl">Gestión de Equipos</flux:heading>
-        <p class="text-slate-600">Asigna empleados a equipos de trabajo</p>
+    <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+            <flux:heading size="xl">Gestión de Equipos</flux:heading>
+            <p class="text-slate-600">Asigna empleados a equipos de trabajo</p>
+        </div>
+        <x-wfm.tour-button :tour="'team-assignments'" />
     </div>
 
     <div class="bg-white rounded-md shadow">
@@ -40,7 +43,7 @@
             @if($selectedTeamId)
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- Columna Izquierda: Empleados sin asignar -->
-                    <div class="space-y-4">
+                    <div data-tour="team-assign-unassigned" class="space-y-4">
                         <h3 class="text-xl font-semibold text-slate-900">Empleados Disponibles</h3>
                         <div class="border rounded-md p-4 max-h-96 overflow-y-auto">
                             @if($unassignedEmployees->isEmpty())
@@ -70,7 +73,7 @@
                     </div>
 
                     <!-- Columna Derecha: Empleados asignados -->
-                    <div class="space-y-4">
+                    <div data-tour="team-assign-boards" class="space-y-4">
                         <h3 class="text-xl font-semibold text-slate-900">Empleados en el Equipo</h3>
                         <div class="border rounded-md p-4 max-h-96 overflow-y-auto">
                             @if($assignedEmployees->isEmpty())

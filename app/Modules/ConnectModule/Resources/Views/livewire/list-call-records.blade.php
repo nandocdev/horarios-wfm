@@ -1,10 +1,10 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Registro de Llamadas" description="Resumen de llamadas gestionadas." search searchWire="search" searchPlaceholder="Buscar teléfono o identificador...">
+    <x-wfm.page-header title="Registro de Llamadas" description="Resumen de llamadas gestionadas." search searchWire="search" searchPlaceholder="Buscar teléfono o identificador..." tour="contact-center-calls" data-tour="calls-header">
         <x-slot:actions>
             <flux:button href="{{ route('contact-center.calls.create') }}" variant="primary" icon="plus" wire:navigate>Nuevo registro</flux:button>
         </x-slot:actions>
         <x-slot:filters>
-            <x-wfm.filter-bar>
+            <x-wfm.filter-bar data-tour="calls-filters">
                 <flux:select wire:model.live="statusFilter" placeholder="Estado" class="!w-36">
                     <flux:select.option value="">Todos</flux:select.option>
                     <flux:select.option value="open">Abierto</flux:select.option>
@@ -29,7 +29,7 @@
         </div>
     @endif
 
-    <x-wfm.section>
+    <x-wfm.section data-tour="calls-table">
         <div wire:loading.delay.class="opacity-50" class="transition-opacity">
             <x-wfm.table :headers="['ID', 'Teléfono', 'Asegurado', 'Estado', 'Tipo', 'Subtipo', 'Atiende', 'Creado', 'Cerrado', 'Acciones']" compact>
                 @forelse($records as $record)

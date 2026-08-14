@@ -1,4 +1,5 @@
 import './bootstrap';
+import './tours';
 import ApexCharts from 'apexcharts';
 
 window.ApexCharts = ApexCharts;

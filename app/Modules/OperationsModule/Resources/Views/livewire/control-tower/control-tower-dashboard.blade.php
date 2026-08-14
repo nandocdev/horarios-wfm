@@ -1,16 +1,20 @@
 <div>
     {{-- ROW 1: Header --}}
-    <livewire:operations.control-tower.header-widget :selected-date="$selectedDate" :scope="$scope"
-        :refresh-interval="$refreshInterval" :today-label="$todayLabel" :current-time="$currentTime"
-        :greeting="$greeting" :display-name="$displayName" :role-label="$roleLabel" :role="$role" :teams="$teams"
-        :team-id="$teamId" :key="'header'" />
+    <div data-tour="control-tower-header">
+        <livewire:operations.control-tower.header-widget :selected-date="$selectedDate" :scope="$scope"
+            :refresh-interval="$refreshInterval" :today-label="$todayLabel" :current-time="$currentTime"
+            :greeting="$greeting" :display-name="$displayName" :role-label="$roleLabel" :role="$role" :teams="$teams"
+            :team-id="$teamId" :key="'header'" />
+    </div>
 
     {{-- ROW 2: Hero 6-pack --}}
-    <livewire:operations.control-tower.hero-stats-widget :employee-ids="$employeeIds" :selected-date="$selectedDate"
-        :key="'hero'" wire:key="hero-widget" />
+    <div data-tour="control-tower-kpis">
+        <livewire:operations.control-tower.hero-stats-widget :employee-ids="$employeeIds" :selected-date="$selectedDate"
+            :key="'hero'" wire:key="hero-widget" />
+    </div>
 
     {{-- ROW 7: Equipos (1/2) | Colas (1/2) --}}
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+    <div data-tour="control-tower-queues" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
         <livewire:operations.control-tower.team-performance-widget :employee-ids="$employeeIds"
             :selected-date="$selectedDate" :key="'teams'" wire:key="teams-widget" />
         <livewire:operations.control-tower.queue-table-widget :employee-ids="$employeeIds"
@@ -18,7 +22,7 @@
     </div>
 
     {{-- ROW 3: Estado Operacional (2/3) | Alertas (1/3) --}}
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
+    <div data-tour="control-tower-ops-status" class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
         <div class="xl:col-span-2">
             <livewire:operations.control-tower.operational-status-widget :employee-ids="$employeeIds"
                 :key="'ops-status'" wire:key="ops-status-widget" />
@@ -30,7 +34,7 @@
     </div>
 
     {{-- ROW 4: Occupancy por Hora | SLA/ASA --}}
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
+    <div data-tour="control-tower-charts" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
         <livewire:operations.control-tower.occupancy-chart-widget :employee-ids="$employeeIds"
             :selected-date="$selectedDate" :key="'occupancy'" wire:key="occupancy-widget" />
         <livewire:operations.control-tower.sla-asa-chart-widget :employee-ids="$employeeIds"
@@ -46,7 +50,7 @@
     </div>
 
     {{-- ROW 6: Forecast vs Real (2/3) | Timeline del día (1/3) --}}
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
+    <div data-tour="control-tower-forecast" class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
         <div class="xl:col-span-2">
             <livewire:operations.control-tower.forecast-comparison-widget :selected-date="$selectedDate"
                 :key="'forecast'" wire:key="forecast-widget" />

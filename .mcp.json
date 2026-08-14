@@ -1,20 +1,20 @@
 {
-  "mcpServers": {
-    "laravel-boost": {
-      "command": "wsl.exe",
-      "args": [
-        "/home/ferncastillo/.config/herd-lite/bin/php",
-        "/home/ferncastillo/Proyectos/php/horarios-wfm/artisan",
-        "boost:mcp"
-      ]
-    },
-    "codegraph": {
-      "type": "stdio",
-      "command": "codegraph",
-      "args": [
-        "serve",
-        "--mcp"
-      ]
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "wsl.exe",
+            "args": [
+                "/home/ferncastillo/.config/herd-lite/bin/php",
+                "/home/ferncastillo/Proyectos/php/horarios-wfm/artisan",
+                "boost:mcp"
+            ]
+        },
+        "codegraph": {
+            "type": "stdio",
+            "command": "codegraph",
+            "args": [
+                "serve",
+                "--mcp"
+            ]
+        }
     }
-  }
 }

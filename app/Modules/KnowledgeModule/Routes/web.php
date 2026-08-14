@@ -15,7 +15,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Rutas de gestión administrativa
-Route::middleware(['auth', 'can:knowledge.manage'])->group(function () {
+Route::middleware(['auth', 'permission:knowledge.manage'])->group(function () {
     Route::get('/admin/knowledge', ManageKnowledgeArticles::class)->name('knowledge.admin');
     Route::get('/admin/knowledge/create', UpsertKnowledgeArticle::class)->name('knowledge.create');
     Route::get('/admin/knowledge/{id}/edit', UpsertKnowledgeArticle::class)->name('knowledge.edit');

@@ -30,7 +30,9 @@ Route::group(['prefix' => 'employees', 'as' => 'employees.'], function () {
     Route::put('/{employee}', [EmployeeController::class, 'update'])->name('update');
     Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');
 
-    Route::get('/teams/manage', ManageTeamAssignments::class)->name('teams.manage');
+    Route::get('/teams/manage', ManageTeamAssignments::class)
+        ->name('teams.manage')
+        ->can('manageTeamAssignments', Employee::class);
 });
 
 Route::group(['prefix' => 'organization', 'as' => 'organization.'], function () {

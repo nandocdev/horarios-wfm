@@ -62,6 +62,7 @@ class MenuHelper
                     ['label' => __('Dashboard del Equipo'), 'route' => 'schedules.team-dashboard', 'pattern' => 'schedules/team-dashboard*', 'permission' => 'schedules.view_team', 'icon' => 'presentation-chart-bar'],
                     ['label' => __('Miembros'), 'route' => 'schedules.my-team', 'pattern' => 'schedules/my-team*', 'permission' => 'schedules.view_team', 'icon' => 'user-group'],
                     ['label' => __('Aprobar Permisos'), 'route' => 'schedules.manager-approvals', 'pattern' => 'schedules/manager-approvals*', 'permission' => 'schedules.approve_requests', 'icon' => 'check-badge'],
+                    ['label' => __('Aprobaciones Pendientes'), 'route' => 'workflows.pending', 'pattern' => 'workflows/pending*', 'permission' => 'workflows.viewAny', 'icon' => 'clock'],
                     ['label' => __('Resumen de Solicitudes'), 'route' => 'schedules.request-summary', 'pattern' => 'schedules/reports/requests*', 'permission' => 'schedules.view_team', 'icon' => 'clipboard-document'],
                     ['label' => __('Excepciones'), 'route' => 'schedules.exceptions', 'pattern' => 'schedules/exceptions*', 'permission' => ['schedules.view_team', 'wfm.exceptions.manage'], 'icon' => 'exclamation-triangle'],
                 ],
@@ -173,6 +174,7 @@ class MenuHelper
                     ['label' => __('Mis Tickets'), 'route' => 'helpdesk.my-tickets', 'pattern' => 'helpdesk/my-tickets*', 'permission' => 'helpdesk.view', 'icon' => 'ticket'],
                     ['label' => __('Bandeja de Soporte'), 'route' => 'helpdesk.manage', 'pattern' => 'helpdesk/manage*', 'permission' => 'helpdesk.manage', 'icon' => 'inbox'],
                     ['label' => __('Base de Conocimiento'), 'route' => 'knowledge.index', 'pattern' => 'knowledge*', 'permission' => 'knowledge.viewAny', 'icon' => 'book-open'],
+                    ['label' => __('Administrar Base de Conocimiento'), 'route' => 'knowledge.admin', 'pattern' => 'admin/knowledge*', 'permission' => 'knowledge.manage', 'icon' => 'pencil-square'],
                 ],
             ],
 
@@ -213,7 +215,7 @@ class MenuHelper
             [
                 'label' => __('Administración'),
                 'icon' => 'cog-6-tooth',
-                'permission' => ['employees.view', 'directorates.viewAny', 'teams.viewAny', 'users.view', 'roles.view', 'quality.criteria.view', 'quality.queues.manage', 'call_queues.manage', 'channels.manage', 'case_subtypes.manage', 'admin.system', 'audit.view'],
+                'permission' => ['employees.view', 'directorates.viewAny', 'teams.viewAny', 'teams.members.manage', 'users.view', 'roles.view', 'quality.criteria.view', 'quality.queues.manage', 'call_queues.manage', 'channels.manage', 'case_subtypes.manage', 'admin.system', 'audit.view'],
                 'submenu' => [
                     [
                         'label' => __('Personas y Organización'),
@@ -222,6 +224,7 @@ class MenuHelper
                             ['label' => __('Listar Empleados'), 'route' => 'employees.index', 'pattern' => 'employees', 'permission' => 'employees.view', 'icon' => 'user-group'],
                             ['label' => __('Crear Empleado'), 'route' => 'employees.create', 'pattern' => 'employees/create*', 'permission' => 'employees.create', 'icon' => 'user-plus'],
                             ['label' => __('Importar Empleados'), 'route' => 'employees.import', 'pattern' => 'employees/import*', 'permission' => 'employees.import', 'icon' => 'arrow-up-tray'],
+                            ['label' => __('Asignaciones de Equipos'), 'route' => 'employees.teams.manage', 'pattern' => 'employees/teams/manage*', 'permission' => 'teams.members.manage', 'icon' => 'user-group'],
                             ['label' => __('Direcciones'), 'route' => 'organization.directorates.index', 'pattern' => 'organization/directorates*', 'permission' => 'directorates.viewAny', 'icon' => 'building-library'],
                             ['label' => __('Departamentos'), 'route' => 'organization.departments.index', 'pattern' => 'organization/departments*', 'permission' => 'departments.viewAny', 'icon' => 'building-office-2'],
                             ['label' => __('Cargos'), 'route' => 'organization.positions.index', 'pattern' => 'organization/positions*', 'permission' => 'positions.viewAny', 'icon' => 'briefcase'],

@@ -145,3 +145,39 @@ it('el grupo de comunicaciones ya no contiene la entrada Inicio', function () {
     expect($comunicaciones)->not->toBeNull();
     expect(collect($comunicaciones['submenu'])->pluck('label'))->not->toContain('Inicio');
 });
+
+it('el administrador ve las nuevas entradas del menú', function () {
+    $items = MenuHelper::getSidebarItems($this->admin);
+
+    $flatLabels = [];
+    $collectLabels = function (iterable $items) use (&$collectLabels, &$flatLabels): void {
+        foreach ($items as $item) {
+            $flatLabels[] = $item['label'];
+            if (isset($item['submenu'])) {
+                $collectLabels($item['submenu']);
+            }
+        }
+    };
+    $collectLabels($items);
+
+    expect($flatLabels)->toContain('Aprobaciones Pendientes');
+    expect($flatLabels)->toContain('Administrar Base de Conocimiento');
+    expect($flatLabels)->toContain('Asignaciones de Equipos');
+});
+
+it('un supervisor ve Mi Equipo con Aprobaciones Pendientes pero no Asignaciones de Equipos', function () {
+    $supervisor = User::factory()->create();
+    $supervisor->assignRole(Role::findByName('supervisor', 'web'));
+
+    $items = MenuHelper::getSidebarItems($supervisor);
+
+    $teamGroup = collect($items)->firstWhere('label', 'Mi Equipo');
+    expect($teamGroup)->not->toBeNull();
+
+    $teamSubLabels = collect($teamGroup['submenu'])->pluck('label')->all();
+    expect($teamSubLabels)->toContain('Aprobaciones Pendientes');
+    expect($teamSubLabels)->toContain('Aprobar Permisos');
+
+    $adminGroup = collect($items)->firstWhere('label', 'Administración');
+    expect($adminGroup)->toBeNull();
+});

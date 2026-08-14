@@ -1,7 +1,7 @@
 @if(isset($item['submenu']) && !empty($item['submenu']))
     <div x-data="{ open: {{ $item['is_active'] ? 'true' : 'false' }} }" class="w-full">
         <button @click="open = !open"
-            class="wfm-sidebar-item w-full text-left {{ $item['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
+            class="wfm-sidebar-item w-full text-left min-h-[36px] {{ $item['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
             @if(isset($item['icon']))
                 <flux:icon :name="$item['icon']" class="w-3.5 h-3.5 flex-shrink-0" />
             @endif
@@ -16,7 +16,7 @@
                     {{-- Nested submenu (like Administración > Empleados) --}}
                     <div x-data="{ open: {{ $subItem['is_active'] ? 'true' : 'false' }} }" class="w-full">
                         <button @click="open = !open"
-                            class="wfm-sidebar-item w-full text-left {{ $subItem['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
+                            class="wfm-sidebar-item w-full text-left min-h-[34px] {{ $subItem['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
                             @if(isset($subItem['icon']))
                                 <flux:icon :name="$subItem['icon']" class="w-3.5 h-3.5 flex-shrink-0" />
                             @endif
@@ -33,7 +33,7 @@
                     @php($href = isset($subItem['route']) ? route($subItem['route'], $subItem['params'] ?? []) : '#')
                     <a href="{{ $href }}"
                        wire:navigate
-                       class="wfm-sidebar-item {{ $subItem['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
+                       class="wfm-sidebar-item min-h-[34px] {{ $subItem['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
                         @if(isset($subItem['icon']))
                             <flux:icon :name="$subItem['icon']" class="w-3.5 h-3.5 flex-shrink-0" />
                         @else
@@ -52,7 +52,7 @@
     @php($href = isset($item['route']) ? route($item['route'], $item['params'] ?? []) : '#')
     <a href="{{ $href }}"
        wire:navigate
-       class="wfm-sidebar-item {{ $item['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
+       class="wfm-sidebar-item min-h-[36px] {{ $item['is_active'] ? 'wfm-sidebar-item-active' : 'wfm-sidebar-item-inactive' }}">
         @if(isset($item['icon']))
             <flux:icon :name="$item['icon']" class="w-3.5 h-3.5 flex-shrink-0" />
         @endif

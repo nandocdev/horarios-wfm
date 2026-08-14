@@ -94,17 +94,20 @@
         <div class="flex-1 flex flex-col min-h-dvh">
 
             <!-- Mobile Header -->
-            <flux:header class="lg:hidden">
-                <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+            <flux:header class="lg:hidden border-b border-wfm-surface-border bg-wfm-surface-card dark:bg-zinc-900 px-3 sm:px-4 py-2">
+                <div class="flex items-center gap-2">
+                    <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+                    <x-app-logo href="{{ $authUser ? route('dashboard') : route('home') }}" wire:navigate />
+                </div>
                 <flux:spacer />
                 <div class="flex items-center gap-2">
                     <livewire:core.shared.notification-bell />
-                    <flux:dropdown position="top" align="end">
+                    <flux:dropdown position="bottom" align="end">
                         <flux:profile :initials="$authUser?->initials() ?? 'NA'" icon-trailing="chevron-down" />
                         <flux:menu>
                             <flux:menu.radio.group>
                                 <div class="p-0 text-xs font-normal">
-                                    <div class="flex items-center gap-2 px-1 py-1.5 text-start text-xs">
+                                    <div class="flex items-center gap-2 px-2 py-2 text-start text-xs">
                                         <flux:avatar :name="$authUser?->name ?? 'Invitado'"
                                             :initials="$authUser?->initials() ?? 'NA'" class="!size-7" />
                                         <div class="grid flex-1 text-start text-xs leading-tight">

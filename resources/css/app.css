@@ -220,14 +220,30 @@
 
 /* ── Compact sidebar ─────────────────────────────────── */
 @utility wfm-sidebar-item {
-    @apply flex items-center gap-2.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors;
+    @apply flex items-center gap-2.5 px-2.5 py-2 sm:py-1.5 rounded text-xs font-medium transition-colors select-none active:scale-[0.99];
 }
 @utility wfm-sidebar-item-active {
-    @apply bg-wfm-navy-100 text-wfm-navy-800 dark:bg-wfm-navy-800 dark:text-wfm-blue-200;
+    @apply bg-wfm-navy-100 text-wfm-navy-800 dark:bg-wfm-navy-800 dark:text-wfm-blue-200 font-semibold;
 }
 @utility wfm-sidebar-item-inactive {
     @apply text-wfm-surface-muted hover:bg-wfm-surface-hover hover:text-wfm-navy-700 dark:hover:text-white;
 }
 @utility wfm-sidebar-group {
     @apply text-[10px] font-semibold uppercase tracking-widest text-wfm-surface-muted px-2.5 pb-1 pt-3;
+}
+
+/* ── Mobile Scroll & Touch Optimization ─────────────── */
+@utility touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+@utility touch-target {
+    @apply min-h-[40px] min-w-[40px] flex items-center justify-center;
+}
+@utility scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
 }

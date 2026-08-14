@@ -7,10 +7,10 @@
 
 @php
     $widths = [
-        'sm' => 'max-w-sm',
-        'md' => 'max-w-md',
-        'lg' => 'max-w-lg',
-        'xl' => 'max-w-xl',
+        'sm' => 'max-w-full sm:max-w-sm',
+        'md' => 'max-w-full sm:max-w-md',
+        'lg' => 'max-w-full sm:max-w-lg',
+        'xl' => 'max-w-full sm:max-w-xl',
         'full' => 'max-w-full',
     ];
     $panelWidth = $widths[$width] ?? $widths['md'];

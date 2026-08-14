@@ -16,26 +16,28 @@
             @endif
         </div>
 
-        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
-            @if($search)
-                <div class="relative w-full sm:w-56">
-                    <flux:icon.magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-wfm-surface-muted pointer-events-none" />
-                    <input type="search"
-                        @if($searchWire) wire:model.live="{{ $searchWire }}" @endif
-                        placeholder="{{ $searchPlaceholder }}"
-                        class="w-full rounded border border-wfm-surface-border bg-wfm-surface py-1.5 pl-8 pr-3 text-xs text-wfm-navy-800 placeholder:text-wfm-surface-muted focus:outline-none focus:ring-1 focus:ring-wfm-navy-500 dark:bg-wfm-navy-900 dark:text-white dark:placeholder:text-wfm-surface-muted" />
-                </div>
-            @endif
+        @if($search || isset($actions))
+            <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto sm:shrink-0">
+                @if($search)
+                    <div class="relative w-full sm:w-64">
+                        <flux:icon.magnifying-glass class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-wfm-surface-muted pointer-events-none" />
+                        <input type="search"
+                            @if($searchWire) wire:model.live.debounce.300ms="{{ $searchWire }}" @endif
+                            placeholder="{{ $searchPlaceholder }}"
+                            class="w-full rounded border border-wfm-surface-border bg-wfm-surface py-1.5 pl-8 pr-3 text-xs text-wfm-navy-800 placeholder:text-wfm-surface-muted focus:outline-none focus:ring-1 focus:ring-wfm-navy-500 dark:bg-wfm-navy-900 dark:text-white dark:placeholder:text-wfm-surface-muted" />
+                    </div>
+                @endif
 
-            @if(isset($actions))
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    {{ $actions }}
-                </div>
-            @endif
-        </div>
+                @if(isset($actions))
+                    <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        {{ $actions }}
+                    </div>
+                @endif
+            </div>
+        @endif
     </div>
 
-    @if(($filters ?? false) || ($slot ?? false))
+    @if(($filters ?? false) || !empty(trim((string) ($slot ?? ''))))
         <div class="flex items-center gap-2 mt-3 flex-wrap">
             {{ $filters ?? '' }}
             {{ $slot }}

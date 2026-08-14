@@ -28,6 +28,17 @@ package-lock.json
 /scripts/*
 /docs/trash/*
 .gemini/
+.agents/
+.ai/
+.claude/
+.codegraph/
+.github/
+.opencode/
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+opencode.jsonc
+rules-schedule.md
 gha-creds-*.json
 scripts/*.excalidraw:Zone.Identifier
 /docs/TMP.md

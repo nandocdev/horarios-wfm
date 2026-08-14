@@ -76,3 +76,32 @@ test('livewire:navigated no auto-inicia si no existe data-tour-auto', () => {
 
     assert.equal(tour.started, undefined);
 });
+
+test('en la primera carga directa auto-inicia el tour pendiente (sin wire:navigate)', () => {
+    const tour = {
+        destroy() {},
+        autoStartIfPending(tourKey) {
+            this.started = tourKey;
+        },
+    };
+    const autoTour = { getAttribute: (name) => (name === 'data-tour-auto' ? 'operations.control-tower' : null) };
+    const doc = makeDoc({ autoTour });
+
+    setupTourNavigation(tour, doc);
+
+    assert.equal(tour.started, 'operations.control-tower');
+});
+
+test('en la primera carga directa no auto-inicia si el tour ya fue visto', () => {
+    const tour = {
+        destroy() {},
+        autoStartIfPending() {
+            this.started = true;
+        },
+    };
+    const doc = makeDoc();
+
+    setupTourNavigation(tour, doc);
+
+    assert.equal(tour.started, undefined);
+});

@@ -127,11 +127,18 @@ class KnowledgeArticle extends Model
     }
 
     /**
-     * Prioridad calculada dinámica.
+     * Prioridad máxima de las colas asociadas.
+     *
+     * Usa el agregado cargado por withMax() para evitar consultas N+1;
+     * cae a la colección ya cargada cuando no se agregó el agregado.
      */
     public function getPriorityAttribute(): int
     {
-        return (int) $this->queues()->max('priority');
+        if (array_key_exists('queues_max_priority', $this->attributes)) {
+            return (int) $this->attributes['queues_max_priority'];
+        }
+
+        return (int) $this->queues->max('priority');
     }
 
     /**

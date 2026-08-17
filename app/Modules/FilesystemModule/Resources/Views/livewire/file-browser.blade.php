@@ -1,6 +1,6 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
     <!-- Panel Lateral: Árbol de Directorios -->
-    <aside class="lg:col-span-3 space-y-8">
+    <aside data-tour="filesystem-tree" class="lg:col-span-3 space-y-8">
         <flux:card class="p-4 bg-slate-50/50 dark:bg-slate-900/30">
             <div class="flex items-center justify-between mb-4">
                 <flux:heading size="sm" class="uppercase tracking-wider text-slate-500 font-bold">Explorar</flux:heading>
@@ -34,7 +34,7 @@
         </flux:card>
 
         <!-- Cuota de Almacenamiento -->
-        <flux:card class="p-4">
+        <flux:card data-tour="filesystem-storage" class="p-4">
             <div class="flex items-center gap-2 mb-4">
                 <flux:icon name="cloud" class="text-slate-400" />
                 <flux:heading size="sm">Almacenamiento</flux:heading>
@@ -60,13 +60,14 @@
 
     <!-- Panel Principal: Explorador -->
     <div class="lg:col-span-9 space-y-4">
-        <div class="flex items-center justify-between">
+        <div data-tour="filesystem-header" class="flex flex-wrap items-center justify-between gap-3">
             <div>
                 <flux:heading size="xl">Gestor de Archivos</flux:heading>
                 <flux:subheading>Administra tus documentos y carpetas compartidas</flux:subheading>
             </div>
 
-            <div class="flex gap-2">
+            <div data-tour="filesystem-actions" class="flex flex-wrap gap-2">
+                <x-wfm.tour-button :tour="'filesystem.browser'" />
                 <flux:modal.trigger name="create-folder">
                     <flux:button icon="folder-plus" variant="ghost">Nueva Carpeta</flux:button>
                 </flux:modal.trigger>

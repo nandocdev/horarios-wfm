@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Base de Conocimiento" description="Resuelve dudas de pacientes con procedimientos y políticas al instante.">
+    <x-wfm.page-header title="Base de Conocimiento" description="Resuelve dudas de pacientes con procedimientos y políticas al instante." tour="knowledge.operator-view" data-tour="knowledge-header">
         <x-slot:actions>
             <x-wfm.live-indicator label="Operativo" color="success" />
             @can('create', App\Modules\KnowledgeModule\Models\KnowledgeArticle::class)
@@ -9,7 +9,7 @@
     </x-wfm.page-header>
 
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div class="lg:col-span-1 space-y-4">
+        <div data-tour="knowledge-filters" class="lg:col-span-1 space-y-4">
             <x-wfm.section title="Canal / Cola Activa">
                 <x-slot:actions>
                     @if($selectedQueueId)
@@ -44,7 +44,7 @@
             </x-wfm.section>
         </div>
 
-        <div class="lg:col-span-3 space-y-4">
+        <div data-tour="knowledge-results" class="lg:col-span-3 space-y-4">
             <x-wfm.section>
                 <div class="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
                     <div class="w-full flex-1">

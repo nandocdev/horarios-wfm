@@ -1,11 +1,12 @@
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-md shadow-sm border border-slate-200">
-        <div class="p-4 border-b border-slate-200">
+        <div data-tour="workflows-header" class="p-4 border-b border-slate-200 flex items-center justify-between">
             <h1 class="text-3xl font-bold text-slate-900">Aprobaciones Pendientes</h1>
+            <x-wfm.tour-button :tour="'workflows.pending'" />
         </div>
 
         <div class="p-4">
-            <flux:table :paginate="$requests">
+            <flux:table data-tour="workflows-list" :paginate="$requests">
                 <flux:table.columns>
                     <flux:table.column>Tipo</flux:table.column>
                     <flux:table.column>Solicitante</flux:table.column>
@@ -24,7 +25,7 @@
                             <flux:table.cell>{{ Str::limit($request->reason, 50) }}</flux:table.cell>
                             <flux:table.cell>{{ $request->created_at->format('d/m/Y H:i') }}</flux:table.cell>
                             <flux:table.cell>
-                                <flux:button.group>
+                                <flux:button.group data-tour="workflows-actions">
                                     <flux:button wire:click="approve({{ $request->id }})" variant="primary" size="sm">
                                         Aprobar
                                     </flux:button>

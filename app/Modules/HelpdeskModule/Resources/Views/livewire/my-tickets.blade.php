@@ -1,14 +1,17 @@
 <div class="space-y-8  mx-auto">
-    <div class="flex items-center justify-between">
+    <div data-tour="my-tickets-header" class="flex items-center justify-between">
         <div>
             <flux:heading size="xl">Mis Tickets de Soporte</flux:heading>
             <flux:subheading>Gestiona tus solicitudes de asistencia técnica, administrativa u operativa.
             </flux:subheading>
         </div>
-        <flux:button variant="primary" icon="plus" wire:click="openCreateModal">Nuevo Ticket</flux:button>
+        <div data-tour="my-tickets-create" class="flex items-center gap-2">
+            <x-wfm.tour-button :tour="'helpdesk.my-tickets'" />
+            <flux:button variant="primary" icon="plus" wire:click="openCreateModal">Nuevo Ticket</flux:button>
+        </div>
     </div>
 
-    <flux:card class="p-0 overflow-hidden">
+    <flux:card data-tour="my-tickets-list" class="p-0 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">

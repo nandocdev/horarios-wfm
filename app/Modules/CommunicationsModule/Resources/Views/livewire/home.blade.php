@@ -1,9 +1,12 @@
 <div class="flex w-full flex-col">
     <!-- Hero Section: Dinamizada con el mejor Shoutout o Mensaje de Bienvenida -->
-    <section class="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+    <section data-tour="comms-hero" class="relative overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <div class="absolute inset-x-0 top-0 h-64 bg-slate-100 dark:bg-slate-900"></div>
 
         <div class="relative mx-auto max-w-[85rem] px-4 py-8 sm:px-4 lg:px-8 lg:py-16">
+            <div class="absolute top-4 right-4 z-10">
+                <x-wfm.tour-button :tour="'communications.home'" />
+            </div>
             <div class="grid gap-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-center">
                 <div class="space-y-8">
                     @if($featuredShoutout)
@@ -87,7 +90,7 @@
     <!-- Contenido Principal -->
     <div class="mx-auto w-full max-w-[85rem] px-4 py-12 sm:px-4 lg:px-8">
         <div class="grid gap-12 lg:grid-cols-3">
-            <div id="noticias" class="space-y-8 lg:col-span-2">
+            <div id="noticias" data-tour="comms-news" class="space-y-8 lg:col-span-2">
                 <section class="space-y-8">
                     <div
                         class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-slate-100 dark:border-slate-800 pb-6">
@@ -257,7 +260,7 @@
 
                 <!-- Encuesta Dinámica -->
                 @if($activePoll)
-                    <flux:card class="overflow-hidden relative border-none shadow-md">
+                    <flux:card data-tour="comms-encuesta" class="overflow-hidden relative border-none shadow-md">
                         <div class="absolute top-0 right-0 p-4 opacity-5">
                             <flux:icon name="presentation-chart-line" class="w-20 h-20" />
                         </div>

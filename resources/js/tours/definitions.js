@@ -720,4 +720,223 @@ export const tourDefinitions = {
             },
         ],
     },
+
+    // 🎫 Soporte / Mis Tickets
+    'helpdesk.my-tickets': {
+        title: 'Mis Tickets de Soporte',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="my-tickets-header"]',
+                popover: {
+                    title: 'Tus Solicitudes de Soporte',
+                    description: 'Gestiona tus tickets de asistencia técnica, administrativa u operativa.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="my-tickets-list"]',
+                popover: {
+                    title: 'Lista de Tickets',
+                    description: 'Consulta el estado, prioridad, categoría y agente asignado de cada solicitud.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="my-tickets-create"]',
+                popover: {
+                    title: 'Abrir un Ticket',
+                    description: 'Usa Nuevo Ticket para reportar una incidencia o solicitar asistencia.',
+                    side: 'left',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 🎫 Soporte / Bandeja de Soporte
+    'helpdesk.manage': {
+        title: 'Bandeja de Soporte',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="helpdesk-manage-header"]',
+                popover: {
+                    title: 'Bandeja de Soporte',
+                    description: 'Atención, priorización y resolución de tickets operativos y técnicos.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="helpdesk-manage-filters"]',
+                popover: {
+                    title: 'Filtros',
+                    description: 'Busca por ID/asunto/empleado y filtra por categoría, prioridad y estado del SLA.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="helpdesk-manage-list"]',
+                popover: {
+                    title: 'Tickets de la Bandeja',
+                    description: 'Revisa SLA, prioridad, categoría y solicitante. Toma tickets sin asignar o responde los asignados.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 📚 Base de Conocimiento / Operador
+    'knowledge.operator-view': {
+        title: 'Base de Conocimiento',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="knowledge-header"]',
+                popover: {
+                    title: 'Base de Conocimiento',
+                    description: 'Resuelve dudas de pacientes con procedimientos y políticas al instante.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="knowledge-filters"]',
+                popover: {
+                    title: 'Filtros y Búsqueda',
+                    description: 'Filtra por cola o categoría y busca por palabra clave, código o tag.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="knowledge-results"]',
+                popover: {
+                    title: 'Resultados',
+                    description: 'Consulta los artículos, su prioridad y versión, y ábrelos para leer el detalle.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 🗃 Archivos / Explorador de Archivos
+    'filesystem.browser': {
+        title: 'Gestor de Archivos',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="filesystem-header"]',
+                popover: {
+                    title: 'Gestor de Archivos',
+                    description: 'Administra tus documentos y carpetas compartidas.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="filesystem-tree"]',
+                popover: {
+                    title: 'Árbol de Carpetas',
+                    description: 'Explora tus archivos, los compartidos y navega por las carpetas desde el panel lateral.',
+                    side: 'right',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="filesystem-actions"]',
+                popover: {
+                    title: 'Crear y Subir',
+                    description: 'Crea carpetas y sube archivos arrastrándolos o seleccionándolos. También puedes compartir elementos.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="filesystem-storage"]',
+                popover: {
+                    title: 'Almacenamiento',
+                    description: 'Monitorea el uso de tu cuota de almacenamiento.',
+                    side: 'right',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 📢 Comunicaciones / Inicio
+    'communications.home': {
+        title: 'Inicio - Comunicaciones',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="comms-hero"]',
+                popover: {
+                    title: 'Canal Oficial de Comunicaciones',
+                    description: 'Punto de entrada a las novedades del Centro de Contactos.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="comms-news"]',
+                popover: {
+                    title: 'Noticias Internas',
+                    description: 'Actualizaciones y novedades del centro. Lee, comenta y mantente informado.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="comms-encuesta"]',
+                popover: {
+                    title: 'Encuestas',
+                    description: 'Participa en las encuestas activas para dar tu opinión.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 🔄 Workflows / Aprobaciones Pendientes
+    'workflows.pending': {
+        title: 'Aprobaciones Pendientes',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="workflows-header"]',
+                popover: {
+                    title: 'Aprobaciones Pendientes',
+                    description: 'Revisa y procesa las solicitudes de flujos de trabajo que requieren tu aprobación.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="workflows-list"]',
+                popover: {
+                    title: 'Solicitudes',
+                    description: 'Consulta el tipo, solicitante, motivo y fecha de cada solicitud.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="workflows-actions"]',
+                popover: {
+                    title: 'Aprobar o Rechazar',
+                    description: 'Aprueba la solicitud o recházala indicando un motivo.',
+                    side: 'left',
+                    align: 'start',
+                },
+            },
+        ],
+    },
 };

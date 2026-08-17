@@ -1,20 +1,23 @@
 <div wire:poll.5s class="space-y-8">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div data-tour="helpdesk-manage-header" class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <flux:heading size="xl">Bandeja de Soporte (Helpdesk)</flux:heading>
             <flux:subheading>Atención, priorización y resolución de tickets operativos y técnicos.</flux:subheading>
         </div>
         
-        <flux:radio.group wire:model.live="statusFilter" variant="segmented">
-            <flux:radio value="open_unassigned" label="Bandeja General" />
-            <flux:radio value="my_assigned" label="Mis Tickets" />
-            <flux:radio value="all_active" label="Todos Activos" />
-            <flux:radio value="closed" label="Cerrados" />
-        </flux:radio.group>
+        <div class="flex items-center gap-2">
+            <x-wfm.tour-button :tour="'helpdesk.manage'" />
+            <flux:radio.group wire:model.live="statusFilter" variant="segmented">
+                <flux:radio value="open_unassigned" label="Bandeja General" />
+                <flux:radio value="my_assigned" label="Mis Tickets" />
+                <flux:radio value="all_active" label="Todos Activos" />
+                <flux:radio value="closed" label="Cerrados" />
+            </flux:radio.group>
+        </div>
     </div>
 
     {{-- Filtros Rápidos --}}
-    <flux:card class="flex flex-col md:flex-row items-end gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/20">
+    <flux:card data-tour="helpdesk-manage-filters" class="flex flex-col md:flex-row items-end gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/20">
         <flux:field class="flex-1 w-full">
             <flux:label>Buscar</flux:label>
             <flux:input wire:model.live.debounce.300ms="search" placeholder="ID, Asunto o Empleado..." icon="magnifying-glass" />
@@ -54,7 +57,7 @@
     </flux:card>
 
     {{-- Lista de Tickets --}}
-    <flux:card class="p-0 overflow-hidden">
+    <flux:card data-tour="helpdesk-manage-list" class="p-0 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">

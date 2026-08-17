@@ -19,6 +19,10 @@ class ManageDirectoryUnits extends Component
 
     public string $search = '';
 
+    public bool $showContactCard = false;
+
+    public ?Unit $viewingUnit = null;
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -30,6 +34,20 @@ class ManageDirectoryUnits extends Component
         $unit->delete();
         \Flux::toast('Unidad eliminada correctamente.');
         $this->resetPage();
+    }
+
+    public function openContactCard(Unit $unit): void
+    {
+        $this->authorize('view', $unit);
+
+        $this->viewingUnit = $unit->load(['building', 'services']);
+        $this->showContactCard = true;
+    }
+
+    public function closeContactCard(): void
+    {
+        $this->showContactCard = false;
+        $this->viewingUnit = null;
     }
 
     public function render()

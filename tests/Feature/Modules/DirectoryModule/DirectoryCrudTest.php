@@ -322,6 +322,43 @@ test('el listado busca por nombre de servicio', function () {
         ->assertDontSee('Hospital B');
 });
 
+test('la accion ver abre la ficha de contacto de la unidad seleccionada', function () {
+    $this->actingAs($this->supervisor);
+
+    $building = Building::create([
+        'name' => 'Hospital Central',
+        'director_name' => 'Dra. Ana Torres',
+        'administrator_name' => 'Lic. Pedro Gómez',
+        'is_active' => true,
+    ]);
+
+    $unit = Unit::create([
+        'building_id' => $building->id,
+        'sector' => 'Nodo Norte',
+        'level' => 'Piso 2',
+        'is_active' => true,
+    ]);
+    $unit->services()->create([
+        'name' => 'Cardiología',
+        'door_id' => 'C-201',
+        'attention_hours' => '07:00 - 15:00',
+        'results_hours' => null,
+        'contact_role' => 'Citas',
+        'contact_extension' => '4210',
+        'contact_email' => 'citas-hospital@css.gob.pa',
+    ]);
+
+    Livewire::test(ManageDirectoryUnits::class)
+        ->call('openContactCard', $unit->id)
+        ->assertSet('showContactCard', true)
+        ->assertSet('viewingUnit.id', $unit->id)
+        ->assertSee('SERVICIO: Cardiología')
+        ->assertSee('Hospital Central')
+        ->call('closeContactCard')
+        ->assertSet('showContactCard', false)
+        ->assertSet('viewingUnit', null);
+});
+
 test('un operador sin directory.manage no accede a las rutas del directorio', function () {
     $this->actingAs($this->operator);
 

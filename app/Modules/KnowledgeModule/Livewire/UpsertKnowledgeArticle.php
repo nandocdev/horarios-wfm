@@ -26,6 +26,8 @@ class UpsertKnowledgeArticle extends Component
 
     public ?KnowledgeArticle $article = null;
 
+    public string $activeTab = 'write';
+
     /**
      * Inicializa el componente. Si se provee ID, se carga para edición.
      */

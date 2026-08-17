@@ -21,10 +21,10 @@
             <flux:field label="Contenido *" hint="HTML / Markdown soportado">
                 <div class="border border-wfm-surface-border rounded-md overflow-hidden">
                     <div class="bg-wfm-surface px-3 py-2 border-b border-wfm-surface-border text-xs text-wfm-surface-muted">
-                        <flux:button type="button" variant="ghost" size="xs" wire:click="$set('activeTab', 'write')" class="{{ ($activeTab ?? 'write') === 'write' ? 'font-semibold' : '' }}">Escribir</flux:button>
-                        <flux:button type="button" variant="ghost" size="xs" wire:click="$set('activeTab', 'preview')" class="{{ ($activeTab ?? 'write') === 'preview' ? 'font-semibold' : '' }}">Vista Previa</flux:button>
+                        <flux:button type="button" variant="ghost" size="xs" wire:click="$set('activeTab', 'write')" class="{{ $activeTab === 'write' ? 'font-semibold' : '' }}">Escribir</flux:button>
+                        <flux:button type="button" variant="ghost" size="xs" wire:click="$set('activeTab', 'preview')" class="{{ $activeTab === 'preview' ? 'font-semibold' : '' }}">Vista Previa</flux:button>
                     </div>
-                    @if(($activeTab ?? 'write') === 'preview' && $form->content)
+                    @if($activeTab === 'preview' && $form->content)
                         <div class="p-4 prose dark:prose-invert max-w-none text-sm">
                             {!! $form->content !!}
                         </div>
@@ -42,31 +42,24 @@
                     <flux:select.option value="published">Publicado</flux:select.option>
                     <flux:select.option value="archived">Archivado</flux:select.option>
                 </flux:select>
-                <flux:input wire:model="form.priority" label="Prioridad" type="number" min="1" max="999" step="1" />
             </div>
 
             <flux:field label="Colas Relacionadas" hint="Artículo visible para operadores de estas colas">
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto p-3 border border-wfm-surface-border rounded-md">
                     @foreach($queues as $queue)
                         <label class="flex items-center gap-2 text-xs cursor-pointer hover:bg-wfm-surface-hover p-1 rounded">
-                            <flux:checkbox wire:model="form.queue_ids" value="{{ $queue->id }}" />
+                            <flux:checkbox wire:model="form.queues" value="{{ $queue->id }}" />
                             {{ $queue->name }}
                         </label>
                     @endforeach
                 </div>
-                <flux:error name="form.queue_ids" />
+                <flux:error name="form.queues" />
             </flux:field>
 
             <flux:field label="Etiquetas" hint="Separa con comas. Ej: cita, laboratorio, procedimiento">
-                <flux:input wire:model="form.tags" placeholder="cita, laboratorio, procedimiento" />
-                <flux:error name="form.tags" />
+                <flux:input wire:model="form.tagsString" placeholder="cita, laboratorio, procedimiento" />
+                <flux:error name="form.tagsString" />
             </flux:field>
-
-            @if($article)
-                <flux:field label="Motivo del Cambio" hint="Describe brevemente qué se modificó (se registra en el historial)">
-                    <flux:textarea wire:model="form.change_reason" placeholder="Ej: Se actualizó el procedimiento para incluir el nuevo formulario..." rows="2" />
-                </flux:field>
-            @endif
 
             <div class="flex justify-end gap-2 pt-4 border-t border-wfm-surface-border">
                 <flux:button href="{{ route('knowledge.admin') }}" variant="ghost" wire:navigate>Cancelar</flux:button>

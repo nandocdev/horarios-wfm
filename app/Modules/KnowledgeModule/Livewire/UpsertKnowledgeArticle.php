@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\KnowledgeModule\Livewire;
 
+use App\Modules\DirectoryModule\Models\Unit;
 use App\Modules\KnowledgeModule\Actions\CreateArticleAction;
 use App\Modules\KnowledgeModule\Actions\UpdateArticleAction;
 use App\Modules\KnowledgeModule\Livewire\Forms\KnowledgeArticleForm;
@@ -73,10 +74,12 @@ class UpsertKnowledgeArticle extends Component
     {
         $categories = KnowledgeCategory::orderBy('name')->get();
         $queues = Queue::where('is_active', true)->orderBy('name')->get();
+        $units = Unit::with('building')->where('is_active', true)->orderBy('id')->get();
 
         return view('knowledge::livewire.upsert-knowledge-article', [
             'categories' => $categories,
             'queues' => $queues,
+            'units' => $units,
         ])->layout('layouts.app');
     }
 }

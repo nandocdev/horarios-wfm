@@ -42,6 +42,10 @@
                 </div>
             </x-wfm.section>
 
+            @if($article->directoryUnit)
+                <x-directory::contact-card :unit="$article->directoryUnit" />
+            @endif
+
             @if($article->versions->isNotEmpty())
                 <x-wfm.section title="Historial de Versiones">
                     <div class="relative border-l-2 border-wfm-surface-border ml-3 space-y-3">

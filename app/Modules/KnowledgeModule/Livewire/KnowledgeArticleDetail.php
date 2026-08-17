@@ -23,7 +23,15 @@ class KnowledgeArticleDetail extends Component
      */
     public function mount(string $slug): void
     {
-        $this->article = KnowledgeArticle::with(['category', 'queues', 'tags', 'creator', 'versions.creator'])
+        $this->article = KnowledgeArticle::with([
+            'category',
+            'queues',
+            'tags',
+            'creator',
+            'versions.creator',
+            'directoryUnit.building',
+            'directoryUnit.services',
+        ])
             ->where('slug', $slug)
             ->firstOrFail();
 

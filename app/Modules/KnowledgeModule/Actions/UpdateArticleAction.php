@@ -48,6 +48,7 @@ class UpdateArticleAction
                 'summary' => $dto->summary,
                 'content' => $content,
                 'category_id' => $dto->category_id,
+                'directory_unit_id' => $dto->directory_unit_id,
                 'status' => $dto->status,
                 'version' => $newVersion,
                 'published_at' => $publishedAt,

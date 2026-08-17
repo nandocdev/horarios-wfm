@@ -42,6 +42,11 @@
                     <flux:select.option value="published">Publicado</flux:select.option>
                     <flux:select.option value="archived">Archivado</flux:select.option>
                 </flux:select>
+                <flux:select wire:model="form.directory_unit_id" label="Ficha de Contacto (Unidad)" placeholder="Seleccionar unidad..." searchable>
+                    @foreach($units as $unit)
+                        <flux:select.option value="{{ $unit->id }}">{{ $unit->display_name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
             </div>
 
             <flux:field label="Colas Relacionadas" hint="Artículo visible para operadores de estas colas">

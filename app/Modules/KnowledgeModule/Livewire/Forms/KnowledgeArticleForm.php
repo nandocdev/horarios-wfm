@@ -23,6 +23,8 @@ class KnowledgeArticleForm extends Form
 
     public ?int $category_id = null;
 
+    public ?int $directory_unit_id = null;
+
     public string $status = 'draft';
 
     public ?string $published_at = null;
@@ -43,6 +45,7 @@ class KnowledgeArticleForm extends Form
             'summary' => 'nullable|string|max:1000',
             'content' => 'required|string',
             'category_id' => 'nullable|integer|exists:knowledge_categories,id',
+            'directory_unit_id' => 'nullable|integer|exists:directory_units,id',
             'status' => 'required|string|in:draft,review,published,archived',
             'published_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after_or_equal:published_at',
@@ -62,6 +65,7 @@ class KnowledgeArticleForm extends Form
             'summary' => 'resumen',
             'content' => 'contenido',
             'category_id' => 'categoría',
+            'directory_unit_id' => 'ficha de contacto / unidad',
             'status' => 'estado',
             'published_at' => 'fecha de publicación',
             'expires_at' => 'fecha de expiración',
@@ -80,6 +84,7 @@ class KnowledgeArticleForm extends Form
         $this->summary = $article->summary ?? '';
         $this->content = $article->content;
         $this->category_id = $article->category_id;
+        $this->directory_unit_id = $article->directory_unit_id;
         $this->status = $article->status;
         $this->published_at = $article->published_at ? $article->published_at->format('Y-m-d\TH:i') : null;
         $this->expires_at = $article->expires_at ? $article->expires_at->format('Y-m-d\TH:i') : null;
@@ -101,6 +106,7 @@ class KnowledgeArticleForm extends Form
             'summary' => $this->summary,
             'content' => $this->content,
             'category_id' => $this->category_id,
+            'directory_unit_id' => $this->directory_unit_id,
             'status' => $this->status,
             'published_at' => $this->published_at,
             'expires_at' => $this->expires_at,
@@ -119,6 +125,7 @@ class KnowledgeArticleForm extends Form
         $this->summary = '';
         $this->content = '';
         $this->category_id = null;
+        $this->directory_unit_id = null;
         $this->status = 'draft';
         $this->published_at = null;
         $this->expires_at = null;

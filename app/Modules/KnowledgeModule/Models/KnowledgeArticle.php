@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\KnowledgeModule\Models;
 
 use App\Modules\CoreModule\Models\User;
+use App\Modules\DirectoryModule\Models\Unit;
 use App\Shared\Support\HasContentPublishing;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -43,6 +44,7 @@ class KnowledgeArticle extends Model
         'summary',
         'content',
         'category_id',
+        'directory_unit_id',
         'status',
         'version',
         'published_at',
@@ -74,6 +76,14 @@ class KnowledgeArticle extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(KnowledgeCategory::class, 'category_id');
+    }
+
+    /**
+     * Unidad del directorio usada como ficha de contacto de este artículo.
+     */
+    public function directoryUnit(): BelongsTo
+    {
+        return $this->belongsTo(Unit::class, 'directory_unit_id');
     }
 
     /**

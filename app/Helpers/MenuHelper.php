@@ -188,6 +188,17 @@ class MenuHelper
                 ],
             ],
 
+            // 🏢 Directorio de Unidades
+            [
+                'label' => __('Directorio de Unidades'),
+                'icon' => 'building-office',
+                'permission' => 'directory.manage',
+                'submenu' => [
+                    ['label' => __('Listar Unidades'), 'route' => 'directory.index', 'pattern' => 'admin/directory*', 'icon' => 'building-office'],
+                    ['label' => __('Nueva Unidad'), 'route' => 'directory.create', 'pattern' => 'admin/directory/create*', 'icon' => 'plus'],
+                ],
+            ],
+
             // 📊 Reportes
             [
                 'label' => __('Reportes'),

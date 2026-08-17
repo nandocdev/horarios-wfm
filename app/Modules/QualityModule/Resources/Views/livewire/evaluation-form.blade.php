@@ -1,12 +1,15 @@
 <div class="space-y-8">
-    <div>
-        <flux:heading size="xl" level="1">Nueva Evaluación</flux:heading>
-        <flux:subheading>Registre una evaluación de calidad para una llamada</flux:subheading>
+    <div data-tour="quality-form-header" class="flex items-start justify-between gap-4">
+        <div>
+            <flux:heading size="xl" level="1">Nueva Evaluación</flux:heading>
+            <flux:subheading>Registre una evaluación de calidad para una llamada</flux:subheading>
+        </div>
+        <x-wfm.tour-button :tour="'quality.evaluation-form'" />
     </div>
 
     <flux:card>
         <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div data-tour="quality-form-context" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <flux:select wire:model.live="form.queue_id" label="Cola *" placeholder="Seleccione una cola">
                     @foreach($queues as $queue)
                         <option value="{{ $queue->id }}">{{ $queue->code }} — {{ $queue->name }}</option>
@@ -22,7 +25,7 @@
             @if($criterios->isEmpty())
                 <flux:text class="text-slate-400 text-center py-8">Seleccione una cola para cargar los criterios</flux:text>
             @else
-                <div class="space-y-3" x-data="{ showDesc: null }">
+                <div data-tour="quality-form-criteria" class="space-y-3" x-data="{ showDesc: null }">
                     @foreach($criterios as $index => $criterio)
                         <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md">
                             <div class="flex items-center justify-between">
@@ -58,7 +61,7 @@
             @if($redFlagCriteria->isNotEmpty())
                 <flux:separator text="Red Flags" />
 
-                <div class="space-y-2">
+                <div data-tour="quality-form-redflags" class="space-y-2">
                     <flux:text size="sm" class="text-slate-500 mb-2">
                         Seleccione las incidencias graves aplicables (restan puntos automáticamente)
                     </flux:text>
@@ -76,7 +79,9 @@
 
             <flux:separator text="Observaciones" />
 
-            <flux:textarea wire:model="form.callobs" label="Observaciones" placeholder="Comentarios sobre la llamada..." maxlength="2500" rows="3" />
+            <div data-tour="quality-form-obs">
+                <flux:textarea wire:model="form.callobs" label="Observaciones" placeholder="Comentarios sobre la llamada..." maxlength="2500" rows="3" />
+            </div>
 
             <div class="flex justify-end gap-2 pt-4">
                 <flux:button href="{{ route('quality.evaluations.index') }}" variant="subtle">Cancelar</flux:button>

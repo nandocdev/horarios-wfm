@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header :title="'Detalle de Evaluación — ' . ($evaluation->queue?->code ?? '')" :description="$evaluation->dteval?->format('d/m/Y') ?? ''">
+    <x-wfm.page-header :title="'Detalle de Evaluación — ' . ($evaluation->queue?->code ?? '')" :description="$evaluation->dteval?->format('d/m/Y') ?? ''" tour="quality.evaluation-detail" data-tour="quality-detail-header">
         <x-slot:actions>
             <flux:button href="{{ route('quality.evaluations.index') }}" variant="ghost" icon="arrow-left" wire:navigate>Volver</flux:button>
         </x-slot:actions>
@@ -7,7 +7,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="lg:col-span-2 space-y-4">
-            <x-wfm.section title="Puntajes por Criterio">
+            <x-wfm.section title="Puntajes por Criterio" data-tour="quality-detail-scores">
                 <div class="space-y-2">
                     @foreach($evaluation->scores as $score)
                         <div class="flex items-center justify-between p-2 bg-wfm-surface rounded">
@@ -83,7 +83,7 @@
             @endif
 
             @if($evaluation->status === 'activa')
-                <div class="space-y-2">
+                <div data-tour="quality-detail-actions" class="space-y-2">
                     <flux:button href="{{ route('quality.feedback.create', $evaluation->id) }}" variant="primary" icon="chat-bubble-left-right" class="w-full" wire:navigate>Agregar Feedback</flux:button>
                     <flux:button href="{{ route('quality.calibrations.create', $evaluation->id) }}" variant="warning" icon="scale" class="w-full" wire:navigate>Calibrar</flux:button>
                 </div>

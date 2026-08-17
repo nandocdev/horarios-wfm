@@ -495,7 +495,7 @@ export const tourDefinitions = {
     },
 
     // ⭐ Calidad / Evaluaciones
-    'quality-evaluations': {
+    'quality.evaluations': {
         title: 'Evaluaciones de Calidad',
         version: 1,
         steps: [
@@ -515,6 +515,146 @@ export const tourDefinitions = {
                     description: 'Inicia una nueva pauta de evaluación seleccionando la cola y el agente auditado.',
                     side: 'left',
                     align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 🎯 Calidad / Formulario de Evaluación
+    'quality.evaluation-form': {
+        title: 'Nueva Evaluación',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="quality-form-header"]',
+                popover: {
+                    title: 'Nueva Evaluación de Calidad',
+                    description: 'Registra una evaluación de calidad para una llamada del agente seleccionado.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="quality-form-context"]',
+                popover: {
+                    title: 'Contexto de la Llamada',
+                    description: 'Confirma la cola, el empleado y la fecha/hora de la llamada a evaluar.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="quality-form-criteria"]',
+                popover: {
+                    title: 'Criterios de Evaluación',
+                    description: 'Marca cada criterio como cumplido o no. Los criterios dependen de la cola seleccionada.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="quality-form-redflags"]',
+                popover: {
+                    title: 'Red Flags',
+                    description: 'Selecciona las incidencias graves aplicables; restan puntos automáticamente del score.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="quality-form-obs"]',
+                popover: {
+                    title: 'Observaciones y Guardado',
+                    description: 'Agrega comentarios y guarda la evaluación cuando hayas completado los criterios.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 📋 Calidad / Detalle de Evaluación
+    'quality.evaluation-detail': {
+        title: 'Detalle de Evaluación',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="quality-detail-header"]',
+                popover: {
+                    title: 'Detalle de la Evaluación',
+                    description: 'Resumen completo de la evaluación: cola, empleado, evaluador, estado y score.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="quality-detail-scores"]',
+                popover: {
+                    title: 'Puntajes por Criterio',
+                    description: 'Desglose del score por criterio evaluado y el total alcanzado.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="quality-detail-actions"]',
+                popover: {
+                    title: 'Feedback y Calibración',
+                    description: 'Agrega feedback al agente o calibra el score cuando la evaluación está activa.',
+                    side: 'left',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 💬 Calidad / Feedback
+    'quality.feedback': {
+        title: 'Agregar Feedback',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="quality-feedback-header"]',
+                popover: {
+                    title: 'Feedback al Agente',
+                    description: 'Escribe la retroalimentación para el agente evaluado.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="quality-feedback-form"]',
+                popover: {
+                    title: 'Observaciones',
+                    description: 'Completa las observaciones de la retroalimentación y guárdala.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // ⚖️ Calidad / Calibración
+    'quality.calibration': {
+        title: 'Calibrar Evaluación',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="quality-calibration-header"]',
+                popover: {
+                    title: 'Calibración de Score',
+                    description: 'Ajusta el score de la evaluación con el nuevo valor y un motivo.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="quality-calibration-form"]',
+                popover: {
+                    title: 'Nuevo Score y Motivo',
+                    description: 'Ingresa el nuevo score y la observación que justifique la calibración.',
+                    side: 'bottom',
+                    align: 'start',
                 },
             },
         ],

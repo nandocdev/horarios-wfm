@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Evaluaciones de Calidad" description="Registro y consulta de evaluaciones de llamadas por cola." tour="quality-evaluations" data-tour="quality-header">
+    <x-wfm.page-header title="Evaluaciones de Calidad" description="Registro y consulta de evaluaciones de llamadas por cola." tour="quality.evaluations" data-tour="quality-header">
         <x-slot:actions>
             <div data-tour="quality-new-btn">
                 @can('create', App\Modules\QualityModule\Models\Evaluation::class)

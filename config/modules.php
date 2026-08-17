@@ -51,6 +51,9 @@ return [
         // ─── Módulo de Analítica (depende de Operations + WFM) ───
         App\Modules\AnalyticsModule\Providers\ModuleServiceProvider::class,     // AnalyticsModule: Forecast, Staffing, Capacity, Shrinkage, Data Mart, KPIs
 
+        // ─── Directorio de Unidades Operativas ───
+        App\Modules\DirectoryModule\Providers\ModuleServiceProvider::class,     // DirectoryModule: Edificios, ubicaciones, servicios, contactos
+
         // ─── Módulo de Aprobaciones (Workflows) ───
         App\Modules\WorkflowsModule\Providers\ModuleServiceProvider::class,     // WorkflowsModule: Motor de aprobaciones multinivel
     ],

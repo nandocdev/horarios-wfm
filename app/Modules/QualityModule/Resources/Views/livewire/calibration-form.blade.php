@@ -1,11 +1,11 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Calibrar Evaluación" :description="'Evaluación: ' . ($evaluation->queue?->code ?? '') . ' — Score actual: ' . ($evaluation->score ?? '—')" tour="quality.calibration" data-tour="quality-calibration-header">
+    <x-wfm.page-header title="Calibrar Evaluación" :description="'Evaluación: ' . ($evaluation->queue?->code ?? '') . ' — Score actual: ' . ($evaluation->score ?? '—')">
         <x-slot:actions>
             <flux:button href="{{ route('quality.evaluations.show', $evaluation->id) }}" variant="ghost" icon="arrow-left" wire:navigate>Volver</flux:button>
         </x-slot:actions>
     </x-wfm.page-header>
 
-    <x-wfm.section data-tour="quality-calibration-form">
+    <x-wfm.section>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
                 <p class="kpi-label">Score Anterior</p>

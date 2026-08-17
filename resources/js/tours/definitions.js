@@ -819,57 +819,6 @@ export const tourDefinitions = {
     },
 
     // 💬 Calidad / Feedback
-    'quality.feedback': {
-        title: 'Agregar Feedback',
-        version: 1,
-        steps: [
-            {
-                element: '[data-tour="quality-feedback-header"]',
-                popover: {
-                    title: 'Feedback al Agente',
-                    description: 'Escribe la retroalimentación para el agente evaluado.',
-                    side: 'bottom',
-                    align: 'start',
-                },
-            },
-            {
-                element: '[data-tour="quality-feedback-form"]',
-                popover: {
-                    title: 'Observaciones',
-                    description: 'Completa las observaciones de la retroalimentación y guárdala.',
-                    side: 'bottom',
-                    align: 'start',
-                },
-            },
-        ],
-    },
-
-    // ⚖️ Calidad / Calibración
-    'quality.calibration': {
-        title: 'Calibrar Evaluación',
-        version: 1,
-        steps: [
-            {
-                element: '[data-tour="quality-calibration-header"]',
-                popover: {
-                    title: 'Calibración de Score',
-                    description: 'Ajusta el score de la evaluación con el nuevo valor y un motivo.',
-                    side: 'bottom',
-                    align: 'start',
-                },
-            },
-            {
-                element: '[data-tour="quality-calibration-form"]',
-                popover: {
-                    title: 'Nuevo Score y Motivo',
-                    description: 'Ingresa el nuevo score y la observación que justifique la calibración.',
-                    side: 'bottom',
-                    align: 'start',
-                },
-            },
-        ],
-    },
-
     // 👥 Personal / Asignación de Equipos
     'personnel.team-assignments': {
         title: 'Asignación de Equipos',

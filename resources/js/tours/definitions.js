@@ -47,8 +47,8 @@ export const tourDefinitions = {
         ],
     },
 
-    // 🗓 Mi Horario / Mi Trabajo
-    'my-schedule': {
+    // 🗓 WFM / Mi Horario
+    'wfm.my-schedule': {
         title: 'Mi Horario y Jornada',
         version: 1,
         steps: [
@@ -354,6 +354,216 @@ export const tourDefinitions = {
         ],
     },
 
+    // 📊 WFM / Mi Jornada
+    'wfm.my-day': {
+        title: 'Mi Jornada',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="my-day-header"]',
+                popover: {
+                    title: 'Mi Jornada',
+                    description: 'Resumen de tu actividad y métricas del día seleccionado. Navega entre días con las flechas.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="my-day-timeline"]',
+                popover: {
+                    title: 'Línea de Tiempo del Día',
+                    description: 'Visualiza tu jornada hora por hora con los estados y actividades programadas.',
+                    side: 'bottom',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="my-day-kpis"]',
+                popover: {
+                    title: 'Métricas del Día',
+                    description: 'Llamadas, SLA, AHT, adherencia y ocupación de tu jornada.',
+                    side: 'bottom',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 👥 WFM / Mi Equipo
+    'wfm.my-team': {
+        title: 'Mi Equipo',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="my-team-header"]',
+                popover: {
+                    title: 'Gestión de Equipo',
+                    description: 'Filtra por equipo, cambia de fecha y exporta horarios o incidencias de tu equipo.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="my-team-planilla"]',
+                popover: {
+                    title: 'Planilla Semanal',
+                    description: 'Turnos, excepciones y solicitudes pendientes por día y empleado. Haz clic en una celda para registrar una novedad.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="my-team-sidebars"]',
+                popover: {
+                    title: 'Swaps y Ausencias',
+                    description: 'Solicitudes de cambio recientes y permisos/ausencias próximos de tu equipo.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // ✔️ WFM / Aprobación de Permisos
+    'wfm.manager-approvals': {
+        title: 'Aprobación de Permisos',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="manager-approvals-header"]',
+                popover: {
+                    title: 'Aprobaciones de tu Equipo',
+                    description: 'Revisa las solicitudes de permiso de los miembros de tu equipo.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="manager-approvals-list"]',
+                popover: {
+                    title: 'Solicitudes Pendientes',
+                    description: 'Consulta el empleado, tipo, fecha, duración y motivo de cada solicitud.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="manager-approvals-actions"]',
+                popover: {
+                    title: 'Aprobar o Rechazar',
+                    description: 'Da el visto bueno (VB) o rechaza la solicitud. La decisión notifica al empleado.',
+                    side: 'left',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 🔁 WFM / Aprobación de Cambios de Turno
+    'wfm.swap-approvals': {
+        title: 'Aprobación de Cambios de Turno (WFM)',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="swap-approvals-header"]',
+                popover: {
+                    title: 'Cambios de Turno WFM',
+                    description: 'Gestiona los intercambios de turno solicitados por los agentes.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="swap-approvals-list"]',
+                popover: {
+                    title: 'Solicitudes de Intercambio',
+                    description: 'Revisa el intercambio entre los dos agentes, fechas y estado de la solicitud.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+            {
+                element: '[data-tour="swap-approvals-actions"]',
+                popover: {
+                    title: 'Aprobar o Rechazar',
+                    description: 'Aprueba el intercambio para aplicarlo automáticamente o recházalo con un motivo.',
+                    side: 'left',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 📥 WFM / Importar Horario CSV
+    'wfm.import-weekly': {
+        title: 'Importar Horario por CSV',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="import-weekly-file"]',
+                popover: {
+                    title: 'Cargar Archivo CSV',
+                    description: 'Selecciona el archivo CSV con los horarios de los agentes de la semana.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="import-weekly-days"]',
+                popover: {
+                    title: 'Días a Aplicar',
+                    description: 'Marca los días de la semana sobre los que se escribirá la planificación.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="import-weekly-preview"]',
+                popover: {
+                    title: 'Previsualización',
+                    description: 'Revisa los datos importados y ajusta horarios antes de aplicar. Los usuarios no encontrados se marcan en rojo.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 🗓️ WFM / Actividades Intradía
+    'wfm.intraday-activities': {
+        title: 'Actividades Intradía',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="intraday-header"]',
+                popover: {
+                    title: 'Actividades Intradía',
+                    description: 'Define períodos aprobados y asigna operadores a actividades intradía (capacitaciones, reuniones, coaching).',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="intraday-periods"]',
+                popover: {
+                    title: 'Períodos Aprobados',
+                    description: 'Períodos con equipo, fecha, rango y cupo máximo definidos por WFM.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="intraday-assignments"]',
+                popover: {
+                    title: 'Asignaciones',
+                    description: 'Operadores asignados a las actividades del período seleccionado.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
     // 📞 Centro de Contacto / Registro de Llamadas
     'contact-center-calls': {
         title: 'Registro de Llamadas',
@@ -416,7 +626,7 @@ export const tourDefinitions = {
     },
 
     // 👥 Personal / Asignación de Equipos
-    'team-assignments': {
+    'personnel.team-assignments': {
         title: 'Asignación de Equipos',
         version: 1,
         steps: [

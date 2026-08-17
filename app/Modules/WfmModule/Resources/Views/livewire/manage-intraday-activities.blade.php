@@ -1,6 +1,6 @@
 <div class="space-y-6">
     <x-wfm.page-header title="Actividades Intradía"
-        description="{{ $isWfm ? 'Gestiona los periodos aprobados por equipo y supervisa las asignaciones.' : 'Asigna a tus operadores en los periodos autorizados por WFM.' }}">
+        description="{{ $isWfm ? 'Gestiona los periodos aprobados por equipo y supervisa las asignaciones.' : 'Asigna a tus operadores en los periodos autorizados por WFM.' }}" tour="wfm.intraday-activities" data-tour="intraday-header">
         <x-slot:actions>
             <flux:input type="date" wire:model.live="date" class="!w-40" />
             @can('wfm.intraday.periods.manage')
@@ -19,7 +19,7 @@
     {{-- =====================================================
          SECCIÓN 1: PERIODOS APROBADOS
          ===================================================== --}}
-    <div>
+    <div data-tour="intraday-periods">
         <flux:heading size="lg" class="mb-4">
             <flux:icon name="clock" class="inline-block w-5 h-5 mr-1 text-slate-500" />
             Periodos Aprobados
@@ -108,7 +108,7 @@
     {{-- =====================================================
          SECCIÓN 2: ACTIVIDADES YA ASIGNADAS
          ===================================================== --}}
-    <div>
+    <div data-tour="intraday-assignments">
         <flux:heading size="lg" class="mb-4">
             <flux:icon name="queue-list" class="inline-block w-5 h-5 mr-1 text-slate-500" />
             Actividades del Día

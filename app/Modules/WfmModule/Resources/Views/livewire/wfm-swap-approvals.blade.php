@@ -1,13 +1,15 @@
 <div class=" mx-auto space-y-8 flex-1 flex flex-col">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div data-tour="swap-approvals-header" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <flux:heading size="xl">Aprobación de Cambios de Turno (WFM)</flux:heading>
             <flux:subheading>Revisa y procesa las solicitudes de intercambio de turnos del Call Center.
             </flux:subheading>
         </div>
 
-        {{-- Navegación de Solicitudes (Tabs) --}}
-        <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-md self-start md:self-auto">
+        <div class="flex items-center gap-2">
+            <x-wfm.tour-button :tour="'wfm.swap-approvals'" />
+            {{-- Navegación de Solicitudes (Tabs) --}}
+            <div class="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-md self-start md:self-auto">
             <flux:button wire:click="$set('currentTab', 'pending')"
                 variant="{{ $currentTab === 'pending' ? 'filled' : 'ghost' }}" size="sm">
                 Pendientes
@@ -16,10 +18,11 @@
                 variant="{{ $currentTab === 'processed' ? 'filled' : 'ghost' }}" size="sm">
                 Tramitadas
             </flux:button>
+            </div>
         </div>
     </div>
 
-    <flux:card class="p-0 overflow-hidden">
+    <flux:card data-tour="swap-approvals-list" class="p-0 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
@@ -75,7 +78,7 @@
                         <td class="py-2 px-4 text-sm text-slate-500 max-w-xs truncate italic">
                             {{ $request->reason ?? 'Sin motivo especificado' }}
                         </td>
-                        <td class="py-2 px-4 text-right">
+                        <td data-tour="swap-approvals-actions" class="py-2 px-4 text-right">
                             <div class="flex justify-end gap-2">
                                 <flux:button wire:click="showDetails({{ $request->id }})" variant="ghost" size="sm"
                                     icon="eye">

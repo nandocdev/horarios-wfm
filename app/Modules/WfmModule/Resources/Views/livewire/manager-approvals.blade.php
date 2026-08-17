@@ -1,10 +1,13 @@
 <div class="max-w-3xl mx-auto space-y-8 flex-1 flex flex-col">
-    <div>
-        <flux:heading size="xl">Aprobación de Permisos (Jefe Inmediato)</flux:heading>
-        <flux:subheading>Gestiona las solicitudes de permiso de tu equipo de trabajo directo.</flux:subheading>
+    <div data-tour="manager-approvals-header" class="flex items-start justify-between gap-4">
+        <div>
+            <flux:heading size="xl">Aprobación de Permisos (Jefe Inmediato)</flux:heading>
+            <flux:subheading>Gestiona las solicitudes de permiso de tu equipo de trabajo directo.</flux:subheading>
+        </div>
+        <x-wfm.tour-button :tour="'wfm.manager-approvals'" />
     </div>
 
-    <flux:card class="p-0 overflow-hidden">
+    <flux:card data-tour="manager-approvals-list" class="p-0 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="border-b bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
@@ -37,7 +40,7 @@
                         <td class="py-2 px-4 text-sm text-slate-500 max-w-xs truncate italic">
                             "{{ $request->reason }}"
                         </td>
-                        <td class="py-2 px-4 text-right">
+                        <td data-tour="manager-approvals-actions" class="py-2 px-4 text-right">
                             <div class="flex justify-end gap-2">
                                 <flux:button wire:click="approveLeave({{ $request->id }})" 
                                              wire:confirm="¿Confirmas el visto bueno para este permiso?" 

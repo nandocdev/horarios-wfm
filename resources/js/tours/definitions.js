@@ -1098,4 +1098,57 @@ export const tourDefinitions = {
             },
         ],
     },
+
+    // 🏢 Directorio / Alta y Edición de Unidades
+    'directory.upsert': {
+        title: 'Registrar Unidad del Directorio',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="directory-upsert-header"]',
+                popover: {
+                    title: 'Registro de Unidad',
+                    description: 'Registra una unidad operativa o administrativa de la CSS. El formulario se organiza en 3 secciones que se completan en orden.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="directory-upsert-section1"]',
+                popover: {
+                    title: '1 · Ubicación Física',
+                    description: 'Selecciona un edificio existente o crea uno nuevo. Los responsables (director, sub-director, administrador) se habilitan solo al crear un edificio nuevo.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="directory-upsert-section2"]',
+                popover: {
+                    title: '2 · Nivel / Piso',
+                    description: 'Elige un piso existente o agrega uno nuevo. Los servicios y puntos de contacto dependen del piso seleccionado.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="directory-upsert-section3"]',
+                popover: {
+                    title: '3 · Servicios del Piso',
+                    description: 'Cada puerta/consultorio corresponde a una especialidad con su contacto. Usa "Agregar Servicio" para registrar varios, y prioriza buzones compartidos (ej. citas-pediatria@css.gob.pa).',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="directory-upsert-save"]',
+                popover: {
+                    title: 'Guardar Unidad',
+                    description: 'Marca la unidad como activa y confirma para crear o actualizar el registro.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+        ],
+    },
 };

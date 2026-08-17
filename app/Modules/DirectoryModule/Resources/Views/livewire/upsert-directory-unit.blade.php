@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header :title="$unit ? 'Editar Unidad' : 'Nueva Unidad'" :description="$unit ? 'ID: ' . $unit->id . ' | ' . $unit->display_name : 'Registra una unidad operativa o administrativa de la CSS.'">
+    <x-wfm.page-header :title="$unit ? 'Editar Unidad' : 'Nueva Unidad'" :description="$unit ? 'ID: ' . $unit->id . ' | ' . $unit->display_name : 'Registra una unidad operativa o administrativa de la CSS.'" tour="directory.upsert" data-tour="directory-upsert-header">
         <x-slot:actions>
             <flux:button href="{{ route('directory.index') }}" wire:navigate variant="ghost" icon="arrow-left">Volver</flux:button>
         </x-slot:actions>
@@ -10,7 +10,7 @@
             {{-- Columna izquierda: secciones 1 y 2 --}}
             <div class="lg:col-span-2 space-y-4">
                 {{-- 1 · Ubicación Física: edificio, sector y jerarquía administrativa --}}
-                <x-wfm.section title="1 · Ubicación Física (Infraestructura)" description="Edificio, sector y responsables administrativos (una sola vez por edificio).">
+                <x-wfm.section title="1 · Ubicación Física (Infraestructura)" description="Edificio, sector y responsables administrativos (una sola vez por edificio)." data-tour="directory-upsert-section1">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <flux:select label="Edificio / Torre" wire:model="form.building_id" wire:change="onBuildingChange"
@@ -69,7 +69,7 @@
         </x-wfm.section>
 
         {{-- 2 · Nivel / Piso: seleccionar existente o crear uno nuevo --}}
-        <x-wfm.section title="2 · Nivel / Piso" description="Los servicios y puntos de contacto dependen del piso seleccionado.">
+        <x-wfm.section title="2 · Nivel / Piso" description="Los servicios y puntos de contacto dependen del piso seleccionado." data-tour="directory-upsert-section2">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <flux:select label="Nivel / Piso" wire:model="form.level" wire:change="onLevelChange"
@@ -100,7 +100,7 @@
             {{-- Columna derecha: sección 3 --}}
             <div class="lg:col-span-3 space-y-4">
                 {{-- 3 · Servicios del Piso: puerta/consultorio, horarios y contacto --}}
-                <x-wfm.section title="3 · Servicios del Piso" description="Cada puerta/consultorio corresponde a una especialidad con su contacto. Los campos se repiten por cada servicio.">
+                <x-wfm.section title="3 · Servicios del Piso" description="Cada puerta/consultorio corresponde a una especialidad con su contacto. Los campos se repiten por cada servicio." data-tour="directory-upsert-section3">
             <div class="space-y-3">
                 @foreach($form->services as $index => $service)
                     <div class="card-wfm p-3 space-y-3">
@@ -149,7 +149,7 @@
             </div>
         </div>
 
-        <x-wfm.section>
+        <x-wfm.section data-tour="directory-upsert-save">
             <div class="flex items-center justify-between gap-4">
                 <flux:switch wire:model="form.is_active" label="Unidad activa" />
                 <div class="flex gap-2">

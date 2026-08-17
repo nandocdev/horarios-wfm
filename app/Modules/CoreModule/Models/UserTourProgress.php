@@ -54,4 +54,21 @@ class UserTourProgress extends Model
             ['version' => $version, 'state' => $state, 'seen_at' => now()]
         );
     }
+
+    /**
+     * Elimina los registros de progreso del usuario cuyos tour_key ya no existen
+     * en el set de tours vigentes (tours retirados u obsoletos).
+     */
+    public static function purge(User $user, array $tourKeys): int
+    {
+        $tourKeys = array_values(array_unique(array_filter($tourKeys)));
+
+        if (empty($tourKeys)) {
+            return 0;
+        }
+
+        return self::where('user_id', $user->id)
+            ->whereIn('tour_key', $tourKeys)
+            ->delete();
+    }
 }

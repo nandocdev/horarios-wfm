@@ -7,28 +7,56 @@ import { filterAvailableSteps } from './steps';
 const STORAGE_KEY = 'wfm_tours_completed_v1';
 
 /**
+ * Elimina del progreso los tour_key que ya no existen en definitions.js
+ * (tours retirados u obsoletos) y los purga también en el backend por usuario.
+ * La fuente de verdad de los tours vigentes es tourDefinitions (frontend).
+ */
+const purgeOrphanTours = (progress) => {
+    const validKeys = new Set(Object.keys(tourDefinitions));
+    const orphanKeys = Object.keys(progress).filter((key) => !validKeys.has(key));
+
+    if (orphanKeys.length === 0) {
+        return progress;
+    }
+
+    orphanKeys.forEach((key) => {
+        delete progress[key];
+    });
+
+    window.Livewire?.dispatch?.('tour:purge', { tours: orphanKeys });
+
+    return progress;
+};
+
+/**
  * Lee el progreso inicial de tours.
  * 1. Progreso por usuario renderizado por el servidor (Livewire, sincrono).
  * 2. Caché local de la última sesión (fallback).
  */
 const readInitialProgress = () => {
+    let progress = {};
+
     const el = document.querySelector('[data-user-tour-progress]');
 
     if (el?.dataset.userTourProgressValue) {
         try {
-            return JSON.parse(el.dataset.userTourProgressValue);
+            progress = JSON.parse(el.dataset.userTourProgressValue);
         } catch {
             console.warn('[WfmTour] Progreso inicial de tours inválido.');
         }
     }
 
-    try {
-        const cached = localStorage.getItem(STORAGE_KEY);
+    if (Object.keys(progress).length === 0) {
+        try {
+            const cached = localStorage.getItem(STORAGE_KEY);
 
-        return cached ? JSON.parse(cached) : {};
-    } catch {
-        return {};
+            progress = cached ? JSON.parse(cached) : {};
+        } catch {
+            progress = {};
+        }
     }
+
+    return purgeOrphanTours(progress);
 };
 
 class TourManager {

@@ -71,3 +71,51 @@ test('el evento tour:record persiste el progreso del usuario autenticado', funct
         'state' => 'completed',
     ]);
 });
+
+test('purge elimina solo los tour_key indicados del usuario', function () {
+    $user = User::factory()->create();
+
+    UserTourProgressModel::record($user, 'wfm-planning', 1, 'completed');
+    UserTourProgressModel::record($user, 'quality.feedback', 1, 'completed');
+
+    $deleted = UserTourProgressModel::purge($user, ['quality.feedback']);
+
+    expect($deleted)->toBe(1);
+    expect(UserTourProgressModel::mapFor($user))->toHaveKeys(['wfm-planning']);
+    expect(UserTourProgressModel::mapFor($user))->not->toHaveKey('quality.feedback');
+});
+
+test('el evento tour:purge elimina los tours obsoletos del usuario autenticado', function () {
+    $user = User::factory()->create();
+    UserTourProgressModel::record($user, 'quality.feedback', 1, 'completed');
+
+    Livewire::actingAs($user)
+        ->test(UserTourProgress::class)
+        ->dispatch('tour:purge', tours: ['quality.feedback']);
+
+    $this->assertDatabaseMissing('user_tour_progress', [
+        'user_id' => $user->id,
+        'tour_key' => 'quality.feedback',
+    ]);
+});
+
+test('purge no elimina registros de otros usuarios', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    UserTourProgressModel::record($userA, 'quality.feedback', 1, 'completed');
+    UserTourProgressModel::record($userB, 'quality.feedback', 1, 'completed');
+
+    UserTourProgressModel::purge($userA, ['quality.feedback']);
+
+    expect(UserTourProgressModel::mapFor($userA))->toBe([]);
+    expect(UserTourProgressModel::mapFor($userB))->toHaveKey('quality.feedback');
+});
+
+test('purge con lista vacia no elimina nada', function () {
+    $user = User::factory()->create();
+    UserTourProgressModel::record($user, 'wfm-planning', 1, 'completed');
+
+    expect(UserTourProgressModel::purge($user, []))->toBe(0);
+    expect(UserTourProgressModel::mapFor($user))->toHaveKey('wfm-planning');
+});

@@ -33,4 +33,20 @@ class UserTourProgress extends Component
 
         UserTourProgressModel::record($user, $tour, $version, $state);
     }
+
+    /**
+     * Elimina el progreso de tours que ya no existen en el frontend (retirados u obsoletos).
+     * Recibe el listado de tour_key a purgar desde resources/js/tours (fuente de verdad).
+     */
+    #[On('tour:purge')]
+    public function purge(array $tours): void
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return;
+        }
+
+        UserTourProgressModel::purge($user, $tours);
+    }
 }

@@ -8,6 +8,7 @@ use App\Modules\KnowledgeModule\DTOs\ArticleDTO;
 use App\Modules\KnowledgeModule\Models\ArticleVersion;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\Tag;
+use App\Shared\Support\HtmlSanitizer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -21,7 +22,9 @@ class CreateArticleAction
      */
     public function execute(ArticleDTO $dto, int $userId): KnowledgeArticle
     {
-        return DB::transaction(function () use ($dto, $userId) {
+        $content = HtmlSanitizer::sanitize($dto->content);
+
+        return DB::transaction(function () use ($dto, $userId, $content) {
             $slug = Str::slug($dto->title).'-'.uniqid();
 
             $publishedAt = $dto->published_at;
@@ -33,7 +36,7 @@ class CreateArticleAction
                 'title' => $dto->title,
                 'slug' => $slug,
                 'summary' => $dto->summary,
-                'content' => $dto->content,
+                'content' => $content,
                 'category_id' => $dto->category_id,
                 'status' => $dto->status,
                 'version' => 1,
@@ -57,7 +60,7 @@ class CreateArticleAction
             ArticleVersion::create([
                 'article_id' => $article->id,
                 'version' => 1,
-                'content' => $dto->content,
+                'content' => $content,
                 'created_by' => $userId,
                 'created_at' => now(),
             ]);

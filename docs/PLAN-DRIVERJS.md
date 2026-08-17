@@ -271,8 +271,8 @@ Leyenda prioridad candidata: **P0** crítica / **P1** alta / **P2** media /
 | `/quality/evaluaciones/crear`                          | `TeamEvaluationSelector`                        | Seleccionar equipo/empleado | QA       | Baja      | Creación   | Parcial              | **P3**    |
 | `/quality/evaluaciones/crear/{employee}`               | `EvaluationForm`                                | Rúbrica + audio player      | QA       | **Alta**  | Evaluación | **Sí (guided core)** | **P0**    |
 | `/quality/evaluaciones/{eval}`                         | `EvaluationDetail`                              | Detalle de evaluación       | QA       | Media     | Consulta   | Sí                   | **P2**    |
-| `/quality/evaluaciones/{eval}/feedback`                | `FeedbackForm`                                  | Feedback al agente          | QA       | Media     | Creación   | Parcial              | **P2**    |
-| `/quality/evaluaciones/{eval}/calibrar`                | `CalibrationForm`                               | Calibración                 | QA       | Media     | Evaluación | Parcial              | **P2**    |
+| `/quality/evaluaciones/{eval}/feedback`                | `FeedbackForm`                                  | Feedback al agente          | QA       | Media     | Creación   | **No**                | **P3**    |
+| `/quality/evaluaciones/{eval}/calibrar`                | `CalibrationForm`                               | Calibración                 | QA       | Media     | Evaluación | **No**                | **P3**    |
 | Catálogos (`criterios`, `colas`, `criterios por cola`) | `Criteria*`, `QueueList`, `ManageQueueCriteria` | CRUD/mapeo                  | QA/Admin | Baja      | CRUD       | **No**               | **—**     |
 
 ### 4.5 PersonnelModule — Personal
@@ -376,6 +376,24 @@ Leyenda prioridad candidata: **P0** crítica / **P1** alta / **P2** media /
 | **P2**    | `operations.availability`, `operations.daily-report`, `operations.queue-performance`, `operations.performance`, `operations.advanced-analytics`                                                                                                | Reportes consultables sin guía.                                                                          |
 | **P2**    | `quality.evaluation-detail`, `connect.general-dashboard`, `knowledge.operator-view`, `filesystem.browser`, `communications.home`, `workflows.pending`                                                                                          | Ayuda contextual útil, no crítica.                                                                       |
 | **P3**    | `operations.agent-performance`, `operations.team-performance`, dashboards de analítica restantes, `staffing-summary`, `quality.team-selector`, `quality.feedback`, `quality.calibration`, `wfm.planning` (índice), `wfm.weekly-planning-teams` | Bajo valor; resolver con UI/labels/documentación.                                                        |
+
+### Notas de cobertura
+
+> Resuelven las decisiones pendientes de la validación de la priorización:
+
+1. **`quality.feedback` y `quality.calibration` (P3):** son formularios de un solo
+   paso (un textarea de observaciones / un nuevo score + motivo). La regla de oro
+   del plan los resuelve mejor con labels y validación inline que con un tour, por
+   lo que **NO se implementan**. La tabla del inventario §4.4 se alinea a **P3**.
+2. **`wfm.employee-planning` (P2):** la matriz por empleado
+   (`employee-weekly-planning`) comparte el tour **`wfm-planning`** con la matriz
+   por equipo (`team-weekly-planning`), ya que ambas son la misma funcionalidad de
+   edición de la matriz de horarios. **Cubierto por reutilización** (no se duplica
+   lógica entre módulos).
+3. **`operations.dashboard` (P1):** `/dashboard` renderiza
+   `<livewire:operations.control-tower />`, es decir, es la misma vista que la
+   torre de control. El tour **`operations.control-tower`** cubre ambas rutas.
+   **Cubierto** (se evita duplicar el mismo tour).
 
 ---
 

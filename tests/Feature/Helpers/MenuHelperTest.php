@@ -161,8 +161,49 @@ it('el administrador ve las nuevas entradas del menú', function () {
     $collectLabels($items);
 
     expect($flatLabels)->toContain('Aprobaciones Pendientes');
-    expect($flatLabels)->toContain('Administrar Base de Conocimiento');
+    expect($flatLabels)->toContain('Administrar Artículos');
     expect($flatLabels)->toContain('Asignaciones de Equipos');
+});
+
+it('la base de conocimiento es un grupo propio de primer nivel con todo el workflow', function () {
+    $items = MenuHelper::getSidebarItems($this->admin);
+
+    $group = collect($items)->firstWhere('label', 'Base de Conocimiento');
+
+    expect($group)->not->toBeNull();
+    expect($group['submenu'])->not->toBeNull();
+
+    $subLabels = collect($group['submenu'])->pluck('label')->all();
+    expect($subLabels)->toBe(['Buscar Artículos', 'Nuevo Artículo', 'Administrar Artículos']);
+
+    // Ya no vive dentro de Soporte
+    $soporte = collect($items)->firstWhere('label', 'Soporte');
+    $soporteSubLabels = collect($soporte['submenu'])->pluck('label')->all();
+    expect($soporteSubLabels)->not->toContain('Base de Conocimiento');
+    expect($soporteSubLabels)->not->toContain('Administrar Base de Conocimiento');
+});
+
+it('un usuario con solo viewAny ve únicamente la entrada de consulta de la base de conocimiento', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo('knowledge.viewAny');
+
+    $items = MenuHelper::getSidebarItems($user);
+
+    $group = collect($items)->firstWhere('label', 'Base de Conocimiento');
+
+    expect($group)->not->toBeNull();
+    $subLabels = collect($group['submenu'])->pluck('label')->all();
+    expect($subLabels)->toBe(['Buscar Artículos']);
+});
+
+it('un usuario sin permisos de conocimiento no ve el grupo de base de conocimiento', function () {
+    $user = User::factory()->create();
+
+    $items = MenuHelper::getSidebarItems($user);
+
+    $labels = collect($items)->pluck('label')->all();
+
+    expect($labels)->not->toContain('Base de Conocimiento');
 });
 
 it('un supervisor ve Mi Equipo con Aprobaciones Pendientes pero no Asignaciones de Equipos', function () {

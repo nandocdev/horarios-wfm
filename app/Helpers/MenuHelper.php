@@ -173,8 +173,18 @@ class MenuHelper
                 'submenu' => [
                     ['label' => __('Mis Tickets'), 'route' => 'helpdesk.my-tickets', 'pattern' => 'helpdesk/my-tickets*', 'permission' => 'helpdesk.view', 'icon' => 'ticket'],
                     ['label' => __('Bandeja de Soporte'), 'route' => 'helpdesk.manage', 'pattern' => 'helpdesk/manage*', 'permission' => 'helpdesk.manage', 'icon' => 'inbox'],
-                    ['label' => __('Base de Conocimiento'), 'route' => 'knowledge.index', 'pattern' => 'knowledge*', 'permission' => 'knowledge.viewAny', 'icon' => 'book-open'],
-                    ['label' => __('Administrar Base de Conocimiento'), 'route' => 'knowledge.admin', 'pattern' => 'admin/knowledge*', 'permission' => 'knowledge.manage', 'icon' => 'pencil-square'],
+                ],
+            ],
+
+            // 📚 Base de Conocimiento
+            [
+                'label' => __('Base de Conocimiento'),
+                'icon' => 'book-open',
+                'permission' => ['knowledge.viewAny', 'knowledge.manage'],
+                'submenu' => [
+                    ['label' => __('Buscar Artículos'), 'route' => 'knowledge.index', 'pattern' => 'knowledge*', 'permission' => 'knowledge.viewAny', 'icon' => 'magnifying-glass'],
+                    ['label' => __('Nuevo Artículo'), 'route' => 'knowledge.create', 'pattern' => 'admin/knowledge/create*', 'permission' => 'knowledge.manage', 'icon' => 'plus'],
+                    ['label' => __('Administrar Artículos'), 'route' => 'knowledge.admin', 'pattern' => 'admin/knowledge*', 'permission' => 'knowledge.manage', 'icon' => 'pencil-square'],
                 ],
             ],
 

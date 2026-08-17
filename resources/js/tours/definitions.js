@@ -661,7 +661,7 @@ export const tourDefinitions = {
     },
 
     // 👥 Personal / Asignación de Equipos
-    'team-assignments': {
+    'personnel.team-assignments': {
         title: 'Asignación de Equipos',
         version: 1,
         steps: [
@@ -681,6 +681,41 @@ export const tourDefinitions = {
                     description: 'Usa las casillas para seleccionar y los botones centrales para asignar o desasignar empleados del equipo seleccionado.',
                     side: 'left',
                     align: 'start',
+                },
+            },
+        ],
+    },
+
+    // 📥 Personal / Importación de Empleados
+    'personnel.import-employees': {
+        title: 'Importar Empleados',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="import-employees-header"]',
+                popover: {
+                    title: 'Importación Masiva',
+                    description: 'Carga un archivo CSV con datos de empleados. El sistema valida por filas, importa por chunks y procesa en cola.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="import-employees-form"]',
+                popover: {
+                    title: 'Archivo y Chunk',
+                    description: 'Selecciona el CSV (máx. 20MB) y define el tamaño de lote (100-1000 registros) para el procesamiento.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="import-employees-history"]',
+                popover: {
+                    title: 'Historial de Importaciones',
+                    description: 'Consulta el estado de cada lote: procesadas, importadas, rechazadas y quién lo ejecutó.',
+                    side: 'top',
+                    align: 'center',
                 },
             },
         ],

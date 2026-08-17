@@ -4,7 +4,7 @@
             <flux:heading size="xl">Gestión de Equipos</flux:heading>
             <p class="text-slate-600">Asigna empleados a equipos de trabajo</p>
         </div>
-        <x-wfm.tour-button :tour="'team-assignments'" />
+        <x-wfm.tour-button :tour="'personnel.team-assignments'" />
     </div>
 
     <div class="bg-white rounded-md shadow">

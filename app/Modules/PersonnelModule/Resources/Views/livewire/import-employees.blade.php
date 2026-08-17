@@ -1,7 +1,7 @@
 <div class="space-y-8">
-    <x-wfm.page-header title="Importar Empleados" description="Validación por filas, importación por chunks y procesamiento en cola." />
+    <x-wfm.page-header title="Importar Empleados" description="Validación por filas, importación por chunks y procesamiento en cola." tour="personnel.import-employees" data-tour="import-employees-header" />
 
-    <flux:card class="space-y-4">
+    <flux:card data-tour="import-employees-form" class="space-y-4">
         <form wire:submit="import" class="space-y-4">
             <flux:field label="Archivo CSV *" hint="Archivo CSV con datos de empleados (máx. 20MB)">
                 <flux:input type="file" wire:model="form.csv" accept=".csv,text/csv" />
@@ -22,7 +22,7 @@
         </form>
     </flux:card>
 
-    <flux:card class="space-y-4">
+    <flux:card data-tour="import-employees-history" class="space-y-4">
         <div>
             <flux:heading size="md">Historial de importaciones</flux:heading>
         </div>

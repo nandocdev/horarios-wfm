@@ -8,6 +8,7 @@ use App\Modules\KnowledgeModule\DTOs\ArticleDTO;
 use App\Modules\KnowledgeModule\Models\ArticleVersion;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\Tag;
+use App\Shared\Support\HtmlSanitizer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -21,8 +22,14 @@ class UpdateArticleAction
      */
     public function execute(KnowledgeArticle $article, ArticleDTO $dto, int $userId): KnowledgeArticle
     {
-        return DB::transaction(function () use ($article, $dto, $userId) {
-            $contentChanged = ($article->content !== $dto->content);
+        $content = HtmlSanitizer::sanitize($dto->content);
+
+        return DB::transaction(function () use ($article, $dto, $userId, $content) {
+            // Bloqueo pesimista para serializar ediciones concurrentes y evitar
+            // versiones duplicadas cuando dos editores guardan a la vez.
+            $article = KnowledgeArticle::whereKey($article->id)->lockForUpdate()->firstOrFail();
+
+            $contentChanged = ($article->content !== $content);
             $newVersion = $article->version;
 
             if ($contentChanged) {
@@ -34,15 +41,14 @@ class UpdateArticleAction
                 $publishedAt = now();
             }
 
-            // Mantener slug estable basado en el ID original
-            $slug = Str::slug($dto->title).'-'.$article->id;
-
+            // El slug es inmutable: no se regenera al cambiar el título para
+            // no romper enlaces guardados, bookmarks ni el SEO interno.
             $article->update([
                 'title' => $dto->title,
-                'slug' => $slug,
                 'summary' => $dto->summary,
-                'content' => $dto->content,
+                'content' => $content,
                 'category_id' => $dto->category_id,
+                'directory_unit_id' => $dto->directory_unit_id,
                 'status' => $dto->status,
                 'version' => $newVersion,
                 'published_at' => $publishedAt,
@@ -66,7 +72,7 @@ class UpdateArticleAction
                 ArticleVersion::create([
                     'article_id' => $article->id,
                     'version' => $newVersion,
-                    'content' => $dto->content,
+                    'content' => $content,
                     'created_by' => $userId,
                     'created_at' => now(),
                 ]);

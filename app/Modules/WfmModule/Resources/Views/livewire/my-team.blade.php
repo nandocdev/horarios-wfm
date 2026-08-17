@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Mi Equipo" description="Gestión y visibilidad de horarios para supervisores.">
+    <x-wfm.page-header title="Mi Equipo" description="Gestión y visibilidad de horarios para supervisores." tour="wfm.my-team" data-tour="my-team-header">
         <x-slot:actions>
             <flux:select wire:model.live="selectedTeam" placeholder="Filtrar por Equipo" class="!w-56">
                 <flux:select.option value="">Todos los equipos</flux:select.option>
@@ -19,7 +19,7 @@
         </x-slot:actions>
     </x-wfm.page-header>
 
-    <x-wfm.section title="Planilla Semanal">
+    <x-wfm.section title="Planilla Semanal" data-tour="my-team-planilla">
         <div class="overflow-x-auto">
             <table class="min-w-full text-left border-collapse text-sm">
                 <thead>
@@ -106,7 +106,7 @@
         </div>
     </x-wfm.section>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div data-tour="my-team-sidebars" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <x-wfm.section title="Solicitudes de Cambio (Swaps)">
             @forelse($recentSwaps as $swap)
                 <div class="flex items-center justify-between p-3 rounded border border-wfm-surface-border bg-wfm-surface/50 mb-2 last:mb-0">

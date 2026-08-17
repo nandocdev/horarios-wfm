@@ -6,7 +6,7 @@
         </div>
 
         <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
-            <x-wfm.tour-button :tour="'my-schedule'" />
+            <x-wfm.tour-button :tour="'wfm.my-schedule'" />
             <flux:dropdown class="w-full sm:w-auto">
                 <flux:button icon-trailing="chevron-down" class="w-full sm:w-auto justify-between">
                     {{ $currentWeek ? 'Semana del ' . $currentWeek->week_start_date->format('d M') : 'Seleccionar Semana' }}

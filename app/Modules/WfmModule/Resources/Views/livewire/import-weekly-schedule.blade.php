@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Importar Horario por CSV" description="Semana del {{ $week->week_start_date->format('d M') }} al {{ $week->week_end_date->format('d M, Y') }}">
+    <x-wfm.page-header title="Importar Horario por CSV" description="Semana del {{ $week->week_start_date->format('d M') }} al {{ $week->week_end_date->format('d M, Y') }}" tour="wfm.import-weekly">
         <x-slot:actions>
             <flux:button href="{{ route('schedules.planning.teams', ['week' => $week->id]) }}" icon="arrow-left" variant="ghost" wire:navigate>Volver</flux:button>
         </x-slot:actions>
@@ -7,11 +7,13 @@
 
     <x-wfm.section title="Seleccionar Archivo" description="Carga un archivo CSV con los horarios de los agentes y define los días correspondientes del periodo semanal.">
         <div class="space-y-4">
-            <flux:input type="file" wire:model.live="csvFile" accept=".csv" label="Archivo CSV" />
+            <div data-tour="import-weekly-file">
+                <flux:input type="file" wire:model.live="csvFile" accept=".csv" label="Archivo CSV" />
+            </div>
 
             @if(!empty($importedData))
                 <div class="border-t border-wfm-surface-border pt-4">
-                    <div class="flex items-center justify-between mb-3">
+                    <div data-tour="import-weekly-days" class="flex items-center justify-between mb-3">
                         <div>
                             <p class="text-sm font-semibold text-wfm-navy-800 dark:text-white">Días a aplicar</p>
                             <p class="text-xs text-wfm-surface-muted">Selecciona los días sobre los cuales se escribirá la planificación.</p>
@@ -23,7 +25,7 @@
                         @endforeach
                     </div>
 
-                    <div class="border-t border-wfm-surface-border pt-4">
+                    <div data-tour="import-weekly-preview" class="border-t border-wfm-surface-border pt-4">
                         <div class="flex items-center justify-between mb-3">
                             <p class="text-sm font-semibold text-wfm-navy-800 dark:text-white">Previsualización</p>
                             <x-wfm.adherence-badge :value="count($importedData)" target="0" size="xs" />

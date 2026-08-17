@@ -42,6 +42,18 @@
                 </div>
             </x-wfm.section>
 
+            @if($article->directoryUnit)
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <flux:icon name="building-office" class="w-4 h-4 text-wfm-navy-700" />
+                        <h3 class="text-sm font-semibold text-wfm-navy-800 dark:text-white">Ficha de Contacto</h3>
+                    </div>
+                    @foreach($article->directoryUnit->services as $service)
+                        <x-directory::contact-card :service="$service" />
+                    @endforeach
+                </div>
+            @endif
+
             @if($article->versions->isNotEmpty())
                 <x-wfm.section title="Historial de Versiones">
                     <div class="relative border-l-2 border-wfm-surface-border ml-3 space-y-3">

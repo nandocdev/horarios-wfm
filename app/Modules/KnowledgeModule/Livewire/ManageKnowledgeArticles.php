@@ -49,7 +49,7 @@ class ManageKnowledgeArticles extends Component
      */
     public function render()
     {
-        $this->authorize('create', KnowledgeArticle::class);
+        $this->authorize('viewAny', KnowledgeArticle::class);
 
         $categories = KnowledgeCategory::orderBy('name')->get();
         $queues = Queue::where('is_active', true)->orderBy('name')->get();

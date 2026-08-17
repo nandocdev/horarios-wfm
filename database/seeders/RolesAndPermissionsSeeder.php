@@ -191,6 +191,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'knowledge.viewAny',
             'knowledge.manage',
 
+            // Directory Module
+            'directory.manage',
+
             // Navigation Menu Permissions
             'menu.admin',
             'menu.organization',
@@ -302,6 +305,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'helpdesk.view',
             'articles.viewAny',
             'knowledge.viewAny',
+            'directory.manage',
             'quality.evaluations.view',
             'workflows.viewAny',
             'workflows.approve',

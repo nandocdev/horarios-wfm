@@ -66,7 +66,8 @@ class OperatorView extends Component
 
         // Consulta de artículos
         $query = KnowledgeArticle::published()
-            ->with(['category', 'queues', 'tags']);
+            ->with(['category', 'queues', 'tags'])
+            ->withMax('queues', 'priority');
 
         if ($this->selectedQueueId) {
             $query->whereHas('queues', function ($q) {

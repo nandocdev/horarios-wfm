@@ -40,7 +40,7 @@ falta.
    distingue usuario ni sincroniza entre navegadores. En terminales compartidas
    de call center un usuario nuevo verá los tours como "vistos" por otro.
 4. **Sin versionado:** no existe forma de volver a mostrar un tour tras
-   actualizarlo (clave `tour.feature.v2` del plan).|
+   actualizarlo (clave `tour.feature.v2` del plan).
 5. **Timing frágil:** `autoStartIfPending` usa `setTimeout(600ms)`; si Livewire
    no terminó de renderizar (lazy loading, widgets), el tour no arranca.
 6. **Navegación SPA sin limpieza:** si un tour está activo y el usuario navega

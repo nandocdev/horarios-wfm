@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Nuevo Registro de Llamada" description="Ingresa los detalles de la interacción recibida.">
+    <x-wfm.page-header title="Nuevo Registro de Llamada" description="Ingresa los detalles de la interacción recibida." tour="connect.call-create" data-tour="call-create-header">
         <x-slot:actions>
             <flux:button href="{{ route('contact-center.calls.index') }}" wire:navigate variant="ghost" icon="arrow-left">Volver al Listado</flux:button>
         </x-slot:actions>
@@ -34,7 +34,7 @@
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2">
+        <div data-tour="call-create-form" class="lg:col-span-2">
             <x-wfm.section>
                 <form wire:submit="save" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -179,7 +179,7 @@
 
     <flux:modal name="record-details" class="min-w-[500px]">
         @if($selectedRecord)
-            <div class="space-y-4">
+        <div data-tour="call-create-history" class="space-y-4">
                 <div>
                     <flux:heading size="lg">Detalles del Registro #{{ $selectedRecord->id }}</flux:heading>
                     <flux:subheading>Información completa de la interacción seleccionada.</flux:subheading>

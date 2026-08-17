@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Dashboard General" description="Monitoreo macro de la operación y métricas de servicio.">
+    <x-wfm.page-header title="Dashboard General" description="Monitoreo macro de la operación y métricas de servicio." tour="connect.general-dashboard" data-tour="general-dashboard-header">
         <x-slot:actions>
             <flux:select wire:model.live="dateRange" class="!w-40">
                 <flux:select.option value="today">Hoy</flux:select.option>
@@ -9,7 +9,7 @@
         </x-slot:actions>
     </x-wfm.page-header>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div data-tour="general-dashboard-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <x-wfm.kpi :value="$this->metrics['total_volume']" label="Volumen Inbound" icon="inbox-arrow-down" comparison="Llamadas que ingresaron al IVR" />
         <x-wfm.kpi :value="$this->metrics['sla'] . '%'" label="Service Level (SLA)" icon="chart-bar" :color="$this->metrics['sla'] >= 80 ? 'success' : 'danger'" comparison="Atendidas en &lt; 20 seg" />
         <x-wfm.kpi :value="$this->metrics['abandon_rate'] . '%'" label="Tasa de Abandono" icon="phone-x-mark" :color="$this->metrics['abandon_rate'] <= 5 ? 'success' : 'danger'" comparison="Proporción de llamadas perdidas" />
@@ -17,7 +17,7 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <x-wfm.section title="Top Performers" description="Agentes con mayor volumen de atención.">
+        <x-wfm.section title="Top Performers" description="Agentes con mayor volumen de atención." data-tour="general-dashboard-performers">
             @forelse($this->topPerformers as $index => $performer)
                 <div class="flex items-center justify-between p-3 rounded border mb-2 last:mb-0 {{ $index === 0 ? 'bg-wfm-warning/5 border-wfm-warning/20' : 'bg-wfm-surface border-wfm-surface-border' }}">
                     <div class="flex items-center gap-3">

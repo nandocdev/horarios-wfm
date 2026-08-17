@@ -1,5 +1,5 @@
 <div class="space-y-6">
-    <x-wfm.page-header title="Registro de Llamadas" description="Resumen de llamadas gestionadas." search searchWire="search" searchPlaceholder="Buscar teléfono o identificador..." tour="contact-center-calls" data-tour="calls-header">
+    <x-wfm.page-header title="Registro de Llamadas" description="Resumen de llamadas gestionadas." search searchWire="search" searchPlaceholder="Buscar teléfono o identificador..." tour="connect.calls" data-tour="calls-header">
         <x-slot:actions>
             <flux:button href="{{ route('contact-center.calls.create') }}" variant="primary" icon="plus" wire:navigate>Nuevo registro</flux:button>
         </x-slot:actions>

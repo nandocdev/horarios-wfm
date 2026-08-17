@@ -355,7 +355,7 @@ export const tourDefinitions = {
     },
 
     // 📞 Centro de Contacto / Registro de Llamadas
-    'contact-center-calls': {
+    'connect.calls': {
         title: 'Registro de Llamadas',
         version: 1,
         steps: [
@@ -381,9 +381,114 @@ export const tourDefinitions = {
                 element: '[data-tour="calls-table"]',
                 popover: {
                     title: 'Detalle de Registros',
-                    description: 'Haz clic en cualquier llamada para ver información ampliada, grabaciones o notas.',
+                    description: 'Revisa cada llamada: estado, cola, subtipo, agente que la atendió y acciones. Usa Editar para modificar un registro.',
                     side: 'top',
                     align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 📊 Centro de Contacto / Dashboard del Agente
+    'connect.agent-dashboard': {
+        title: 'Mis Datos',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="agent-dashboard-header"]',
+                popover: {
+                    title: 'Desempeño Individual',
+                    description: 'Monitorea tus métricas clave de operación. Cambia el rango de fechas (hoy, semana, mes) para ver tu evolución.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="agent-dashboard-kpis"]',
+                popover: {
+                    title: 'Tus Métricas',
+                    description: 'Llamadas atendidas, TMO promedio, AHT y llamadas fallidas de tu actividad.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="agent-dashboard-calls"]',
+                popover: {
+                    title: 'Registro de tus Llamadas',
+                    description: 'Detalle de tus interacciones recientes: hora, cola, número, tiempos de conversación y trabajo.',
+                    side: 'top',
+                    align: 'center',
+                },
+            },
+        ],
+    },
+
+    // 📈 Centro de Contacto / Dashboard General
+    'connect.general-dashboard': {
+        title: 'Dashboard General',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="general-dashboard-header"]',
+                popover: {
+                    title: 'Monitoreo de la Operación',
+                    description: 'Visión macro de la operación: volumen, SLA, abandono y llamadas atendidas.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="general-dashboard-kpis"]',
+                popover: {
+                    title: 'Métricas de Servicio',
+                    description: 'Volumen inbound, service level (SLA), tasa de abandono y llamadas atendidas del período.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="general-dashboard-performers"]',
+                popover: {
+                    title: 'Top Performers',
+                    description: 'Agentes con mayor volumen de atención en el período seleccionado.',
+                    side: 'top',
+                    align: 'start',
+                },
+            },
+        ],
+    },
+
+    // ➕ Centro de Contacto / Nuevo Registro de Llamada
+    'connect.call-create': {
+        title: 'Nuevo Registro de Llamada',
+        version: 1,
+        steps: [
+            {
+                element: '[data-tour="call-create-header"]',
+                popover: {
+                    title: 'Alta de Llamada',
+                    description: 'Ingresa los detalles de la interacción recibida para registrarla en el sistema.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="call-create-form"]',
+                popover: {
+                    title: 'Datos de la Llamada',
+                    description: 'Completa teléfono, asegurado, cola, subtipo y detalles de la interacción.',
+                    side: 'bottom',
+                    align: 'start',
+                },
+            },
+            {
+                element: '[data-tour="call-create-history"]',
+                popover: {
+                    title: 'Historial del Cliente',
+                    description: 'Revisa el historial del número o asegurado para contextualizar la atención.',
+                    side: 'left',
+                    align: 'start',
                 },
             },
         ],

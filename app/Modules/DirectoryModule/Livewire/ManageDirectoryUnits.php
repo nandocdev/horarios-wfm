@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace App\Modules\DirectoryModule\Livewire;
 
+use App\Modules\DirectoryModule\Models\DirectoryService;
 use App\Modules\DirectoryModule\Models\Unit;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Listado administrativo de unidades del directorio.
+ * Listado administrativo del directorio, una fila por servicio.
  */
 class ManageDirectoryUnits extends Component
 {
@@ -21,7 +22,7 @@ class ManageDirectoryUnits extends Component
 
     public bool $showContactCard = false;
 
-    public ?Unit $viewingUnit = null;
+    public ?DirectoryService $viewingService = null;
 
     public function updatingSearch(): void
     {
@@ -36,34 +37,34 @@ class ManageDirectoryUnits extends Component
         $this->resetPage();
     }
 
-    public function openContactCard(Unit $unit): void
+    public function openContactCard(DirectoryService $service): void
     {
-        $this->authorize('view', $unit);
+        $this->authorize('view', $service->unit);
 
-        $this->viewingUnit = $unit->load(['building', 'services']);
+        $this->viewingService = $service->load(['unit.building']);
         $this->showContactCard = true;
     }
 
     public function closeContactCard(): void
     {
         $this->showContactCard = false;
-        $this->viewingUnit = null;
+        $this->viewingService = null;
     }
 
     public function render()
     {
         $this->authorize('viewAny', Unit::class);
 
-        $units = Unit::with('building')
-            ->withCount('services')
+        $services = DirectoryService::with(['unit.building'])
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
-                    $q->where('sector', 'like', '%'.$this->search.'%')
-                        ->orWhere('level', 'like', '%'.$this->search.'%')
-                        ->orWhereHas('building', fn ($b) => $b->where('name', 'like', '%'.$this->search.'%'))
-                        ->orWhereHas('services', function ($s) {
-                            $s->where('name', 'like', '%'.$this->search.'%')
-                                ->orWhere('door_id', 'like', '%'.$this->search.'%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('door_id', 'like', '%'.$this->search.'%')
+                        ->orWhere('contact_role', 'like', '%'.$this->search.'%')
+                        ->orWhereHas('unit', function ($u) {
+                            $u->where('sector', 'like', '%'.$this->search.'%')
+                                ->orWhere('level', 'like', '%'.$this->search.'%')
+                                ->orWhereHas('building', fn ($b) => $b->where('name', 'like', '%'.$this->search.'%'));
                         });
                 });
             })
@@ -71,7 +72,7 @@ class ManageDirectoryUnits extends Component
             ->paginate(15);
 
         return view('directory::livewire.manage-directory-units', [
-            'units' => $units,
+            'services' => $services,
         ])->layout('layouts.app');
     }
 }

@@ -1,28 +1,21 @@
 <div>
-    <div data-tour="my-day-header" class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-wfm-navy-900 dark:text-white flex items-center gap-2">
-                <flux:icon.sun class="w-6 h-6 text-wfm-info" />
-                Mi Jornada
-            </h1>
-            <p class="text-sm text-wfm-surface-muted mt-1">Resumen de tu actividad y métricas del día seleccionado</p>
-        </div>
-        <div class="flex items-center gap-2">
-            <x-wfm.tour-button :tour="'wfm.my-day'" />
+    <x-wfm.page-header title="Mi Jornada" description="Resumen de tu actividad y métricas del día seleccionado" tour="wfm.my-day" data-tour="my-day-header">
+        <x-slot:actions>
             <div class="flex items-center gap-2 bg-wfm-surface p-1 rounded-lg border border-wfm-surface-border shadow-sm">
-            <flux:button wire:click="previousDay" size="sm" variant="ghost" class="text-wfm-surface-muted hover:text-wfm-navy-900" icon="chevron-left" />
-            <div class="flex items-center gap-2 px-3">
-                <flux:icon.calendar class="w-4 h-4 text-wfm-surface-muted" />
-                <span class="text-sm font-bold text-wfm-navy-900 dark:text-white min-w-[120px] text-center">
-                    {{ \Carbon\Carbon::parse($selectedDate)->locale('es')->isoFormat('D MMM YYYY') }}
-                </span>
+                <flux:button wire:click="previousDay" size="sm" variant="ghost" class="text-wfm-surface-muted hover:text-wfm-navy-900" icon="chevron-left" />
+                <div class="flex items-center gap-2 px-3">
+                    <flux:icon.calendar class="w-4 h-4 text-wfm-surface-muted" />
+                    <span class="text-sm font-bold text-wfm-navy-900 dark:text-white min-w-[120px] text-center">
+                        {{ \Carbon\Carbon::parse($selectedDate)->locale('es')->isoFormat('D MMM YYYY') }}
+                    </span>
+                </div>
+                <flux:button wire:click="nextDay" size="sm" variant="ghost"
+                             class="text-wfm-surface-muted hover:text-wfm-navy-900"
+                             icon="chevron-right"
+                             :disabled="\Carbon\Carbon::parse($selectedDate)->isToday()" />
             </div>
-            <flux:button wire:click="nextDay" size="sm" variant="ghost" 
-                         class="text-wfm-surface-muted hover:text-wfm-navy-900" 
-                         icon="chevron-right" 
-                         :disabled="\Carbon\Carbon::parse($selectedDate)->isToday()" />
-        </div>
-    </div>
+        </x-slot:actions>
+    </x-wfm.page-header>
 
     @if(!$employeeId)
         <x-wfm.empty icon="user" message="No tienes un empleado asociado a tu cuenta." class="h-64" />

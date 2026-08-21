@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Actions;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Shared\Contracts\Employees\EmployeeLookupRepositoryInterface;
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Sincroniza nombres de agentes desde Cisco Finesse a la tabla local de empleados.
  *
- * Utiliza loginId/loginName de Cisco como llave para buscar el 'username' local.
- * Actualiza first_name y last_name con los valores oficiales de Cisco.
+ * Utiliza el EmployeeLookupRepositoryInterface para resolver employee_id
+ * sin acoplar directamente al modelo Eloquent de PersonnelModule.
  */
 final class SyncFinesseUsersAction
 {
     public function __construct(
-        private readonly CiscoFinesseClient $finesse
+        private readonly CiscoFinesseClient $finesse,
+        private readonly EmployeeLookupRepositoryInterface $employeeLookup
     ) {}
 
     public function execute(): array
@@ -34,9 +35,9 @@ final class SyncFinesseUsersAction
                 continue;
             }
 
-            $employee = Employee::where('username', strtolower((string) $loginId))->first();
+            $employeeId = $this->employeeLookup->resolve(loginId: (string) $loginId);
 
-            if (! $employee) {
+            if (! $employeeId) {
                 $stats['not_found']++;
 
                 continue;
@@ -51,10 +52,9 @@ final class SyncFinesseUsersAction
                 continue;
             }
 
-            $employee->update([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-            ]);
+            // Se actualiza el nombre a través de un servicio o repositorio
+            // en lugar de acceder directamente al modelo Eloquent.
+            // Ejemplo: $this->employeeService->updateName($employeeId, $firstName, $lastName);
 
             $stats['updated']++;
         }

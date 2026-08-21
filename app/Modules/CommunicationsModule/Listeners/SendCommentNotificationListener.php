@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\CommunicationsModule\Listeners;
 
-use App\Models\User;
 use App\Modules\CommunicationsModule\Events\CommentCreated;
-use App\Modules\CommunicationsModule\Models\Notification;
+use App\Shared\Contracts\Identity\UserInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-/**
- * Listener para enviar notificaciones cuando se crea un comentario.
- */
 class SendCommentNotificationListener implements ShouldQueue
 {
     public function handle(CommentCreated $event): void
@@ -19,9 +15,11 @@ class SendCommentNotificationListener implements ShouldQueue
         $comment = $event->comment;
 
         // Notificar al autor de la news si no es el mismo que comenta
-        if ($comment->news->user_id !== $comment->user_id) {
+        $newsUser = $comment->news->user;
+
+        if ($newsUser instanceof UserInterface && $newsUser->getId() !== $comment->user_id) {
             Notification::create([
-                'user_id' => $comment->news->user_id,
+                'user_id' => $newsUser->getId(),
                 'type' => 'comment_on_news',
                 'title' => 'Nuevo comentario en tu noticia',
                 'message' => "{$comment->user->name} comentó en tu noticia: \"{$comment->content}\"",
@@ -47,11 +45,12 @@ class SendCommentNotificationListener implements ShouldQueue
             $mentionedUsernames = array_unique($matches[1]);
 
             foreach ($mentionedUsernames as $username) {
-                $user = User::where('username', $username)->first();
+                /** @var UserInterface|null $user */
+                $user = resolve(UserInterface::class)->where('username', $username)->first();
 
-                if ($user && $user->id !== $comment->user_id) {
+                if ($user && $user->getId() !== $comment->user_id) {
                     Notification::create([
-                        'user_id' => $user->id,
+                        'user_id' => $user->getId(),
                         'type' => 'mention_in_comment',
                         'title' => 'Te mencionaron en un comentario',
                         'message' => "{$comment->user->name} te mencionó en un comentario: \"{$comment->content}\"",

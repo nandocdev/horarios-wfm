@@ -7,13 +7,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up(): void {
         // 1. CONFIGURACIÓN BASE DE POSTGRES
         if (DB::getDriverName() === 'pgsql') {
             DB::statement('CREATE EXTENSION IF NOT EXISTS btree_gist');
@@ -50,7 +48,7 @@ return new class extends Migration
 
         // Índice parcial: solo un publicado por semana, pero múltiples drafts permitidos
         if (DB::getDriverName() === 'pgsql') {
-            DB::statement('CREATE UNIQUE INDEX weekly_schedules_published_unique ON weekly_schedules (week_start_date) WHERE (status = ''published'')');
+            DB::statement("CREATE UNIQUE INDEX weekly_schedules_published_unique ON weekly_schedules (week_start_date) WHERE (status = 'published')");
         }
 
         // 4. ASIGNACIONES SEMANALES (THE GRID)
@@ -166,8 +164,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
+    public function down(): void {
         // Drop swap columns from weekly_schedule_assignments
         if (DB::getDriverName() === 'pgsql') {
             DB::statement('DROP INDEX IF EXISTS ws_assignments_active_unique');

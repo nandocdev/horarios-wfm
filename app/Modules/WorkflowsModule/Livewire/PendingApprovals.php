@@ -21,7 +21,7 @@ class PendingApprovals extends Component
 
     public function approve(int $requestId, ApproveWorkflowAction $action): void
     {
-        $workflow = WorkflowRequest::findOrFail($requestId);
+        $workflow = WorkflowRequest::with('approvals')->findOrFail($requestId);
 
         $this->authorize('approve', $workflow);
 
@@ -45,7 +45,7 @@ class PendingApprovals extends Component
     {
         $this->validate(['rejectReason' => 'required|string|min:5']);
 
-        $workflow = WorkflowRequest::findOrFail($this->selectedRequestId);
+        $workflow = WorkflowRequest::with('approvals')->findOrFail($this->selectedRequestId);
         $this->authorize('reject', $workflow);
 
         $employee = Auth::user()->employee;

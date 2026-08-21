@@ -8,10 +8,13 @@ use App\Modules\CommunicationsModule\Events\MentionCreated;
 use App\Modules\CommunicationsModule\Models\Mention;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Procesa menciones en contenido de texto y las registra.
+ *
+ * Optimización: carga los usuarios en lote para evitar N+1 queries.
  */
 class ProcessMentionsAction
 {
@@ -33,13 +36,20 @@ class ProcessMentionsAction
         if (! empty($matches[1])) {
             $mentionedUsernames = array_unique($matches[1]);
 
-            DB::transaction(function () use ($mentionedUsernames, $mentionable, $mentionerUserId, &$mentions) {
-                foreach ($mentionedUsernames as $username) {
-                    $user = User::where('name', $username)->first();
+            // Cargar usuarios en lote para evitar N+1 queries
+            $mentionedUserIds = Cache::remember(
+                "mentions_{$mentionerUserId}",
+                60,
+                fn () => User::whereIn('username', $mentionedUsernames)->pluck('id', 'username')->toArray()
+            );
 
-                    if ($user && $user->id !== $mentionerUserId) {
+            DB::transaction(function () use ($mentionedUsernames, $mentionedUserIds, $mentionable, $mentionerUserId, &$mentions) {
+                foreach ($mentionedUsernames as $username) {
+                    $mentionedUserId = $mentionedUserIds[$username] ?? null;
+
+                    if ($mentionedUserId && $mentionedUserId !== $mentionerUserId) {
                         $mention = Mention::create([
-                            'mentioned_user_id' => $user->id,
+                            'mentioned_user_id' => $mentionedUserId,
                             'mentioner_user_id' => $mentionerUserId,
                             'mentionable_type' => get_class($mentionable),
                             'mentionable_id' => $mentionable->id,

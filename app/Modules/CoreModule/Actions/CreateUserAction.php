@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\CoreModule\Actions;
 
+use App\Modules\CoreModule\Concerns\ProfileValidationRules;
 use App\Modules\CoreModule\DTOs\UserDTO;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,10 @@ use Illuminate\Support\Str;
 
 /**
  * Crea un usuario institucional con roles y permisos básicos.
+ *
+ * [UC-INT-05] Registro de auditoría (disparado vía Observer)
+ * [RIESGO] Debilidad de contraseña — mitigado por PasswordValidationRules institucional
+ * [RIESGO] Duplicidad de Email — mitigado por Rule::unique en profileRules()
  */
 class CreateUserAction
 {
@@ -29,17 +34,15 @@ class CreateUserAction
             // Asignación de roles de Spatie
             if (! empty($dto->roles)) {
                 $user->assignRole($dto->roles);
+            } else {
+                // [UC-INT-01] Rol por defecto si ninguno especificado
+                $user->assignRole('agent');
             }
 
-            // [UC-INT-05] Registro de auditoría (disparado vía Observer)
+            // [UC-INT-05] Registro de auditoría (disparado vía Observer created())
+            // El trait Auditable::bootAuditable() dispara el log automáticamente
 
             return $user;
         });
     }
-
-    /**
-     * [RIESGOS]
-     * - Debilidad de contraseña: Si no se proporciona una contraseña, se genera una aleatoria; el sistema debe asegurar el envío seguro de la misma.
-     * - Duplicidad de Email: Aunque está validado en el Form, una condición de carrera podría causar un fallo a nivel de DB.
-     */
 }

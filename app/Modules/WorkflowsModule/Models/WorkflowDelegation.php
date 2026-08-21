@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WorkflowsModule\Models;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\CoreModule\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -26,11 +26,11 @@ class WorkflowDelegation extends Model
 
     public function originalApprover(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'original_approver_id');
+        return $this->belongsTo(User::class, 'original_approver_id');
     }
 
     public function delegate(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'delegate_id');
+        return $this->belongsTo(User::class, 'delegate_id');
     }
 }

@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Modules\WorkflowsModule\Models;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\CoreModule\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WorkflowRequest extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
         'requestable_type',
         'requestable_id',
@@ -30,7 +27,7 @@ class WorkflowRequest extends Model
 
     public function requester(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'requester_id');
+        return $this->belongsTo(User::class, 'requester_id');
     }
 
     public function approvals(): HasMany

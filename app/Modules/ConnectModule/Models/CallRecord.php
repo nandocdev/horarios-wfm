@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Models;
 
-use App\Modules\ConnectModule\Enums\ContactType;
-use App\Modules\ConnectModule\Enums\ParticipantType;
 use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,15 +15,12 @@ class CallRecord extends Model
     protected $fillable = [
         'cisco_call_id',
         'sequence_number',
-        'node_id',
         'queue_id',
         'phone_number',
         'ivr_started_at',
         'ivr_ended_at',
-        'contact_type',
         'destination_number',
         'dialed_number',
-        'original_dialed_number',
         'application_name',
         'talk_time',
         'hold_time',
@@ -33,10 +28,6 @@ class CallRecord extends Model
         'work_time',
         'queue_time',
         'contact_disposition',
-        'originator_type',
-        'originator_id',
-        'destination_type',
-        'destination_id',
         'employee_id',
         'raw_agent_name',
         'citizen_identifier',
@@ -54,10 +45,6 @@ class CallRecord extends Model
         'queue_id' => 'integer',
         'case_subtype_id' => 'integer',
         'sequence_number' => 'integer',
-        'node_id' => 'integer',
-        'contact_type' => ContactType::class,
-        'originator_type' => ParticipantType::class,
-        'destination_type' => ParticipantType::class,
         'talk_time' => 'integer',
         'hold_time' => 'integer',
         'ring_time' => 'integer',

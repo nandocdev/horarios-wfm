@@ -12,7 +12,6 @@ use App\Modules\ConnectModule\Console\Commands\FinesseSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\FinesseSyncQueuesCommand;
 use App\Modules\ConnectModule\Console\Commands\ImportUccxDataCommand;
 use App\Modules\ConnectModule\Console\Commands\TestCuicAgentDetailCommand;
-use App\Modules\ConnectModule\Console\Commands\TestCuicDetailedCcdrCommand;
 use App\Modules\ConnectModule\Listeners\SendSyncFailedNotification;
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\ConnectModule\Models\CallQueue;
@@ -65,7 +64,6 @@ class ModuleServiceProvider extends ServiceProvider
                 ImportUccxDataCommand::class,
                 AutoImportUccxCommand::class,
                 TestCuicAgentDetailCommand::class,
-                TestCuicDetailedCcdrCommand::class,
                 CuicSyncCommand::class,
                 CuicBackfillCommand::class,
                 FinesseSyncCommand::class,

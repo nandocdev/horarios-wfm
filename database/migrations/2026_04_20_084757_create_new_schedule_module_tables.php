@@ -41,12 +41,17 @@ return new class extends Migration
         // 3. PLANIFICACIÓN SEMANAL (CONTAINER)
         Schema::create('weekly_schedules', function (Blueprint $table) {
             $table->id();
-            $table->date('week_start_date')->unique(); // Lunes
+            $table->date('week_start_date'); // Lunes
             $table->date('week_end_date');           // Domingo
             $table->string('status', 20)->default('draft'); // draft, published, closed
             $table->timestampTz('published_at')->nullable();
             $table->timestampsTz();
         });
+
+        // Índice parcial: solo un publicado por semana, pero múltiples drafts permitidos
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('CREATE UNIQUE INDEX weekly_schedules_published_unique ON weekly_schedules (week_start_date) WHERE (status = ''published'')');
+        }
 
         // 4. ASIGNACIONES SEMANALES (THE GRID)
         Schema::create('weekly_schedule_assignments', function (Blueprint $table) {

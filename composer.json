@@ -43,10 +43,7 @@
             "App\\Shared\\": "app/Shared/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        },
-        "files": [
-            "app/Helpers/toast.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {

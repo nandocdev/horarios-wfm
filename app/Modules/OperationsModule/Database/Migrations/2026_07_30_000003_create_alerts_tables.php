@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('alert_rules', function (Blueprint $table) {
-            $table->ulid('id')->primary();
+            $table->bigSerial('id')->primary();
             $table->string('event_type')->unique();
             $table->string('label');
             $table->text('description')->nullable();
@@ -25,10 +25,10 @@ return new class extends Migration
         });
 
         Schema::create('alert_events', function (Blueprint $table) {
-            $table->ulid('id')->primary();
-            $table->foreignUlid('alert_rule_id')->constrained('alert_rules')->cascadeOnDelete();
-            $table->foreignId('employee_id')->nullable()->constrained('employees')->nullOnDelete();
-            $table->string('queue_id')->nullable();
+            $table->bigSerial('id')->primary();
+            $table->foreignId('alert_rule_id')->constrained('alert_rules')->cascadeOnDelete();
+            $table->foreignId('employee_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->unsignedBigInteger('queue_id')->nullable();
             $table->string('source')->nullable();
             $table->string('message');
             $table->string('level')->default('warning');
@@ -48,8 +48,8 @@ return new class extends Migration
         });
 
         Schema::create('alert_escalations', function (Blueprint $table) {
-            $table->ulid('id')->primary();
-            $table->foreignUlid('alert_event_id')->constrained('alert_events')->cascadeOnDelete();
+            $table->bigSerial('id')->primary();
+            $table->foreignId('alert_event_id')->constrained('alert_events')->cascadeOnDelete();
             $table->unsignedTinyInteger('escalation_level');
             $table->string('escalated_to_role');
             $table->timestamp('escalated_at');

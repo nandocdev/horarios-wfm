@@ -4,48 +4,119 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Observers;
 
+use App\Modules\AnalyticsModule\Models\EmployeeSnapshot;
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Observa el ciclo de vida del modelo Employee.
- * Solo efectos secundarios: caché, logs, sincronizaciones externas.
+ * Efectos secundarios: creación automática de snapshots SCD2 en analytics_employee_snapshot
+ * cuando cambian los datos organizacionales (departamento, puesto, supervisor, equipo).
  *
  * @module EmployeesModule
  *
- * @type Observer
- *
  * @author GitHub Copilot
  *
- * @created 2026-03-25
+ * @created 2026-08-21
  */
 class EmployeeObserver
 {
     public function created(Employee $employee): void
     {
-        Cache::forget('employees_list');
+        $this->createSnapshot($employee);
     }
 
     public function updated(Employee $employee): void
     {
-        Cache::forget("employee:{$employee->id}");
-        Cache::forget('employees_list');
+        // Solo crear snapshot si hay cambios en datos organizacionales
+        $changed = $employee->isDirty([
+            'department_id',
+            'position_id',
+            'team_id',
+            'supervisor_id',
+            'employment_status_id',
+        ]);
+
+        if ($changed) {
+            $this->createSnapshot($employee);
+        }
+
+        // Always refresh the current snapshot
+        $this->createSnapshot($employee, true);
     }
 
     public function deleted(Employee $employee): void
     {
-        Cache::forget("employee:{$employee->id}");
-        Cache::forget('employees_list');
+        // Marcar snapshot como inactivo en lugar de borrarlo
+        EmployeeSnapshot::where('employee_id', $employee->id)
+            ->where('is_current', false)
+            ->update(['is_current' => false, 'valid_to' => now()]);
     }
 
     public function restored(Employee $employee): void
     {
-        Cache::forget('employees_list');
+        // Reactivar snapshot actual
+        $this->createSnapshot($employee, true);
     }
 
     public function forceDeleted(Employee $employee): void
     {
-        Cache::forget("employee:{$employee->id}");
-        Cache::forget('employees_list');
+        EmployeeSnapshot::where('employee_id', $employee->id)->delete();
+    }
+
+    /**
+     * Crear o actualizar snapshot SCD2 para el empleado.
+     */
+    protected function createSnapshot(Employee $employee, bool $isCurrent = false): void
+    {
+        // Verificar si ya existe un snapshot actual para este empleado
+        $existing = EmployeeSnapshot::where('employee_id', $employee->id)
+            ->where('is_current', true)
+            ->first();
+
+        $validFrom = now()->startOfDay();
+
+        if ($existing) {
+            // Actualizar snapshot existente: setear valid_to a ayer y crear uno nuevo
+            $existing->valid_to = $validFrom->subDay();
+            $existing->is_current = false;
+            $existing->save();
+
+            // Crear nuevo snapshot
+            EmployeeSnapshot::create([
+                'employee_id' => $employee->id,
+                'valid_from' => $validFrom,
+                'valid_to' => null,
+                'is_current' => true,
+                'team_id' => $employee->team_id,
+                'department_id' => $employee->department_id,
+                'position_id' => $employee->position_id,
+                'supervisor_id' => $employee->parent_id,
+                'employment_status_id' => $employee->employment_status_id,
+                'is_active' => $employee->is_active,
+                'metadata' => [
+                    'changed_at' => now()->toISOString(),
+                    'changed_reason' => 'employee_updated',
+                ],
+            ]);
+        } else {
+            // Crear nuevo snapshot SCD2
+            EmployeeSnapshot::create([
+                'employee_id' => $employee->id,
+                'valid_from' => $validFrom,
+                'valid_to' => null,
+                'is_current' => true,
+                'team_id' => $employee->team_id,
+                'department_id' => $employee->department_id,
+                'position_id' => $employee->position_id,
+                'supervisor_id' => $employee->parent_id,
+                'employment_status_id' => $employee->employment_status_id,
+                'is_active' => $employee->is_active,
+                'metadata' => [
+                    'created_at' => now()->toISOString(),
+                    'change_type' => 'initial',
+                ],
+            ]);
+        }
     }
 }

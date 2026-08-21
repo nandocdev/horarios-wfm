@@ -28,7 +28,7 @@ return new class extends Migration
             $table->bigSerial('id')->primary();
             $table->foreignId('alert_rule_id')->constrained('alert_rules')->cascadeOnDelete();
             $table->foreignId('employee_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->unsignedBigInteger('queue_id')->nullable();
+            $table->unsignedBigInteger('queue_id')->nullable()->constrained('call_queues')->nullOnDelete();
             $table->string('source')->nullable();
             $table->string('message');
             $table->string('level')->default('warning');

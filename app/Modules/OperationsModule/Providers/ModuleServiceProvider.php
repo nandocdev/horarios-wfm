@@ -10,6 +10,7 @@ use App\Modules\OperationsModule\Console\Commands\CalculateDailyMetricsCommand;
 use App\Modules\OperationsModule\Console\Commands\EvaluateAlertsCommand;
 use App\Modules\OperationsModule\Console\Commands\ReconcileAttendanceCommand;
 use App\Modules\OperationsModule\Console\Commands\SeedAlertRules;
+use App\Modules\OperationsModule\Alerts\Observers\AlertEventObserver;
 use App\Modules\OperationsModule\Listeners\SendAdherenceAlertNotification;
 use App\Modules\OperationsModule\Listeners\SendAttendanceIncidentNotification;
 use App\Modules\OperationsModule\Livewire\AdvancedProductivityDashboard;
@@ -72,6 +73,7 @@ use App\Modules\OperationsModule\Services\PerformanceService;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use App\Shared\Events\AdherenceAlertTriggered;
 use App\Shared\Events\AttendanceIncidentRegistered;
+use App\Modules\OperationsModule\Alerts\Models\AlertEvent;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -185,5 +187,8 @@ class ModuleServiceProvider extends ServiceProvider
             AttendanceIncidentRegistered::class,
             SendAttendanceIncidentNotification::class,
         );
+
+        // Registro de observadores de alertas
+        AlertEvent::observe(AlertEventObserver::class);
     }
 }

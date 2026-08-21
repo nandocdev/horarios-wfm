@@ -44,4 +44,4 @@ scripts/*.excalidraw:Zone.Identifier
 /docs/TMP.md
 *_build/
 /database/data/ecm_db/
-/docs/Services/*
+/docs/*

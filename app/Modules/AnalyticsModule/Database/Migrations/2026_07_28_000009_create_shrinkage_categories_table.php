@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('shrinkage_categories', function (Blueprint $table) {
-            $table->ulid('id')->primary();
+            $table->bigSerial('id')->primary();
             $table->string('code', 50)->unique();
             $table->string('name');
             $table->text('description')->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
 
         DB::table('shrinkage_categories')->insert([
             [
-                'id' => (string) str()->ulid(),
+                'id' => 1,
                 'code' => 'vacation',
                 'name' => 'Vacaciones',
                 'description' => 'Período de vacaciones programadas',
@@ -35,7 +35,7 @@ return new class extends Migration
                 'is_active' => true,
             ],
             [
-                'id' => (string) str()->ulid(),
+                'id' => 2,
                 'code' => 'training',
                 'name' => 'Capacitación',
                 'description' => 'Entrenamiento o capacitación programada',
@@ -45,7 +45,7 @@ return new class extends Migration
                 'is_active' => true,
             ],
             [
-                'id' => (string) str()->ulid(),
+                'id' => 3,
                 'code' => 'meeting',
                 'name' => 'Reunión',
                 'description' => 'Reuniones operativas o de equipo',
@@ -55,7 +55,7 @@ return new class extends Migration
                 'is_active' => true,
             ],
             [
-                'id' => (string) str()->ulid(),
+                'id' => 4,
                 'code' => 'leave',
                 'name' => 'Permiso',
                 'description' => 'Permisos médicos, personales o administrativos',
@@ -65,7 +65,7 @@ return new class extends Migration
                 'is_active' => true,
             ],
             [
-                'id' => (string) str()->ulid(),
+                'id' => 5,
                 'code' => 'lunch',
                 'name' => 'Almuerzo',
                 'description' => 'Período de almuerzo',
@@ -75,7 +75,7 @@ return new class extends Migration
                 'is_active' => true,
             ],
             [
-                'id' => (string) str()->ulid(),
+                'id' => 6,
                 'code' => 'break',
                 'name' => 'Descanso',
                 'description' => 'Descansos programados durante la jornada',
@@ -85,7 +85,7 @@ return new class extends Migration
                 'is_active' => true,
             ],
             [
-                'id' => (string) str()->ulid(),
+                'id' => 7,
                 'code' => 'coaching',
                 'name' => 'Coaching',
                 'description' => 'Sesiones de coaching o retroalimentación',
@@ -95,7 +95,7 @@ return new class extends Migration
                 'is_active' => true,
             ],
             [
-                'id' => (string) str()->ulid(),
+                'id' => 8,
                 'code' => 'absence',
                 'name' => 'Ausencia',
                 'description' => 'Ausencia no justificada',

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\ConnectModule\Services;
 
+use App\Modules\ConnectModule\Enums\AgentState;
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
 use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
@@ -21,10 +22,13 @@ final class TelemetryService implements TelemetryServiceInterface
             return null;
         }
 
+        $currentState = $state->current_state ?? 'OFFLINE';
+        $reasonCode = $state->reason_code;
+
         return new TelemetryStateDTO(
             $employeeId,
-            $state->current_state ?? 'OFFLINE',
-            $state->reason_code,
+            $currentState,
+            $reasonCode,
             $state->last_changed_at instanceof Carbon
                 ? $state->last_changed_at->utc()->toIso8601String()
                 : Carbon::parse((string) $state->last_changed_at)->utc()->toIso8601String(),
@@ -43,10 +47,13 @@ final class TelemetryService implements TelemetryServiceInterface
         foreach ($employeeIds as $id) {
             $state = $states[$id] ?? null;
             if ($state) {
+                $currentState = $state->current_state ?? 'OFFLINE';
+                $reasonCode = $state->reason_code;
+
                 $results[$id] = new TelemetryStateDTO(
                     $id,
-                    $state->current_state ?? 'OFFLINE',
-                    $state->reason_code,
+                    $currentState,
+                    $reasonCode,
                     $state->last_changed_at instanceof Carbon
                         ? $state->last_changed_at->utc()->toIso8601String()
                         : Carbon::parse((string) $state->last_changed_at)->utc()->toIso8601String(),
@@ -75,7 +82,7 @@ final class TelemetryService implements TelemetryServiceInterface
                     $t->transition_time instanceof Carbon ? $t->transition_time->toIso8601String() : (string) $t->transition_time,
                     [
                         'duration' => $t->duration,
-                        'is_productive' => in_array(strtoupper($cleanState), ['READY', 'RESERVED', 'TALKING', 'WORK', 'HOLD', 'OUTBOUND']),
+                        'is_productive' => AgentState::tryFrom($cleanState)?->isProductive() ?? false,
                     ]
                 );
             });

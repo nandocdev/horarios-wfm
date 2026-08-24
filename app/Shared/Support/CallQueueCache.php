@@ -50,4 +50,20 @@ class CallQueueCache
         Cache::forget('call_queues:names');
         Cache::forget('call_queues:aht_goals');
     }
+
+    /**
+     * Actualiza la meta AHT de varias colas y purga el cache asociado.
+     * Centraliza el acceso de escritura a las colas (modelo de Connect) para
+     * que otros módulos no importen CallQueue directamente.
+     *
+     * @param  array<int, array{id:int, aht_goal:int}>  $goals
+     */
+    public function updateQueueGoals(array $goals): void
+    {
+        foreach ($goals as $goal) {
+            CallQueue::whereKey((int) $goal['id'])->update(['aht_goal' => (int) $goal['aht_goal']]);
+        }
+
+        $this->refresh();
+    }
 }

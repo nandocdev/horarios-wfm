@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Modules\ConnectModule\Models\CallQueue;
 use App\Modules\WfmModule\Models\OperationalSetting;
 use App\Shared\Support\CallQueueCache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
@@ -122,10 +122,7 @@ class OperationalSettings extends Component
                     ->update(['value' => (string) $goal['display_value']]);
             }
 
-            foreach ($this->queues as $queue) {
-                CallQueue::where('id', $queue['id'])
-                    ->update(['aht_goal' => $queue['aht_goal']]);
-            }
+            app(CallQueueCache::class)->updateQueueGoals($this->queues);
         });
 
         $this->loadSettings(); // Recargar para reflejar cambios y unidades correctas

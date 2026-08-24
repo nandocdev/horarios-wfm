@@ -25,7 +25,11 @@ class QueueTableWidget extends Component
     public function render()
     {
         $today = $this->selectedDate;
+        $isToday = $today === now()->toDateString();
 
+        // Acumulado del día desde call_records (detalle completo: AHT, tiempos de cola).
+        // [NOTA] CiscoSync importa call_records una vez al día (05:00); durante la jornada
+        // esta fuente puede ir rezagada respecto a los contadores de CUIC.
         $callStats = DB::table('call_records')
             ->join('call_queues', 'call_queues.id', '=', 'call_records.queue_id')
             ->whereDate('call_records.ivr_started_at', $today)
@@ -44,6 +48,8 @@ class QueueTableWidget extends Component
             ->get()
             ->keyBy('queue_name');
 
+        // Snapshot CUIC sincronizado cada 5 min (cuic:sync). Sus contadores
+        // *_since_midnight son el acumulado del día hasta ahora.
         $realtime = CsqRealtimeStat::all()->keyBy('csq_name');
 
         $allNames = $callStats->keys()
@@ -52,19 +58,38 @@ class QueueTableWidget extends Component
             ->sort()
             ->values();
 
-        $queues = $allNames->map(function ($name) use ($callStats, $realtime) {
+        $queues = $allNames->map(function ($name) use ($callStats, $realtime, $isToday) {
             $s = $callStats->get($name);
             $r = $realtime->get($name);
 
-            $total = (int) ($s->total ?? 0);
-            $handled = (int) ($s->handled ?? 0);
-            $abandoned = (int) ($s->abandoned ?? 0);
+            // Acumulado del día: máximo entre call_records y los contadores
+            // desde medianoche de CUIC (la fuente más fresca gana; nunca se suman
+            // porque cuentan las mismas llamadas).
+            $recordTotal = (int) ($s->total ?? 0);
+            $recordHandled = (int) ($s->handled ?? 0);
+            $recordAbandoned = (int) ($s->abandoned ?? 0);
             $slaCount = (int) ($s->sla_calls ?? 0);
+
+            if ($r !== null && $isToday) {
+                $total = max($recordTotal, (int) $r->total_calls_since_midnight);
+                $handled = max($recordHandled, (int) $r->calls_handled_since_midnight);
+                $abandoned = max($recordAbandoned, (int) $r->calls_abandoned_since_midnight);
+            } else {
+                $total = $recordTotal;
+                $handled = $recordHandled;
+                $abandoned = $recordAbandoned;
+            }
+
             $waiting = (int) ($r->calls_waiting ?? 0);
             $avgAht = (float) ($s->avg_aht ?? 0);
             $avgAbandonTime = (float) ($s->avg_abandon_time ?? 0);
             $maxWait = (int) ($s->max_queue_time ?? 0);
-            $slaPct = $total > 0 ? ServiceQualityMetrics::serviceLevel($slaCount, $total) : ($r && $r->service_level_long_term !== null ? round($r->service_level_long_term, 1) : 0);
+
+            // SLA del día solo si hay detalle en call_records; si no, cae al valor
+            // rodante de CUIC (evita mostrar 0% falso con contadores sin detalle).
+            $slaPct = $recordTotal > 0
+                ? ServiceQualityMetrics::serviceLevel($slaCount, $recordTotal)
+                : ($r && $r->service_level_long_term !== null ? round($r->service_level_long_term, 1) : 0);
 
             return [
                 'name' => $name,

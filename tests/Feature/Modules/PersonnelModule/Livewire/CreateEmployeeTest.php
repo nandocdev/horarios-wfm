@@ -21,13 +21,13 @@ beforeEach(function () {
     $this->user->givePermissionTo('employees.create');
     $this->actingAs($this->user);
 
-    EmploymentStatus::create(['id' => 1, 'name' => 'Activo']);
-    Directorate::create(['id' => 1, 'name' => 'Dirección General']);
-    Department::create(['id' => 1, 'name' => 'Operaciones', 'directorate_id' => 1]);
-    Position::create(['id' => 1, 'name' => 'Agente', 'position_code' => 'AGT', 'department_id' => 1]);
-    Province::create(['id' => 1, 'name' => 'Panamá']);
-    District::create(['id' => 1, 'name' => 'Distrito Central', 'province_id' => 1]);
-    Township::create(['id' => 1, 'name' => 'Ciudad', 'district_id' => 1]);
+    $this->employmentStatus = EmploymentStatus::create(['name' => 'Activo']);
+    $this->directorate = Directorate::create(['name' => 'Dirección General']);
+    $this->department = Department::create(['name' => 'Operaciones', 'directorate_id' => $this->directorate->id]);
+    $this->position = Position::create(['name' => 'Agente', 'position_code' => 'AGT', 'department_id' => $this->department->id]);
+    $this->province = Province::create(['name' => 'Panamá']);
+    $this->district = District::create(['name' => 'Distrito Central', 'province_id' => $this->province->id]);
+    $this->township = Township::create(['name' => 'Ciudad', 'district_id' => $this->district->id]);
 });
 
 it('renders the create employee form', function () {
@@ -56,10 +56,10 @@ it('creates an employee with valid data', function () {
         ->set('form.gender', 'M')
         ->set('form.user_id', $this->user->id)
         ->set('form.hire_date', now()->toDateString())
-        ->set('form.department_id', 1)
-        ->set('form.position_id', 1)
-        ->set('form.employment_status_id', 1)
-        ->set('form.township_id', 1)
+        ->set('form.department_id', $this->department->id)
+        ->set('form.position_id', $this->position->id)
+        ->set('form.employment_status_id', $this->employmentStatus->id)
+        ->set('form.township_id', $this->township->id)
         ->call('save')
         ->assertHasNoErrors()
         ->assertRedirect();
@@ -80,10 +80,10 @@ it('validates unique employee_number', function () {
         'email' => 'existing@example.com',
         'birth_date' => '1990-01-01',
         'hire_date' => now()->toDateString(),
-        'department_id' => 1,
-        'position_id' => 1,
-        'employment_status_id' => 1,
-        'township_id' => 1,
+        'department_id' => $this->department->id,
+        'position_id' => $this->position->id,
+        'employment_status_id' => $this->employmentStatus->id,
+        'township_id' => $this->township->id,
     ]);
 
     Livewire::test(CreateEmployee::class)
@@ -96,10 +96,10 @@ it('validates unique employee_number', function () {
         ->set('form.gender', 'M')
         ->set('form.user_id', $this->user->id)
         ->set('form.hire_date', now()->toDateString())
-        ->set('form.department_id', 1)
-        ->set('form.position_id', 1)
-        ->set('form.employment_status_id', 1)
-        ->set('form.township_id', 1)
+        ->set('form.department_id', $this->department->id)
+        ->set('form.position_id', $this->position->id)
+        ->set('form.employment_status_id', $this->employmentStatus->id)
+        ->set('form.township_id', $this->township->id)
         ->call('save')
         ->assertHasErrors(['form.employee_number']);
 });

@@ -118,12 +118,13 @@ final class ScheduleService implements ScheduleServiceInterface
             $end = $exception->end_at->copy()->min($through->copy());
             while ($cursor->lte($end)) {
                 $exemptDates[$cursor->toDateString()] = true;
-                $cursor->addDay();
+                // Reasignación obligatoria: con CarbonImmutable addDay() no muta.
+                $cursor = $cursor->addDay();
             }
         }
 
         $worked = [];
-        for ($date = $through->copy(); $date->gte($start); $date->subDay()) {
+        for ($date = $through->copy(); $date->gte($start); $date = $date->subDay()) {
             $key = $date->toDateString();
             if (($assignments[$key] ?? false) && ! isset($exemptDates[$key])) {
                 $worked[] = $key;

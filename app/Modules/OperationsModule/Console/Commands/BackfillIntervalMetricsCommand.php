@@ -68,7 +68,7 @@ class BackfillIntervalMetricsCommand extends Command
 
             $hasData = AgentStateTransition::whereDate('transition_time', $dayStr)->exists();
             if (! $hasData) {
-                $current->addDay();
+                $current = $current->addDay();
 
                 continue;
             }
@@ -197,7 +197,7 @@ class BackfillIntervalMetricsCommand extends Command
 
             // Liberar memoria
             gc_collect_cycles();
-            $current->addDay();
+            $current = $current->addDay();
         }
 
         $this->newLine(2);
@@ -242,7 +242,7 @@ class BackfillIntervalMetricsCommand extends Command
                         'end_time' => $a->end_time instanceof \DateTimeInterface ? $a->end_time->format('H:i:s') : $a->end_time,
                     ];
                 }
-                $current->addDay();
+                $current = $current->addDay();
             }
         }
 

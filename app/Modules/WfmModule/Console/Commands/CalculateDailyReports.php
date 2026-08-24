@@ -28,7 +28,7 @@ class CalculateDailyReports extends Command
 
             while ($start->lte($end)) {
                 $days[] = $start->toDateString();
-                $start->addDay();
+                $start = $start->addDay();
             }
 
             $this->info("Calculando reportes para {$date} hasta hoy...");

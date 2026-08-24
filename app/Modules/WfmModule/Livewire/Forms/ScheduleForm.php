@@ -73,7 +73,7 @@ class ScheduleForm extends Form
                 $end = Carbon::parse($this->end_time);
 
                 if ($end->lessThan($start)) {
-                    $end->addDay();
+                    $end = $end->addDay();
                 }
 
                 $this->total_minutes = (int) $start->diffInMinutes($end);

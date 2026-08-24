@@ -38,7 +38,7 @@ class AggregateAgentDailyMetricsCommand extends Command
 
         while ($currentDate->lte($endDate)) {
             $this->processDate($currentDate, $calculateAction);
-            $currentDate->addDay();
+            $currentDate = $currentDate->addDay();
         }
 
         return self::SUCCESS;

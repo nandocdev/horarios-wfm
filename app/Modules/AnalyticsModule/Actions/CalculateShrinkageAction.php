@@ -196,7 +196,7 @@ final class CalculateShrinkageAction
                 ];
             }
 
-            $startDay->addDay();
+            $startDay = $startDay->addDay();
         }
 
         return $records;
@@ -240,7 +240,7 @@ final class CalculateShrinkageAction
                 ];
             }
 
-            $startDay->addDay();
+            $startDay = $startDay->addDay();
         }
 
         return $records;

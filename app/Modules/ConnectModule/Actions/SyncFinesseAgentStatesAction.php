@@ -10,6 +10,7 @@ use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -157,8 +158,7 @@ class SyncFinesseAgentStatesAction
         string $externalId,
         array $data,
         array $dialogInfo = [],
-    ): void
-    {
+    ): void {
         $rawState = $data['state'] ?? 'UNKNOWN';
         $state = strtoupper($rawState);
         $reasonCode = $data['reasonCode'] ?? null;
@@ -180,7 +180,7 @@ class SyncFinesseAgentStatesAction
 
         // Si la transición es inválida y no es una transición que requiera re-login, la registramos como UNKNOWN
         if (! $isValid && ! AgentState::RELOGIN_REQUIRED->contains($state)) {
-            Log::warning("Transición de estado inválida para agente {$externalId}: " . strtoupper($existingState?->current_state ?? 'OFFLINE') . " -> {$state}");
+            Log::warning("Transición de estado inválida para agente {$externalId}: ".strtoupper($existingState?->current_state ?? 'OFFLINE')." -> {$state}");
             // Continuamos pero marcamos como UNKNOWN para no perder la trazabilidad
         }
 
@@ -278,8 +278,7 @@ class SyncFinesseAgentStatesAction
         string $toState,
         ?string $reasonCode,
         CarbonInterface $transitionTime,
-    ): void
-    {
+    ): void {
         AgentStateTransition::create([
             'agent_login_id' => null, // Se llenará si hay información de login
             'employee_id' => $employeeId,

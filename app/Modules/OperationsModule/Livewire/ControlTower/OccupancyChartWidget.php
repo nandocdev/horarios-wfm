@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Livewire\ControlTower;
 
 use App\Modules\OperationsModule\Models\AgentIntervalMetric;
-use App\Shared\Contracts\Telemetry\TelemetryRealtimeRepositoryInterface;
+use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Livewire\Attributes\Lazy;
@@ -23,11 +23,17 @@ class OccupancyChartWidget extends Component
         return '<div class="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"></div>';
     }
 
-    public function render(TelemetryRealtimeRepositoryInterface $realtimeRepo)
+    public function render()
     {
         $today = $this->selectedDate;
         $yesterday = Carbon::parse($today)->subDay()->toDateString();
         $ids = $this->employeeIds;
+
+        // Fallback consistente con HeroStatsWidget: sin filtro de alcance,
+        // el widget opera sobre todos los empleados activos.
+        if (empty($ids)) {
+            $ids = Employee::where('is_active', true)->pluck('id')->toArray();
+        }
 
         try {
             $todayMetrics = AgentIntervalMetric::whereIn('employee_id', $ids)

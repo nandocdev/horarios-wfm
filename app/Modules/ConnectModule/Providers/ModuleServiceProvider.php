@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Providers;
 
 use App\Modules\ConnectModule\Console\Commands\AutoImportUccxCommand;
+use App\Modules\ConnectModule\Console\Commands\CiscoSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\CuicBackfillCommand;
 use App\Modules\ConnectModule\Console\Commands\CuicRealtimeSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\CuicSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\FinesseSyncCommand;
 use App\Modules\ConnectModule\Console\Commands\FinesseSyncQueuesCommand;
 use App\Modules\ConnectModule\Console\Commands\ImportUccxDataCommand;
+use App\Modules\ConnectModule\Console\Commands\TestCiscoConnection;
 use App\Modules\ConnectModule\Console\Commands\TestCuicAgentDetailCommand;
 use App\Modules\ConnectModule\Listeners\SendSyncFailedNotification;
 use App\Modules\ConnectModule\Models\AgentRealtimeState;
@@ -69,6 +71,8 @@ class ModuleServiceProvider extends ServiceProvider
                 FinesseSyncCommand::class,
                 FinesseSyncQueuesCommand::class,
                 CuicRealtimeSyncCommand::class,
+                CiscoSyncCommand::class,
+                TestCiscoConnection::class,
             ]);
         }
 

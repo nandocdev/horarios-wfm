@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands;
+namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncFinesseAgentStatesAction;
 use App\Modules\PersonnelModule\Actions\SyncEmployeeDataWithCiscoAction;

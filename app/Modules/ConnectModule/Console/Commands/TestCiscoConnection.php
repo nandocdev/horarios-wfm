@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands;
+namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use Illuminate\Console\Command;

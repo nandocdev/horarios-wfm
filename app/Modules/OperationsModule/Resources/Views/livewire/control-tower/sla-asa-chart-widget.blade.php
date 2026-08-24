@@ -2,6 +2,11 @@
     <div class="flex items-center justify-between mb-4 pb-2 border-b border-zinc-100 dark:border-zinc-700">
         <h3 class="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider">SLA / ASA</h3>
     </div>
+    @if (! $hasData)
+        <div class="flex items-center justify-center h-[220px]">
+            <p class="text-xs text-zinc-400 dark:text-zinc-500">Sin llamadas registradas para la fecha seleccionada</p>
+        </div>
+    @else
     @php
         $apexChartOptions = array_merge($chartOptions, [
             'yaxis' => [
@@ -25,4 +30,5 @@
         refresh-event="control-tower-refresh"
         height="220px"
     />
+    @endif
 </div>

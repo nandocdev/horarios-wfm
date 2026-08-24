@@ -118,7 +118,7 @@ abstract class BaseAlertEvaluator
             facts: $data['facts'] ?? [],
             recommendation: $data['recommendation'] ?? 'Verificar la situación del agente en el monitoreo en tiempo real.',
             resourceType: 'alert',
-            resourceId: $event->id,
+            resourceId: (string) $event->id,
         );
 
         foreach ($recipients as $user) {

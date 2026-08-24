@@ -23,19 +23,23 @@ class UnexpectedLogoutEvaluator extends BaseAlertEvaluator
         $expectedState = app(ExpectedAgentStateInterface::class);
 
         $employees = Cache::remember('active_employees_with_team', 300, function () {
-            return Employee::where('is_active', true)
+            return Employee::query()
+                ->where('is_active', true)
                 ->whereHas('user')
                 ->whereHas('team')
-                ->get();
+                ->get(['id', 'first_name', 'last_name'])
+                ->map(fn ($e) => ['id' => $e->id, 'full_name' => trim("{$e->first_name} {$e->last_name}")])
+                ->values()
+                ->toArray();
         });
 
-        $employeeIds = $employees->pluck('id')->toArray();
+        $employeeIds = array_column($employees, 'id');
         $realtimeStates = $telemetryService->getBatchCurrentStates($employeeIds);
         $expectedStates = $expectedState->executeBatch($employeeIds);
 
         foreach ($employees as $employee) {
-            $real = $realtimeStates[$employee->id] ?? null;
-            $expected = $expectedStates[$employee->id] ?? ['type' => 'OFF'];
+            $real = $realtimeStates[$employee['id']] ?? null;
+            $expected = $expectedStates[$employee['id']] ?? ['type' => 'OFF'];
 
             $isExpectedActive = in_array($expected['type'], ['SHIFT', 'INTRADAY']);
 
@@ -46,7 +50,7 @@ class UnexpectedLogoutEvaluator extends BaseAlertEvaluator
             $currentState = strtoupper($real?->current_state ?? 'OFFLINE');
 
             if ($currentState !== 'LOGOUT') {
-                $this->resolve($rule, (string) $employee->id);
+                $this->resolve($rule, (string) $employee['id']);
 
                 continue;
             }
@@ -58,25 +62,25 @@ class UnexpectedLogoutEvaluator extends BaseAlertEvaluator
                 continue;
             }
 
-            if ($this->shouldSuppress($rule, (string) $employee->id, $duration)) {
+            if ($this->shouldSuppress($rule, (string) $employee['id'], $duration)) {
                 continue;
             }
 
             $this->trigger($rule, [
-                'employee_id' => $employee->id,
-                'message' => "{$employee->full_name} se desconectó inesperadamente durante su turno.",
+                'employee_id' => $employee['id'],
+                'message' => "{$employee['full_name']} se desconectó inesperadamente durante su turno.",
                 'level' => 'critical',
                 'source' => 'unexpected_logout_evaluator',
                 'summary' => 'El agente cerró sesión durante su horario laboral sin registro de permiso.',
                 'actionUrl' => '/operations/realtime',
                 'facts' => [
-                    ['label' => 'Empleado', 'value' => $employee->full_name],
+                    ['label' => 'Empleado', 'value' => $employee['full_name']],
                     ['label' => 'Duración', 'value' => gmdate('H:i:s', $duration)],
                     ['label' => 'Último Cambio', 'value' => $lastChange?->format('H:i:s') ?? 'N/A'],
                 ],
                 'recommendation' => 'Contactar al agente para verificar la causa de la desconexión.',
                 'context' => [
-                    'employee_id' => $employee->id,
+                    'employee_id' => $employee['id'],
                     'duration_seconds' => $duration,
                 ],
             ]);

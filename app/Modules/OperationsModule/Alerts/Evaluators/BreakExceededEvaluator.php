@@ -22,13 +22,17 @@ class BreakExceededEvaluator extends BaseAlertEvaluator
         $realtimeRepo = app(TelemetryRealtimeRepositoryInterface::class);
 
         $employees = Cache::remember('active_employees_with_user', 300, function () {
-            return Employee::where('is_active', true)
+            return Employee::query()
+                ->where('is_active', true)
                 ->whereHas('user')
-                ->get();
+                ->get(['id', 'first_name', 'last_name'])
+                ->map(fn ($e) => ['id' => $e->id, 'full_name' => trim("{$e->first_name} {$e->last_name}")])
+                ->values()
+                ->toArray();
         });
 
         foreach ($employees as $employee) {
-            $states = $realtimeRepo->getRealtimeStates([$employee->id]);
+            $states = $realtimeRepo->getRealtimeStates([$employee['id']]);
             $current = $states->first();
 
             if (! $current) {
@@ -45,7 +49,7 @@ class BreakExceededEvaluator extends BaseAlertEvaluator
             );
 
             if (! $isBreak) {
-                $this->resolve($rule, (string) $employee->id);
+                $this->resolve($rule, (string) $employee['id']);
 
                 continue;
             }
@@ -57,25 +61,25 @@ class BreakExceededEvaluator extends BaseAlertEvaluator
                 continue;
             }
 
-            if ($this->shouldSuppress($rule, (string) $employee->id, $duration)) {
+            if ($this->shouldSuppress($rule, (string) $employee['id'], $duration)) {
                 continue;
             }
 
             $this->trigger($rule, [
-                'employee_id' => $employee->id,
-                'message' => "{$employee->full_name} lleva {$duration}s en descanso.",
+                'employee_id' => $employee['id'],
+                'message' => "{$employee['full_name']} lleva {$duration}s en descanso.",
                 'level' => 'warning',
                 'source' => 'break_exceeded_evaluator',
                 'summary' => 'El agente ha excedido el tiempo de descanso permitido.',
                 'actionUrl' => '/operations/realtime',
                 'facts' => [
-                    ['label' => 'Empleado', 'value' => $employee->full_name],
+                    ['label' => 'Empleado', 'value' => $employee['full_name']],
                     ['label' => 'Duración', 'value' => gmdate('H:i:s', $duration)],
                     ['label' => 'Estado', 'value' => $state],
                 ],
                 'recommendation' => 'Verificar si el agente requiere más tiempo o si hubo un error.',
                 'context' => [
-                    'employee_id' => $employee->id,
+                    'employee_id' => $employee['id'],
                     'duration_seconds' => $duration,
                     'reason_code' => $reason,
                 ],

@@ -23,19 +23,23 @@ class AdherenceEvaluator extends BaseAlertEvaluator
         $expectedState = app(ExpectedAgentStateInterface::class);
 
         $employees = Cache::remember('active_employees_with_team', 300, function () {
-            return Employee::where('is_active', true)
+            return Employee::query()
+                ->where('is_active', true)
                 ->whereHas('user')
                 ->whereHas('team')
-                ->get();
+                ->get(['id', 'first_name', 'last_name'])
+                ->map(fn ($e) => ['id' => $e->id, 'full_name' => trim("{$e->first_name} {$e->last_name}")])
+                ->values()
+                ->toArray();
         });
 
-        $employeeIds = $employees->pluck('id')->toArray();
+        $employeeIds = array_column($employees, 'id');
         $realtimeStates = $telemetryService->getBatchCurrentStates($employeeIds);
         $expectedStates = $expectedState->executeBatch($employeeIds);
 
         foreach ($employees as $employee) {
-            $real = $realtimeStates[$employee->id] ?? null;
-            $expected = $expectedStates[$employee->id] ?? ['type' => 'OFF'];
+            $real = $realtimeStates[$employee['id']] ?? null;
+            $expected = $expectedStates[$employee['id']] ?? ['type' => 'OFF'];
 
             $isExpectedActive = in_array($expected['type'], ['SHIFT', 'INTRADAY']);
 
@@ -47,7 +51,7 @@ class AdherenceEvaluator extends BaseAlertEvaluator
             $isLogoutOrOffline = in_array($currentState, ['OFFLINE', 'LOGOUT', 'LOGGED_OUT', 'UNKNOWN']);
 
             if (! $isLogoutOrOffline) {
-                $this->resolve($rule, (string) $employee->id);
+                $this->resolve($rule, (string) $employee['id']);
 
                 continue;
             }
@@ -59,26 +63,26 @@ class AdherenceEvaluator extends BaseAlertEvaluator
                 continue;
             }
 
-            if ($this->shouldSuppress($rule, (string) $employee->id, $duration)) {
+            if ($this->shouldSuppress($rule, (string) $employee['id'], $duration)) {
                 continue;
             }
 
             $this->trigger($rule, [
-                'employee_id' => $employee->id,
-                'message' => "{$employee->full_name} — fuera de adherencia ({$duration}s).",
+                'employee_id' => $employee['id'],
+                'message' => "{$employee['full_name']} — fuera de adherencia ({$duration}s).",
                 'level' => 'critical',
                 'source' => 'adherence_evaluator',
                 'summary' => 'Se detectó una desviación respecto al horario planificado.',
                 'icon' => 'exclamation-triangle',
                 'actionUrl' => '/operations/realtime',
                 'facts' => [
-                    ['label' => 'Empleado', 'value' => $employee->full_name],
+                    ['label' => 'Empleado', 'value' => $employee['full_name']],
                     ['label' => 'Estado Esperado', 'value' => $expected['label'] ?? 'Activo'],
                     ['label' => 'Duración', 'value' => gmdate('H:i:s', $duration)],
                 ],
                 'recommendation' => 'Verificar la situación del agente en tiempo real.',
                 'context' => [
-                    'employee_id' => $employee->id,
+                    'employee_id' => $employee['id'],
                     'duration_seconds' => $duration,
                     'expected_type' => $expected['type'],
                 ],

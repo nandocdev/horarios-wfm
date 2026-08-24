@@ -151,3 +151,77 @@ it('returns batch schedules for multiple employees', function () {
         ->and($results)->toHaveKey($employee2->id)
         ->and($results[$employee2->id]->is_off)->toBeTrue();
 });
+
+it('returns recent worked dates including only scheduled days', function () {
+    $weekStart = $this->today->copy()->startOfWeek();
+    DB::table('weekly_schedules')->insert([
+        'week_start_date' => $weekStart->toDateString(),
+        'week_end_date' => $weekStart->copy()->addDays(6)->toDateString(),
+        'status' => 'draft',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $wsId = DB::getPdo()->lastInsertId();
+
+    DB::table('weekly_schedule_assignments')->insert([
+        'weekly_schedule_id' => $wsId,
+        'employee_id' => $this->employee->id,
+        'schedule_id' => $this->schedule->id,
+        'day_of_week' => $this->dayOfWeek,
+        'start_time' => '08:00:00',
+        'end_time' => '17:00:00',
+        'is_replaced' => false,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $dates = $this->service->recentWorkedDates($this->employee->id, 3, $this->today);
+
+    expect($dates)->toContain($this->today->toDateString())
+        ->and($dates)->toHaveCount(1); // Solo un día de la semana coincide con hoy.
+});
+
+it('returns empty when no schedule exists', function () {
+    $dates = $this->service->recentWorkedDates($this->employee->id, 5, $this->today);
+
+    expect($dates)->toBe([]);
+});
+
+it('excludes full-day exceptions from worked dates', function () {
+    $weekStart = $this->today->copy()->startOfWeek();
+    DB::table('weekly_schedules')->insert([
+        'week_start_date' => $weekStart->toDateString(),
+        'week_end_date' => $weekStart->copy()->addDays(6)->toDateString(),
+        'status' => 'draft',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    $wsId = DB::getPdo()->lastInsertId();
+
+    DB::table('weekly_schedule_assignments')->insert([
+        'weekly_schedule_id' => $wsId,
+        'employee_id' => $this->employee->id,
+        'schedule_id' => $this->schedule->id,
+        'day_of_week' => $this->dayOfWeek,
+        'start_time' => '08:00:00',
+        'end_time' => '17:00:00',
+        'is_replaced' => false,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $reason = AbsenceReasonCode::factory()->create();
+    DB::table('schedule_exceptions')->insert([
+        'employee_id' => $this->employee->id,
+        'absence_reason_code_id' => $reason->id,
+        'start_at' => $this->today->copy()->startOfDay(),
+        'end_at' => $this->today->copy()->endOfDay(),
+        'is_full_day' => true,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $dates = $this->service->recentWorkedDates($this->employee->id, 5, $this->today);
+
+    expect($dates)->toBe([]);
+});

@@ -47,6 +47,22 @@ final class EloquentEmployeeRepository implements EmployeeRepositoryInterface
             ->all();
     }
 
+    public function findAgentsByPositions(array $positionIds, ?int $teamId = null, ?string $search = null): array
+    {
+        return Employee::query()
+            ->whereIn('position_id', $positionIds)
+            ->when($teamId, fn ($q) => $q->where('team_id', $teamId))
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($inner) use ($search) {
+                    $inner->where('first_name', 'ilike', "%{$search}%")
+                        ->orWhere('last_name', 'ilike', "%{$search}%");
+                });
+            })
+            ->orderBy('first_name')
+            ->get()
+            ->all();
+    }
+
     public function findByUser(int $userId): ?EmployeeInterface
     {
         return Employee::where('user_id', $userId)->first();

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Actions;
 
-use App\Modules\ConnectModule\Models\AgentCallPerformance;
 use App\Modules\OperationsModule\DTOs\StandardizedPerformanceDTO;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\OperationalSetting;
 use App\Shared\Contracts\Employees\EmployeeInterface;
+use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use App\Shared\Contracts\Telemetry\TelemetryServiceInterface;
 use App\Shared\DTOs\Telemetry\TelemetryStateDTO;
@@ -16,6 +16,7 @@ use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Acción para calcular el desempeño estandarizado de un empleado.
@@ -26,6 +27,7 @@ final class GetStandardizedPerformanceAction
     public function __construct(
         private readonly ScheduleServiceInterface $scheduleService,
         private readonly TelemetryServiceInterface $telemetryService,
+        private readonly AgentPerformanceRepositoryInterface $performanceRepo,
         private readonly CalculateRealAdherenceAction $adherenceAction
     ) {}
 
@@ -86,10 +88,12 @@ final class GetStandardizedPerformanceAction
 
         $queues = $this->getCallVolumeSummary($callRecords);
 
-        // Obtener metas de KPIs configuradas
-        $goals = OperationalSetting::where('category', 'kpi_goal')
-            ->pluck('value', 'key')
-            ->toArray();
+        // Obtener metas de KPIs configuradas (idénticas para todo empleado/día: cachear).
+        $goals = Cache::remember('wfm:operational:goals', 300, function () {
+            return OperationalSetting::where('category', 'kpi_goal')
+                ->pluck('value', 'key')
+                ->toArray();
+        });
 
         return new StandardizedPerformanceDTO(
             date: $date->toDateString(),
@@ -113,29 +117,13 @@ final class GetStandardizedPerformanceAction
     }
 
     /**
-     * Obtiene los registros de llamadas de un empleado en un rango de fechas.
+     * Obtiene los registros de llamadas de un empleado en un día (vía contrato Connect).
      *
-     * @return Collection<int, \stdClass>|\Illuminate\Database\Eloquent\Collection<int, AgentCallPerformance>
+     * @return Collection<int, AgentCallRecordDTO>
      */
     private function getCallRecords(int $employeeId, CarbonInterface $date): Collection
     {
-        return AgentCallPerformance::query()
-            ->where('employee_id', $employeeId)
-            ->whereDate('start_time', $date->toDateString())
-            ->get();
-    }
-
-    /**
-     * Obtiene los registros de llamadas de los empleados de un team en un rango de fecha
-     */
-    public function getTeamCallRecords(array $teamIds, CarbonInterface $startDate, CarbonInterface $endDate): Collection
-    {
-        return AgentCallPerformance::query()
-            ->join('employees', 'agent_call_performances.employee_id', '=', 'employees.id')
-            ->whereIn('employees.team_id', $teamIds)
-            ->whereBetween('start_time', [$startDate->toDateString(), $endDate->toDateString()])
-            ->select('agent_call_performances.*')
-            ->get();
+        return $this->performanceRepo->getCallRecords($employeeId, $date);
     }
 
     private function calculateAttendance($schedule, Collection $transitions): array

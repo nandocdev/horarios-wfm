@@ -37,6 +37,15 @@ interface EmployeeRepositoryInterface
      */
     public function findActiveByPositions(array $positionIds): array;
 
+    /**
+     * Empleados objetivo de un scorecard: filtra por posiciones, equipo y búsqueda
+     * de nombre en una sola consulta (evita recorrer todos los empleados en memoria).
+     *
+     * @param  int[]  $positionIds
+     * @return EmployeeInterface[]
+     */
+    public function findAgentsByPositions(array $positionIds, ?int $teamId = null, ?string $search = null): array;
+
     public function findByUser(int $userId): ?EmployeeInterface;
 
     /**

@@ -8,12 +8,18 @@ use App\Modules\ConnectModule\Models\CallRecord;
 use App\Modules\OperationsModule\Actions\GetStandardizedPerformanceAction;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
+use App\Shared\Contracts\Employees\EmployeeInterface;
+use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class PerformanceScorecard extends Component
 {
+    private const POSITION_IDS = [1, 2, 5, 11, 13];
+
     #[Url]
     public string $date = '';
 
@@ -30,109 +36,108 @@ class PerformanceScorecard extends Component
 
     public array $performanceData = [];
 
-    public function mount()
+    public function mount(EmployeeRepositoryInterface $employees): void
     {
         $this->date = $this->date ?: now()->toDateString();
         $this->authorize('viewPerformance', Employee::class);
 
-        $employee = auth()->user()->employee;
+        $employee = $employees->findByUser(auth()->id());
         if (! $this->employeeId && $employee) {
-            $this->employeeId = $employee->id;
+            $this->employeeId = (int) $employee->getId();
         }
 
-        $this->loadPerformance();
+        $this->loadPerformance($employees);
     }
 
-    public function updatedEmployeeId(): void
+    public function updatedEmployeeId(EmployeeRepositoryInterface $employees): void
     {
-        $this->loadPerformance();
+        $this->loadPerformance($employees);
     }
 
-    public function updatedTeamId(): void
+    public function updatedTeamId(EmployeeRepositoryInterface $employees): void
     {
         $this->employeeId = null; // Reset employee when changing team
-        $this->loadPerformance();
+        $this->loadPerformance($employees);
     }
 
-    public function updatedPeriodType(): void
+    public function updatedPeriodType(EmployeeRepositoryInterface $employees): void
     {
-        $this->loadPerformance();
+        $this->loadPerformance($employees);
     }
 
-    public function updatedSearch(): void
+    public function updatedSearch(EmployeeRepositoryInterface $employees): void
     {
-        $this->loadPerformance();
+        $this->loadPerformance($employees);
     }
 
-    public function updatedDate(): void
+    public function updatedDate(EmployeeRepositoryInterface $employees): void
     {
-        $this->loadPerformance();
+        $this->loadPerformance($employees);
     }
 
-    public function loadPerformance()
+    /** @return list<CarbonInterface> */
+    private function resolveDates(CarbonInterface $carbonDate): array
+    {
+        return match ($this->periodType) {
+            'weekly' => collect(range(0, 6))->map(fn ($i) => $carbonDate->copy()->startOfWeek()->addDays($i))->all(),
+            'monthly' => collect(range(0, $carbonDate->daysInMonth - 1))->map(fn ($i) => $carbonDate->copy()->startOfMonth()->addDays($i))->all(),
+            default => [$carbonDate],
+        };
+    }
+
+    private function isPowerUser(): bool
+    {
+        return (bool) auth()->user()->can('viewAny', CallRecord::class);
+    }
+
+    public function loadPerformance(EmployeeRepositoryInterface $employees): void
     {
         $action = app(GetStandardizedPerformanceAction::class);
         $carbonDate = Carbon::parse($this->date);
         $user = auth()->user();
-        $me = $user->employee;
-        $isPowerUser = $user->can('viewAny', CallRecord::class);
+        $me = $employees->findByUser($user->id);
+        $isPowerUser = $this->isPowerUser();
 
         $data = [];
 
         if ($this->employeeId) {
-            $employee = Employee::find($this->employeeId);
+            $employee = $employees->find($this->employeeId);
 
             // Validar acceso al empleado solicitado
             if (! $employee || (! $isPowerUser && ! $user->can('viewPerformance', $employee))) {
-                $this->employeeId = $me?->id;
+                $this->employeeId = $me ? (int) $me->getId() : null;
                 $employee = $me;
             }
 
-            if (! $employee) {
-                return;
-            }
-
-            $dates = match ($this->periodType) {
-                'weekly' => collect(range(0, 6))->map(fn ($i) => $carbonDate->copy()->startOfWeek()->addDays($i)),
-                'monthly' => collect(range(0, $carbonDate->daysInMonth - 1))->map(fn ($i) => $carbonDate->copy()->startOfMonth()->addDays($i)),
-                default => [$carbonDate]
-            };
-
-            foreach ($dates as $date) {
-                $performance = $action->execute($employee, $date)->toArray();
-                $performance['employee'] = [
-                    'full_name' => $employee->full_name,
-                    'avatar' => $employee->avatar_url,
-                ];
-                $data[] = $performance;
+            if ($employee) {
+                foreach ($this->resolveDates($carbonDate) as $date) {
+                    $performance = $this->cachedExecute($action, $employee, $date);
+                    $performance['employee'] = [
+                        'full_name' => $employee->getFullName(),
+                        'avatar' => $employee->avatar_url,
+                    ];
+                    $data[] = $performance;
+                }
             }
         } else {
-            $query = Employee::query()
-                ->whereIn('position_id', [1, 2, 5, 11, 13])
-                ->with(['team', 'position']);
+            $employeesList = $employees->findAgentsByPositions(
+                self::POSITION_IDS,
+                $this->teamId,
+                $this->search,
+            );
 
             if (! $isPowerUser) {
                 $managedTeamIds = $me?->getManagedTeamIds() ?? [];
-                $query->whereIn('team_id', $managedTeamIds);
+                $employeesList = array_values(array_filter(
+                    $employeesList,
+                    fn (EmployeeInterface $e) => in_array($e->getTeamId(), $managedTeamIds, true),
+                ));
             }
 
-            if ($this->teamId) {
-                $query->where('team_id', $this->teamId);
-            }
-
-            if ($this->search) {
-                $query->where(function ($q) {
-                    $q->where('first_name', 'ilike', '%'.$this->search.'%')
-                        ->orWhere('last_name', 'ilike', '%'.$this->search.'%');
-                });
-            }
-
-            $employees = $query->get();
-
-            foreach ($employees as $employee) {
-                $performance = $action->execute($employee, $carbonDate)->toArray();
+            foreach ($employeesList as $employee) {
+                $performance = $this->cachedExecute($action, $employee, $carbonDate);
                 $performance['employee'] = [
-                    'full_name' => $employee->full_name,
+                    'full_name' => $employee->getFullName(),
                     'avatar' => $employee->avatar_url,
                 ];
                 $data[] = $performance;
@@ -140,6 +145,16 @@ class PerformanceScorecard extends Component
         }
 
         $this->performanceData = $data;
+    }
+
+    private function cachedExecute(
+        GetStandardizedPerformanceAction $action,
+        EmployeeInterface $employee,
+        CarbonInterface $date,
+    ): array {
+        $cacheKey = "wfm:scorecard:{$employee->getId()}:{$date->toDateString()}";
+
+        return Cache::remember($cacheKey, 300, fn () => $action->execute($employee, $date)->toArray());
     }
 
     public function formatMinutes(float $minutes): string
@@ -152,11 +167,11 @@ class PerformanceScorecard extends Component
         return sprintf('%02d:%02d:%02d', $h, $m, $s);
     }
 
-    public function render()
+    public function render(EmployeeRepositoryInterface $employees)
     {
         $user = auth()->user();
-        $employee = $user->employee;
-        $isPowerUser = $user->can('viewAny', CallRecord::class);
+        $employee = $employees->findByUser($user->id);
+        $isPowerUser = $this->isPowerUser();
 
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 
@@ -164,21 +179,11 @@ class PerformanceScorecard extends Component
             ? Team::all()
             : Team::whereIn('id', $managedTeamIds)->get();
 
-        $employeesQuery = Employee::query()
-            ->whereIn('position_id', [1, 2, 5, 11, 13])
-            ->orderBy('first_name');
-
-        if (! $isPowerUser) {
-            $employeesQuery->whereIn('team_id', $managedTeamIds);
-        }
-
-        if ($this->teamId) {
-            $employeesQuery->where('team_id', $this->teamId);
-        }
+        $employeesList = $employees->findAgentsByPositions(self::POSITION_IDS, $this->teamId);
 
         return view('operations::livewire.performance-scorecard', [
             'teams' => $teams,
-            'employees' => $employeesQuery->get(),
+            'employees' => $employeesList,
         ]);
     }
 }

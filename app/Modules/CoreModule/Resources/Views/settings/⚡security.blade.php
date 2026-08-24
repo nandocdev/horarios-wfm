@@ -1,6 +1,6 @@
 <?php
 
-use App\Concerns\PasswordValidationRules;
+use App\Modules\CoreModule\Concerns\PasswordValidationRules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;

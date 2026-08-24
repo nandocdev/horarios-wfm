@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\CoreModule\Actions\Fortify;
 
-use App\Concerns\PasswordValidationRules;
+use App\Modules\CoreModule\Concerns\PasswordValidationRules;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\CoreModule\Notifications\PasswordChangedNotification;
 use Illuminate\Support\Facades\Validator;

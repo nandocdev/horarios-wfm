@@ -1,6 +1,6 @@
 <?php
 
-use App\Concerns\ProfileValidationRules;
+use App\Modules\CoreModule\Concerns\ProfileValidationRules;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;

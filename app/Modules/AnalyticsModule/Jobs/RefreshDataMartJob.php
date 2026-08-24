@@ -88,7 +88,7 @@ final class RefreshDataMartJob implements ShouldQueue
             DB::table('dim_employee')->insert($batch);
         });
 
-        Team::chunk(100, function ($teams) {
+        Team::with('supervisor')->chunk(100, function ($teams) {
             $batch = [];
             foreach ($teams as $t) {
                 $batch[] = [
@@ -241,7 +241,7 @@ final class RefreshDataMartJob implements ShouldQueue
                 ->first();
 
             if (! $weeklySchedule) {
-                $current->addDay();
+                $current = $current->addDay();
 
                 continue;
             }
@@ -290,7 +290,7 @@ final class RefreshDataMartJob implements ShouldQueue
             }
 
             $this->upsertFact('fact_schedule', $batch, ['dim_date_id', 'dim_interval_id', 'dim_employee_id'], ['scheduled_minutes', 'is_off']);
-            $current->addDay();
+            $current = $current->addDay();
         }
     }
 

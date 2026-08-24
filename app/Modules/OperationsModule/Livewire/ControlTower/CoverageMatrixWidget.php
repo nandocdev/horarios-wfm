@@ -15,6 +15,14 @@ use Livewire\Component;
 #[Lazy]
 class CoverageMatrixWidget extends Component
 {
+    /**
+     * Posiciones que atienden llamadas ("Operador Asist. Serv. Aseg. I y II").
+     * Misma definición de agente que usa AdherenceHeatmapWidget. La "Base" de
+     * cobertura cuenta solo estas posiciones: la plantilla operativa no incluye
+     * coordinadores, jefes ni analistas aunque tengan turno asignado.
+     */
+    private const AGENT_POSITION_IDS = [1, 2];
+
     public array $employeeIds = [];
 
     public string $selectedDate;
@@ -35,7 +43,13 @@ class CoverageMatrixWidget extends Component
             ->where('day_of_week', $dayOfWeek)
             ->where('is_replaced', false)
             ->whereIn('employee_id', $this->employeeIds)
-            ->get(['employee_id', 'start_time', 'end_time', 'lunch_start_time', 'lunch_end_time', 'break_start_time', 'break_end_time']);
+            ->whereHas('employee', fn ($q) => $q->whereIn('position_id', self::AGENT_POSITION_IDS))
+            ->get(['employee_id', 'start_time', 'end_time', 'lunch_start_time', 'lunch_end_time', 'break_start_time', 'break_end_time'])
+            // Un agente = un turno al día. Si existieran filas duplicadas (p. ej.
+            // dos planes que cubran la misma fecha), se cuenta una sola vez para
+            // que la Base nunca supere la plantilla operativa real.
+            ->unique('employee_id')
+            ->values();
 
         $absentIds = ScheduleException::whereIn('employee_id', $this->employeeIds)
             ->whereDate('start_at', '<=', $today)

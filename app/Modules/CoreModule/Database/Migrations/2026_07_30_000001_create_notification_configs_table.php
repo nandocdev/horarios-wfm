@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notification_configs', function (Blueprint $table) {
-            $table->bigSerial('id')->primary();
+            $table->bigIncrements('id');
             $table->string('event_type')->unique();
             $table->string('label');
             $table->text('description')->nullable();

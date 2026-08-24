@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('alert_rules', function (Blueprint $table) {
-            $table->bigSerial('id')->primary();
+            $table->bigIncrements('id');
             $table->string('event_type')->unique();
             $table->string('label');
             $table->text('description')->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
         });
 
         Schema::create('alert_events', function (Blueprint $table) {
-            $table->bigSerial('id')->primary();
+            $table->bigIncrements('id');
             $table->foreignId('alert_rule_id')->constrained('alert_rules')->cascadeOnDelete();
             $table->foreignId('employee_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedBigInteger('queue_id')->nullable()->constrained('call_queues')->nullOnDelete();
@@ -48,7 +48,7 @@ return new class extends Migration
         });
 
         Schema::create('alert_escalations', function (Blueprint $table) {
-            $table->bigSerial('id')->primary();
+            $table->bigIncrements('id');
             $table->foreignId('alert_event_id')->constrained('alert_events')->cascadeOnDelete();
             $table->unsignedTinyInteger('escalation_level');
             $table->string('escalated_to_role');

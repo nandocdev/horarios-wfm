@@ -11,9 +11,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('historical_shrinkage', function (Blueprint $table) {
-            $table->ulid('id')->primary();
+            $table->bigIncrements('id');
             $table->foreignId('employee_id')->constrained('employees');
-            $table->foreignUlid('shrinkage_category_id')->constrained('shrinkage_categories');
+            $table->foreignId('shrinkage_category_id')->constrained('shrinkage_categories');
             $table->date('date');
             $table->timestamp('interval_start')->nullable();
             $table->timestamp('interval_end')->nullable();

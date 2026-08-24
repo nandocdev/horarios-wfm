@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('shrinkage_categories', function (Blueprint $table) {
-            $table->bigSerial('id')->primary();
+            $table->bigIncrements('id');
             $table->string('code', 50)->unique();
             $table->string('name');
             $table->text('description')->nullable();

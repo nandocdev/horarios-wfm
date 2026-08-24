@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Alerts\Observers;
 
 use App\Modules\OperationsModule\Alerts\Models\AlertEvent;
+use App\Modules\OperationsModule\Jobs\ProcessAlertEventJob;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Observa el ciclo de vida de AlertEvent.
@@ -33,7 +33,7 @@ class AlertEventObserver
 
         // Broadcasting para notificaciones en tiempo real
         // Dispatch job para procesamiento adicional
-        \App\Modules\OperationsModule\Jobs\ProcessAlertEventJob::dispatch($alertEvent);
+        ProcessAlertEventJob::dispatch($alertEvent);
     }
 
     public function updated(AlertEvent $alertEvent): void

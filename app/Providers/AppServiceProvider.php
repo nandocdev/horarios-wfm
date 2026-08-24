@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Services\WebexService;
+use App\Modules\ConnectModule\Services\WebexService;
 use Carbon\CarbonImmutable;
 use Flux\FluxServiceProvider;
 use Illuminate\Database\Eloquent\Model;

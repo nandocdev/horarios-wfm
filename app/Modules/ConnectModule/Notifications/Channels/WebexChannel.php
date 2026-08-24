@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Notifications\Channels;
+namespace App\Modules\ConnectModule\Notifications\Channels;
 
+use App\Modules\ConnectModule\Services\WebexService;
 use App\Modules\CoreModule\Models\User;
-use App\Services\WebexService;
 use Illuminate\Notifications\Notification;
 
 class WebexChannel

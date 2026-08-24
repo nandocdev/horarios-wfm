@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Notifications\Channels\WebexChannel;
-use App\Services\WebexService;
+use App\Modules\ConnectModule\Notifications\Channels\WebexChannel;
+use App\Modules\ConnectModule\Services\WebexService;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\ConnectModule\Console\Commands;
 
 use App\Modules\ConnectModule\Actions\SyncCuicDataAction;
-use App\Services\WebexService;
+use App\Modules\ConnectModule\Services\WebexService;
 use App\Shared\Events\SyncFailed;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;

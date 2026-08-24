@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\AnalyticsModule\Models;
 
-use App\Shared\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 
-class ShrinkageCategory extends BaseModel
+class ShrinkageCategory extends Model
 {
     protected $table = 'shrinkage_categories';
 

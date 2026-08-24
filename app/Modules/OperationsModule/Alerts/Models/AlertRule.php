@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Alerts\Models;
 
-use App\Shared\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class AlertRule extends BaseModel
+class AlertRule extends Model
 {
     protected $table = 'alert_rules';
 

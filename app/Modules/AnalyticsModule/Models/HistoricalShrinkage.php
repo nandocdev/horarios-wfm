@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Modules\AnalyticsModule\Models;
 
 use App\Modules\PersonnelModule\Models\Employee;
-use App\Shared\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class HistoricalShrinkage extends BaseModel
+class HistoricalShrinkage extends Model
 {
     protected $table = 'historical_shrinkage';
 

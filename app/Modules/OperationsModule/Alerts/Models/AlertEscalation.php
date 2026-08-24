@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Alerts\Models;
 
-use App\Shared\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AlertEscalation extends BaseModel
+class AlertEscalation extends Model
 {
     protected $table = 'alert_escalations';
 

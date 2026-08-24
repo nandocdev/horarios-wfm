@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Modules\OperationsModule\Alerts\Models;
 
 use App\Modules\PersonnelModule\Models\Employee;
-use App\Shared\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class AlertEvent extends BaseModel
+class AlertEvent extends Model
 {
     protected $table = 'alert_events';
 

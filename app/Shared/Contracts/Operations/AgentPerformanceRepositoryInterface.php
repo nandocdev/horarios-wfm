@@ -41,4 +41,12 @@ interface AgentPerformanceRepositoryInterface
      * @return Collection<int, AgentCallRecordDTO>
      */
     public function getCallRecordsInInterval(int $employeeId, CarbonInterface $start, CarbonInterface $end): Collection;
+
+    /**
+     * Agregados de llamadas para un conjunto de empleados en un rango.
+     *
+     * @param  int[]  $employeeIds
+     * @return array{count:int, talk:int, work:int}
+     */
+    public function getTeamCallStats(array $employeeIds, CarbonInterface $start, CarbonInterface $end): array;
 }

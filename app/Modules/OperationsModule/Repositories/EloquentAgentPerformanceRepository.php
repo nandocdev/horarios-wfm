@@ -140,6 +140,21 @@ final class EloquentAgentPerformanceRepository implements AgentPerformanceReposi
             ));
     }
 
+    public function getTeamCallStats(array $employeeIds, CarbonInterface $start, CarbonInterface $end): array
+    {
+        $row = AgentCallPerformance::whereIn('employee_id', $employeeIds)
+            ->where('start_time', '>=', $start->toDateString())
+            ->where('start_time', '<', $end->copy()->addDay()->toDateString())
+            ->selectRaw('COUNT(*) as count, COALESCE(SUM(talk_time),0) as talk, COALESCE(SUM(work_time),0) as work')
+            ->first();
+
+        return [
+            'count' => (int) ($row->count ?? 0),
+            'talk' => (int) ($row->talk ?? 0),
+            'work' => (int) ($row->work ?? 0),
+        ];
+    }
+
     private function toDailyMetricDTO(AgentDailyMetric $metric): AgentDailyMetricDTO
     {
         return new AgentDailyMetricDTO(

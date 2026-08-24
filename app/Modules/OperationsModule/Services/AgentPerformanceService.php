@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\Modules\OperationsModule\Services;
 
-use App\Modules\ConnectModule\Models\AgentCallPerformance;
-use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\OperationsModule\Actions\CalculateRealAdherenceAction;
 use App\Modules\OperationsModule\Actions\GetEmployeePerformanceAction;
 use App\Modules\OperationsModule\DTOs\AgentPerformanceSummaryDTO;
 use App\Modules\OperationsModule\Models\AgentDailyMetric;
-use App\Modules\WfmModule\Models\ScheduleException;
-use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
+use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
+use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 final class AgentPerformanceService
 {
@@ -25,11 +22,17 @@ final class AgentPerformanceService
         private readonly GetEmployeePerformanceAction $performanceAction,
         private readonly CalculateRealAdherenceAction $adherenceAction,
         private readonly EmployeeRepositoryInterface $employeeRepo,
+        private readonly ScheduleServiceInterface $scheduleService,
+        private readonly AgentPerformanceRepositoryInterface $performanceRepo,
     ) {}
 
     public function getPerformance(EmployeeInterface $employee, int $days = 5): AgentPerformanceSummaryDTO
     {
         $dates = $this->resolveLastWorkedDates($employee, $days);
+
+        if ($dates === []) {
+            return AgentPerformanceSummaryDTO::empty();
+        }
 
         $dayDTOs = [];
         $stateTotals = [];
@@ -83,21 +86,16 @@ final class AgentPerformanceService
             );
         }
 
-        $teamCallsCount = AgentCallPerformance::whereIn('employee_id', $teamEmployeeIds)
-            ->whereBetween(DB::raw('DATE(start_time)'), [$startDateStr, $endDateStr])
-            ->count();
+        $teamStats = $this->performanceRepo->getTeamCallStats(
+            $teamEmployeeIds,
+            Carbon::parse($startDateStr),
+            Carbon::parse($endDateStr),
+        );
+        $teamCallsCount = $teamStats['count'];
         $teamAvgCalls = count($teamEmployeeIds) > 0 ? (int) round($teamCallsCount / count($teamEmployeeIds)) : 0;
 
-        $teamAhtData = AgentCallPerformance::whereIn('employee_id', $teamEmployeeIds)
-            ->whereBetween(DB::raw('DATE(start_time)'), [$startDateStr, $endDateStr])
-            ->select(
-                DB::raw('SUM(talk_time) as total_talk'),
-                DB::raw('SUM(work_time) as total_work'),
-                DB::raw('COUNT(*) as total_calls')
-            )
-            ->first();
-        $teamAvgAht = ($teamAhtData && $teamAhtData->total_calls > 0)
-            ? (int) round(($teamAhtData->total_talk + $teamAhtData->total_work) / $teamAhtData->total_calls)
+        $teamAvgAht = $teamCallsCount > 0
+            ? (int) round(($teamStats['talk'] + $teamStats['work']) / $teamCallsCount)
             : 0;
 
         $teamMetrics = AgentDailyMetric::whereIn('employee_id', $teamEmployeeIds)
@@ -140,35 +138,11 @@ final class AgentPerformanceService
 
     private function resolveLastWorkedDates(EmployeeInterface $employee, int $count): array
     {
-        $dates = [];
-        $cursor = Carbon::today();
+        // Delegado al contrato WFM (ScheduleService): una única consulta por rango
+        // en lugar de 2 queries por día recorriendo hasta 60 días.
+        $dateStrings = $this->scheduleService->recentWorkedDates($employee->getId(), $count, Carbon::today());
 
-        while (count($dates) < $count) {
-            $hasSchedule = WeeklyScheduleAssignment::where('employee_id', $employee->getId())
-                ->whereHas('weeklySchedule', fn ($q) => $q
-                    ->where('week_start_date', '<=', $cursor->toDateString())
-                    ->where('week_end_date', '>=', $cursor->toDateString()))
-                ->where('day_of_week', $cursor->dayOfWeekIso)
-                ->exists();
-
-            $hasException = ScheduleException::where('employee_id', $employee->getId())
-                ->whereDate('start_at', '<=', $cursor->toDateString())
-                ->whereDate('end_at', '>=', $cursor->toDateString())
-                ->where('is_full_day', true)
-                ->exists();
-
-            if ($hasSchedule && ! $hasException) {
-                $dates[] = $cursor->copy();
-            }
-
-            $cursor->subDay();
-
-            if ($dates && $cursor->diffInDays($dates[0]) > 60) {
-                break;
-            }
-        }
-
-        return array_reverse($dates);
+        return array_map(fn (string $date) => Carbon::parse($date), $dateStrings);
     }
 
     private function computeSummary(array $days): array
@@ -251,15 +225,14 @@ final class AgentPerformanceService
         $earlyExit = 0;
         $scheduledEnd = $attendance['scheduled_entry'] ?? null;
 
-        $actualLogout = AgentStateTransition::where('employee_id', $employee->getId())
-            ->whereDate('transition_time', $date->toDateString())
-            ->where('agent_state', 'LOGOUT')
-            ->orderByDesc('transition_time')
+        $actualLogout = $this->performanceRepo->getStateTransitions($employee->getId(), $date)
+            ->filter(fn ($t) => trim((string) $t->agent_state) === 'LOGOUT')
+            ->sortByDesc(fn ($t) => $t->transition_time)
             ->first();
 
         if ($scheduledEnd && $actualLogout) {
             $scheduledEndTime = Carbon::parse($scheduledEnd)->setDate($date->year, $date->month, $date->day);
-            $logoutTime = $actualLogout->transition_time;
+            $logoutTime = Carbon::parse($actualLogout->transition_time);
             $earlyExit = max(0, $scheduledEndTime->diffInMinutes($logoutTime, false));
         }
 

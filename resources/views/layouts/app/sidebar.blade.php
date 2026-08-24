@@ -18,7 +18,7 @@
 
             <flux:sidebar.nav class="space-y-0!">
                 @if($authUser)
-                    @foreach(\App\Helpers\MenuHelper::getSidebarItems($authUser, $menuCounts ?? []) as $item)
+                    @foreach(\App\Shared\Helpers\MenuHelper::getSidebarItems($authUser, $menuCounts ?? []) as $item)
                         @include('layouts.app.partials.menu-item', ['item' => $item])
                     @endforeach
                 @else
@@ -38,7 +38,7 @@
 
             @if($authUser)
                 <flux:sidebar.nav class="space-y-0!">
-                    @foreach(\App\Helpers\MenuHelper::getFooterItems($authUser) as $item)
+                    @foreach(\App\Shared\Helpers\MenuHelper::getFooterItems($authUser) as $item)
                         @if(($item['route'] ?? '') === 'logout')
                             <form method="POST" action="{{ route('logout') }}" class="w-full">
                                 @csrf
@@ -94,7 +94,8 @@
         <div class="flex-1 flex flex-col min-h-dvh">
 
             <!-- Mobile Header -->
-            <flux:header class="lg:hidden border-b border-wfm-surface-border bg-wfm-surface-card dark:bg-zinc-900 px-3 sm:px-4 py-2">
+            <flux:header
+                class="lg:hidden border-b border-wfm-surface-border bg-wfm-surface-card dark:bg-zinc-900 px-3 sm:px-4 py-2">
                 <div class="flex items-center gap-2">
                     <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
                     <x-app-logo href="{{ $authUser ? route('dashboard') : route('home') }}" wire:navigate />
@@ -147,9 +148,9 @@
 
 
             {{ $slot }}
-        <livewire:core.toast />
-        <livewire:core.shared.user-tour-progress />
-        @fluxScripts
+            <livewire:core.toast />
+            <livewire:core.shared.user-tour-progress />
+            @fluxScripts
         </div>
     </div>
 </body>

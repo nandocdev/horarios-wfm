@@ -197,9 +197,13 @@ return [
     */
 
     'defaults' => [
+        // [CADENA DE TIMEOUTS] job.timeout < supervisor.timeout < retry_after.
+        // CiscoSync declara timeout=120 y CuicRealtimeSyncJob timeout=60; por eso
+        // realtime-sync tiene supervisor propio con timeout=180. Exige
+        // REDIS_QUEUE_RETRY_AFTER >= 300 en el .env de cada entorno.
         'supervisor-1' => [
             'connection' => 'redis',
-            'queue' => ['default', 'notifications', 'realtime-sync'],
+            'queue' => ['default', 'notifications'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
             'maxProcesses' => 10,
@@ -210,13 +214,21 @@ return [
             'timeout' => 60,
             'nice' => 0,
         ],
+        'supervisor-realtime' => [
+            'connection' => 'redis',
+            'queue' => ['realtime-sync'],
+            'balance' => 'simple',
+            'processes' => 2,
+            'tries' => 3,
+            'timeout' => 180,
+        ],
     ],
 
     'environments' => [
         'production' => [
             'supervisor-1' => [
                 'connection' => 'redis',
-                'queue' => ['default', 'notifications', 'realtime-sync'],
+                'queue' => ['default', 'notifications'],
                 'balance' => 'auto',
                 'autoScalingStrategy' => 'time',
                 'maxProcesses' => 10,

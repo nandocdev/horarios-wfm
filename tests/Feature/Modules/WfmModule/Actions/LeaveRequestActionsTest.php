@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\WfmModule\Actions;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Actions\ApproveLeaveRequestAction;
 use App\Modules\WfmModule\Actions\RejectLeaveRequestAction;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
@@ -19,7 +19,7 @@ beforeEach(function () {
         ['id' => 1, 'name' => 'Ausencia', 'short_code' => 'AUS', 'color' => '#ef4444', 'created_at' => now(), 'updated_at' => now()],
     ]);
 
-    $this->approver = Employee::factory()->create();
+    $this->approver = User::factory()->create();
     $this->leave = LeaveRequest::factory()->create(['status' => 'pending']);
 
     Event::fake([LeaveRequestDecision::class]);

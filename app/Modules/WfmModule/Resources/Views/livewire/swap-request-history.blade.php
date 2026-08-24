@@ -129,13 +129,13 @@
                     <span class="text-xs text-slate-500 uppercase font-bold">Solicitante</span>
                     <p class="text-sm font-medium">{{ $selectedRequest->requester->first_name }}
                         {{ $selectedRequest->requester->last_name }}</p>
-                    <p class="text-xs text-slate-400">{{ $selectedRequest->requester->team->name ?? 'N/A' }}</p>
+                    <p class="text-xs text-slate-400">{{ $selectedRequest->requester?->employee?->team?->name ?? 'N/A' }}</p>
                 </div>
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Destinatario</span>
                     <p class="text-sm font-medium">{{ $selectedRequest->recipient->first_name }}
                         {{ $selectedRequest->recipient->last_name }}</p>
-                    <p class="text-xs text-slate-400">{{ $selectedRequest->recipient->team->name ?? 'N/A' }}</p>
+                    <p class="text-xs text-slate-400">{{ $selectedRequest->recipient?->employee?->team?->name ?? 'N/A' }}</p>
                 </div>
             </div>
 
@@ -186,7 +186,7 @@
                                     name="{{ $approval->status === 'approved' ? 'check-circle' : ($approval->status === 'rejected' ? 'x-circle' : 'clock') }}"
                                     size="xs"
                                     class="{{ $approval->status === 'approved' ? 'text-green-500' : ($approval->status === 'rejected' ? 'text-red-500' : 'text-slate-400') }}" />
-                                <span>{{ $approval->approver->first_name }} {{ $approval->approver->last_name }}</span>
+                                <span>{{ $approval->approver?->name }}</span>
                             </div>
                             <flux:badge size="xs"
                                 variant="{{ $approval->status === 'approved' ? 'success' : ($approval->status === 'rejected' ? 'danger' : 'subtle') }}">

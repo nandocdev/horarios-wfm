@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Models;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Team;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -38,7 +38,7 @@ class TemporalAssignment extends Model
 
     public function supervisor(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'supervisor_id');
+        return $this->belongsTo(User::class, 'supervisor_id');
     }
 
     public function team(): BelongsTo
@@ -58,9 +58,9 @@ class TemporalAssignment extends Model
      *
      * @return array<int>
      */
-    public static function subordinateIdsFor(int $supervisorEmployeeId, CarbonInterface $date): array
+    public static function subordinateIdsFor(int $supervisorUserId, CarbonInterface $date): array
     {
-        return self::where('supervisor_id', $supervisorEmployeeId)
+        return self::where('supervisor_id', $supervisorUserId)
             ->activeForDate($date)
             ->pluck('employee_id')
             ->toArray();
@@ -84,9 +84,9 @@ class TemporalAssignment extends Model
      * Retorna todos los empleados con asignacion temporal activa
      * que reportan a un supervisor en una fecha.
      */
-    public static function activeSubordinatesFor(int $supervisorEmployeeId, CarbonInterface $date): Collection
+    public static function activeSubordinatesFor(int $supervisorUserId, CarbonInterface $date): Collection
     {
-        return Employee::whereIn('id', self::subordinateIdsFor($supervisorEmployeeId, $date))
+        return Employee::whereIn('id', self::subordinateIdsFor($supervisorUserId, $date))
             ->with('team', 'position')
             ->get();
     }

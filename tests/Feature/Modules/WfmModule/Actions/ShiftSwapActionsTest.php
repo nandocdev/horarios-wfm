@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Modules\WfmModule\Actions;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\CoreModule\Models\User;
 use App\Modules\WfmModule\Actions\ApproveShiftSwapAction;
 use App\Modules\WfmModule\Actions\RejectShiftSwapAction;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Event;
 
 beforeEach(function () {
-    $this->approver = Employee::factory()->create();
+    $this->approver = User::factory()->create();
     Event::fake([ShiftSwapApproved::class]);
 });
 
@@ -23,7 +23,7 @@ it('approves an accepted swap request via ApproveShiftSwapAction', function () {
 
     $result = $action->execute(
         requestId: $swap->id,
-        approverEmployeeId: $this->approver->id,
+        approverUserId: $this->approver->id,
     );
 
     $result->refresh();
@@ -39,7 +39,7 @@ it('rejects an accepted swap request via RejectShiftSwapAction', function () {
 
     $result = $action->execute(
         requestId: $swap->id,
-        approverEmployeeId: $this->approver->id,
+        approverUserId: $this->approver->id,
         reason: 'No cumple con los requisitos',
     );
 
@@ -57,7 +57,7 @@ it('throws RuntimeException when approving a non-accepted swap', function () {
 
     $action->execute(
         requestId: $swap->id,
-        approverEmployeeId: $this->approver->id,
+        approverUserId: $this->approver->id,
     );
 });
 
@@ -66,5 +66,5 @@ it('throws ModelNotFoundException when approving non-existent swap', function ()
 
     $this->expectException(ModelNotFoundException::class);
 
-    $action->execute(requestId: 99999, approverEmployeeId: 1);
+    $action->execute(requestId: 99999, approverUserId: 1);
 });

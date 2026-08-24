@@ -119,6 +119,12 @@ class RequestShiftSwap extends Component
             return;
         }
 
+        if (! $recipient->user_id) {
+            $this->addError('recipientId', 'El compañero seleccionado no tiene una cuenta de usuario activa.');
+
+            return;
+        }
+
         if (! $this->requesterAssignment || ! $this->recipientAssignment) {
             $this->addError('general', 'Ambos empleados deben tener turnos asignados ese día para realizar un intercambio (swap).');
 
@@ -135,12 +141,12 @@ class RequestShiftSwap extends Component
         $swapEnd = $this->endDate ?: $this->requestedDate;
 
         $existingSwap = ShiftSwapRequest::whereIn('status', ['pending', 'accepted'])
-            ->where(function ($q) use ($requester) {
-                $q->where('requester_id', $requester->id)
-                    ->where('recipient_id', $this->recipientId);
-            })->orWhere(function ($q) use ($requester) {
-                $q->where('requester_id', $this->recipientId)
-                    ->where('recipient_id', $requester->id);
+            ->where(function ($q) use ($requester, $recipient) {
+                $q->where('requester_id', $requester->user_id)
+                    ->where('recipient_id', $recipient->user_id);
+            })->orWhere(function ($q) use ($requester, $recipient) {
+                $q->where('requester_id', $recipient->user_id)
+                    ->where('recipient_id', $requester->user_id);
             })
             ->where('start_date', '<=', $swapEnd)
             ->where('end_date', '>=', $swapStart)
@@ -153,8 +159,9 @@ class RequestShiftSwap extends Component
         }
 
         $swapRequest = ShiftSwapRequest::create([
-            'requester_id' => $requester->id,
-            'recipient_id' => $this->recipientId,
+            // Las columnas requester/recipient almacenan users.id (esquema institucional).
+            'requester_id' => $requester->user_id,
+            'recipient_id' => $recipient->user_id,
             'start_date' => $this->requestedDate,
             'end_date' => $this->endDate ?: $this->requestedDate,
             'status' => 'pending',

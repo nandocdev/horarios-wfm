@@ -47,16 +47,16 @@
                         </td>
                         <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ $request->requester->first_name }}
+                                <span class="font-bold">{{ $request->requester?->name }}
                                     {{ $request->requester->last_name }}</span>
-                                <span class="text-xs text-slate-500">{{ $request->requester->team->name ?? 'N/A' }}</span>
+                                <span class="text-xs text-slate-500">{{ $request->requester?->employee?->team?->name ?? 'N/A' }}</span>
                             </div>
                         </td>
                         <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ $request->recipient->first_name }}
+                                <span class="font-bold">{{ $request->recipient?->name }}
                                     {{ $request->recipient->last_name }}</span>
-                                <span class="text-xs text-slate-500">{{ $request->recipient->team->name ?? 'N/A' }}</span>
+                                <span class="text-xs text-slate-500">{{ $request->recipient?->employee?->team?->name ?? 'N/A' }}</span>
                             </div>
                         </td>
                         <td class="py-2 px-4 text-center">
@@ -132,15 +132,13 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Solicitante</span>
-                    <p class="text-sm font-medium">{{ $selectedRequest->requester->first_name }}
-                        {{ $selectedRequest->requester->last_name }}</p>
-                    <p class="text-xs text-slate-400">{{ $selectedRequest->requester->team->name ?? 'N/A' }}</p>
+                    <p class="text-sm font-medium">{{ $selectedRequest->requester?->name }}</p>
+                    <p class="text-xs text-slate-400">{{ $selectedRequest->requester?->employee?->team?->name ?? 'N/A' }}</p>
                 </div>
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Destinatario</span>
-                    <p class="text-sm font-medium">{{ $selectedRequest->recipient->first_name }}
-                        {{ $selectedRequest->recipient->last_name }}</p>
-                    <p class="text-xs text-slate-400">{{ $selectedRequest->recipient->team->name ?? 'N/A' }}</p>
+                    <p class="text-sm font-medium">{{ $selectedRequest->recipient?->name }}</p>
+                    <p class="text-xs text-slate-400">{{ $selectedRequest->recipient?->employee?->team?->name ?? 'N/A' }}</p>
                 </div>
             </div>
 
@@ -149,7 +147,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
                         <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
-                            {{ $selectedRequest->requester->first_name }}</p>
+                            {{ $selectedRequest->requester?->name }}</p>
                         @if($requesterShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($requesterShift->start_time)->format('H:i') }} -
@@ -162,7 +160,7 @@
                     </div>
                     <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
                         <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
-                            {{ $selectedRequest->recipient->first_name }}</p>
+                            {{ $selectedRequest->recipient?->name }}</p>
                         @if($recipientShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($recipientShift->start_time)->format('H:i') }} -
@@ -203,7 +201,7 @@
                                     name="{{ $approval->status === 'approved' ? 'check-circle' : ($approval->status === 'rejected' ? 'x-circle' : 'clock') }}"
                                     size="xs"
                                     class="{{ $approval->status === 'approved' ? 'text-green-500' : ($approval->status === 'rejected' ? 'text-red-500' : 'text-slate-400') }}" />
-                                <span>{{ $approval->approver->first_name }} {{ $approval->approver->last_name }} (WFM)</span>
+                                <span>{{ $approval->approver?->name }} (WFM)</span>
                             </div>
                             <flux:badge size="xs"
                                 variant="{{ $approval->status === 'approved' ? 'success' : ($approval->status === 'rejected' ? 'danger' : 'subtle') }}">

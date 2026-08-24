@@ -35,8 +35,11 @@ test('full swap approval flow persists assignment changes in schedule', function
     $wfmUser->assignRole('wfm');
     Employee::factory()->create(['user_id' => $wfmUser->id]);
 
-    $requester = Employee::factory()->create(['team_id' => $teamA->id, 'position_id' => $position->id]);
-    $recipient = Employee::factory()->create(['team_id' => $teamB->id, 'position_id' => $position->id]);
+    // requester_id/recipient_id de los swaps referencian users.id.
+    $requesterUser = User::factory()->create();
+    $recipientUser = User::factory()->create();
+    $requester = Employee::factory()->create(['team_id' => $teamA->id, 'position_id' => $position->id, 'user_id' => $requesterUser->id]);
+    $recipient = Employee::factory()->create(['team_id' => $teamB->id, 'position_id' => $position->id, 'user_id' => $recipientUser->id]);
 
     // Setup schedule
     $date = now()->addDays(5);
@@ -62,7 +65,7 @@ test('full swap approval flow persists assignment changes in schedule', function
 
     // Create swap request as accepted
     $swap = ShiftSwapRequest::create([
-        'requester_id' => $requester->id, 'recipient_id' => $recipient->id,
+        'requester_id' => $requesterUser->id, 'recipient_id' => $recipientUser->id,
         'start_date' => $date->toDateString(), 'status' => 'accepted',
         'requester_assignment_snapshot' => $assignmentA->toArray(),
         'recipient_assignment_snapshot' => $assignmentB->toArray(),
@@ -104,8 +107,9 @@ test('approveSwap shows error toast when process fails', function () {
     Employee::factory()->create(['user_id' => $wfmUser->id]);
 
     $swap = ShiftSwapRequest::create([
-        'requester_id' => Employee::factory()->create()->id,
-        'recipient_id' => Employee::factory()->create()->id,
+        // requester/recipient referencian users.id.
+        'requester_id' => User::factory()->create()->id,
+        'recipient_id' => User::factory()->create()->id,
         'start_date' => now()->addDays(5)->toDateString(),
         'status' => 'pending',
     ]);
@@ -128,8 +132,10 @@ test('approveSwap preserves original assignment data integrity after swap', func
     $wfmUser->assignRole('wfm');
     Employee::factory()->create(['user_id' => $wfmUser->id]);
 
-    $requester = Employee::factory()->create(['team_id' => $team->id, 'position_id' => $position->id]);
-    $recipient = Employee::factory()->create(['team_id' => $team->id, 'position_id' => $position->id]);
+    $requesterUser = User::factory()->create();
+    $recipientUser = User::factory()->create();
+    $requester = Employee::factory()->create(['team_id' => $team->id, 'position_id' => $position->id, 'user_id' => $requesterUser->id]);
+    $recipient = Employee::factory()->create(['team_id' => $team->id, 'position_id' => $position->id, 'user_id' => $recipientUser->id]);
 
     $date = now()->addDays(5);
     $monday = $date->copy()->startOfWeek();
@@ -164,7 +170,7 @@ test('approveSwap preserves original assignment data integrity after swap', func
     ]);
 
     $swap = ShiftSwapRequest::create([
-        'requester_id' => $requester->id, 'recipient_id' => $recipient->id,
+        'requester_id' => $requesterUser->id, 'recipient_id' => $recipientUser->id,
         'start_date' => $date->toDateString(), 'status' => 'accepted',
         'requester_assignment_snapshot' => $assignmentA->toArray(),
         'recipient_assignment_snapshot' => $assignmentB->toArray(),

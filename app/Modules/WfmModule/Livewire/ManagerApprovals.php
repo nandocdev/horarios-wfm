@@ -32,7 +32,7 @@ class ManagerApprovals extends Component
             })
             ->firstOrFail();
 
-        $action->execute((int) $leave->id, $manager->id, (int) auth()->id(), $comment);
+        $action->execute((int) $leave->id, (int) $manager->user_id, (int) auth()->id(), $comment);
 
         \Flux::toast('Permiso aprobado correctamente.', variant: 'success');
     }
@@ -54,7 +54,7 @@ class ManagerApprovals extends Component
             })
             ->firstOrFail();
 
-        $action->execute((int) $leave->id, $manager->id, (int) auth()->id(), $comment);
+        $action->execute((int) $leave->id, (int) $manager->user_id, (int) auth()->id(), $comment);
 
         \Flux::toast('Permiso rechazado.');
     }

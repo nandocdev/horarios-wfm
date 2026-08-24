@@ -34,8 +34,8 @@ class SwapRequestHistory extends Component
         $this->selectedRequest = ShiftSwapRequest::with([
             'requester',
             'recipient',
-            'requester.team',
-            'recipient.team',
+            'requester.employee.team',
+            'recipient.employee.team',
             'approvals',
             'approvals.approver',
         ])->findOrFail($requestId);
@@ -49,17 +49,25 @@ class SwapRequestHistory extends Component
             ->first();
 
         if ($week) {
-            $this->requesterShift = WeeklyScheduleAssignment::with('schedule')
-                ->where('weekly_schedule_id', $week->id)
-                ->where('employee_id', $this->selectedRequest->requester_id)
-                ->where('day_of_week', $dayOfWeek)
-                ->first();
+            // requester_id/recipient_id son users.id; los turnos viven en employees.
+            $requesterEmployeeId = $this->selectedRequest->requester?->employee?->getKey();
+            $recipientEmployeeId = $this->selectedRequest->recipient?->employee?->getKey();
 
-            $this->recipientShift = WeeklyScheduleAssignment::with('schedule')
-                ->where('weekly_schedule_id', $week->id)
-                ->where('employee_id', $this->selectedRequest->recipient_id)
-                ->where('day_of_week', $dayOfWeek)
-                ->first();
+            $this->requesterShift = $requesterEmployeeId
+                ? WeeklyScheduleAssignment::with('schedule')
+                    ->where('weekly_schedule_id', $week->id)
+                    ->where('employee_id', $requesterEmployeeId)
+                    ->where('day_of_week', $dayOfWeek)
+                    ->first()
+                : null;
+
+            $this->recipientShift = $recipientEmployeeId
+                ? WeeklyScheduleAssignment::with('schedule')
+                    ->where('weekly_schedule_id', $week->id)
+                    ->where('employee_id', $recipientEmployeeId)
+                    ->where('day_of_week', $dayOfWeek)
+                    ->first()
+                : null;
         }
 
         $this->dispatch('modal-show', name: 'swap-details');
@@ -69,7 +77,7 @@ class SwapRequestHistory extends Component
     {
         $employee = Auth::user()->employee;
         $request = ShiftSwapRequest::where('id', $requestId)
-            ->where('requester_id', $employee->id)
+            ->where('requester_id', Auth::id())
             ->where('status', 'pending')
             ->firstOrFail();
 
@@ -78,7 +86,7 @@ class SwapRequestHistory extends Component
         ShiftSwapCancelled::dispatch($request, $employee->id);
 
         // Notificar al destinatario si el usuario existía
-        if ($request->recipient?->user) {
+        if ($request->recipient) {
             $dto = new NotificationDTO(
                 title: 'Solicitud de intercambio cancelada',
                 message: "{$employee->full_name} ha cancelado la solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
@@ -94,7 +102,7 @@ class SwapRequestHistory extends Component
                 resourceType: 'shift_swap',
                 resourceId: (string) $request->id,
             );
-            $request->recipient->user->notify(new SwapStatusChangedNotification($dto));
+            $request->recipient->notify(new SwapStatusChangedNotification($dto));
         }
 
         \Flux::toast('Solicitud cancelada correctamente.');
@@ -104,11 +112,9 @@ class SwapRequestHistory extends Component
     public function acceptSwap($requestId)
     {
         $employee = Auth::user()->employee;
-        $request = ShiftSwapRequest::with([
-            'requester', 'requester.user', 'requester.manager.user',
-            'recipient', 'recipient.user', 'recipient.manager.user',
-        ])->where('id', $requestId)
-            ->where('recipient_id', $employee->id)
+        $request = ShiftSwapRequest::with(['requester.employee.team', 'recipient.employee'])
+            ->where('id', $requestId)
+            ->where('recipient_id', Auth::id())
             ->where('status', 'pending')
             ->firstOrFail();
 
@@ -119,7 +125,7 @@ class SwapRequestHistory extends Component
         $dateStr = $request->start_date->format('d/m/Y');
 
         // Notificar al solicitante
-        if ($request->requester?->user) {
+        if ($request->requester) {
             $dto = new NotificationDTO(
                 title: 'Intercambio aceptado',
                 message: "{$employee->full_name} ha aceptado tu solicitud de intercambio para el {$dateStr}.",
@@ -137,14 +143,14 @@ class SwapRequestHistory extends Component
                 resourceType: 'shift_swap',
                 resourceId: (string) $request->id,
             );
-            $request->requester->user->notify(new SwapStatusChangedNotification($dto));
+            $request->requester->notify(new SwapStatusChangedNotification($dto));
         }
 
         // Notificar al coordinador del solicitante
-        $this->notifyCoordinator($request->requester?->manager, $request->requester, $employee, $dateStr);
+        $this->notifyCoordinator($request->requester?->employee?->manager, $request->requester?->employee, $employee, $dateStr);
 
         // Notificar al coordinador del destinatario (quien aceptó)
-        $this->notifyCoordinator($request->recipient?->manager, $request->recipient, $request->requester, $dateStr);
+        $this->notifyCoordinator($request->recipient?->employee?->manager, $request->recipient?->employee, $request->requester?->employee, $dateStr);
 
         \Flux::toast('Has aceptado el intercambio de turno.', variant: 'success');
         $this->dispatch('modal-hide', name: 'swap-details');
@@ -179,8 +185,8 @@ class SwapRequestHistory extends Component
     public function rejectSwap($requestId)
     {
         $employee = Auth::user()->employee;
-        $request = ShiftSwapRequest::with(['requester', 'requester.user'])->where('id', $requestId)
-            ->where('recipient_id', $employee->id)
+        $request = ShiftSwapRequest::with(['requester'])->where('id', $requestId)
+            ->where('recipient_id', Auth::id())
             ->where('status', 'pending')
             ->firstOrFail();
 
@@ -189,7 +195,7 @@ class SwapRequestHistory extends Component
         ShiftSwapRejectedByPeer::dispatch($request, $employee->id);
 
         // Notificar al solicitante
-        if ($request->requester?->user) {
+        if ($request->requester) {
             $dto = new NotificationDTO(
                 title: 'Intercambio rechazado',
                 message: "{$employee->full_name} ha rechazado tu solicitud de intercambio para el {$request->start_date->format('d/m/Y')}.",
@@ -206,7 +212,7 @@ class SwapRequestHistory extends Component
                 resourceType: 'shift_swap',
                 resourceId: (string) $request->id,
             );
-            $request->requester->user->notify(new SwapStatusChangedNotification($dto));
+            $request->requester->notify(new SwapStatusChangedNotification($dto));
         }
 
         \Flux::toast('Has rechazado el intercambio de turno.');
@@ -218,7 +224,7 @@ class SwapRequestHistory extends Component
         $employee = Auth::user()->employee;
 
         $requests = $employee
-            ? ShiftSwapRequest::with(['requester', 'recipient', 'recipient.team', 'requester.team'])
+            ? ShiftSwapRequest::with(['requester.employee.team', 'recipient.employee.team'])
                 ->where(function ($query) use ($employee) {
                     $query->where('requester_id', $employee->id)
                         ->orWhere('recipient_id', $employee->id);

@@ -14,9 +14,9 @@ final class RejectShiftSwapAction
     /**
      * Rechaza una solicitud de intercambio de turnos en WorkflowsModule.
      */
-    public function execute(int $requestId, int $approverEmployeeId, string $reason): ShiftSwapRequest
+    public function execute(int $requestId, int $approverUserId, string $reason): ShiftSwapRequest
     {
-        return DB::transaction(function () use ($requestId, $approverEmployeeId, $reason) {
+        return DB::transaction(function () use ($requestId, $approverUserId, $reason) {
             $request = ShiftSwapRequest::where('id', $requestId)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -28,7 +28,7 @@ final class RejectShiftSwapAction
             // 1. Crear registro de aprobación de rechazo
             ShiftSwapApproval::create([
                 'shift_swap_request_id' => $request->id,
-                'approver_id' => $approverEmployeeId,
+                'approver_id' => $approverUserId,
                 'status' => 'rejected',
                 'comment' => $reason,
             ]);
@@ -40,7 +40,7 @@ final class RejectShiftSwapAction
             ]);
 
             // 3. Disparar evento de dominio
-            ShiftSwapRejected::dispatch($request, $approverEmployeeId, $reason);
+            ShiftSwapRejected::dispatch($request, $approverUserId, $reason);
 
             return $request;
         });

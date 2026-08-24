@@ -34,7 +34,7 @@
                     <flux:table.cell class="py-1">
                         <div class="flex flex-col">
                             <span class="font-medium">{{ $team->name }}</span>
-                            <span class="text-xs text-slate-500">{{ $team->supervisor?->full_name }}</span>
+                            <span class="text-xs text-slate-500">{{ $team->supervisor?->name }}</span>
                         </div>
                     </flux:table.cell>
                     <flux:table.cell class="py-1">

@@ -63,10 +63,12 @@ class SendLeaveRequestNotification implements ShouldQueue
             resourceId: (string) $leave->id,
         );
 
-        $manager = $employee->manager ?? $employee->team?->supervisor;
+        // Manager directo (Employee); si no hay, el supervisor del equipo (User).
+        $manager = $employee->manager;
+        $recipient = $manager?->user ?? $employee->team?->supervisor;
 
-        if ($manager?->user) {
-            $manager->user->notify(new LeaveRequestNotification($dto));
+        if ($recipient) {
+            $recipient->notify(new LeaveRequestNotification($dto));
         }
     }
 

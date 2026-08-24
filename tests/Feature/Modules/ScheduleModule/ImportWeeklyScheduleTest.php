@@ -115,12 +115,13 @@ it('replicates imported schedules to team leaders and sets team assignments to 9
     ]);
 
     // Crear supervisor y coordinador (lideres) con la posicion
-    $supervisor = Employee::factory()->create(['position_id' => $positionId]);
+    $supervisorUser = User::factory()->create();
+    $supervisor = Employee::factory()->create(['position_id' => $positionId, 'user_id' => $supervisorUser->id]);
     $coordinator = Employee::factory()->create(['position_id' => $positionId]);
 
     // Crear equipo asignando al supervisor
     $team = Team::factory()->create([
-        'supervisor_id' => $supervisor->id,
+        'supervisor_id' => $supervisorUser->id,
     ]);
 
     // Asociar supervisor y coordinador al equipo

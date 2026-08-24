@@ -5,7 +5,7 @@
                 <flux:select.option value="">Todos los equipos</flux:select.option>
                 @foreach($teams as $team)
                     <flux:select.option value="{{ $team->id }}">
-                        {{ $team->name }} - {{ $team->supervisor?->full_name ?? 'Sin Coordinador' }}
+                        {{ $team->name }} - {{ $team->supervisor?->name ?? 'Sin Coordinador' }}
                     </flux:select.option>
                 @endforeach
             </flux:select>

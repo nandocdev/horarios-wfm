@@ -39,8 +39,8 @@ class WfmSwapApprovals extends Component
         $this->selectedRequest = ShiftSwapRequest::with([
             'requester',
             'recipient',
-            'requester.team',
-            'recipient.team',
+            'requester.employee.team',
+            'recipient.employee.team',
             'approvals',
             'approvals.approver',
         ])->findOrFail($requestId);
@@ -56,17 +56,25 @@ class WfmSwapApprovals extends Component
         $this->recipientShift = null;
 
         if ($week) {
-            $this->requesterShift = WeeklyScheduleAssignment::withoutGlobalScopes()->with('schedule')
-                ->where('weekly_schedule_id', $week->id)
-                ->where('employee_id', $this->selectedRequest->requester_id)
-                ->where('day_of_week', $dayOfWeek)
-                ->first();
+            // requester_id/recipient_id son users.id; el turno vive en employees.
+            $requesterEmployeeId = $this->selectedRequest->requester?->employee?->getKey();
+            $recipientEmployeeId = $this->selectedRequest->recipient?->employee?->getKey();
 
-            $this->recipientShift = WeeklyScheduleAssignment::withoutGlobalScopes()->with('schedule')
-                ->where('weekly_schedule_id', $week->id)
-                ->where('employee_id', $this->selectedRequest->recipient_id)
-                ->where('day_of_week', $dayOfWeek)
-                ->first();
+            $this->requesterShift = $requesterEmployeeId
+                ? WeeklyScheduleAssignment::withoutGlobalScopes()->with('schedule')
+                    ->where('weekly_schedule_id', $week->id)
+                    ->where('employee_id', $requesterEmployeeId)
+                    ->where('day_of_week', $dayOfWeek)
+                    ->first()
+                : null;
+
+            $this->recipientShift = $recipientEmployeeId
+                ? WeeklyScheduleAssignment::withoutGlobalScopes()->with('schedule')
+                    ->where('weekly_schedule_id', $week->id)
+                    ->where('employee_id', $recipientEmployeeId)
+                    ->where('day_of_week', $dayOfWeek)
+                    ->first()
+                : null;
         }
 
         $this->dispatch('modal-show', name: 'swap-details');
@@ -83,7 +91,7 @@ class WfmSwapApprovals extends Component
             }
 
             $action = app(ApproveShiftSwapAction::class);
-            $action->execute((int) $requestId, $employee->id);
+            $action->execute((int) $requestId, (int) Auth::id());
 
             \Flux::toast('Cambio de turno aprobado y aplicado correctamente.', variant: 'success');
             $this->dispatch('modal-hide', name: 'swap-details');
@@ -100,13 +108,8 @@ class WfmSwapApprovals extends Component
         try {
             $this->authorize('wfm.swaps.manage');
 
-            $employee = Auth::user()->employee;
-            if (! $employee) {
-                throw new \RuntimeException('El usuario autenticado debe tener un perfil de empleado asociado para rechazar solicitudes.');
-            }
-
             $action = app(RejectShiftSwapAction::class);
-            $request = $action->execute((int) $requestId, $employee->id, $reason);
+            $request = $action->execute((int) $requestId, (int) Auth::id(), $reason);
 
             $dto = new NotificationDTO(
                 title: 'Intercambio rechazado',
@@ -126,13 +129,8 @@ class WfmSwapApprovals extends Component
                 resourceId: (string) $request->id,
             );
 
-            if ($request->requester?->user) {
-                $request->requester->user->notify(new SwapStatusChangedNotification($dto));
-            }
-
-            if ($request->recipient?->user) {
-                $request->recipient->user->notify(new SwapStatusChangedNotification($dto));
-            }
+            $request->requester?->notify(new SwapStatusChangedNotification($dto));
+            $request->recipient?->notify(new SwapStatusChangedNotification($dto));
 
             \Flux::toast('Cambio de turno rechazado.');
             $this->dispatch('modal-hide', name: 'swap-details');
@@ -146,7 +144,7 @@ class WfmSwapApprovals extends Component
 
     public function render()
     {
-        $query = ShiftSwapRequest::with(['requester', 'recipient', 'requester.team', 'recipient.team']);
+        $query = ShiftSwapRequest::with(['requester.employee.team', 'recipient.employee.team']);
 
         if ($this->currentTab === 'pending') {
             $query->whereIn('status', ['pending', 'accepted'])

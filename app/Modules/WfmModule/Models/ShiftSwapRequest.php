@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Models;
 
-use App\Modules\PersonnelModule\Models\Employee;
+use App\Modules\CoreModule\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,12 +42,12 @@ class ShiftSwapRequest extends Model
 
     public function requester(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'requester_id');
+        return $this->belongsTo(User::class, 'requester_id');
     }
 
     public function recipient(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'recipient_id');
+        return $this->belongsTo(User::class, 'recipient_id');
     }
 
     public function approvals(): HasMany

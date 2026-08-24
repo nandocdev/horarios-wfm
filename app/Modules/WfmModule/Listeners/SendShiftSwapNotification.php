@@ -31,12 +31,12 @@ class SendShiftSwapNotification implements ShouldQueue
 
     private function requesterName($swap): string
     {
-        return "{$swap->requester->first_name} {$swap->requester->last_name}";
+        return $swap->requester?->name ?? 'Usuario';
     }
 
     private function recipientName($swap): string
     {
-        return "{$swap->recipient->first_name} {$swap->recipient->last_name}";
+        return $swap->recipient?->name ?? 'Usuario';
     }
 
     public function handleShiftSwapRequested(ShiftSwapRequested $event): void
@@ -62,11 +62,11 @@ class SendShiftSwapNotification implements ShouldQueue
             resourceId: (string) $swap->id,
         );
 
-        if ($swap->recipient?->user) {
-            $swap->recipient->user->notify(new SwapRequestNotification($dto));
+        if ($swap->recipient) {
+            $swap->recipient->notify(new SwapRequestNotification($dto));
         }
 
-        if ($swap->recipient?->team?->supervisor?->user) {
+        if ($supervisor = $swap->recipient?->employee?->team?->supervisor) {
             $supervisorDto = new NotificationDTO(
                 title: 'Solicitud de intercambio pendiente',
                 message: "{$this->recipientName($swap)} tiene una solicitud pendiente.",
@@ -84,7 +84,7 @@ class SendShiftSwapNotification implements ShouldQueue
                 resourceType: 'shift_swap',
                 resourceId: (string) $swap->id,
             );
-            $swap->recipient->team->supervisor->user->notify(new SwapRequestNotification($supervisorDto));
+            $supervisor->notify(new SwapRequestNotification($supervisorDto));
         }
     }
 
@@ -112,12 +112,12 @@ class SendShiftSwapNotification implements ShouldQueue
             resourceId: (string) $swap->id,
         );
 
-        if ($swap->requester?->user) {
-            $swap->requester->user->notify(new ShiftSwapApprovedNotification($dto));
+        if ($swap->requester) {
+            $swap->requester->notify(new ShiftSwapApprovedNotification($dto));
         }
 
-        if ($swap->recipient?->user) {
-            $swap->recipient->user->notify(new ShiftSwapApprovedNotification($dto));
+        if ($swap->recipient) {
+            $swap->recipient->notify(new ShiftSwapApprovedNotification($dto));
         }
     }
 
@@ -144,12 +144,12 @@ class SendShiftSwapNotification implements ShouldQueue
             resourceId: (string) $swap->id,
         );
 
-        if ($swap->requester?->user) {
-            $swap->requester->user->notify(new SwapStatusChangedNotification($dto));
+        if ($swap->requester) {
+            $swap->requester->notify(new SwapStatusChangedNotification($dto));
         }
 
-        if ($swap->recipient?->user) {
-            $swap->recipient->user->notify(new SwapStatusChangedNotification($dto));
+        if ($swap->recipient) {
+            $swap->recipient->notify(new SwapStatusChangedNotification($dto));
         }
     }
 
@@ -174,8 +174,8 @@ class SendShiftSwapNotification implements ShouldQueue
             resourceId: (string) $swap->id,
         );
 
-        if ($swap->recipient?->user) {
-            $swap->recipient->user->notify(new SwapStatusChangedNotification($dto));
+        if ($swap->recipient) {
+            $swap->recipient->notify(new SwapStatusChangedNotification($dto));
         }
     }
 
@@ -203,8 +203,8 @@ class SendShiftSwapNotification implements ShouldQueue
             resourceId: (string) $swap->id,
         );
 
-        if ($swap->requester?->user) {
-            $swap->requester->user->notify(new SwapStatusChangedNotification($notifyDto));
+        if ($swap->requester) {
+            $swap->requester->notify(new SwapStatusChangedNotification($notifyDto));
         }
 
         $coordinatorDto = new NotificationDTO(
@@ -226,12 +226,12 @@ class SendShiftSwapNotification implements ShouldQueue
             resourceId: (string) $swap->id,
         );
 
-        if ($swap->requester?->manager?->user) {
-            $swap->requester->manager->user->notify(new SwapStatusChangedNotification($coordinatorDto));
+        if ($requesterManager = $swap->requester?->employee?->manager?->user) {
+            $requesterManager->notify(new SwapStatusChangedNotification($coordinatorDto));
         }
 
-        if ($swap->recipient?->manager?->user) {
-            $swap->recipient->manager->user->notify(new SwapStatusChangedNotification($coordinatorDto));
+        if ($recipientManager = $swap->recipient?->employee?->manager?->user) {
+            $recipientManager->notify(new SwapStatusChangedNotification($coordinatorDto));
         }
     }
 
@@ -258,8 +258,8 @@ class SendShiftSwapNotification implements ShouldQueue
             resourceId: (string) $swap->id,
         );
 
-        if ($swap->requester?->user) {
-            $swap->requester->user->notify(new SwapStatusChangedNotification($dto));
+        if ($swap->requester) {
+            $swap->requester->notify(new SwapStatusChangedNotification($dto));
         }
     }
 }

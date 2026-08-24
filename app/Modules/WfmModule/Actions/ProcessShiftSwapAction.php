@@ -19,7 +19,7 @@ class ProcessShiftSwapAction
      *
      * @throws \Exception
      */
-    public function execute(int $requestId, int $approverEmployeeId): bool
+    public function execute(int $requestId, int $approverUserId): bool
     {
         return DB::transaction(function () use ($requestId) {
             // 1. Bloqueo pesimista de la solicitud
@@ -35,14 +35,22 @@ class ProcessShiftSwapAction
             $endDate = $request->end_date ?: $startDate;
             $currentDate = $startDate->copy();
 
+            // requester_id/recipient_id son users.id; las asignaciones viven por employees.id.
+            $requesterEmployeeId = (int) (Employee::where('user_id', (int) $request->requester_id)->value('id') ?? 0);
+            $recipientEmployeeId = (int) (Employee::where('user_id', (int) $request->recipient_id)->value('id') ?? 0);
+
+            if ($requesterEmployeeId === 0 || $recipientEmployeeId === 0) {
+                throw new \RuntimeException('Los participantes del intercambio no tienen perfil de empleado asociado.');
+            }
+
             $swapsExecuted = 0;
 
             while ($currentDate->lte($endDate)) {
                 $dateStr = $currentDate->toDateString();
 
                 // 2. Cargar y bloquear las asignaciones actuales para el día actual
-                $assignmentA = $this->getAssignmentForLock((int) $request->requester_id, $dateStr);
-                $assignmentB = $this->getAssignmentForLock((int) $request->recipient_id, $dateStr);
+                $assignmentA = $this->getAssignmentForLock($requesterEmployeeId, $dateStr);
+                $assignmentB = $this->getAssignmentForLock($recipientEmployeeId, $dateStr);
 
                 if ($assignmentA && $assignmentB) {
                     // 3. Validación de integridad contra Snapshots (Solo el primer día para mantener simplicidad de snapshot)
@@ -133,16 +141,20 @@ class ProcessShiftSwapAction
      */
     private function createTemporalAssignments(ShiftSwapRequest $request, CarbonInterface $startDate, CarbonInterface $endDate): void
     {
-        $requester = Employee::with('team')->find($request->requester_id);
-        $recipient = Employee::with('team')->find($request->recipient_id);
+        // requester_id/recipient_id son users.id.
+        $requester = Employee::with('team')->where('user_id', (int) $request->requester_id)->first();
+        $recipient = Employee::with('team')->where('user_id', (int) $request->recipient_id)->first();
 
         if (! $requester || ! $recipient) {
             return;
         }
 
-        // Supervisor actual de cada operador (team.supervisor_id o parent_id)
-        $requesterSupervisorId = $requester->team?->supervisor_id ?? $requester->parent_id;
-        $recipientSupervisorId = $recipient->team?->supervisor_id ?? $recipient->parent_id;
+        // Supervisor actual de cada operador: team.supervisor_id (users.id)
+        // con fallback al parent_id del empleado resuelto también a users.id.
+        $requesterSupervisorId = $requester->team?->supervisor_id
+            ?? Employee::where('id', $requester->parent_id)->value('user_id');
+        $recipientSupervisorId = $recipient->team?->supervisor_id
+            ?? Employee::where('id', $recipient->parent_id)->value('user_id');
 
         // Solo crear asignaciones si ambos tienen supervisor definido
         // y son distintos (swap cruzado real)

@@ -14,12 +14,13 @@ test('recipient can accept a shift swap request', function () {
     $user = User::factory()->create();
     $user->assignRole('operator');
 
+    $requesterUser = User::factory()->create();
     $recipient = Employee::factory()->create(['user_id' => $user->id]);
-    $requester = Employee::factory()->create();
+    $requester = Employee::factory()->create(['user_id' => $requesterUser->id]);
 
     $swap = ShiftSwapRequest::create([
-        'requester_id' => $requester->id,
-        'recipient_id' => $recipient->id,
+        'requester_id' => $requesterUser->id,
+        'recipient_id' => $user->id,
         'start_date' => now()->addDays(5)->toDateString(),
         'status' => 'pending',
     ]);
@@ -36,12 +37,13 @@ test('recipient can reject a shift swap request', function () {
     $user = User::factory()->create();
     $user->assignRole('operator');
 
+    $requesterUser = User::factory()->create();
     $recipient = Employee::factory()->create(['user_id' => $user->id]);
-    $requester = Employee::factory()->create();
+    $requester = Employee::factory()->create(['user_id' => $requesterUser->id]);
 
     $swap = ShiftSwapRequest::create([
-        'requester_id' => $requester->id,
-        'recipient_id' => $recipient->id,
+        'requester_id' => $requesterUser->id,
+        'recipient_id' => $user->id,
         'start_date' => now()->addDays(5)->toDateString(),
         'status' => 'pending',
     ]);

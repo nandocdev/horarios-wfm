@@ -14,9 +14,9 @@ final class ApproveShiftSwapAction
     /**
      * Aprueba una solicitud de intercambio de turnos en WorkflowsModule.
      */
-    public function execute(int $requestId, int $approverEmployeeId): ShiftSwapRequest
+    public function execute(int $requestId, int $approverUserId): ShiftSwapRequest
     {
-        return DB::transaction(function () use ($requestId, $approverEmployeeId) {
+        return DB::transaction(function () use ($requestId, $approverUserId) {
             $request = ShiftSwapRequest::where('id', $requestId)
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -31,7 +31,7 @@ final class ApproveShiftSwapAction
             // 1. Crear registro de aprobación de WFM
             ShiftSwapApproval::create([
                 'shift_swap_request_id' => $request->id,
-                'approver_id' => $approverEmployeeId,
+                'approver_id' => $approverUserId,
                 'status' => 'approved',
                 'comment' => 'Aprobado por WFM (Periodo: '.$startDate->format('d/m').' - '.$endDate->format('d/m').')',
             ]);
@@ -40,7 +40,7 @@ final class ApproveShiftSwapAction
             $request->update(['status' => 'approved']);
 
             // 3. Disparar evento de dominio para que WfmModule aplique los cambios a la rejilla de horarios
-            ShiftSwapApproved::dispatch($request, $approverEmployeeId);
+            ShiftSwapApproved::dispatch($request, $approverUserId);
 
             return $request;
         });

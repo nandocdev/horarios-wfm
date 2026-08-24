@@ -33,7 +33,8 @@ it('renders the manager approvals page', function () {
 });
 
 it('shows pending leave requests from subordinates', function () {
-    $manager = Employee::factory()->create(['is_manager' => true]);
+    $managerUser = User::factory()->create();
+    $manager = Employee::factory()->create(['is_manager' => true, 'user_id' => $managerUser->id]);
     $user = User::factory()->create();
     $manager->user()->associate($user)->save();
 
@@ -47,7 +48,8 @@ it('shows pending leave requests from subordinates', function () {
 });
 
 it('does not show non-subordinate leave requests', function () {
-    $manager = Employee::factory()->create(['is_manager' => true]);
+    $managerUser = User::factory()->create();
+    $manager = Employee::factory()->create(['is_manager' => true, 'user_id' => $managerUser->id]);
     $user = User::factory()->create();
     $manager->user()->associate($user)->save();
 
@@ -61,7 +63,8 @@ it('does not show non-subordinate leave requests', function () {
 });
 
 it('approves a subordinate leave request', function () {
-    $manager = Employee::factory()->create(['is_manager' => true]);
+    $managerUser = User::factory()->create();
+    $manager = Employee::factory()->create(['is_manager' => true, 'user_id' => $managerUser->id]);
     $user = User::factory()->create();
     $manager->user()->associate($user)->save();
 
@@ -78,7 +81,8 @@ it('approves a subordinate leave request', function () {
 });
 
 it('rejects a subordinate leave request', function () {
-    $manager = Employee::factory()->create(['is_manager' => true]);
+    $managerUser = User::factory()->create();
+    $manager = Employee::factory()->create(['is_manager' => true, 'user_id' => $managerUser->id]);
     $user = User::factory()->create();
     $manager->user()->associate($user)->save();
 
@@ -95,7 +99,8 @@ it('rejects a subordinate leave request', function () {
 });
 
 it('does not allow approving own leave', function () {
-    $manager = Employee::factory()->create(['is_manager' => true]);
+    $managerUser = User::factory()->create();
+    $manager = Employee::factory()->create(['is_manager' => true, 'user_id' => $managerUser->id]);
     $user = User::factory()->create();
     $manager->user()->associate($user)->save();
 

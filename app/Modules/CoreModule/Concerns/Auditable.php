@@ -6,7 +6,6 @@ namespace App\Modules\CoreModule\Concerns;
 
 use App\Modules\AuditModule\Models\AuditLog;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
 /**
  * Trait para logging automático de cambios en modelos del CoreModule.
@@ -64,9 +63,9 @@ trait Auditable
             'after' => $action === 'created' ? array_merge(
                 $model->toArray(),
                 ['created_at' => $model->created_at->toIso8601String(),
-                 'updated_at' => $model->updated_at->toIso8601String()]
+                    'updated_at' => $model->updated_at->toIso8601String()]
             ) : $model->toArray(),
-            'ip_address' => Request::ip(),
+            'ip_address' => request()->ip(),
             'user_id' => $user?->id,
             'actor_name' => $user?->name,
             'actor_email' => $user?->email,

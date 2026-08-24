@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\HelpdeskModule\Models;
 
+use App\Modules\CoreModule\Models\User;
 use App\Modules\HelpdeskModule\Enums\TicketPriority;
 use App\Modules\HelpdeskModule\Enums\TicketStatus;
-use App\Modules\PersonnelModule\Models\Employee;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,12 +36,12 @@ class HelpdeskTicket extends Model
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'creator_id');
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     public function assignedAgent(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'assigned_agent_id');
+        return $this->belongsTo(User::class, 'assigned_agent_id');
     }
 
     public function comments(): HasMany

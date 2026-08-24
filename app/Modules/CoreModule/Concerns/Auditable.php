@@ -41,8 +41,7 @@ trait Auditable
         });
 
         static::deleted(function (Model $model) {
-            $before = $model->getOriginal();
-            self::logChange($model, 'deleted', $before->toArray() ?? []);
+            self::logChange($model, 'deleted', $model->getOriginal());
         });
     }
 

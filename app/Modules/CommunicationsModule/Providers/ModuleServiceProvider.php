@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Modules\CommunicationsModule\Providers;
 
+use App\Modules\CommunicationsModule\Console\Commands\CommunicationsAutoArchiveCommand;
+use App\Modules\CommunicationsModule\Console\Commands\CommunicationsPublishScheduledCommand;
+use App\Modules\CommunicationsModule\Console\Commands\CommunicationsSendExpiredPollRemindersCommand;
+use App\Modules\CommunicationsModule\Console\Commands\CommunicationsSendNewsletterCommand;
 use App\Modules\CommunicationsModule\Events\CommentCreated;
 use App\Modules\CommunicationsModule\Events\MentionCreated;
 use App\Modules\CommunicationsModule\Events\ReactionAdded;
@@ -65,6 +69,13 @@ class ModuleServiceProvider extends ServiceProvider
         $this->registerEventListeners();
         $this->registerLivewireComponents();
         $this->loadViews();
+
+        $this->commands([
+            CommunicationsPublishScheduledCommand::class,
+            CommunicationsAutoArchiveCommand::class,
+            CommunicationsSendExpiredPollRemindersCommand::class,
+            CommunicationsSendNewsletterCommand::class,
+        ]);
     }
 
     private function registerRoutes(): void

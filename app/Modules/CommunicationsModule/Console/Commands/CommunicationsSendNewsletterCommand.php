@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands;
+namespace App\Modules\CommunicationsModule\Console\Commands;
 
 use App\Modules\CommunicationsModule\Actions\SendAutomaticNewsletterAction;
 use Illuminate\Console\Attributes\Description;

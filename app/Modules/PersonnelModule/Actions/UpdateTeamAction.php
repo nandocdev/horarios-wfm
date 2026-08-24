@@ -35,13 +35,18 @@ class UpdateTeamAction
                 'is_active' => $dto->is_active,
             ]);
 
-            // Si el supervisor cambió, actualizamos la jerarquía de todos los miembros activos excepto el supervisor mismo
+            // Si el supervisor cambió, actualizamos la jerarquía de todos los miembros activos excepto el supervisor mismo.
+            // supervisor_id es users.id; parent_id es employees.id -> se resuelve el empleado del usuario.
             if ($oldSupervisorId !== $dto->supervisor_id) {
+                $supervisorEmployeeId = $dto->supervisor_id
+                    ? (int) (Employee::where('user_id', $dto->supervisor_id)->value('id') ?? 0)
+                    : 0;
+
                 Employee::whereHas('currentTeamMember', function ($q) use ($team) {
                     $q->where('team_id', $team->id);
                 })
-                    ->where('id', '!=', $dto->supervisor_id)
-                    ->update(['parent_id' => $dto->supervisor_id]);
+                    ->when($supervisorEmployeeId > 0, fn ($q) => $q->where('id', '!=', $supervisorEmployeeId))
+                    ->update(['parent_id' => $supervisorEmployeeId ?: null]);
             }
 
             event(new TeamUpdated($team));

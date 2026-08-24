@@ -50,10 +50,16 @@ class ManageTeamAssignments extends Component
             $team->update(['supervisor_id' => $this->supervisor_id]);
         }
 
-        // Sincronizar parent_id a todos los miembros actuales
+        // Sincronizar parent_id: supervisor_id es users.id; parent_id es employees.id.
+        $supervisorEmployeeId = $this->supervisor_id
+            ? (int) (Employee::where('user_id', $this->supervisor_id)->value('id') ?? 0)
+            : 0;
+
         Employee::whereHas('currentTeamMember', function ($q) {
             $q->where('team_id', $this->selectedTeamId);
-        })->update(['parent_id' => $this->supervisor_id]);
+        })
+            ->when($supervisorEmployeeId > 0, fn ($q) => $q->where('id', '!=', $supervisorEmployeeId))
+            ->update(['parent_id' => $supervisorEmployeeId ?: null]);
 
         session()->flash('success', 'Supervisor del equipo actualizado y jerarquía sincronizada.');
     }
@@ -81,10 +87,16 @@ class ManageTeamAssignments extends Component
      */
     public function getSupervisorsProperty(): Collection
     {
+        // supervisor_id referencia a users.id: se listan managers con cuenta activa.
         return Employee::where('is_manager', true)
             ->where('is_active', true)
+            ->whereNotNull('user_id')
             ->orderBy('first_name')
-            ->get();
+            ->get()
+            ->map(fn ($e) => (object) [
+                'id' => $e->user_id,
+                'name' => "{$e->full_name} ({$e->employee_number})",
+            ]);
     }
 
     /**

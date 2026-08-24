@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Models;
 
 use App\Modules\CoreModule\Concerns\Auditable;
+use App\Modules\CoreModule\Models\User;
 use Database\Factories\Modules\PersonnelModule\Models\TeamFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -56,11 +57,11 @@ class Team extends Model
     }
 
     /**
-     * Supervisor del equipo.
+     * Supervisor del equipo (referencia a users.id según esquema institucional).
      */
     public function supervisor(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'supervisor_id');
+        return $this->belongsTo(User::class, 'supervisor_id');
     }
 
     /**

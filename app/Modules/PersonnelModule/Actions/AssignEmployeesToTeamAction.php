@@ -39,10 +39,15 @@ class AssignEmployeesToTeamAction
                     'is_active' => true,
                 ]);
 
-                // Sincronizar supervisor (parent_id) si el equipo tiene uno asignado y no es el mismo empleado
-                if ($supervisorId && (int) $employeeId !== (int) $supervisorId) {
+                // Sincronizar supervisor (parent_id): supervisor_id es users.id,
+                // parent_id es employees.id -> se resuelve el empleado del usuario.
+                $supervisorEmployeeId = $supervisorId
+                    ? (int) (Employee::where('user_id', $supervisorId)->value('id') ?? 0)
+                    : 0;
+
+                if ($supervisorEmployeeId && $employeeId !== $supervisorEmployeeId) {
                     Employee::where('id', $employeeId)
-                        ->update(['parent_id' => $supervisorId]);
+                        ->update(['parent_id' => $supervisorEmployeeId]);
                 }
             }
         });
@@ -62,10 +67,14 @@ class AssignEmployeesToTeamAction
                 ->where('is_active', true)
                 ->update(['is_active' => false, 'left_at' => now()]);
 
-            // Limpiar parent_id solo si coincide con el supervisor del equipo del que se está saliendo
-            if ($supervisorId) {
+            // Limpiar parent_id solo si coincide con el supervisor del equipo (users.id -> employees.id).
+            $supervisorEmployeeId = $supervisorId
+                ? (int) (Employee::where('user_id', $supervisorId)->value('id') ?? 0)
+                : 0;
+
+            if ($supervisorEmployeeId) {
                 Employee::whereIn('id', $dto->employeeIds)
-                    ->where('parent_id', $supervisorId)
+                    ->where('parent_id', $supervisorEmployeeId)
                     ->update(['parent_id' => null]);
             }
         });

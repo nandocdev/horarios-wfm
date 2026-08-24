@@ -30,7 +30,7 @@
                             <flux:select wire:model="supervisor_id" id="supervisor_id" placeholder="-- Seleccionar superior --" class="flex-1">
                                 <flux:select.option value="">Sin supervisor</flux:select.option>
                                 @foreach($this->supervisors as $supervisor)
-                                    <flux:select.option value="{{ $supervisor->id }}">{{ $supervisor->full_name }}</flux:select.option>
+                                    <flux:select.option value="{{ $supervisor->id }}">{{ $supervisor->name }}</flux:select.option>
                                 @endforeach
                             </flux:select>
                             <flux:button wire:click="updateSupervisor" variant="outline" icon="check" />

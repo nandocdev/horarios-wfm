@@ -26,9 +26,9 @@
 
                 <flux:select wire:model="form.supervisor_id" label="Supervisor" placeholder="Selecciona un responsable">
                     <flux:select.option value="">Sin supervisor asignado</flux:select.option>
-                    @foreach($this->availableSupervisors as $employee)
-                        <flux:select.option value="{{ $employee->id }}">
-                            {{ $employee->full_name }} ({{ $employee->employee_number }})
+                    @foreach($this->availableSupervisors as $supervisor)
+                        <flux:select.option value="{{ $supervisor->id }}">
+                            {{ $supervisor->label }}
                         </flux:select.option>
                     @endforeach
                 </flux:select>

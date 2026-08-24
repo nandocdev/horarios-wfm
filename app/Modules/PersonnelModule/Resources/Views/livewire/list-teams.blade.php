@@ -63,8 +63,8 @@
                                     <div class="flex items-center gap-2">
                                         <flux:avatar initials="{{ $team->supervisor->initials }}" size="xs" />
                                         <div class="flex flex-col">
-                                            <span class="text-sm font-medium text-slate-900 dark:text-white">{{ $team->supervisor->full_name }}</span>
-                                            <span class="text-xs text-slate-500">{{ $team->supervisor->employee_number }}</span>
+                                            <span class="text-sm font-medium text-slate-900 dark:text-white">{{ $team->supervisor->name }}</span>
+                                            <span class="text-xs text-slate-500">{{ $team->supervisor->employee?->employee_number }}</span>
                                         </div>
                                     </div>
                                 @else

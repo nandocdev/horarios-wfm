@@ -20,10 +20,10 @@
                         <p class="kpi-label">Supervisor</p>
                         @if($team->supervisor)
                             <div class="flex items-center gap-2 mt-1">
-                                <flux:avatar :name="$team->supervisor->full_name" :initials="$team->supervisor->initials" size="xs" />
+                                <flux:avatar :name="$team->supervisor->name" :initials="$team->supervisor->initials" size="xs" />
                                 <div>
-                                    <p class="text-sm font-medium text-wfm-navy-800 dark:text-white">{{ $team->supervisor->full_name }}</p>
-                                    <p class="text-xs text-wfm-surface-muted">{{ $team->supervisor->employee_number }}</p>
+                                    <p class="text-sm font-medium text-wfm-navy-800 dark:text-white">{{ $team->supervisor->name }}</p>
+                                    <p class="text-xs text-wfm-surface-muted">{{ $team->supervisor->employee?->employee_number }}</p>
                                 </div>
                             </div>
                         @else

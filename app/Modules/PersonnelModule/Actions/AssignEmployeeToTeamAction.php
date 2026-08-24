@@ -41,10 +41,15 @@ class AssignEmployeeToTeamAction
             $team = Team::find($dto->team_id);
             $supervisorId = $team?->supervisor_id;
 
+            // parent_id es employees.id; supervisor_id del equipo es users.id -> puente.
+            $supervisorEmployeeId = $supervisorId
+                ? (int) (Employee::where('user_id', $supervisorId)->value('id') ?? 0)
+                : 0;
+
             // Sincronizar el registro del empleado (denormalización y jerarquía)
             Employee::where('id', $dto->employee_id)->update([
                 'team_id' => $dto->team_id,
-                'parent_id' => ($supervisorId && (int) $dto->employee_id !== (int) $supervisorId) ? $supervisorId : null,
+                'parent_id' => ($supervisorEmployeeId && (int) $dto->employee_id !== $supervisorEmployeeId) ? $supervisorEmployeeId : null,
                 'updated_at' => now(),
             ]);
 

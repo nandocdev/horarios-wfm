@@ -72,10 +72,14 @@ class SyncEmployeeTeamsWithCiscoAction
                         ]);
 
                         // Actualizar relación principal en empleado
+                        $supervisorEmployeeId = $team->supervisor_id
+                            ? (int) (Employee::where('user_id', $team->supervisor_id)->value('id') ?? 0)
+                            : 0;
+
                         $employee->update([
                             'team_id' => $team->id,
-                            'parent_id' => ($team->supervisor_id && (int) $employee->id !== (int) $team->supervisor_id)
-                                ? $team->supervisor_id
+                            'parent_id' => ($supervisorEmployeeId && (int) $employee->id !== $supervisorEmployeeId)
+                                ? $supervisorEmployeeId
                                 : $employee->parent_id,
                         ]);
 

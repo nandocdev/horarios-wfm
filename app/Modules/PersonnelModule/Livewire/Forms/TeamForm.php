@@ -23,7 +23,7 @@ class TeamForm extends Form
         return [
             'name' => ['required', 'string', 'max:255', 'unique:teams,name'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'supervisor_id' => ['nullable', 'integer', 'exists:employees,id'],
+            'supervisor_id' => ['nullable', 'integer', 'exists:users,id'],
             'cisco_team_id' => ['nullable', 'string', 'max:255', 'unique:teams,cisco_team_id'],
             'is_active' => ['boolean'],
         ];

@@ -40,11 +40,17 @@ class CreateTeam extends Component
 
     public function getAvailableSupervisorsProperty()
     {
+        // supervisor_id referencia a users.id: se listan managers con cuenta activa.
         return Employee::where('is_active', true)
             ->where('is_manager', true)
+            ->whereNotNull('user_id')
             ->orderBy('first_name')
             ->orderBy('last_name')
-            ->get(['id', 'first_name', 'last_name', 'employee_number']);
+            ->get(['id', 'user_id', 'first_name', 'last_name', 'employee_number'])
+            ->map(fn ($e) => (object) [
+                'id' => $e->user_id,
+                'label' => "{$e->full_name} ({$e->employee_number})",
+            ]);
     }
 
     public function render()

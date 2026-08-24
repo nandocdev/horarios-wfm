@@ -99,7 +99,8 @@ class SyncEmployeeDataWithCiscoAction
                 if ($mappedTeam) {
                     if ($employee->team_id !== $mappedTeam->id) {
                         $employee->team_id = $mappedTeam->id;
-                        $employee->parent_id = $mappedTeam->supervisor_id;
+                        // supervisor_id es users.id; parent_id es employees.id.
+                        $employee->parent_id = Employee::where('user_id', $mappedTeam->supervisor_id)->value('id');
                         $updated = true;
                         $stats['team_mismatches']++;
                     }

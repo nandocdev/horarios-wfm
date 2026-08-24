@@ -95,7 +95,7 @@ final class RefreshDataMartJob implements ShouldQueue
                     'team_id' => $t->id,
                     'name' => $t->name,
                     'supervisor_id' => $t->supervisor_id,
-                    'supervisor_name' => $t->supervisor?->full_name,
+                    'supervisor_name' => $t->supervisor?->name,
                     'is_active' => $t->is_active ?? true,
                     'created_at' => now(),
                     'updated_at' => now(),

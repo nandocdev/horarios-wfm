@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Observers;
 
+use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\ScheduleException;
 use Illuminate\Support\Facades\Log;
@@ -30,6 +31,16 @@ class LeaveRequestObserver
     protected function syncToSchedule(LeaveRequest $leaveRequest): void
     {
         $reasonId = $this->mapTypeToReasonId($leaveRequest->type);
+
+        // Sin entrada de catálogo no se puede sincronizar: evitar FK huérfana.
+        if ($reasonId === 0) {
+            Log::warning('[LeaveRequestObserver] Sin AbsenceReasonCode para el tipo', [
+                'leave_id' => $leaveRequest->id,
+                'type' => $leaveRequest->type,
+            ]);
+
+            return;
+        }
 
         ScheduleException::updateOrCreate(
             [
@@ -65,14 +76,18 @@ class LeaveRequestObserver
      */
     protected function mapTypeToReasonId(string $type): int
     {
-        return match (strtolower($type)) {
-            'vacation', 'vacaciones' => 12,
-            'leave', 'licencia' => 9,
-            'compensatory', 'tiempo compensatorio' => 14,
-            'permiso', 'personal' => 10,
-            'duelo' => 11,
-            'enfermedad', 'sick' => 5,
-            default => 1, // Ausencia injustificada como fallback
+        // Resolver por short_code del catálogo institucional, no por id hardcodeado
+        // (los ids pueden diferir entre entornos).
+        $shortCode = match (strtolower($type)) {
+            'vacation', 'vacaciones' => 'V.',
+            'leave', 'licencia' => 'L.',
+            'compensatory', 'tiempo compensatorio' => 'T.C.',
+            'permiso', 'personal' => 'P',
+            'duelo' => 'D.',
+            'enfermedad', 'sick' => 'C.M.',
+            default => 'A.I.', // Ausencia injustificada como fallback
         };
+
+        return (int) (AbsenceReasonCode::where('short_code', $shortCode)->value('id') ?? 0);
     }
 }

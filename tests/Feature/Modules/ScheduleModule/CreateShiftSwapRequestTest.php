@@ -98,10 +98,10 @@ test('operator can request a shift swap with another employee', function () {
         ->call('submit')
         ->assertHasNoErrors();
 
-    // 5. Assert Database
+    // 5. Assert Database: requester/recipient almacenan users.id.
     $this->assertDatabaseHas('shift_swap_requests', [
-        'requester_id' => $requester->id,
-        'recipient_id' => $recipient->id,
+        'requester_id' => $user->id,
+        'recipient_id' => $otherUser->id,
         'status' => 'pending',
     ]);
 });
@@ -164,8 +164,8 @@ test('cannot request duplicate swap for same date between same employees', funct
     ]);
 
     ShiftSwapRequest::create([
-        'requester_id' => $requester->id,
-        'recipient_id' => $recipient->id,
+        'requester_id' => $user->id,
+        'recipient_id' => $otherUser->id,
         'start_date' => $date->toDateString(),
         'end_date' => $date->toDateString(),
         'status' => 'pending',

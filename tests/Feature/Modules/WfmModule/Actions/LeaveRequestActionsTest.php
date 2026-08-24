@@ -14,9 +14,10 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Event;
 
 beforeEach(function () {
+    // Códigos con los short_codes que resuelve LeaveRequestObserver (sin ids fijos).
     AbsenceReasonCode::insert([
-        ['id' => 12, 'name' => 'Vacaciones', 'short_code' => 'VAC', 'color' => '#3b82f6', 'created_at' => now(), 'updated_at' => now()],
-        ['id' => 1, 'name' => 'Ausencia', 'short_code' => 'AUS', 'color' => '#ef4444', 'created_at' => now(), 'updated_at' => now()],
+        ['name' => 'VACACIONES', 'short_code' => 'V.', 'color' => '#3b82f6', 'created_at' => now(), 'updated_at' => now()],
+        ['name' => 'AUSENCIA INJUSTIFICADA', 'short_code' => 'A.I.', 'color' => '#ef4444', 'created_at' => now(), 'updated_at' => now()],
     ]);
 
     $this->approver = User::factory()->create();

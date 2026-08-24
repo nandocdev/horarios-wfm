@@ -23,7 +23,11 @@ return new class extends Migration
             $table->jsonb('before')->nullable();
             $table->jsonb('after')->nullable();
             $table->string('ip_address', 45)->nullable();
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            // Sin FK: la tabla es inmutable (trigger trg_audit_logs_immutable) y una
+            // FK ON DELETE SET NULL exigiría UPDATE al borrar el usuario, lo que el
+            // trigger bloquea. El actor queda trazado por snapshot en actor_name/email.
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->index('user_id');
             $table->string('actor_name')->nullable();
             $table->string('actor_email')->nullable();
             $table->timestamps();

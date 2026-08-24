@@ -34,6 +34,11 @@ class HeroStatsWidget extends Component
         HTML;
     }
 
+    public function mount(string $selectedDate): void
+    {
+        $this->selectedDate = $selectedDate;
+    }
+
     public function render(TelemetryRealtimeRepositoryInterface $realtimeRepo)
     {
         $now = now();

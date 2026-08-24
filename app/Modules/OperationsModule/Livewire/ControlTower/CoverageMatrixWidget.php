@@ -32,6 +32,11 @@ class CoverageMatrixWidget extends Component
         return '<div class="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"></div>';
     }
 
+    public function mount(string $selectedDate): void
+    {
+        $this->selectedDate = $selectedDate;
+    }
+
     public function render()
     {
         $today = $this->selectedDate;

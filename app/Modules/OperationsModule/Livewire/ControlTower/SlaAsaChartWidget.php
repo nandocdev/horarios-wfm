@@ -47,6 +47,11 @@ class SlaAsaChartWidget extends Component
         return ['hours' => $rows, 'has_data' => $rows->isNotEmpty()];
     }
 
+    public function mount(string $selectedDate): void
+    {
+        $this->selectedDate = $selectedDate;
+    }
+
     public function render()
     {
         $today = $this->selectedDate;

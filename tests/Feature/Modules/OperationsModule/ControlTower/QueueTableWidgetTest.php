@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 beforeEach(function () {
+    Livewire::withoutLazyLoading();
+
     $this->today = Carbon::today();
 
     $this->queueId = (int) DB::table('call_queues')->insertGetId([
@@ -30,8 +32,7 @@ it('shows the daily accumulated from CUIC counters when call records lag behind'
         'service_level_long_term' => 85.0,
     ]);
 
-    $component = Livewire::test(QueueTableWidget::class)
-        ->set('selectedDate', $this->today->toDateString());
+    $component = Livewire::test(QueueTableWidget::class, ['selectedDate' => $this->today->toDateString()]);
 
     $queues = $component->viewData('queues');
 
@@ -67,8 +68,7 @@ it('prefers call records when they exceed the CUIC midnight counters', function 
         ]);
     }
 
-    $component = Livewire::test(QueueTableWidget::class)
-        ->set('selectedDate', $this->today->toDateString());
+    $component = Livewire::test(QueueTableWidget::class, ['selectedDate' => $this->today->toDateString()]);
 
     $queues = $component->viewData('queues');
 
@@ -89,8 +89,7 @@ it('ignores midnight counters for past dates', function () {
         'calls_abandoned_since_midnight' => 3,
     ]);
 
-    $component = Livewire::test(QueueTableWidget::class)
-        ->set('selectedDate', $yesterday->toDateString());
+    $component = Livewire::test(QueueTableWidget::class, ['selectedDate' => $yesterday->toDateString()]);
 
     $queues = $component->viewData('queues');
 

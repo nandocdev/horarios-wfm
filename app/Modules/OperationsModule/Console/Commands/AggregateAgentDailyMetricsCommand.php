@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands;
+namespace App\Modules\OperationsModule\Console\Commands;
 
 use App\Modules\OperationsModule\Actions\CalculateAdvancedProductivityAction;
 use App\Modules\OperationsModule\Models\AgentDailyMetric;

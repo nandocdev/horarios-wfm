@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Console\Commands;
+namespace App\Modules\CoreModule\Console\Commands;
 
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Console\Attributes\Description;

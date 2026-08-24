@@ -80,13 +80,12 @@ class Employee extends Model implements EmployeeInterface
         return $this->employmentStatus();
     }
 
-    // Jerarquía Operativa (Adjacency List)
-    // Jerarquía Organizacional (Actor → Users)
-    // parent_id ahora apunta a users.id (gestor/actor), no a employees.id.
-    // Para encontrar el empleado supervisor, buscamos por user_id.
-    public function manager(): ?Employee
+    // Jerarquía Operativa (Adjacency List, self-referencing sobre employees.id).
+    // parent_id es una FK a employees.id (ver constraint employees_parent_id_foreign),
+    // NO un users.id. El empleado gestor se obtiene mediante esta relación.
+    public function manager(): BelongsTo
     {
-        return Employee::where('user_id', $this->parent_id)->first();
+        return $this->belongsTo(Employee::class, 'parent_id');
     }
 
     public function subordinates(): HasMany

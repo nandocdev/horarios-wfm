@@ -80,13 +80,13 @@ test('password can be updated', function () {
 
     $response = Livewire::test('pages::settings.security')
         ->set('current_password', 'password')
-        ->set('password', 'new-password')
-        ->set('password_confirmation', 'new-password')
+        ->set('password', 'Nueva-Clave-2026')
+        ->set('password_confirmation', 'Nueva-Clave-2026')
         ->call('updatePassword');
 
     $response->assertHasNoErrors();
 
-    expect(Hash::check('new-password', $user->refresh()->password))->toBeTrue();
+    expect(Hash::check('Nueva-Clave-2026', $user->refresh()->password))->toBeTrue();
 });
 
 test('force_password_change flag is cleared after password update', function () {
@@ -99,8 +99,8 @@ test('force_password_change flag is cleared after password update', function () 
 
     Livewire::test('pages::settings.security')
         ->set('current_password', 'password')
-        ->set('password', 'new-password')
-        ->set('password_confirmation', 'new-password')
+        ->set('password', 'Nueva-Clave-2026')
+        ->set('password_confirmation', 'Nueva-Clave-2026')
         ->call('updatePassword')
         ->assertHasNoErrors();
 
@@ -119,8 +119,8 @@ test('correct password must be provided to update password', function () {
 
     $response = Livewire::test('pages::settings.security')
         ->set('current_password', 'wrong-password')
-        ->set('password', 'new-password')
-        ->set('password_confirmation', 'new-password')
+        ->set('password', 'Nueva-Clave-2026')
+        ->set('password_confirmation', 'Nueva-Clave-2026')
         ->call('updatePassword');
 
     $response->assertHasErrors(['current_password']);

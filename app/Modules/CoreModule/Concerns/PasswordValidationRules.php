@@ -31,7 +31,7 @@ trait PasswordValidationRules
             Password::min(8)
                 ->mixedCase(1)
                 ->numbers(1)
-                ->uncompromisedPassword(),
+                ->uncompromised(),
             'confirmed',
         ];
     }

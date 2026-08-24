@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Enums\AbsenceReasonType;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\WfmModule\Actions\GenerateFormPdfAction;
 use App\Modules\WfmModule\DTOs\AbsenceReportDTO;
+use App\Modules\WfmModule\Enums\AbsenceReasonType;
 use App\Modules\WfmModule\Livewire\Forms\ExceptionForm;
 use App\Modules\WfmModule\Models\AbsenceReasonCode;
 use App\Modules\WfmModule\Models\ScheduleException;

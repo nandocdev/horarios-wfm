@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\DTOs;
 
-use App\Enums\AbsenceReasonType;
+use App\Modules\WfmModule\Enums\AbsenceReasonType;
 use Carbon\Carbon;
 
 readonly class AbsenceReportDTO

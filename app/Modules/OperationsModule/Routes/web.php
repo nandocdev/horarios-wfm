@@ -27,7 +27,7 @@ use App\Modules\OperationsModule\Livewire\StaffingDashboard;
 use App\Modules\OperationsModule\Livewire\TeamPerformanceSummary;
 use App\Modules\OperationsModule\Livewire\TrendsDashboard;
 use App\Modules\PersonnelModule\Models\Employee;
-use App\Reports\EmployeePerformanceReport;
+use App\Modules\WfmModule\Reports\EmployeePerformanceReport;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->group(function () {

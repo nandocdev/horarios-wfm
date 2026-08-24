@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\ReportingModule\Actions;
 
-use App\Reports\BaseReport;
+use App\Modules\WfmModule\Reports\BaseReport;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\View as ViewFacade;
 use Symfony\Component\HttpFoundation\StreamedResponse;

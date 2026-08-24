@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Livewire;
 
-use App\Enums\AbsenceReasonType;
 use App\Modules\WfmModule\Actions\GenerateFormPdfAction;
 use App\Modules\WfmModule\DTOs\AbsenceReportDTO;
+use App\Modules\WfmModule\Enums\AbsenceReasonType;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;

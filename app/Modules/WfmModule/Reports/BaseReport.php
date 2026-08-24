@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Reports;
+namespace App\Modules\WfmModule\Reports;
 
 use Barryvdh\DomPDF\PDF as DomPDFInstance;
 use Illuminate\Contracts\View\View;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Reports;
+namespace App\Modules\WfmModule\Reports;
 
 use App\Modules\OperationsModule\Services\AgentPerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;

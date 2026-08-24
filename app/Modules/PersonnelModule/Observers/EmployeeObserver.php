@@ -6,7 +6,6 @@ namespace App\Modules\PersonnelModule\Observers;
 
 use App\Modules\AnalyticsModule\Models\EmployeeSnapshot;
 use App\Modules\PersonnelModule\Models\Employee;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Observa el ciclo de vida del modelo Employee.
@@ -93,7 +92,7 @@ class EmployeeObserver
                 'position_id' => $employee->position_id,
                 'supervisor_id' => $employee->parent_id,
                 'employment_status_id' => $employee->employment_status_id,
-                'is_active' => $employee->is_active,
+                'is_active' => $employee->is_active ?? true,
                 'metadata' => [
                     'changed_at' => now()->toISOString(),
                     'changed_reason' => 'employee_updated',
@@ -111,7 +110,7 @@ class EmployeeObserver
                 'position_id' => $employee->position_id,
                 'supervisor_id' => $employee->parent_id,
                 'employment_status_id' => $employee->employment_status_id,
-                'is_active' => $employee->is_active,
+                'is_active' => $employee->is_active ?? true,
                 'metadata' => [
                     'created_at' => now()->toISOString(),
                     'change_type' => 'initial',

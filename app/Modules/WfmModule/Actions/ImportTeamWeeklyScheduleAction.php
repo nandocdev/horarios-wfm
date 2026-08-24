@@ -107,7 +107,14 @@ class ImportTeamWeeklyScheduleAction
                 foreach ($teams as $t) {
                     $leaders = [];
                     if ($t->supervisor_id) {
-                        $leaders[] = $t->supervisor_id;
+                        // supervisor_id es users.id; la réplica de turnos vive en employees.id.
+                        $supervisorEmployeeId = DB::table('employees')
+                            ->where('user_id', $t->supervisor_id)
+                            ->value('id');
+
+                        if ($supervisorEmployeeId) {
+                            $leaders[] = $supervisorEmployeeId;
+                        }
                     }
 
                     $coordinators = DB::table('employees')

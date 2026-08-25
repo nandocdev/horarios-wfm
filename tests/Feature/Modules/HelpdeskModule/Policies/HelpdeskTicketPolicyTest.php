@@ -25,7 +25,7 @@ beforeEach(function () {
     $this->supportEmployee->user()->associate($this->supportUser)->save();
 
     $this->ticket = HelpdeskTicket::factory()->create([
-        'creator_id' => $this->employee->id,
+        'creator_id' => $this->user->id,
     ]);
 });
 
@@ -56,7 +56,7 @@ it('allows support users to view any ticket', function () {
 it('allows users with helpdesk.view to view other tickets', function () {
     $this->otherUser->givePermissionTo('helpdesk.view');
     $otherTicket = HelpdeskTicket::factory()->create([
-        'creator_id' => $this->employee->id,
+        'creator_id' => $this->user->id,
     ]);
 
     expect($this->policy->viewAny($this->otherUser))->toBeTrue()

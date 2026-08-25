@@ -25,7 +25,8 @@ final class AddCommentAction
     ): HelpdeskTicketComment {
         $comment = HelpdeskTicketComment::create([
             'ticket_id' => $ticket->id,
-            'author_id' => $author->getId(),
+            // author_id referencia users.id (esquema de actores).
+            'author_id' => $author->getUserId(),
             'content' => $content,
             'is_internal' => $isSupport ? $isInternal : false,
         ]);

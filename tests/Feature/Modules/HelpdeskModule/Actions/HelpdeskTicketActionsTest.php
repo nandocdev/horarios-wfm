@@ -42,7 +42,8 @@ it('creates a ticket via SubmitTicketAction', function () {
         ->and($ticket->subject)->toBe('No puedo acceder al sistema')
         ->and($ticket->status)->toBe(TicketStatus::New->value)
         ->and($ticket->priority)->toBe(TicketPriority::High->value)
-        ->and($ticket->creator_id)->toBe($this->employee->id);
+        // creator_id almacena users.id (esquema de actores).
+        ->and($ticket->creator_id)->toBe($this->user->id);
 });
 
 it('defaults priority to Medium in SubmitTicketAction', function () {
@@ -66,23 +67,25 @@ it('assigns a ticket via AssignTicketAction', function () {
 
     $ticket->refresh();
 
-    expect($ticket->assigned_agent_id)->toBe($this->supportEmployee->id)
+    expect($ticket->assigned_agent_id)->toBe($this->supportUser->id)
         ->and($ticket->status)->toBe(TicketStatus::Open->value);
 });
 
 it('keeps current status when assigning an already-open ticket', function () {
     $ticket = HelpdeskTicket::factory()->create([
         'status' => TicketStatus::InProgress->value,
-        'assigned_agent_id' => $this->supportEmployee->id,
+        'assigned_agent_id' => $this->supportUser->id,
     ]);
     $anotherAgent = Employee::factory()->create();
+    $anotherAgentUser = User::factory()->create();
+    $anotherAgent->user()->associate($anotherAgentUser)->save();
     $action = app(AssignTicketAction::class);
 
     $action->execute($ticket, $anotherAgent);
 
     $ticket->refresh();
 
-    expect($ticket->assigned_agent_id)->toBe($anotherAgent->id)
+    expect($ticket->assigned_agent_id)->toBe($anotherAgentUser->id)
         ->and($ticket->status)->toBe(TicketStatus::InProgress->value);
 });
 
@@ -154,14 +157,14 @@ it('auto-assigns and progresses ticket when support adds a comment', function ()
 
     $ticket->refresh();
 
-    expect($ticket->assigned_agent_id)->toBe($this->supportEmployee->id)
+    expect($ticket->assigned_agent_id)->toBe($this->supportUser->id)
         ->and($ticket->status)->toBe(TicketStatus::InProgress->value);
 });
 
 it('does not progress ticket when support adds an internal note', function () {
     $ticket = HelpdeskTicket::factory()->create([
         'status' => TicketStatus::Open->value,
-        'assigned_agent_id' => $this->supportEmployee->id,
+        'assigned_agent_id' => $this->supportUser->id,
     ]);
     $action = app(AddCommentAction::class);
 

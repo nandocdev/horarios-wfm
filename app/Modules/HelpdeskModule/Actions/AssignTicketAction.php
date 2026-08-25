@@ -17,7 +17,9 @@ final class AssignTicketAction
             : $ticket->status;
 
         $ticket->update([
-            'assigned_agent_id' => $agent->getId(),
+            // assigned_agent_id referencia users.id (esquema de actores).
+            'assigned_agent_id' => $agent->getUserId(),
+            'status' => $newStatus,
             'status' => $newStatus,
         ]);
     }

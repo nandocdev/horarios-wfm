@@ -72,15 +72,17 @@ it('HelpdeskTicketPolicy allows with helpdesk.view permission', function () {
 it('HelpdeskTicketPolicy allows ticket creator to view own ticket', function () {
     $employee = Employee::factory()->create(['user_id' => $this->user->id]);
     $this->user->setRelation('employee', $employee);
-    $ticket = HelpdeskTicket::factory()->create(['creator_id' => $employee->id]);
+    // creator_id almacena users.id (esquema de actores).
+    $ticket = HelpdeskTicket::factory()->create(['creator_id' => $this->user->id]);
 
     $policy = app(HelpdeskTicketPolicy::class);
     expect($policy->view($this->user, $ticket))->toBeTrue();
 });
 
 it('HelpdeskTicketPolicy denies other users to view tickets they did not create', function () {
-    $otherEmployee = Employee::factory()->create();
-    $ticket = HelpdeskTicket::factory()->create(['creator_id' => $otherEmployee->id]);
+    $otherUser = User::factory()->create();
+    Employee::factory()->create(['user_id' => $otherUser->id]);
+    $ticket = HelpdeskTicket::factory()->create(['creator_id' => $otherUser->id]);
 
     $policy = app(HelpdeskTicketPolicy::class);
     expect($policy->view($this->user, $ticket))->toBeFalse();

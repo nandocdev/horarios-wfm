@@ -23,7 +23,8 @@ final class SubmitTicketAction
             'description' => $description,
             'category_id' => $categoryId,
             'priority' => $priority->value,
-            'creator_id' => $employee->getId(),
+            // creator_id referencia users.id (esquema de actores).
+            'creator_id' => $employee->getUserId(),
             'status' => TicketStatus::New->value,
         ]);
     }

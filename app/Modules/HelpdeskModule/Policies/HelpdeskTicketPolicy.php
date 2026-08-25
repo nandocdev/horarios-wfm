@@ -24,9 +24,8 @@ class HelpdeskTicketPolicy
             return true;
         }
 
-        $employee = $user->employee;
-
-        return $employee && $ticket->creator_id === $employee->id;
+        // creator_id almacena users.id (esquema de actores).
+        return $ticket->creator_id === $user->id;
     }
 
     public function create(User $user): bool

@@ -6,14 +6,11 @@ namespace Tests\Feature;
 
 use App\Modules\CoreModule\Models\User;
 use App\Modules\DocumentationModule\Models\WikiArticle;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class DocumentationModuleTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();

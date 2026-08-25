@@ -5,10 +5,7 @@ declare(strict_types=1);
 use App\Modules\CoreModule\Livewire\Shared\UserTourProgress;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\CoreModule\Models\UserTourProgress as UserTourProgressModel;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
-
-uses(RefreshDatabase::class);
 
 test('el progreso de tours es por usuario y no se comparte entre usuarios', function () {
     $userA = User::factory()->create();

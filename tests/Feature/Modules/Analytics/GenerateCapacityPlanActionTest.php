@@ -10,14 +10,11 @@ use App\Modules\AnalyticsModule\Models\ForecastInterval;
 use App\Modules\AnalyticsModule\Models\ForecastScenario;
 use App\Modules\AnalyticsModule\Models\ForecastVersion;
 use Carbon\CarbonImmutable;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GenerateCapacityPlanActionTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_generates_plan_with_ulids_and_large_coverage(): void
     {
         $group = ForecastGroup::create([

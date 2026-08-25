@@ -8,7 +8,6 @@ use App\Modules\CoreModule\Models\User;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Models\Queue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
@@ -17,8 +16,6 @@ use Tests\TestCase;
  */
 class KnowledgeModuleTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected User $operator;
 
     protected User $supervisor;

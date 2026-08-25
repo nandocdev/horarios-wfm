@@ -10,14 +10,11 @@ use App\Modules\OperationsModule\Models\AttendanceIncident;
 use App\Modules\OperationsModule\Models\IncidentType;
 use App\Modules\PersonnelModule\Models\Employee;
 use Database\Seeders\IncidentTypeSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class RecentIncidentsWidgetTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();

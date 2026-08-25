@@ -10,11 +10,8 @@ use App\Modules\KnowledgeModule\Models\ArticleVersion;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
 use App\Modules\KnowledgeModule\Models\Queue;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     foreach (['knowledge.viewAny', 'knowledge.manage'] as $permission) {

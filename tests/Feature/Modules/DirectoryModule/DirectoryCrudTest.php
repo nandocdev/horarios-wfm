@@ -11,11 +11,8 @@ use App\Modules\DirectoryModule\Models\Building;
 use App\Modules\DirectoryModule\Models\Unit;
 use App\Modules\KnowledgeModule\Models\KnowledgeArticle;
 use App\Modules\KnowledgeModule\Models\KnowledgeCategory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     foreach (['directory.manage', 'knowledge.viewAny', 'knowledge.manage'] as $permission) {

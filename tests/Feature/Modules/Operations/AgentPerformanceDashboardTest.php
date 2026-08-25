@@ -9,15 +9,12 @@ use App\Modules\OperationsModule\Livewire\AgentPerformanceDashboard;
 use App\Modules\OperationsModule\Services\AgentPerformanceService;
 use App\Modules\PersonnelModule\Models\Employee;
 use Database\Seeders\IncidentTypeSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class AgentPerformanceDashboardTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -26,8 +23,8 @@ class AgentPerformanceDashboardTest extends TestCase
 
     public function test_agent_can_view_own_dashboard(): void
     {
-        $employee = Employee::factory()->create(['first_name' => 'John', 'last_name' => 'Doe']);
-        $user = User::factory()->create(['employee_id' => $employee->id]);
+        $user = User::factory()->create();
+        $employee = Employee::factory()->create(['first_name' => 'John', 'last_name' => 'Doe', 'user_id' => $user->id]);
 
         $this->actingAs($user);
 
@@ -39,8 +36,8 @@ class AgentPerformanceDashboardTest extends TestCase
 
     public function test_supervisor_can_view_and_switch_agents_via_selector(): void
     {
-        $supervisorEmployee = Employee::factory()->create(['first_name' => 'Boss']);
-        $supervisorUser = User::factory()->create(['employee_id' => $supervisorEmployee->id]);
+        $supervisorUser = User::factory()->create();
+        Employee::factory()->create(['first_name' => 'Boss', 'user_id' => $supervisorUser->id]);
 
         // Asignar permiso de visualización general
         $permission = Permission::findOrCreate('agent.performance.view', 'web');
@@ -54,7 +51,7 @@ class AgentPerformanceDashboardTest extends TestCase
             ->assertStatus(200)
             ->assertSee('John Doe')
             ->assertSee('Seleccionar Agente') // Sí ve el selector
-            ->set('employeeId', $supervisorEmployee->id)
+            ->set('employeeId', $supervisorUser->employee->id)
             ->assertSee('Boss');
     }
 

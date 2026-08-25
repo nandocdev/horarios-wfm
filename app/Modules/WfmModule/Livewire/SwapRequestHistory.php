@@ -221,21 +221,18 @@ class SwapRequestHistory extends Component
 
     public function render()
     {
-        $employee = Auth::user()->employee;
-
-        $requests = $employee
-            ? ShiftSwapRequest::with(['requester.employee.team', 'recipient.employee.team'])
-                ->where(function ($query) use ($employee) {
-                    $query->where('requester_id', $employee->id)
-                        ->orWhere('recipient_id', $employee->id);
-                })
-                ->orderBy('created_at', 'desc')
-                ->paginate(10)
-            : collect();
+        $requests = ShiftSwapRequest::with(['requester.employee.team', 'recipient.employee.team'])
+            ->where(function ($query) {
+                // requester_id/recipient_id almacenan users.id (esquema institucional).
+                $query->where('requester_id', Auth::id())
+                    ->orWhere('recipient_id', Auth::id());
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return view('wfm::livewire.swap-request-history', [
             'requests' => $requests,
-            'currentEmployeeId' => $employee?->id,
+            'currentUserId' => Auth::id(),
         ])->layout('layouts.app');
     }
 }

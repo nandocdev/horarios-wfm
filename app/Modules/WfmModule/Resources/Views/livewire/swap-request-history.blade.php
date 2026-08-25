@@ -22,8 +22,8 @@
             <tbody class="divide-y dark:divide-slate-800">
                 @forelse($requests as $request)
                     @php
-    $isRequester = $request->requester_id === $currentEmployeeId;
-    $peer = $isRequester ? $request->recipient : $request->requester;
+    $isRequester = $request->requester_id === $currentUserId;
+    $peer = ($isRequester ? $request->recipient : $request->requester)?->employee;
                     @endphp
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-opacity">
                         <td class="py-2 px-4 text-sm font-medium">
@@ -41,8 +41,8 @@
                         </td>
                         <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ $peer->first_name }} {{ $peer->last_name }}</span>
-                                <span class="text-xs text-slate-500">{{ $peer->team->name ?? 'Sin Equipo' }}</span>
+                                <span class="font-bold">{{ $peer?->full_name ?? 'Usuario' }}</span>
+                                <span class="text-xs text-slate-500">{{ $peer?->team?->name ?? 'Sin Equipo' }}</span>
                             </div>
                         </td>
                         <td class="py-2 px-4">
@@ -87,7 +87,7 @@
 
                                 @if($request->status === 'pending' && !$isRequester)
                                     <flux:button wire:click="acceptSwap({{ $request->id }})"
-                                        wire:confirm="¿Confirmas que deseas intercambiar tu turno con {{ $peer->first_name }}?"
+                                        wire:confirm="¿Confirmas que deseas intercambiar tu turno con {{ $peer?->full_name ?? 'este compañero' }}?"
                                         variant="filled" size="sm" icon="check" />
                                     <flux:button wire:click="rejectSwap({{ $request->id }})"
                                         wire:confirm="¿Estás seguro de que deseas rechazar este cambio?"
@@ -127,14 +127,12 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Solicitante</span>
-                    <p class="text-sm font-medium">{{ $selectedRequest->requester->first_name }}
-                        {{ $selectedRequest->requester->last_name }}</p>
+                    <p class="text-sm font-medium">{{ $selectedRequest->requester?->employee?->full_name ?? $selectedRequest->requester?->name }}</p>
                     <p class="text-xs text-slate-400">{{ $selectedRequest->requester?->employee?->team?->name ?? 'N/A' }}</p>
                 </div>
                 <div class="space-y-1">
                     <span class="text-xs text-slate-500 uppercase font-bold">Destinatario</span>
-                    <p class="text-sm font-medium">{{ $selectedRequest->recipient->first_name }}
-                        {{ $selectedRequest->recipient->last_name }}</p>
+                    <p class="text-sm font-medium">{{ $selectedRequest->recipient?->employee?->full_name ?? $selectedRequest->recipient?->name }}</p>
                     <p class="text-xs text-slate-400">{{ $selectedRequest->recipient?->employee?->team?->name ?? 'N/A' }}</p>
                 </div>
             </div>
@@ -144,7 +142,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
                         <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
-                            {{ $selectedRequest->requester->first_name }}</p>
+                            {{ $selectedRequest->requester?->employee?->first_name ?? $selectedRequest->requester?->name }}</p>
                         @if($requesterShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($requesterShift->start_time)->format('H:i') }} -
@@ -156,7 +154,7 @@
                     </div>
                     <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
                         <p class="text-[10px] text-slate-500 font-bold mb-2 uppercase">Turno de
-                            {{ $selectedRequest->recipient->first_name }}</p>
+                            {{ $selectedRequest->recipient?->employee?->first_name ?? $selectedRequest->recipient?->name }}</p>
                         @if($recipientShift)
                             <p class="text-xs font-bold">
                                 {{ \Illuminate\Support\Carbon::parse($recipientShift->start_time)->format('H:i') }} -
@@ -202,14 +200,14 @@
             <div class="flex justify-between pt-4 border-t dark:border-slate-800">
                 <div class="flex gap-2">
                     @if($selectedRequest->status === 'pending')
-                        @if($selectedRequest->recipient_id === $currentEmployeeId)
+                        @if($selectedRequest->recipient_id === $currentUserId)
                             <flux:button wire:click="acceptSwap({{ $selectedRequest->id }})"
                                 wire:confirm="¿Confirmas que deseas intercambiar tu turno?"
                                 variant="primary" size="sm">Aceptar</flux:button>
                             <flux:button wire:click="rejectSwap({{ $selectedRequest->id }})"
                                 wire:confirm="¿Estás seguro de que deseas rechazar este cambio?"
                                 variant="subtle" size="sm">Rechazar</flux:button>
-                        @elseif($selectedRequest->requester_id === $currentEmployeeId)
+                        @elseif($selectedRequest->requester_id === $currentUserId)
                              <flux:button wire:click="cancelSwap({{ $selectedRequest->id }})"
                                 wire:confirm="¿Estás seguro de que deseas cancelar esta solicitud?"
                                 variant="danger" size="sm">Cancelar Solicitud</flux:button>

@@ -54,7 +54,9 @@ class LeaveRequestObserver
                 'end_at' => $leaveRequest->end_time,
                 'is_full_day' => $leaveRequest->minutes >= 480, // Asumimos día completo si son >= 8h
                 'remarks' => __('Sincronizado desde Solicitud #').$leaveRequest->id.': '.$leaveRequest->reason,
-                'created_by' => auth()->id() ?? $leaveRequest->employee_id,
+                // created_by referencia users.id; sin sesión autenticada queda NULL
+                // (el fallback anterior escribía un employees.id y violaba la FK).
+                'created_by' => auth()->id(),
             ]
         );
 

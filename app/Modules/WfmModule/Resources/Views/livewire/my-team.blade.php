@@ -111,12 +111,13 @@
             @forelse($recentSwaps as $swap)
                 <div class="flex items-center justify-between p-3 rounded border border-wfm-surface-border bg-wfm-surface/50 mb-2 last:mb-0">
                     <div class="flex items-center gap-3">
+                        @php $requesterEmployee = $swap->requester?->employee; $recipientEmployee = $swap->recipient?->employee; @endphp
                         <div class="flex -space-x-2">
-                            <flux:avatar initials="{{ $swap->requester->initials }}" size="xs" class="ring-2 ring-white" />
-                            <flux:avatar initials="{{ $swap->recipient->initials }}" size="xs" class="ring-2 ring-white" />
+                            <flux:avatar initials="{{ $requesterEmployee?->initials ?? '??' }}" size="xs" class="ring-2 ring-white" />
+                            <flux:avatar initials="{{ $recipientEmployee?->initials ?? '??' }}" size="xs" class="ring-2 ring-white" />
                         </div>
                         <div>
-                            <p class="text-xs font-medium text-wfm-navy-800 dark:text-white">{{ $swap->requester->first_name }} ⇄ {{ $swap->recipient->first_name }}</p>
+                            <p class="text-xs font-medium text-wfm-navy-800 dark:text-white">{{ $requesterEmployee?->first_name ?? $swap->requester?->name }} ⇄ {{ $recipientEmployee?->first_name ?? $swap->recipient?->name }}</p>
                             <p class="text-[10px] text-wfm-surface-muted">{{ $swap->requested_date->format('d/m/Y') }}</p>
                         </div>
                     </div>

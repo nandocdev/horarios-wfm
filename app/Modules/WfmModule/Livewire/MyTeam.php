@@ -246,8 +246,14 @@ class MyTeam extends Component
             ->get()
             ->groupBy('employee_id');
 
-        $recentSwaps = ShiftSwapRequest::with(['requester', 'recipient'])
-            ->where(fn ($q) => $q->whereIn('requester_id', $memberIds)->orWhereIn('recipient_id', $memberIds))
+        // requester_id/recipient_id almacenan users.id; memberIds son employees.id.
+        $memberUserIds = Employee::whereIn('id', $memberIds)
+            ->whereNotNull('user_id')
+            ->pluck('user_id')
+            ->all();
+
+        $recentSwaps = ShiftSwapRequest::with(['requester.employee', 'recipient.employee'])
+            ->where(fn ($q) => $q->whereIn('requester_id', $memberUserIds)->orWhereIn('recipient_id', $memberUserIds))
             ->latest('start_date')
             ->take(5)
             ->get();

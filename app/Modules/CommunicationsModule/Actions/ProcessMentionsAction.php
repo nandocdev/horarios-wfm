@@ -6,7 +6,7 @@ namespace App\Modules\CommunicationsModule\Actions;
 
 use App\Modules\CommunicationsModule\Events\MentionCreated;
 use App\Modules\CommunicationsModule\Models\Mention;
-use App\Modules\CoreModule\Models\User;
+use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -36,11 +36,15 @@ class ProcessMentionsAction
         if (! empty($matches[1])) {
             $mentionedUsernames = array_unique($matches[1]);
 
-            // Cargar usuarios en lote para evitar N+1 queries
+            // Los usernames viven en employees; la mención se resuelve al
+            // user_id del perfil (esquema actor = users.id).
             $mentionedUserIds = Cache::remember(
                 "mentions_{$mentionerUserId}",
                 60,
-                fn () => User::whereIn('username', $mentionedUsernames)->pluck('id', 'username')->toArray()
+                fn () => Employee::whereIn('username', $mentionedUsernames)
+                    ->whereNotNull('user_id')
+                    ->pluck('user_id', 'username')
+                    ->toArray()
             );
 
             DB::transaction(function () use ($mentionedUsernames, $mentionedUserIds, $mentionable, $mentionerUserId, &$mentions) {

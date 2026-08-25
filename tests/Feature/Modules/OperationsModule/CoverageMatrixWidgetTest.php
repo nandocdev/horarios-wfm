@@ -89,7 +89,12 @@ it('counts only operator positions as base, once per agent', function () {
     // Fila duplicada del operador 1 desde un SEGUNDO plan que también cubre hoy
     // (la BD solo impide duplicados dentro del mismo plan): debe contarse una
     // sola vez para que la Base no supere la plantilla.
+    // El inicio no puede coincidir con el lunes de la semana actual (índice
+    // parcial weekly_schedules_published_unique); si hoy es lunes se usa hoy.
     $overlappingStart = $this->today->copy()->subDay();
+    if ($overlappingStart->eq($this->today->copy()->startOfWeek())) {
+        $overlappingStart = $this->today->copy();
+    }
     DB::table('weekly_schedules')->insert([
         'week_start_date' => $overlappingStart->toDateString(),
         'week_end_date' => $overlappingStart->copy()->addDays(6)->toDateString(),

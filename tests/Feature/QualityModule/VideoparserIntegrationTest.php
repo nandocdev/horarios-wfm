@@ -12,11 +12,15 @@ it('can associate an evaluation with a clip id from videoparser', function () {
     $employee = Employee::factory()->create();
     $queue = Queue::create(['code' => 'VID', 'name' => 'VID', 'is_active' => true]);
 
+    // clip_id es bigint en el esquema actual: el identificador numérico del
+    // clip en el sistema externo de videoparser.
+    $clipId = 12345;
+
     $evaluation = Evaluation::create([
         'queue_id' => $queue->id,
         'employee_id' => $employee->id,
         'evaluator_id' => $user->id,
-        'clip_id' => 'clip-12345-abcde',
+        'clip_id' => $clipId,
         'dtcall' => now()->toDateString(),
         'tmcall' => now()->toTimeString(),
         'dteval' => now()->toDateString(),
@@ -27,8 +31,8 @@ it('can associate an evaluation with a clip id from videoparser', function () {
 
     $this->assertDatabaseHas('quality_evaluations', [
         'id' => $evaluation->id,
-        'clip_id' => 'clip-12345-abcde',
+        'clip_id' => $clipId,
     ]);
 
-    expect($evaluation->clip_id)->toBe('clip-12345-abcde');
+    expect((int) $evaluation->clip_id)->toBe($clipId);
 });

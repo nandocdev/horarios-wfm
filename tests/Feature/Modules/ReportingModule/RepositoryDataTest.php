@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\ConnectModule\Models\CallQueue;
-use App\Modules\ConnectModule\Models\CallRecord;
+use App\Modules\OperationsModule\Models\QueueDailyMetric;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\Team;
 use App\Modules\ReportingModule\DTOs\ReportFilterDTO;
@@ -89,17 +89,21 @@ it('getVacationsData returns vacation records', function () {
 it('getVolumeDetailData returns call volume per queue', function () {
     $queue = CallQueue::create(['name' => 'Soporte', 'is_active' => true]);
 
-    CallRecord::create([
-        'cisco_call_id' => 'call-1',
+    // El repositorio de volumen ahora consume queue_daily_metrics (DW).
+    QueueDailyMetric::create([
         'queue_id' => $queue->id,
-        'employee_id' => $this->employee->id,
-        'ivr_started_at' => '2026-07-15 09:00:00',
-        'contact_disposition' => 2,
-        'talk_time' => 120,
-        'work_time' => 30,
-        'hold_time' => 0,
-        'queue_time' => 10,
-        'phone_number' => '3001234567',
+        'metric_date' => '2026-07-15',
+        'offered_calls' => 1,
+        'handled_calls' => 1,
+        'abandoned_calls' => 0,
+        'sl_calls' => 1,
+        'total_talk_seconds' => 120,
+        'total_work_seconds' => 30,
+        'total_hold_seconds' => 0,
+        'total_wait_seconds' => 10,
+        'max_wait_seconds' => 10,
+        'min_wait_seconds' => 10,
+        'total_abandon_seconds' => 0,
     ]);
 
     $rows = $this->repository->getVolumeDetailData($this->filters);

@@ -58,8 +58,9 @@ test('password can be reset with valid token', function () {
         $response = $this->post(route('password.update'), [
             'token' => $notification->token,
             'email' => $user->email,
-            'password' => 'password',
-            'password_confirmation' => 'password',
+            // Política institucional: mínimo 8 caracteres, mayúscula, minúscula y número.
+            'password' => 'N3wAcc3ss!',
+            'password_confirmation' => 'N3wAcc3ss!',
         ]);
 
         $response

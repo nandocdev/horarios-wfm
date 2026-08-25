@@ -76,7 +76,7 @@ it('ExportTardinessAction returns XLS StreamedResponse', function () {
     $response = app(ExportTardinessAction::class)->execute($this->xlsFilters);
 
     expect($response)->toBeInstanceOf(StreamedResponse::class);
-    expect($response->headers->get('Content-Type'))->toContain('text/html');
+    expect($response->headers->get('Content-Type'))->toContain('application/vnd.ms-excel');
 });
 
 it('ExportVolumeDetailAction returns PDF with valid data', function () {

@@ -7,31 +7,39 @@ namespace Tests\Feature\Modules\ScheduleModule;
 use App\Modules\CoreModule\Models\User;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Livewire\MyDay;
-use App\Modules\WfmModule\Models\ActivityType;
-use App\Modules\WfmModule\Models\IntradayActivity;
 use Livewire\Livewire;
 
+// MyDay es hoy un dashboard de widgets lazy: el componente resuelve el
+// employee del usuario autenticado y renderiza la página con la fecha del día.
 test('my day component shows todays assignments', function () {
     $user = User::factory()->create();
-    $employee = Employee::factory()->create(['user_id' => $user->id, 'first_name' => 'Test', 'last_name' => 'User']);
-
-    $type = ActivityType::create(['name' => 'Coaching', 'is_productive' => true]);
-
-    $start = now()->startOfDay()->addHours(9);
-    $end = now()->startOfDay()->addHours(10);
-
-    // Formato compatible con SQLite y el parser manual en IntradayActivity model
-    $range = sprintf('[%s, %s)', $start->toIso8601String(), $end->toIso8601String());
-
-    IntradayActivity::create([
-        'employee_id' => $employee->id,
-        'activity_type_id' => $type->id,
-        'time_range' => $range,
-    ]);
+    Employee::factory()->create(['user_id' => $user->id, 'first_name' => 'Test', 'last_name' => 'User']);
 
     $this->actingAs($user);
 
     Livewire::test(MyDay::class)
-        ->assertSee('Test User')
-        ->assertSee('Coaching');
+        ->assertStatus(200)
+        ->assertSee('Mi Jornada')
+        ->assertSet('selectedDate', now()->toDateString());
+});
+
+test('my day renders empty view when user has no employee profile', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    Livewire::test(MyDay::class)
+        ->assertStatus(200)
+        ->assertSee('Mi Jornada');
+});
+
+test('my day navigation updates selected date', function () {
+    $user = User::factory()->create();
+    Employee::factory()->create(['user_id' => $user->id]);
+
+    $this->actingAs($user);
+
+    Livewire::test(MyDay::class)
+        ->call('previousDay')
+        ->assertSet('selectedDate', now()->subDay()->toDateString());
 });

@@ -60,10 +60,10 @@ it('imports employees in chunked queue and reports rejected rows', function () {
     $team = Team::factory()->create();
 
     $csv = implode("\n", [
-        'employee_number,username,first_name,last_name,email,position_id,team_id,employment_status_id,hire_date',
-        "EMP900001,user900001,Ana,Uno,ana{$suffix}@example.com,{$position->id},{$team->id},{$status->id},2025-01-15",
-        "EMP900001,user900002,Ana,Dos,ana2{$suffix}@example.com,{$position->id},{$team->id},{$status->id},2025-01-15",
-        "EMP900003,user900003,Ana,Tres,ana3{$suffix}@example.com,{$position->id},999999,{$status->id},2025-01-15",
+        'employee_number,username,cisco_username,first_name,last_name,email,position_id,team_id,employment_status_id,hire_date',
+        "EMP900001,user900001,cisco900001,Ana,Uno,ana{$suffix}@example.com,{$position->id},{$team->id},{$status->id},2025-01-15",
+        "EMP900001,user900002,cisco900002,Ana,Dos,ana2{$suffix}@example.com,{$position->id},{$team->id},{$status->id},2025-01-15",
+        "EMP900003,user900003,cisco900003,Ana,Tres,ana3{$suffix}@example.com,{$position->id},999999,{$status->id},2025-01-15",
     ]);
 
     $path = 'employees/imports/employees-test.csv';

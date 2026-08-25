@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Helpers\MenuHelper;
 use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
+use App\Shared\Helpers\MenuHelper;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route as RoutingRoute;
@@ -105,7 +105,7 @@ it('oculta items sin el permiso requerido dentro de un grupo visible', function 
     expect($teamGroup)->not->toBeNull();
 
     $subLabels = collect($teamGroup['submenu'])->pluck('label')->all();
-    expect($subLabels)->toContain('Dashboard del Equipo', 'Miembros', 'Excepciones');
+    expect($subLabels)->toContain('Dashboard del Equipo', 'Mi Equipo', 'Excepciones');
     expect($subLabels)->not->toContain('Aprobar Permisos');
 });
 

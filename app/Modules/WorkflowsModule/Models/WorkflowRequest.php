@@ -8,9 +8,12 @@ use App\Modules\CoreModule\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WorkflowRequest extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'requestable_type',
         'requestable_id',

@@ -57,7 +57,7 @@
                                                     @if($version->status === 'draft')
                                                         <flux:button wire:click="publishVersion('{{ $version->id }}')" size="sm" icon="check" color="green">Publicar</flux:button>
                                                     @else
-                                                        <flux:button wire:click="draftVersion('{{ $version->id }}')" size="sm" icon="archive" color="amber">Borrador</flux:button>
+                                                        <flux:button wire:click="draftVersion('{{ $version->id }}')" size="sm" icon="archive-box" color="amber">Borrador</flux:button>
                                                     @endif
                                                 </flux:button.group>
                                             </td>

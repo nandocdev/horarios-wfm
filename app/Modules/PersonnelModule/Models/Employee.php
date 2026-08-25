@@ -200,6 +200,11 @@ class Employee extends Model implements EmployeeInterface
         return $this->hasMany(EmployeeDisability::class);
     }
 
+    public function employeeSkills(): HasMany
+    {
+        return $this->hasMany(EmployeeSkill::class);
+    }
+
     // Accessors
     public function getNameAttribute(): string
     {

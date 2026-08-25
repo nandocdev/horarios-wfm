@@ -15,6 +15,7 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 final class GenerateCapacityPlanAction
 {
@@ -94,6 +95,7 @@ final class GenerateCapacityPlanAction
                 $skillGap = round(max(0, $staffRequired - $staffWithSkill), 2);
 
                 $intervalBatch[] = [
+                    'id' => (string) Str::ulid(),
                     'capacity_plan_id' => $plan->id,
                     'interval_start' => $fi->interval_start,
                     'interval_end' => $fi->interval_end,
@@ -145,6 +147,7 @@ final class GenerateCapacityPlanAction
             $resultBatch = [];
             foreach ($queueTotals as $qId => $totals) {
                 $resultBatch[] = [
+                    'id' => (string) Str::ulid(),
                     'capacity_plan_id' => $plan->id,
                     'queue_id' => $qId,
                     'total_intervals' => $totals['total_intervals'],

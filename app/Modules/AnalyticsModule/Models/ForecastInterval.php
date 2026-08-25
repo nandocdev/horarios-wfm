@@ -28,6 +28,11 @@ class ForecastInterval extends BaseModel
         return [
             'interval_start' => 'datetime',
             'interval_end' => 'datetime',
+            'interval_minutes' => 'integer',
+            'call_volume_forecast' => 'integer',
+            'talk_time_seconds_forecast' => 'integer',
+            'aht_seconds_forecast' => 'float',
+            'staff_required' => 'float',
             'metadata' => 'array',
         ];
     }

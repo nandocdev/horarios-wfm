@@ -133,7 +133,7 @@
                     @if($plan->status === 'draft')
                         <flux:button wire:click="publishPlan('{{ $plan->id }}')" size="sm" icon="check" color="green">Publicar</flux:button>
                     @else
-                        <flux:button wire:click="draftPlan('{{ $plan->id }}')" size="sm" icon="archive" color="amber">Borrador</flux:button>
+                        <flux:button wire:click="draftPlan('{{ $plan->id }}')" size="sm" icon="archive-box" color="amber">Borrador</flux:button>
                     @endif
                 </div>
             </div>

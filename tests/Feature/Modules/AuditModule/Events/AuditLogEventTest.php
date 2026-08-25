@@ -169,11 +169,14 @@ it('AuditLeaveRequestDecisionListener registra leave_request.rejected cuando el 
 
 it('AuditShiftSwapApprovedListener registra shift_swap.approved con approverId', function () {
     $user = User::factory()->create();
-    $requester = Employee::factory()->create();
-    $recipient = Employee::factory()->create();
+    $requesterUser = User::factory()->create();
+    $recipientUser = User::factory()->create();
+    Employee::factory()->create(['user_id' => $requesterUser->id]);
+    Employee::factory()->create(['user_id' => $recipientUser->id]);
+    // requester_id/recipient_id almacenan users.id (esquema institucional).
     $swap = ShiftSwapRequest::create([
-        'requester_id' => $requester->id,
-        'recipient_id' => $recipient->id,
+        'requester_id' => $requesterUser->id,
+        'recipient_id' => $recipientUser->id,
         'start_date' => now()->addDay()->toDateString(),
         'status' => 'pending',
     ]);

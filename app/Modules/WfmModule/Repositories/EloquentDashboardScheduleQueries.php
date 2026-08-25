@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\WfmModule\Repositories;
 
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\IntradayActivity;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\OperationalSetting;
@@ -128,7 +129,17 @@ final class EloquentDashboardScheduleQueries implements DashboardScheduleQueries
         $query = ShiftSwapRequest::where('status', 'pending');
 
         if ($employeeIds !== null) {
-            $query->whereIn('requester_id', $employeeIds);
+            // requester_id almacena users.id; $employeeIds son employees.id.
+            $userIds = Employee::whereIn('id', $employeeIds)
+                ->whereNotNull('user_id')
+                ->pluck('user_id')
+                ->all();
+
+            if (empty($userIds)) {
+                return 0;
+            }
+
+            $query->whereIn('requester_id', $userIds);
         }
 
         return $query->count();

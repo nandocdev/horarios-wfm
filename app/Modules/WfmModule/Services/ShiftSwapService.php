@@ -29,7 +29,17 @@ final class ShiftSwapService implements ShiftSwapServiceInterface
             return 0;
         }
 
-        return ShiftSwapRequest::whereIn('requester_id', $managedIds)
+        // requester_id almacena users.id; los subordinados son employees.id.
+        $managedUserIds = Employee::whereIn('id', $managedIds)
+            ->whereNotNull('user_id')
+            ->pluck('user_id')
+            ->all();
+
+        if (empty($managedUserIds)) {
+            return 0;
+        }
+
+        return ShiftSwapRequest::whereIn('requester_id', $managedUserIds)
             ->where('status', 'pending')
             ->count();
     }

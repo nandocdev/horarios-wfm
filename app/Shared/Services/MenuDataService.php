@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\Services;
 
 use App\Modules\CoreModule\Models\User;
+use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\WfmModule\Models\LeaveRequest;
 use App\Modules\WfmModule\Models\ShiftSwapRequest;
 
@@ -40,7 +41,13 @@ class MenuDataService
                 ->where('status', 'pending')
                 ->count();
 
-            $pendingSwaps = ShiftSwapRequest::whereIn('requester_id', $managedIds)
+            // requester_id almacena users.id; $managedIds son employees.id.
+            $managedUserIds = Employee::whereIn('id', $managedIds)
+                ->whereNotNull('user_id')
+                ->pluck('user_id')
+                ->all();
+
+            $pendingSwaps = empty($managedUserIds) ? 0 : ShiftSwapRequest::whereIn('requester_id', $managedUserIds)
                 ->where('status', 'pending')
                 ->count();
         }

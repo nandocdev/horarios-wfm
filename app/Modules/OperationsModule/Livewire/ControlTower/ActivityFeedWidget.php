@@ -46,14 +46,14 @@ class ActivityFeedWidget extends Component
             ]);
         }
 
-        $recentSwaps = ShiftSwapRequest::with('requester')
+        $recentSwaps = ShiftSwapRequest::with('requester.employee')
             ->whereDate('created_at', '>=', Carbon::parse($today)->subDay())
             ->latest()
             ->limit(3)
             ->get();
 
         foreach ($recentSwaps as $swap) {
-            $name = $swap->requester?->full_name ?? 'Empleado';
+            $name = $swap->requester?->employee?->full_name ?? $swap->requester?->name ?? 'Empleado';
             $activities->push([
                 'time' => $swap->created_at->format('H:i'),
                 'text' => "{$name} solicitó cambio de turno",

@@ -47,15 +47,13 @@
                         </td>
                         <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ $request->requester?->name }}
-                                    {{ $request->requester->last_name }}</span>
+                                <span class="font-bold">{{ $request->requester?->name ?? $request->requester?->employee?->full_name }}</span>
                                 <span class="text-xs text-slate-500">{{ $request->requester?->employee?->team?->name ?? 'N/A' }}</span>
                             </div>
                         </td>
                         <td class="py-2 px-4 text-sm">
                             <div class="flex flex-col">
-                                <span class="font-bold">{{ $request->recipient?->name }}
-                                    {{ $request->recipient->last_name }}</span>
+                                <span class="font-bold">{{ $request->recipient?->name ?? $request->recipient?->employee?->full_name }}</span>
                                 <span class="text-xs text-slate-500">{{ $request->recipient?->employee?->team?->name ?? 'N/A' }}</span>
                             </div>
                         </td>

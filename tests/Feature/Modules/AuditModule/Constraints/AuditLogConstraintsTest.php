@@ -16,7 +16,8 @@ beforeEach(function () {
 
 it('ON DELETE SET NULL: eliminar usuario pone user_id en null', function () {
     $log = AuditLog::factory()->create(['user_id' => $this->user->id]);
-    $this->user->delete();
+    // forceDelete: el soft delete no dispara acciones referenciales de la FK.
+    $this->user->forceDelete();
 
     $fresh = DB::table('audit_logs')->where('id', $log->id)->first();
 

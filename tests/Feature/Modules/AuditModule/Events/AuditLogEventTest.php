@@ -16,6 +16,7 @@ use App\Shared\Events\LeaveRequestCreated;
 use App\Shared\Events\LeaveRequestDecision;
 use App\Shared\Events\ShiftSwapApproved;
 use App\Shared\Events\WeeklySchedulePublished;
+use Illuminate\Database\QueryException;
 
 // Nota: estos tests requieren PostgreSQL 16 por ILIKE y RefreshDatabase.
 // En SQLite los tests de ILIKE fallan — es esperado.
@@ -197,19 +198,14 @@ it('AuditShiftSwapApprovedListener registra shift_swap.approved con approverId',
 // Inmutabilidad — verificacion a nivel DB
 // ────────────────────────────────────────────
 
-it('no hay restriccion DB que impida UPDATE directo en audit_logs', function () {
+it('el trigger de inmutabilidad impide UPDATE directo en audit_logs', function () {
     $log = AuditLog::factory()->create(['action' => 'created', 'user_id' => User::factory()->create()->id]);
 
     DB::table('audit_logs')->where('id', $log->id)->update(['action' => 'hacked']);
+})->throws(QueryException::class);
 
-    $fresh = AuditLog::find($log->id);
-    expect($fresh->action)->toBe('hacked');
-});
-
-it('no hay restriccion DB que impida DELETE directo en audit_logs', function () {
+it('el trigger de inmutabilidad impide DELETE directo en audit_logs', function () {
     $log = AuditLog::factory()->create(['user_id' => User::factory()->create()->id]);
 
     DB::table('audit_logs')->where('id', $log->id)->delete();
-
-    expect(AuditLog::find($log->id))->toBeNull();
-});
+})->throws(QueryException::class);

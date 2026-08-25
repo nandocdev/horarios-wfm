@@ -6,6 +6,7 @@ namespace App\Modules\AuditModule\Console\Commands;
 
 use App\Modules\AuditModule\Models\AuditLog;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 final class AuditPruneCommand extends Command
@@ -44,13 +45,28 @@ final class AuditPruneCommand extends Command
         $bar->start();
 
         $deleted = 0;
-        $query->chunkById($chunk, function ($logs) use ($bar, &$deleted) {
-            foreach ($logs as $log) {
-                $log->delete();
-                $deleted++;
-                $bar->advance();
-            }
-        });
+
+        // El trigger de inmutabilidad permite DELETE solo con el flag de
+        // sesión app.audit_maintenance activo (set_config con is_local=true
+        // lo limita a la transacción actual).
+        DB::beginTransaction();
+        DB::select("SELECT set_config('app.audit_maintenance', 'on', true)");
+
+        try {
+            $query->chunkById($chunk, function ($logs) use ($bar, &$deleted) {
+                foreach ($logs as $log) {
+                    $log->delete();
+                    $deleted++;
+                    $bar->advance();
+                }
+            });
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
 
         $bar->finish();
         $this->newLine();

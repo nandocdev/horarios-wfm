@@ -31,64 +31,58 @@ trait Auditable
         });
 
         static::updated(function (Model $model) {
-            $before = $model->getOriginal();
-            $after = $model->toArray();
+            $original = $model->getOriginal();
+            $changes = $model->getChanges();
 
-            // Calcular solo los campos que realmente cambiaron
-            $changed = self::getChangedFields($before, $after);
+            // before contiene los valores originales de los campos modificados;
+            // after contiene los nuevos valores de esos mismos campos.
+            $before = [];
+            $after = [];
 
-            self::logChange($model, 'updated', $changed);
+            foreach ($changes as $key => $newValue) {
+                $before[$key] = $original[$key] ?? null;
+                $after[$key] = $newValue;
+            }
+
+            self::logChange($model, 'updated', $before, $after);
         });
 
         static::deleted(function (Model $model) {
-            self::logChange($model, 'deleted', $model->getOriginal());
+            self::logChange($model, 'deleted', $model->getOriginal(), null);
         });
     }
 
     /**
      * Registra un cambio de estado en el AuditLog.
      *
-     * @param  array<string, mixed>  $changedFields  Campos que cambiaron (solo en updated)
+     * @param  array<string, mixed>|null  $before  Valores originales (updated/deleted)
+     * @param  array<string, mixed>|null  $after  Valores nuevos (created/updated)
      */
-    protected static function logChange(Model $model, string $action, array $changedFields): void
+    protected static function logChange(Model $model, string $action, ?array $before = null, ?array $after = null): void
     {
         $user = auth()->user();
+
+        if ($action === 'created') {
+            $before = null;
+            $after = array_merge(
+                $model->toArray(),
+                ['created_at' => $model->created_at->toIso8601String(),
+                    'updated_at' => $model->updated_at->toIso8601String()]
+            );
+        } elseif ($action === 'deleted') {
+            $after = null;
+        }
 
         AuditLog::create([
             'entity_type' => get_class($model),
             'entity_id' => $model->getKey(),
             'action' => $action,
-            'before' => $action !== 'created' ? $changedFields : null,
-            'after' => $action === 'created' ? array_merge(
-                $model->toArray(),
-                ['created_at' => $model->created_at->toIso8601String(),
-                    'updated_at' => $model->updated_at->toIso8601String()]
-            ) : $model->toArray(),
+            'before' => $before,
+            'after' => $after,
             'ip_address' => request()->ip(),
             'user_id' => $user?->id,
             'actor_name' => $user?->name,
             'actor_email' => $user?->email,
         ]);
-    }
-
-    /**
-     * Determina los campos que realmente cambiaron entre before y after.
-     *
-     * @return array<string, mixed> Pares clave->valor solo de los campos modificados
-     */
-    protected static function getChangedFields(array $before, array $after): array
-    {
-        $changed = [];
-
-        foreach ($after as $key => $afterValue) {
-            $beforeValue = data_get($before, $key);
-
-            // Si el valor es diferente (considerando null vs no existente)
-            if ($beforeValue !== $afterValue) {
-                $changed[$key] = $afterValue;
-            }
-        }
-
-        return $changed;
     }
 }

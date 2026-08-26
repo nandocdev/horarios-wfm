@@ -20,6 +20,7 @@ use App\Modules\WfmModule\Models\WeeklyScheduleAssignment;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -223,7 +224,7 @@ final class RefreshDataMartJob implements ShouldQueue
             $employee = $r->employee;
 
             $batch[] = [
-                'dim_date_id' => null,
+                'dim_date_id' => (int) str_replace('-', '', $dateStr),
                 'dim_interval_id' => $intervalId,
                 'dim_employee_id' => $r->employee_id,
                 'dim_queue_id' => null,
@@ -294,7 +295,7 @@ final class RefreshDataMartJob implements ShouldQueue
                     $intervalId = $slot + 1;
 
                     $batch[] = [
-                        'dim_date_id' => null,
+                        'dim_date_id' => (int) str_replace('-', '', $dateStr),
                         'dim_interval_id' => $intervalId,
                         'dim_employee_id' => $a->employee_id,
                         'dim_team_id' => $employee->team_id,
@@ -325,7 +326,7 @@ final class RefreshDataMartJob implements ShouldQueue
                 $batch = [];
                 foreach ($evaluations as $ev) {
                     $batch[] = [
-                        'dim_date_id' => null,
+                        'dim_date_id' => (int) str_replace('-', '', $ev->dteval?->toDateString() ?? $ev->created_at?->toDateString() ?? now()->toDateString()),
                         'dim_employee_id' => $ev->employee_id,
                         'dim_queue_id' => $ev->queue_id,
                         'dim_team_id' => $ev->employee?->team_id,
@@ -359,7 +360,7 @@ final class RefreshDataMartJob implements ShouldQueue
 
             $employee = $ex->employee;
             $batch[] = [
-                'dim_date_id' => null,
+                'dim_date_id' => (int) str_replace('-', '', $ex->start_at?->toDateString() ?? $start->toDateString()),
                 'dim_employee_id' => $ex->employee_id,
                 'dim_team_id' => $employee?->team_id,
                 'dim_department_id' => $employee?->department_id,
@@ -387,7 +388,7 @@ final class RefreshDataMartJob implements ShouldQueue
 
             $employee = $lv->employee;
             $batch[] = [
-                'dim_date_id' => null,
+                'dim_date_id' => (int) str_replace('-', '', $lv->start_time?->toDateString() ?? $start->toDateString()),
                 'dim_employee_id' => $lv->employee_id,
                 'dim_team_id' => $employee?->team_id,
                 'dim_department_id' => $employee?->department_id,
@@ -424,7 +425,7 @@ final class RefreshDataMartJob implements ShouldQueue
 
                     $employee = $m->employee;
                     $batch[] = [
-                        'dim_date_id' => null,
+                        'dim_date_id' => (int) str_replace('-', '', $ts->toDateString()),
                         'dim_interval_id' => $intervalId,
                         'dim_employee_id' => $m->employee_id,
                         'dim_team_id' => $employee?->team_id,
@@ -457,6 +458,43 @@ final class RefreshDataMartJob implements ShouldQueue
             $row['updated_at'] = now();
         }
 
-        DB::table($table)->upsert($rows, $uniqueBy, $updateFields);
+        try {
+            DB::table($table)->upsert($rows, $uniqueBy, $updateFields);
+        } catch (QueryException $e) {
+            // 42P10 = no unique constraint matching ON CONFLICT — facts DW no tienen unique en DDL actual
+            // Fallback idempotente: borra por source_* y reinserta
+            if ($e->getCode() === '42P10' || str_contains($e->getMessage(), 'ON CONFLICT')) {
+                Log::warning("upsertFact fallback insert para {$table} (sin unique {$e->getMessage()}) — usando delete+insert");
+                $this->fallbackInsert($table, $rows, $uniqueBy);
+            } else {
+                throw $e;
+            }
+        }
+    }
+
+    private function fallbackInsert(string $table, array $rows, array $uniqueBy): void
+    {
+        // Para fact_* el campo source_* es el identificador idempotente
+        $sourceField = collect($uniqueBy)->first(fn (string $c) => str_starts_with($c, 'source_'));
+
+        if ($sourceField !== null) {
+            $ids = collect($rows)->pluck($sourceField)->filter()->unique()->values()->all();
+            if ($ids !== []) {
+                DB::table($table)->whereIn($sourceField, $ids)->delete();
+            }
+        } else {
+            // Para facts sin source (schedule, interval) borra por ventana dim_date_id/interval
+            // fallback simple: borra por dim_employee_id en rango
+            $employeeIds = collect($rows)->pluck('dim_employee_id')->filter()->unique()->values()->all();
+            if ($employeeIds !== []) {
+                // No borramos todo para no perder histórico fuera de rango; insertamos con ignore de duplicados
+                // Usa insertOrIgnore como último recurso
+                DB::table($table)->insertOrIgnore($rows);
+
+                return;
+            }
+        }
+
+        DB::table($table)->insert($rows);
     }
 }

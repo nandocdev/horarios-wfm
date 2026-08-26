@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\Modules\AnalyticsModule\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Shared\Providers\AbstractModuleServiceProvider;
 
-class ModuleServiceProvider extends ServiceProvider
+class ModuleServiceProvider extends AbstractModuleServiceProvider
 {
-    public function boot(): void
-    {
-        $this->loadMigrationsFrom(__DIR__.'/../Database/Migrations');
-    }
+    protected ?string $viewNamespace = 'analytics';
 }

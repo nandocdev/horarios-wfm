@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace App\Modules\GeoModule\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Shared\Providers\AbstractModuleServiceProvider;
 
-class ModuleServiceProvider extends ServiceProvider
+class ModuleServiceProvider extends AbstractModuleServiceProvider
 {
+    protected ?string $viewNamespace = 'geo';
+
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__.'/../Routes/web.php');
-        $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'geo');
-        $this->loadViewsFrom(__DIR__.'/../Resources/Views', 'location');
-    }
-
-    public function register(): void
-    {
-        //
+        parent::boot();
+        // Geo expone doble namespace legacy 'location' para compatibilidad
+        $callerDir = dirname((new \ReflectionClass($this))->getFileName());
+        $viewPath = $callerDir.'/../Resources/Views';
+        if (is_dir($viewPath)) {
+            $this->loadViewsFrom($viewPath, 'location');
+        }
     }
 }

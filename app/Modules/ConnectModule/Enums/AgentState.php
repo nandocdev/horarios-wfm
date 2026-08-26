@@ -73,7 +73,7 @@ enum AgentState: string
      */
     public function isProductive(): bool
     {
-        return in_array($this->value, self::PRODUCTIVE, true);
+        return in_array($this, self::PRODUCTIVE, true);
     }
 
     /**
@@ -81,7 +81,7 @@ enum AgentState: string
      */
     public function isNonProductive(): bool
     {
-        return in_array($this->value, self::NON_PRODUCTIVE, true);
+        return in_array($this, self::NON_PRODUCTIVE, true);
     }
 
     /**
@@ -89,7 +89,7 @@ enum AgentState: string
      */
     public function requiresRelogin(): bool
     {
-        return in_array($this->value, self::RELOGIN_REQUIRED, true);
+        return in_array($this, self::RELOGIN_REQUIRED, true);
     }
 
     /**
@@ -224,14 +224,7 @@ enum AgentState: string
             self::UNKNOWN->value => [self::READY->value, self::OFFLINE->value],
         ];
 
-        return !empty($transitions[$fromState->value] ?? null)
+        return ! empty($transitions[$fromState->value] ?? null)
             && in_array($toState->value, $transitions[$fromState->value], true);
-    }
-
-    private static function tryFrom(?string $value): ?self
-    {
-        return self::cases(
-            fn ($case) => $case->value === $value ?? false
-        )->first() ?? null;
     }
 }

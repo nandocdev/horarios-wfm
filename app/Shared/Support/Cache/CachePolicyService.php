@@ -169,13 +169,14 @@ final class CachePolicyService
     /**
      * Invalida todas las keys que coincidan con un patrón de módulo y categoría.
      * 
-     * Nota: Redis no soporta wildcard delete nativo en Laravel Cache.
-     * Para producción, considerar usar Redis tags o mantener un índice de keys.
+     * Compatible con múltiples cache stores (Redis, Memcached, database, file).
+     * Para stores sin soporte de tags, usa fallback por clave exacta.
      * 
      * @param string $module Módulo a limpiar
      * @param string|null $category Categoría opcional (si null, limpia todo el módulo)
+     * @param bool $strict Si true, lanza excepción en stores sin soporte de patrón
      */
-    public function flushByPattern(string $module, ?string $category = null): void
+    public function flushByPattern(string $module, ?string $category = null, bool $strict = false): void
     {
         $prefix = $this->getPrefix($module);
         
@@ -183,21 +184,120 @@ final class CachePolicyService
             $prefix .= $this->normalizeCategory($category) . ':';
         }
 
-        // Obtener todas las keys del cache store
-        // NOTA: Esto requiere acceso directo a Redis. Para otros drivers, usar flushAll()
+        // Verificar si el store actual soporta operaciones por patrón
+        $storeName = config('cache.default');
+        $driver = config("cache.stores.{$storeName}.driver", 'file');
+        
+        // Stores que soportan acceso directo para patrón
+        $supportsPattern = in_array($driver, ['redis', 'memcached'], true);
+        
+        if (! $supportsPattern) {
+            if ($strict) {
+                throw new \InvalidArgumentException(
+                    "El store '{$storeName}' (driver: {$driver}) no soporta invalidación por patrón. " .
+                    "Configura Redis/Memcached o usa invalidación por clave exacta."
+                );
+            }
+            
+            // Fallback graceful: loguear advertencia y usar enfoque de keys conocidas
+            \Illuminate\Support\Facades\Log::warning(
+                "Invalidación por patrón '{$prefix}' en store sin soporte ({$driver}). " .
+                "Considera migrar a Redis para invalidación eficiente."
+            );
+            
+            $this->flushByKnownKeys($module, $category);
+            return;
+        }
+
+        // Store soporta patrón: usar Redis/Memcached directo
         try {
             $redis = Cache::store('redis')->getStore()->getRedis();
             $keys = $redis->keys($prefix . '*');
             
             if (! empty($keys)) {
                 $redis->del(...$keys);
+                \Illuminate\Support\Facades\Log::debug(
+                    "Caché invalidada por patrón '{$prefix}': " . count($keys) . " keys eliminadas"
+                );
             }
         } catch (\Exception $e) {
-            // Fallback: si no hay acceso directo a Redis, loguear advertencia
-            \Illuminate\Support\Facades\Log::warning(
-                "No se pudo limpiar caché por patrón '{$prefix}': " . $e->getMessage()
+            \Illuminate\Support\Facades\Log::error(
+                "Error al limpiar caché por patrón '{$prefix}': " . $e->getMessage(),
+                ['module' => $module, 'category' => $category]
             );
+            
+            if ($strict) {
+                throw $e;
+            }
         }
+    }
+
+    /**
+     * Fallback para stores sin soporte de patrón.
+     * Invalida keys conocidas basadas en patrones comunes.
+     */
+    private function flushByKnownKeys(string $module, ?string $category = null): void
+    {
+        // Mapeo de módulos/categorías a keys específicas conocidas
+        $knownKeysMap = [
+            'quality' => [
+                'quality:average:global',
+                'quality:average:queue',
+                'quality:average:agent',
+                'quality:evaluation:latest',
+            ],
+            'connect' => [
+                'connect:employee:all',
+                'connect:finesse:states',
+                'connect:cuic:reports',
+            ],
+            'operations' => [
+                'ops:kpi:realtime:global',
+                'ops:kpi:historical:daily',
+                'ops:dashboard:summary',
+            ],
+            'filesystem' => [
+                'fs:config:user_quota:all',
+                'fs:storage:usage',
+            ],
+        ];
+
+        $prefix = $this->getPrefix($module);
+        $keysToFlush = [];
+
+        if ($category !== null && isset($knownKeysMap[$module])) {
+            // Filtrar keys por categoría si está especificada
+            $categoryNormalized = $this->normalizeCategory($category);
+            foreach ($knownKeysMap[$module] as $key) {
+                if (str_starts_with($key, $prefix . $categoryNormalized)) {
+                    $keysToFlush[] = $key;
+                }
+            }
+        } elseif (isset($knownKeysMap[$module])) {
+            // Sin categoría: incluir todas las keys conocidas del módulo
+            $keysToFlush = $knownKeysMap[$module];
+        }
+
+        if (empty($keysToFlush)) {
+            \Illuminate\Support\Facades\Log::debug(
+                "No hay keys conocidas registradas para módulo '{$module}'" . 
+                ($category ? " y categoría '{$category}'" : "")
+            );
+            return;
+        }
+
+        $invalidated = 0;
+        foreach ($keysToFlush as $key) {
+            if (Cache::forget($key)) {
+                $invalidated++;
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::info(
+            "Invalidación por keys conocidas: {$invalidated}/" . count($keysToFlush) . 
+            " keys eliminadas para módulo '{$module}'" . 
+            ($category ? " y categoría '{$category}'" : "")
+        );
     }
 
     /**

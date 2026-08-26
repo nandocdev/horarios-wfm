@@ -7,13 +7,18 @@ namespace App\Modules\QualityModule\Services;
 use App\Modules\QualityModule\Enums\EvaluationStatus;
 use App\Modules\QualityModule\Models\Evaluation;
 use App\Modules\QualityModule\Models\Queue;
+use App\Shared\Support\Cache\CachePolicyService;
 use Illuminate\Support\Facades\Cache;
 
 class ReportService
 {
+    public function __construct(
+        private readonly CachePolicyService $cachePolicy,
+    ) {}
+
     public function getQueueAverages(): array
     {
-        return Cache::remember('quality:dashboard:averages', 86400, function () {
+        return $this->cachePolicy->remember('quality', 'quality', 'dashboard:averages', function () {
             $queues = Queue::where('is_active', true)->get();
             $averages = [];
 
@@ -35,7 +40,7 @@ class ReportService
 
     public function recalculateQueueAverages(): void
     {
-        Cache::forget('quality:dashboard:averages');
+        $this->cachePolicy->flushByPattern('quality', 'quality');
 
         $queues = Queue::where('is_active', true)->get();
         foreach ($queues as $queue) {

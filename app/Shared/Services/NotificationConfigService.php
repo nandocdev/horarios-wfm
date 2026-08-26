@@ -6,10 +6,15 @@ namespace App\Shared\Services;
 
 use App\Modules\CoreModule\Models\NotificationConfig;
 use App\Shared\Enums\NotificationType;
+use App\Shared\Support\Cache\CachePolicyService;
 use Illuminate\Support\Facades\Cache;
 
 class NotificationConfigService
 {
+    public function __construct(
+        private readonly CachePolicyService $cachePolicy,
+    ) {}
+
     public function isEnabled(string|NotificationType $eventType): bool
     {
         $config = $this->getConfig($eventType);
@@ -28,7 +33,7 @@ class NotificationConfigService
     {
         $type = $eventType instanceof NotificationType ? $eventType->value : $eventType;
 
-        return Cache::remember("notification_config.{$type}", 3600, function () use ($type) {
+        return $this->cachePolicy->remember('core', 'config', "notification_config:{$type}", function () use ($type) {
             return NotificationConfig::where('event_type', $type)->first();
         });
     }
@@ -58,7 +63,7 @@ class NotificationConfigService
 
     public function upsert(string $eventType, array $data): NotificationConfig
     {
-        Cache::forget("notification_config.{$eventType}");
+        $this->cachePolicy->flushByPattern('core', 'config');
 
         return NotificationConfig::updateOrCreate(
             ['event_type' => $eventType],

@@ -39,7 +39,8 @@
     },
     "autoload": {
         "files": [
-            "app/Shared/Helpers/toast.php"
+            "app/Shared/Helpers/toast.php",
+            "app/Shared/Support/helpers.php"
         ],
         "psr-4": {
             "App\\": "app/",

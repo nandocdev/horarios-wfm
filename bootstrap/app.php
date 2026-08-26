@@ -29,6 +29,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => PermissionMiddleware::class,
             'role' => RoleMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
+            'force.password' => ForcePasswordChange::class,
+            'ensure.2fa' => EnsureTwoFactor::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

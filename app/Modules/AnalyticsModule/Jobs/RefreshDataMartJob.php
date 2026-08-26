@@ -22,6 +22,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -29,11 +30,22 @@ final class RefreshDataMartJob implements ShouldQueue
 {
     use Dispatchable, Queueable;
 
+    public int $tries = 3;
+
+    public int $timeout = 300;
+
+    public int $backoff = 60;
+
     public function __construct(
         private readonly ?CarbonInterface $startDate = null,
         private readonly ?CarbonInterface $endDate = null,
     ) {
         $this->onQueue('wfm-heavy');
+    }
+
+    public function middleware(): array
+    {
+        return [new WithoutOverlapping('refresh_datamart')];
     }
 
     public function handle(): void
@@ -55,14 +67,13 @@ final class RefreshDataMartJob implements ShouldQueue
 
     private function refreshDimensions(): void
     {
-        DB::statement('TRUNCATE TABLE dim_employee');
-        DB::statement('TRUNCATE TABLE dim_team');
-        DB::statement('TRUNCATE TABLE dim_department');
-        DB::statement('TRUNCATE TABLE dim_queue');
-        DB::statement('TRUNCATE TABLE dim_shift');
-        DB::statement('TRUNCATE TABLE dim_skill');
+        // TRUNCATE con CASCADE para evitar FK locks y en transacción
+        // Si hay jobs concurrentes, WithoutOverlapping evita doble ejecución
+        DB::transaction(function (): void {
+            DB::statement('TRUNCATE TABLE dim_employee, dim_team, dim_department, dim_queue, dim_shift, dim_skill CASCADE');
+        });
 
-        Employee::with(['team', 'department', 'position', 'manager'])->chunk(100, function ($employees) {
+        Employee::with(['team', 'department', 'position', 'manager'])->chunk(100, function ($employees): void {
             $batch = [];
             foreach ($employees as $e) {
                 $batch[] = [
@@ -85,10 +96,12 @@ final class RefreshDataMartJob implements ShouldQueue
                     'updated_at' => now(),
                 ];
             }
-            DB::table('dim_employee')->insert($batch);
+            if ($batch !== []) {
+                DB::table('dim_employee')->upsert($batch, ['employee_id'], ['employee_number', 'full_name', 'email', 'team_id', 'team_name', 'department_id', 'department_name', 'position_id', 'position_name', 'supervisor_id', 'supervisor_name', 'hire_date', 'is_active', 'is_manager', 'updated_at']);
+            }
         });
 
-        Team::with('supervisor')->chunk(100, function ($teams) {
+        Team::with('supervisor')->chunk(100, function ($teams): void {
             $batch = [];
             foreach ($teams as $t) {
                 $batch[] = [
@@ -101,10 +114,12 @@ final class RefreshDataMartJob implements ShouldQueue
                     'updated_at' => now(),
                 ];
             }
-            DB::table('dim_team')->insert($batch);
+            if ($batch !== []) {
+                DB::table('dim_team')->upsert($batch, ['team_id'], ['name', 'supervisor_id', 'supervisor_name', 'is_active', 'updated_at']);
+            }
         });
 
-        Department::with('directorate')->chunk(100, function ($departments) {
+        Department::with('directorate')->chunk(100, function ($departments): void {
             $batch = [];
             foreach ($departments as $d) {
                 $batch[] = [
@@ -117,10 +132,12 @@ final class RefreshDataMartJob implements ShouldQueue
                     'updated_at' => now(),
                 ];
             }
-            DB::table('dim_department')->insert($batch);
+            if ($batch !== []) {
+                DB::table('dim_department')->upsert($batch, ['department_id'], ['name', 'directorate_id', 'directorate_name', 'is_active', 'updated_at']);
+            }
         });
 
-        CallQueue::with('channel')->chunk(100, function ($queues) {
+        CallQueue::with('channel')->chunk(100, function ($queues): void {
             $batch = [];
             foreach ($queues as $q) {
                 $batch[] = [
@@ -133,10 +150,12 @@ final class RefreshDataMartJob implements ShouldQueue
                     'updated_at' => now(),
                 ];
             }
-            DB::table('dim_queue')->insert($batch);
+            if ($batch !== []) {
+                DB::table('dim_queue')->upsert($batch, ['queue_id'], ['name', 'channel_name', 'aht_goal', 'is_active', 'updated_at']);
+            }
         });
 
-        Schedule::chunk(100, function ($shifts) {
+        Schedule::chunk(100, function ($shifts): void {
             $batch = [];
             foreach ($shifts as $s) {
                 $batch[] = [
@@ -152,10 +171,12 @@ final class RefreshDataMartJob implements ShouldQueue
                     'updated_at' => now(),
                 ];
             }
-            DB::table('dim_shift')->insert($batch);
+            if ($batch !== []) {
+                DB::table('dim_shift')->upsert($batch, ['shift_id'], ['name', 'start_time', 'end_time', 'total_minutes', 'lunch_minutes', 'break_minutes', 'is_active', 'updated_at']);
+            }
         });
 
-        Skill::chunk(100, function ($skills) {
+        Skill::chunk(100, function ($skills): void {
             $batch = [];
             foreach ($skills as $s) {
                 $batch[] = [
@@ -168,14 +189,16 @@ final class RefreshDataMartJob implements ShouldQueue
                     'updated_at' => now(),
                 ];
             }
-            DB::table('dim_skill')->insert($batch);
+            if ($batch !== []) {
+                DB::table('dim_skill')->upsert($batch, ['skill_id'], ['name', 'code', 'category', 'is_active', 'updated_at']);
+            }
         });
     }
 
     private function refreshFactCalls(CarbonInterface $start, CarbonInterface $end): void
     {
         $records = AgentCallPerformance::whereBetween('start_time', [$start, $end])
-            ->with('employee.team.department')
+            ->with(['employee.team', 'employee.department'])
             ->get();
 
         if ($records->isEmpty()) {
@@ -246,7 +269,7 @@ final class RefreshDataMartJob implements ShouldQueue
                 continue;
             }
 
-            $assignments = WeeklyScheduleAssignment::with('employee.team.department', 'schedule')
+            $assignments = WeeklyScheduleAssignment::with(['employee.team', 'employee.department', 'schedule'])
                 ->where('weekly_schedule_id', $weeklySchedule->id)
                 ->where('day_of_week', $dayOfWeek)
                 ->where('is_replaced', false)
@@ -323,7 +346,7 @@ final class RefreshDataMartJob implements ShouldQueue
 
     private function refreshFactAbsence(CarbonInterface $start, CarbonInterface $end): void
     {
-        $exceptions = ScheduleException::with('employee.team.department', 'reason')
+        $exceptions = ScheduleException::with(['employee.team', 'employee.department', 'reason'])
             ->whereDate('start_at', '<=', $end->toDateString())
             ->whereDate('end_at', '>=', $start->toDateString())
             ->get();
@@ -351,7 +374,7 @@ final class RefreshDataMartJob implements ShouldQueue
             ];
         }
 
-        $leaves = LeaveRequest::with('employee.team.department')
+        $leaves = LeaveRequest::with(['employee.team', 'employee.department'])
             ->whereIn('status', ['approved', 'aprobado'])
             ->whereDate('start_time', '<=', $end->toDateString())
             ->whereDate('end_time', '>=', $start->toDateString())
@@ -386,7 +409,7 @@ final class RefreshDataMartJob implements ShouldQueue
     {
         $intervalMinutes = 15;
 
-        AgentIntervalMetric::with('employee.team.department')
+        AgentIntervalMetric::with(['employee.team', 'employee.department'])
             ->whereBetween('interval_start', [$start, $end])
             ->chunk(100, function ($metrics) use ($intervalMinutes) {
                 $batch = [];

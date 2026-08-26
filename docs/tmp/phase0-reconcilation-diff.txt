@@ -1,0 +1,70 @@
+PHASE 0 — RECONCILIATION DIFF: DDL vs Current Schema Real
+=============================================================
+
+Timestamp strategy:
+- DDL: upgraded from timestamp(0) to timestamptz uniformly (327 occurrences)
+- Current DB: uses timestamp without time zone (PostgreSQL default)
+- Action: DDL now consistent with timestamptz recommendation from analysis
+
+1. users
+   Status: OK
+   Note: DDL uses timestamptz consistently; DB timestamps stored without tz but will benefit from timestamptz migration
+
+2. employees
+   Status: PARTIAL CHANGE
+   Note: FK parent_id now targets users (DDL decision). Salary kept in employees.salary, NOT in positions. 
+   Action: Phase 3 will rewrite FKs employees→users after data migration
+
+3. call_records
+   Status: OK
+   Note: All incremental migration columns present (node_id, contact_type, originator_type, originator_id, destination_type, destination_id, original_dialed_number, hold_time)
+   DEFAULT 'pending_operator' matches migration 2026_04_07_000003
+
+4. weekly_schedules
+   Status: PARTIAL CHANGE
+   Note: 
+   - week_start_date removed simple UNIQUE constraint (allows multiple drafts per week)
+   - Partial unique index added: weekly_schedules_published_unique ON (week_start_date) WHERE (status = 'published')
+   - Action: Validates that weeklySchedule model and validators no longer assume simple uniqueness
+
+5. positions
+   Status: RESOLVED
+   Note: Salary removed from positions table (was "ver employee_compensation si se requiere")
+   Salary now stored exclusively in employees.salary with strict access policy note
+   No employee_compensation table defined; history tracked via analytics_employee_snapshot SCD2 pattern if needed
+
+6. directory_services
+   Status: OK
+   Note: door_id present from migration 2026_08_17_074912 (moved from directory_units)
+   contact_role, contact_extension, contact_email present from migration 2026_08_17_081103 (embed contact in directory_services)
+   directory_contacts table eliminated (embeded approach)
+
+7. news
+   Status: OK
+   Note: content text NOT NULL with comment: "PostgreSQL text equivale a longText (ambos mapean a text sin límite práctico); registrado para consistencia con el Blueprint"
+
+8. helpdesk_tickets
+   Status: PHASE 3 DEFERRED
+   Note: creator_id and assigned_agent_id still point to employees (not users)
+   Action: Phase 3 will rewrite FKs actor→users after data migration guarantee
+
+9. Timestamps strategy (global)
+   Status: RESOLVED
+   Note: All timestamp(0) replaced with timestamptz in DDL (was 327 occurrences)
+   Consistent with analysis recommendation: "Mantener timestampTz de forma consistente"
+
+10. Orphan placeholder tables
+    Status: RESOLVED
+    Note: Deleted migrations:
+    - database/migrations/2026_07_07_103642_create_funcionarios_table.php
+    - database/migrations/2026_07_07_103643_create_cargos_table.php
+    - database/migrations/2026_07_07_103644_create_relaciones_laborales_table.php
+    These tables had only id + timestamps, no models, no references in app/
+
+=============================================================
+SUMMARY: DDL reconciled with current schema. 3 major issue categories addressed:
+  1. Timestamp strategy standardized (timestamptz)
+  2. positions.salary relocated to employees
+  3. Orphan tables removed
+  4. Weekly schedule uniqueness corrected (partial index)
+  5. FK actor→users rewrite documented for Phase 3

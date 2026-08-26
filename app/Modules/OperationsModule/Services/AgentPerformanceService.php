@@ -12,8 +12,10 @@ use App\Shared\Contracts\Employees\EmployeeInterface;
 use App\Shared\Contracts\Employees\EmployeeRepositoryInterface;
 use App\Shared\Contracts\Operations\AgentPerformanceRepositoryInterface;
 use App\Shared\Contracts\Schedules\ScheduleServiceInterface;
+use App\Shared\Support\Cache\CachePolicyService;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 final class AgentPerformanceService
@@ -24,6 +26,7 @@ final class AgentPerformanceService
         private readonly EmployeeRepositoryInterface $employeeRepo,
         private readonly ScheduleServiceInterface $scheduleService,
         private readonly AgentPerformanceRepositoryInterface $performanceRepo,
+        private readonly CachePolicyService $cachePolicy,
     ) {}
 
     public function getPerformance(EmployeeInterface $employee, int $days = 5): AgentPerformanceSummaryDTO
@@ -40,16 +43,14 @@ final class AgentPerformanceService
         $deviationRows = [];
 
         foreach ($dates as $date) {
-            $cacheKey = "wfm:agent:{$employee->getId()}:kpis:{$date->toDateString()}";
-
             $dayData = $date->isToday()
                 ? $this->performanceAction->execute($employee, $date)->toArray()
-                : Cache::remember($cacheKey, 86400, fn () => $this->performanceAction->execute($employee, $date)->toArray());
+                : $this->cachePolicy->remember('operations', 'agent_performance', "{$employee->getId()}:{$date->toDateString()}", fn () => $this->performanceAction->execute($employee, $date)->toArray());
 
             if (is_object($dayData)) {
-                Cache::forget($cacheKey);
+                $this->cachePolicy->flushByPattern('operations', 'agent_performance');
                 $dayData = $this->performanceAction->execute($employee, $date)->toArray();
-                Cache::put($cacheKey, $dayData, 86400);
+                Cache::put("ops:agent_performance:{$employee->getId()}:{$date->toDateString()}", $dayData, 3600);
             }
 
             $dayDTOs[] = $dayData;

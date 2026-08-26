@@ -12,6 +12,7 @@ use App\Shared\Support\Metrics\MetricFormulas;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
+use App\Shared\Support\Cache\CachePolicyService;
 use Illuminate\Support\Facades\Cache;
 
 final class PerformanceService
@@ -21,6 +22,7 @@ final class PerformanceService
         private readonly EmployeeRepositoryInterface $employeeRepo,
         private readonly DashboardScheduleQueriesInterface $scheduleQueries,
         private readonly TelemetryRealtimeRepositoryInterface $realtimeRepo,
+        private readonly CachePolicyService $cachePolicy,
     ) {}
 
     /**
@@ -81,7 +83,7 @@ final class PerformanceService
         $dateStr = $date->toDateString();
 
         if (! $date->isToday()) {
-            return Cache::remember("wfm:hero_kpis:historical:{$dateStr}", 86400, function () use ($date) {
+            return $this->cachePolicy->remember('operations', 'historical', "hero_kpis:{$dateStr}", function () use ($date) {
                 return $this->resolveHeroKpisData($date);
             });
         }
@@ -108,7 +110,7 @@ final class PerformanceService
         $yesterday = $date->copy()->subDay();
         $yesterdayStr = $yesterday->toDateString();
 
-        $previous = Cache::remember("wfm:hero_kpis_metrics:historical:{$yesterdayStr}", 3600, function () use ($yesterday, $operatorIds) {
+        $previous = $this->cachePolicy->remember('operations', 'historical', "hero_kpis_metrics:{$yesterdayStr}", function () use ($yesterday, $operatorIds) {
             return $this->calculateMetrics($yesterday, $operatorIds);
         });
 
@@ -201,8 +203,8 @@ final class PerformanceService
         $occupancy = $this->calculateRealtimeOccupancy($states);
         $serviceLevel = $this->realtimeRepo->getAverageServiceLevel();
 
-        // 4. Cachear ausentismo de hoy por 120 segundos
-        $absenteeism = Cache::remember('wfm:realtime:absenteeism', 120, function () use ($operatorIds, $scheduled, $totalScheduled) {
+        // 4. Cachear ausentismo de hoy por 120 segundos (realtime TTL)
+        $absenteeism = $this->cachePolicy->remember('operations', 'realtime', 'absenteeism', function () use ($operatorIds, $scheduled, $totalScheduled) {
             $connectedFromSched = $this->realtimeRepo->getRealtimeStates($operatorIds)
                 ->whereNotIn('current_state', ['LOGOUT', 'OFFLINE', 'UNKNOWN'])
                 ->whereIn('employee_id', $scheduled->pluck('employee_id'))
@@ -214,8 +216,8 @@ final class PerformanceService
             );
         });
 
-        // 5. Cachear shrinkage de hoy por 120 segundos
-        $shrinkage = Cache::remember('wfm:realtime:shrinkage', 120, function () use ($operatorIds, $now) {
+        // 5. Cachear shrinkage de hoy por 120 segundos (realtime TTL)
+        $shrinkage = $this->cachePolicy->remember('operations', 'realtime', 'shrinkage', function () use ($operatorIds, $now) {
             return (float) $this->calculateShrinkage($operatorIds, $now);
         });
 

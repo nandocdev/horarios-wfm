@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\CommunicationsModule\Observers;
 
 use App\Modules\CommunicationsModule\Models\Category;
+use App\Shared\Support\Cache\CachePolicyService;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -13,13 +14,16 @@ use Illuminate\Support\Facades\Cache;
  */
 class CategoryObserver
 {
+    public function __construct(
+        private readonly CachePolicyService $cachePolicy,
+    ) {}
+
     /**
      * Maneja el evento de creación.
      */
     public function created(Category $category): void
     {
-        Cache::forget('categories_list');
-        Cache::forget('categories_tree');
+        $this->cachePolicy->flushByPattern('communications', 'config');
     }
 
     /**
@@ -28,8 +32,7 @@ class CategoryObserver
     public function updated(Category $category): void
     {
         Cache::forget("category:{$category->id}");
-        Cache::forget('categories_list');
-        Cache::forget('categories_tree');
+        $this->cachePolicy->flushByPattern('communications', 'config');
     }
 
     /**
@@ -38,8 +41,7 @@ class CategoryObserver
     public function deleted(Category $category): void
     {
         Cache::forget("category:{$category->id}");
-        Cache::forget('categories_list');
-        Cache::forget('categories_tree');
+        $this->cachePolicy->flushByPattern('communications', 'config');
     }
 
     /**
@@ -47,8 +49,7 @@ class CategoryObserver
      */
     public function restored(Category $category): void
     {
-        Cache::forget('categories_list');
-        Cache::forget('categories_tree');
+        $this->cachePolicy->flushByPattern('communications', 'config');
     }
 
     /**
@@ -57,7 +58,6 @@ class CategoryObserver
     public function forceDeleted(Category $category): void
     {
         Cache::forget("category:{$category->id}");
-        Cache::forget('categories_list');
-        Cache::forget('categories_tree');
+        $this->cachePolicy->flushByPattern('communications', 'config');
     }
 }

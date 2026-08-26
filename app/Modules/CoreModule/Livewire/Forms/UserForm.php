@@ -41,7 +41,7 @@ class UserForm extends Form
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->user?->id),
             ],
-            'password' => [$this->user ? 'nullable' : 'required', 'min:8'],
+            'password' => [$this->user ? 'nullable' : 'required', 'min:5'],
             'is_active' => ['boolean'],
             'force_password_change' => ['boolean'],
             'roles' => ['array'],

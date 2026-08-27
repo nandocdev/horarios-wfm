@@ -6,8 +6,9 @@ SRC="/home/ferncastillo/Proyectos/php/horarios-wfm/"
 # DEST="ferncastillo@10.19.15.240:/var/www/wfm-scheduler/"
 DEST="ferncastillo@10.19.14.31:/var/www/opsis/"
 
-# Validar que estamos en la rama develop
+# Nos movemos al directorio de trabajo
 cd "$SRC"
+# Validar que estamos en la rama develop
 CURRENT_BRANCH=$(git branch --show-current)
 
 if [ "$CURRENT_BRANCH" != "develop" ]; then

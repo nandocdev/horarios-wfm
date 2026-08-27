@@ -10,8 +10,8 @@ use Illuminate\Validation\Rules\Password;
 /**
  * Reglas de validación de contraseñas para el CoreModule.
  *
- * Política flexible: mínimo 5 caracteres, sin requisitos de
- * complejidad adicionales (definido según solicitud).
+ * Política institucional: mínimo 8 caracteres con complejidad.
+ * Alineado con OWASP/NIST 800-63B.
  */
 trait PasswordValidationRules
 {
@@ -25,7 +25,12 @@ trait PasswordValidationRules
         return [
             'required',
             'string',
-            Password::min(5),
+            Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised(),
             'confirmed',
         ];
     }

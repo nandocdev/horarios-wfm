@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\CoreModule\Livewire\Forms;
 
+use App\Modules\CoreModule\Concerns\PasswordValidationRules;
 use App\Modules\CoreModule\DTOs\UserDTO;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,8 @@ use Livewire\Form;
  */
 class UserForm extends Form
 {
+    use PasswordValidationRules;
+
     public ?User $user = null;
 
     public string $name = '';
@@ -21,6 +24,8 @@ class UserForm extends Form
     public string $email = '';
 
     public string $password = '';
+
+    public string $password_confirmation = '';
 
     public bool $is_active = true;
 
@@ -41,7 +46,10 @@ class UserForm extends Form
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->user?->id),
             ],
-            'password' => [$this->user ? 'nullable' : 'required', 'min:5'],
+            'password' => array_merge(
+                [$this->user ? 'nullable' : 'required'],
+                $this->passwordRules()
+            ),
             'is_active' => ['boolean'],
             'force_password_change' => ['boolean'],
             'roles' => ['array'],

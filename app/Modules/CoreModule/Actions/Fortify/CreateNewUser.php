@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Modules\CoreModule\Actions\Fortify;
 
 use App\Modules\CoreModule\Concerns\PasswordValidationRules;
+use App\Modules\CoreModule\Concerns\ProfileValidationRules;
 use App\Modules\CoreModule\Models\User;
-use App\Modules\CoreModule\DTOs\RoleDTO;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -16,10 +16,11 @@ use Laravel\Fortify\Contracts\CreatesNewUsers;
  * [UC-INT-01] Creación de usuario con rol mínimo 'agent' o 'admin'
  * [RIESGO] Contraseña débil — mitigado por PasswordValidationRules institucional
  * [RIESGO] Usuario sin rol — mitigado por asignación automática de rol por defecto
+ * [RIESGO] Email duplicado — mitigado por Rule::unique en profileRules()
  */
 class CreateNewUser implements CreatesNewUsers
 {
-    use PasswordValidationRules;
+    use PasswordValidationRules, ProfileValidationRules;
 
     /**
      * Rol por defecto asignado a todos los nuevos usuarios institucionales.
@@ -69,7 +70,7 @@ class CreateNewUser implements CreatesNewUsers
                 'string',
                 'email',
                 'max:255',
-                // Reglas de unicidad manejadas por el validator nativo
+                \Illuminate\Validation\Rule::unique(User::class),
             ],
         ];
     }

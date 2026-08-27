@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\CoreModule\Actions;
 
-use App\Modules\CoreModule\Concerns\ProfileValidationRules;
 use App\Modules\CoreModule\DTOs\UserDTO;
+use App\Modules\CoreModule\Models\Role;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\Hash;
  * [RIESGO] Inconsistencia de sesión: Al cambiar roles, las sesiones activas
  *           del usuario podrían tardar en reflejar los nuevos permisos si la
  *           caché no se limpia correctamente.
- * [RIESGO] Pérdida de roles: Si el DTO no incluye todos los roles existentes,
- *           syncRoles() los elimina. Mitigado aquí por merge de roles.
  */
 class UpdateUserAction
 {
@@ -41,32 +39,23 @@ class UpdateUserAction
 
             $user->update($data);
 
-            // Sincronización segura de roles: solo agrega/quita roles especificados
-            // en el DTO, preservando roles previos que no estén en la lista de exclusión.
+            // Sincronización atómica de roles: usa el array completo solicitado.
+            // Esto preserva 'agent' si viene en el DTO y elimina solo los que no están.
             if (! empty($dto->roles)) {
-                // Obtener roles actuales del usuario
-                $currentRoles = $user->roles->pluck('name')->toArray();
+                $requestedRoles = array_values(array_unique($dto->roles));
 
-                // Roles solicitados en el DTO
-                $requestedRoles = array_values($dto->roles);
+                // Validar que todos los roles solicitados existan en BD
+                $existingRoles = User::getPermissionsViaRoles()->pluck('name')->unique();
+                // Más simple: verificar contra tabla roles
+                $validRoles = Role::whereIn('name', $requestedRoles)->pluck('name')->toArray();
+                $invalidRoles = array_diff($requestedRoles, $validRoles);
 
-                // Calcular roles a agregar (solicitados pero no actuales)
-                $rolesToAdd = array_diff($requestedRoles, $currentRoles);
-
-                // Calcular roles a quitar (actuales pero no solicitados)
-                // Excepto el rol por defecto 'agent' que nunca debe quitarse automáticamente
-                $rolesToRemove = array_diff($currentRoles, $requestedRoles);
-                $rolesToRemove = array_diff($rolesToRemove, ['agent']);
-
-                // Agregar roles solicitados pero no presentes
-                if (! empty($rolesToAdd)) {
-                    $user->syncRoles($rolesToAdd);
+                if (! empty($invalidRoles)) {
+                    throw new \InvalidArgumentException('Roles inválidos: '.implode(', ', $invalidRoles));
                 }
 
-                // Quitar roles que ya no son solicitados (excepto 'agent')
-                if (! empty($rolesToRemove)) {
-                    $user->removeRole($rolesToRemove);
-                }
+                // syncRoles atómico con el conjunto completo solicitado
+                $user->syncRoles($requestedRoles);
             }
 
             return $user;

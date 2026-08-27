@@ -6,6 +6,7 @@ namespace App\Modules\CoreModule\Livewire\Admin;
 
 use App\Shared\Services\NotificationConfigService;
 use Flux;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 
 class NotificationAdmin extends Component
@@ -20,6 +21,7 @@ class NotificationAdmin extends Component
 
     public function mount(NotificationConfigService $service): void
     {
+        Gate::authorize('admin.system');
         $this->loadConfigs($service);
     }
 
@@ -39,6 +41,7 @@ class NotificationAdmin extends Component
 
     public function startEdit(string $eventType): void
     {
+        Gate::authorize('admin.system');
         $config = collect($this->configs)->firstWhere('event_type', $eventType);
 
         if (! $config) {
@@ -58,6 +61,7 @@ class NotificationAdmin extends Component
 
     public function save(NotificationConfigService $service): void
     {
+        Gate::authorize('admin.system');
         if (! $this->editingEventType) {
             return;
         }

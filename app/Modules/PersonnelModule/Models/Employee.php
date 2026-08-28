@@ -8,6 +8,7 @@ use App\Modules\CoreModule\Models\User;
 use App\Modules\GeoModule\Models\Township;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
+use App\Modules\PersonnelModule\Enums\Gender;
 use App\Shared\Contracts\Employees\EmployeeInterface;
 use Database\Factories\Modules\PersonnelModule\Models\EmployeeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,6 +42,7 @@ class Employee extends Model implements EmployeeInterface
         'is_active' => 'boolean',
         'is_manager' => 'boolean',
         'metadata' => 'array',
+        'gender' => Gender::class,
     ];
 
     // Relaciones Fundacionales
@@ -129,8 +131,8 @@ class Employee extends Model implements EmployeeInterface
             return true;
         }
 
-        // Si es supervisor de algún equipo
-        return Team::where('supervisor_id', $this->id)->exists();
+        // Si es supervisor de algún equipo (supervisor_id en teams apunta a users.id)
+        return $this->user_id && Team::where('supervisor_id', $this->user_id)->exists();
     }
 
     /**
@@ -147,7 +149,10 @@ class Employee extends Model implements EmployeeInterface
         $subordinateIds = $this->getAllSubordinateIds();
         $allIds = array_merge([$myId], $subordinateIds);
 
-        $teamIds = Team::whereIn('supervisor_id', $allIds)
+        // supervisor_id en teams apunta a users.id, necesitamos mapear employee IDs a user IDs
+        $userIds = Employee::whereIn('id', $allIds)->pluck('user_id')->filter()->toArray();
+
+        $teamIds = Team::whereIn('supervisor_id', $userIds)
             ->pluck('id')
             ->toArray();
 
@@ -226,6 +231,10 @@ class Employee extends Model implements EmployeeInterface
 
     public function getGenderLabelAttribute(): string
     {
+        if ($this->gender instanceof Gender) {
+            return $this->gender->label();
+        }
+
         return match ($this->gender) {
             'M' => 'Masculino',
             'F' => 'Femenino',

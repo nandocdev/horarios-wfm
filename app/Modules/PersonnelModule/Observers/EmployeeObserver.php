@@ -39,23 +39,30 @@ class EmployeeObserver
         if ($changed) {
             $this->createSnapshot($employee);
         }
+        // No crear snapshot duplicado si no hay cambios organizacionales
+    }
 
-        // Always refresh the current snapshot
-        $this->createSnapshot($employee, true);
+    public function deleting(Employee $employee): void
+    {
+        if ($employee->isForceDeleting()) {
+            EmployeeSnapshot::where('employee_id', $employee->id)->delete();
+        }
     }
 
     public function deleted(Employee $employee): void
     {
-        // Marcar snapshot como inactivo en lugar de borrarlo
-        EmployeeSnapshot::where('employee_id', $employee->id)
-            ->where('is_current', false)
-            ->update(['is_current' => false, 'valid_to' => now()]);
+        if (! $employee->isForceDeleting()) {
+            // Marcar snapshot ACTUAL como inactivo
+            EmployeeSnapshot::where('employee_id', $employee->id)
+                ->where('is_current', true)
+                ->update(['is_current' => false, 'valid_to' => now()]);
+        }
     }
 
     public function restored(Employee $employee): void
     {
-        // Reactivar snapshot actual
-        $this->createSnapshot($employee, true);
+        // Reactivar snapshot actual creando uno nuevo con estado actual
+        $this->createSnapshot($employee);
     }
 
     public function forceDeleted(Employee $employee): void
@@ -66,7 +73,7 @@ class EmployeeObserver
     /**
      * Crear o actualizar snapshot SCD2 para el empleado.
      */
-    protected function createSnapshot(Employee $employee, bool $isCurrent = false): void
+    protected function createSnapshot(Employee $employee): void
     {
         // Verificar si ya existe un snapshot actual para este empleado
         $existing = EmployeeSnapshot::where('employee_id', $employee->id)

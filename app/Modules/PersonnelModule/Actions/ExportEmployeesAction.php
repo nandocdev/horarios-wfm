@@ -9,31 +9,28 @@ use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 final class ExportEmployeesAction
 {
     public function execute(EmployeeExportDTO $dto): Response
     {
-        return DB::transaction(function () use ($dto): Response {
-            $employees = $this->buildQuery($dto)->orderBy('last_name')->orderBy('first_name')->get();
+        $employees = $this->buildQuery($dto)->orderBy('last_name')->orderBy('first_name')->get();
 
-            if ($dto->format === 'excel') {
-                $filename = sprintf('employees_%s.xls', now()->format('Ymd_His'));
-                $content = $this->toHtmlTable($employees);
-
-                return response($content)
-                    ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
-                    ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
-            }
-
-            $filename = sprintf('employees_%s.csv', now()->format('Ymd_His'));
-            $content = $this->toCsv($employees);
+        if ($dto->format === 'excel') {
+            $filename = sprintf('employees_%s.xls', now()->format('Ymd_His'));
+            $content = $this->toHtmlTable($employees);
 
             return response($content)
-                ->header('Content-Type', 'text/csv; charset=UTF-8')
+                ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
                 ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
-        });
+        }
+
+        $filename = sprintf('employees_%s.csv', now()->format('Ymd_His'));
+        $content = $this->toCsv($employees);
+
+        return response($content)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', "attachment; filename=\"{$filename}\"");
     }
 
     private function buildQuery(EmployeeExportDTO $dto): Builder

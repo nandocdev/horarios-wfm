@@ -49,10 +49,12 @@ class CreateEmployee extends Component
             'departments' => Department::orderBy('name')->pluck('name', 'id'),
             'positions' => Position::orderBy('name')->pluck('name', 'id'),
             'employment_statuses' => EmploymentStatus::orderBy('name')->pluck('name', 'id'),
-            'employees' => Employee::where('is_manager', true)->orderBy('last_name')->orderBy('first_name')
-                ->get()
-                ->pluck('full_name', 'id'),
-            'users' => User::doesntHave('employee')->orderBy('name')->pluck('name', 'id'),
+            'employees' => Employee::where('is_manager', true)
+                ->orderBy('last_name')->orderBy('first_name')
+                ->limit(200)
+                ->get(['id', 'first_name', 'last_name'])
+                ->pluck(fn ($e) => "{$e->first_name} {$e->last_name}", 'id'),
+            'users' => User::doesntHave('employee')->orderBy('name')->limit(200)->pluck('name', 'id'),
         ];
     }
 
@@ -62,6 +64,8 @@ class CreateEmployee extends Component
 
         $this->form->validate();
 
+        $canEditSalary = auth()->user()?->can('salary.edit') ?? false;
+
         $dto = new CreateEmployeeDTO(
             employee_number: $this->form->employee_number,
             username: $this->form->username,
@@ -69,19 +73,19 @@ class CreateEmployee extends Component
             last_name: $this->form->last_name,
             email: $this->form->email,
             birth_date: $this->form->birth_date,
-            gender: $this->form->gender,
+            gender: $this->form->gender?->value ?? null,
             blood_type: $this->form->blood_type,
             phone: $this->form->phone,
             mobile_phone: $this->form->mobile_phone,
             address: $this->form->address,
-            township_id: $this->form->township_id ?? 0,
+            township_id: $this->form->township_id,
             department_id: $this->form->department_id,
-            position_id: $this->form->position_id ?? 0,
-            employment_status_id: $this->form->employment_status_id ?? 0,
+            position_id: $this->form->position_id,
+            employment_status_id: $this->form->employment_status_id,
             parent_id: $this->form->parent_id,
-            user_id: $this->form->user_id ?? 0,
+            user_id: $this->form->user_id,
             hire_date: $this->form->hire_date,
-            salary: $this->form->salary,
+            salary: $canEditSalary ? $this->form->salary : null,
             is_active: $this->form->is_active,
             is_manager: $this->form->is_manager,
             metadata: null,

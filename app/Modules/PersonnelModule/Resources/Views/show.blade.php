@@ -89,10 +89,17 @@
                                 <dt class="text-sm font-medium text-slate-500">Fecha de contratación</dt>
                                 <dd class="text-sm text-slate-900">{{ $employee->hire_date?->format('d/m/Y') }}</dd>
                             </div>
-                            <div>
-                                <dt class="text-sm font-medium text-slate-500">Salario</dt>
-                                <dd class="text-sm text-slate-900">${{ number_format($employee->salary ?? 0, 2) }}</dd>
-                            </div>
+                            @can('salaryView', $employee)
+                                <div>
+                                    <dt class="text-sm font-medium text-slate-500">Salario</dt>
+                                    <dd class="text-sm text-slate-900">${{ number_format($employee->salary ?? 0, 2) }}</dd>
+                                </div>
+                            @else
+                                <div>
+                                    <dt class="text-sm font-medium text-slate-500">Salario</dt>
+                                    <dd class="text-sm text-slate-900">****</dd>
+                                </div>
+                            @endcan
                             <div>
                                 <dt class="text-sm font-medium text-slate-500">Tipo de contrato</dt>
                                 <dd class="text-sm text-slate-900">{{ $employee->contract_type_label }}</dd>

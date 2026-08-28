@@ -25,7 +25,7 @@ Route::group(['prefix' => 'employees', 'as' => 'employees.'], function () {
     Route::get('/export', EmployeeExportController::class)
         ->name('export')
         ->can('export', Employee::class);
-    Route::get('/{employee}', [EmployeeController::class, 'show'])->name('show');
+    Route::get('/{employee}', [EmployeeController::class, 'show'])->name('show')->can('view', 'employee');
     Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->name('edit');
     Route::put('/{employee}', [EmployeeController::class, 'update'])->name('update');
     Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');

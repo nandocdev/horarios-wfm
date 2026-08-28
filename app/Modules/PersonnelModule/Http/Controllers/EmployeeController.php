@@ -80,6 +80,8 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee): View
     {
+        $this->authorize('view', $employee);
+
         $employee->load([
             'department',
             'position',

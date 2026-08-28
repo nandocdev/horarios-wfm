@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Livewire\Forms;
 
+use App\Modules\PersonnelModule\Enums\Gender;
+use Illuminate\Validation\Rule;
 use Livewire\Form;
 
 class EmployeeForm extends Form
@@ -18,9 +20,9 @@ class EmployeeForm extends Form
 
     public string $email = '';
 
-    public string $birth_date = '';
+    public ?string $birth_date = null;
 
-    public ?string $gender = null;
+    public ?Gender $gender = null;
 
     public ?string $blood_type = null;
 
@@ -61,7 +63,7 @@ class EmployeeForm extends Form
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:employees,email'],
             'birth_date' => ['required', 'date', 'before:today'],
-            'gender' => ['nullable', 'string', 'in:M,F,O'],
+            'gender' => ['nullable', Rule::enum(Gender::class)],
             'blood_type' => ['nullable', 'string', 'max:10'],
             'phone' => ['nullable', 'string', 'max:20'],
             'mobile_phone' => ['nullable', 'string', 'max:20'],

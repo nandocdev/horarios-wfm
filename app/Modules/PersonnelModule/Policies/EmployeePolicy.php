@@ -195,6 +195,34 @@ class EmployeePolicy
     }
 
     /**
+     * Determina si el usuario puede ver el salario.
+     */
+    public function salaryView(User $user, ?Employee $employee = null): bool
+    {
+        if ($user->hasPermissionTo('employees.salary.view.all')) {
+            return true;
+        }
+
+        if ($employee && $this->isOwn($user, $employee) && $user->hasPermissionTo('employees.salary.view')) {
+            return true;
+        }
+
+        return $user->hasPermissionTo('employees.salary.view');
+    }
+
+    /**
+     * Determina si el usuario puede editar el salario.
+     */
+    public function salaryEdit(User $user, ?Employee $employee = null): bool
+    {
+        if ($user->hasPermissionTo('employees.salary.edit.all')) {
+            return true;
+        }
+
+        return $user->hasPermissionTo('employees.salary.edit');
+    }
+
+    /**
      * Permisos efectivos considerando jerarquía de rol y override de admin.
      *
      * @return array<string, mixed>

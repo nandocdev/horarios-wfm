@@ -31,14 +31,22 @@ final class EvaluateSkillCoverageAction
 
         $activeEmployees = Employee::where('is_active', true)->pluck('id');
 
+        // Query 1: Get required counts for all queue/skill combinations in one query
+        $requiredCounts = $this->getRequiredCounts($queueSkills, $activeEmployees);
+
+        // Query 2: Get available counts for all skills in one query
+        $skillIds = $queueSkills->pluck('skill_id')->unique()->toArray();
+        $availableCounts = $this->getAvailableCounts($skillIds, $activeEmployees);
+
         $results = collect();
 
         foreach ($queueSkills->groupBy('queue_id') as $qId => $skills) {
             $queue = $skills->first()->queue;
 
             foreach ($skills as $qs) {
-                $requiredCount = $this->countRequiredForQueue($qId, $qs->skill_id, $activeEmployees);
-                $availableCount = $this->countAvailableForSkill($qs->skill_id, $qs->minimum_level, $activeEmployees);
+                $requiredKey = "{$qId}_{$qs->skill_id}";
+                $requiredCount = $requiredCounts[$requiredKey] ?? 0;
+                $availableCount = $availableCounts[$qs->skill_id][$qs->minimum_level] ?? 0;
 
                 $results->push([
                     'queue_id' => $qId,
@@ -85,29 +93,70 @@ final class EvaluateSkillCoverageAction
         })->values()->toArray();
     }
 
-    private function countRequiredForQueue(int $queueId, int $skillId, Collection $activeEmployees): int
+    /**
+     * Get required counts for all queue/skill combinations in a single aggregated query.
+     *
+     * @return array<string, int> Key format: "queueId_skillId" => count
+     */
+    private function getRequiredCounts(Collection $queueSkills, Collection $activeEmployees): array
     {
-        return DB::table('weekly_schedule_assignments')
-            ->join('weekly_schedules', 'weekly_schedule_assignments.weekly_schedule_id', '=', 'weekly_schedules.id')
-            ->where('weekly_schedules.status', 'published')
-            ->whereIn('weekly_schedule_assignments.employee_id', $activeEmployees)
-            ->whereExists(function ($q) use ($skillId) {
-                $q->select(DB::raw(1))
-                    ->from('employee_skills')
-                    ->whereColumn('employee_skills.employee_id', 'weekly_schedule_assignments.employee_id')
-                    ->where('employee_skills.skill_id', $skillId)
-                    ->where('employee_skills.is_active', true);
+        $queueSkillPairs = $queueSkills->map(fn ($qs) => "{$qs->queue_id}_{$qs->skill_id}")->toArray();
+
+        $results = DB::table('weekly_schedule_assignments as wsa')
+            ->join('weekly_schedules as ws', 'wsa.weekly_schedule_id', '=', 'ws.id')
+            ->join('employee_skills as es', function ($join) {
+                $join->on('es.employee_id', '=', 'wsa.employee_id')
+                    ->where('es.is_active', '=', true);
             })
-            ->distinct('weekly_schedule_assignments.employee_id')
-            ->count('weekly_schedule_assignments.employee_id');
+            ->where('ws.status', 'published')
+            ->whereIn('wsa.employee_id', $activeEmployees)
+            ->whereIn('es.skill_id', $queueSkills->pluck('skill_id')->unique()->toArray())
+            ->select(
+                DB::raw('wsa.employee_id'),
+                DB::raw('es.skill_id'),
+                DB::raw('COUNT(DISTINCT wsa.employee_id) as required_count')
+            )
+            ->groupBy('es.skill_id')
+            ->get()
+            ->keyBy(fn ($row) => "{$row->queue_id}_{$row->skill_id}");
+
+        $output = [];
+        foreach ($queueSkills as $qs) {
+            $key = "{$qs->queue_id}_{$qs->skill_id}";
+            $output[$key] = $results[$key]->required_count ?? 0;
+        }
+
+        return $output;
     }
 
-    private function countAvailableForSkill(int $skillId, int $minimumLevel, Collection $activeEmployees): int
+    /**
+     * Get available counts for all skill/minimum_level combinations in a single query.
+     *
+     * @return array<int, array<int, int>> [$skillId][$minimumLevel] => count
+     */
+    private function getAvailableCounts(array $skillIds, Collection $activeEmployees): array
     {
-        return EmployeeSkill::where('skill_id', $skillId)
+        $results = EmployeeSkill::whereIn('skill_id', $skillIds)
             ->whereIn('employee_id', $activeEmployees)
-            ->where('level', '>=', $minimumLevel)
             ->where('is_active', true)
-            ->count();
+            ->select('skill_id', 'level', DB::raw('COUNT(*) as count'))
+            ->groupBy('skill_id', 'level')
+            ->get()
+            ->groupBy('skill_id');
+
+        $output = [];
+        foreach ($results as $skillId => $levels) {
+            $output[$skillId] = [];
+            foreach ($levels as $level) {
+                $output[$skillId][$level->level] = $level->count;
+            }
+        }
+
+        // Ensure all skill IDs have an entry even if no employees have that skill
+        foreach ($skillIds as $skillId) {
+            $output[$skillId] = $output[$skillId] ?? [];
+        }
+
+        return $output;
     }
 }

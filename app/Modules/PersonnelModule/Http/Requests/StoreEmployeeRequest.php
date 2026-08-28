@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\PersonnelModule\Http\Requests;
 
+use App\Modules\PersonnelModule\Enums\Gender;
 use App\Modules\PersonnelModule\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -34,6 +35,9 @@ class StoreEmployeeRequest extends FormRequest
      */
     public function rules(): array
     {
+        $canViewSalary = $this->user()->can('salary.view', Employee::class);
+        $canEditSalary = $this->user()->can('salary.edit', Employee::class);
+
         return [
             'employee_number' => [
                 'required',
@@ -56,7 +60,7 @@ class StoreEmployeeRequest extends FormRequest
                 Rule::unique('employees', 'email'),
             ],
             'birth_date' => ['required', 'date', 'before:today'],
-            'gender' => ['nullable', 'string', Rule::in(['male', 'female', 'other'])],
+            'gender' => ['nullable', Rule::enum(Gender::class)],
             'blood_type' => ['nullable', 'string', 'max:10'],
             'phone' => ['nullable', 'string', 'max:20'],
             'mobile_phone' => ['nullable', 'string', 'max:20'],
@@ -73,7 +77,7 @@ class StoreEmployeeRequest extends FormRequest
             ],
             'user_id' => ['required', 'integer', 'exists:users,id'],
             'hire_date' => ['required', 'date', 'before_or_equal:today'],
-            'salary' => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
+            'salary' => $canEditSalary ? ['nullable', 'numeric', 'min:0', 'decimal:0,2'] : ['prohibited'],
             'is_active' => ['boolean'],
             'is_manager' => ['boolean'],
             'metadata' => ['nullable', 'array'],

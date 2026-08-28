@@ -6,9 +6,16 @@ namespace App\Modules\PersonnelModule\DTOs;
 
 /**
  * Datos de entrada validados para actualizar un empleado.
+ * Usa un array interno para rastrear qué campos fueron provistos explícitamente.
  */
-readonly class UpdateEmployeeDTO
+class UpdateEmployeeDTO
 {
+    /** @var array<string, mixed> */
+    private array $data = [];
+
+    /** @var array<string, bool> */
+    private array $provided = [];
+
     public function __construct(
         public ?string $employee_number = null,
         public ?string $username = null,
@@ -32,36 +39,46 @@ readonly class UpdateEmployeeDTO
         public ?bool $is_active = null,
         public ?bool $is_manager = null,
         public ?array $metadata = null,
-    ) {}
+    ) {
+        // Constructor vacío - no inicializar data aquí
+        // Se usará fromArray() para poblar correctamente
+    }
 
     /**
      * Construye el DTO desde un array validado (Form Request).
+     * Solo marca como provistos los campos que existen en el array de entrada.
      */
     public static function fromArray(array $data): self
     {
-        return new self(
-            employee_number: $data['employee_number'] ?? null,
-            username: $data['username'] ?? null,
-            first_name: $data['first_name'] ?? null,
-            last_name: $data['last_name'] ?? null,
-            email: $data['email'] ?? null,
-            birth_date: $data['birth_date'] ?? null,
-            gender: $data['gender'] ?? null,
-            blood_type: $data['blood_type'] ?? null,
-            phone: $data['phone'] ?? null,
-            mobile_phone: $data['mobile_phone'] ?? null,
-            address: $data['address'] ?? null,
-            township_id: $data['township_id'] ?? null,
-            department_id: $data['department_id'] ?? null,
-            position_id: $data['position_id'] ?? null,
-            employment_status_id: $data['employment_status_id'] ?? null,
-            parent_id: $data['parent_id'] ?? null,
-            user_id: $data['user_id'] ?? null,
-            hire_date: $data['hire_date'] ?? null,
-            salary: $data['salary'] ?? null,
-            is_active: $data['is_active'] ?? null,
-            is_manager: $data['is_manager'] ?? null,
-            metadata: $data['metadata'] ?? null,
-        );
+        $dto = new self;
+
+        // Only set fields that are present in the input array
+        foreach ($data as $key => $value) {
+            if (property_exists($dto, $key)) {
+                $dto->$key = $value;
+                $dto->provided[$key] = true;
+                $dto->data[$key] = $value;
+            }
+        }
+
+        return $dto;
+    }
+
+    /**
+     * Verifica si un campo fue provisto explícitamente en el request.
+     */
+    public function isProvided(string $field): bool
+    {
+        return $this->provided[$field] ?? false;
+    }
+
+    /**
+     * Obtiene solo los campos que fueron provistos, incluyendo nulls explícitos.
+     *
+     * @return array<string, mixed>
+     */
+    public function getProvidedData(): array
+    {
+        return $this->data;
     }
 }

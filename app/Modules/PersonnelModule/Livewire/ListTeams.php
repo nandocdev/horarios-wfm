@@ -76,8 +76,10 @@ class ListTeams extends Component
     {
         return Team::query()
             ->when($this->search, function (Builder $query) {
-                $query->where('name', 'ilike', '%'.$this->search.'%')
-                    ->orWhere('description', 'ilike', '%'.$this->search.'%');
+                $query->where(function ($q) {
+                    $q->where('name', 'ilike', '%'.$this->search.'%')
+                        ->orWhere('description', 'ilike', '%'.$this->search.'%');
+                });
             })
             ->when($this->activeFilter !== null, function (Builder $query) {
                 $query->where('is_active', $this->activeFilter);

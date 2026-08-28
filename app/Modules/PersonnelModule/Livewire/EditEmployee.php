@@ -71,14 +71,15 @@ class EditEmployee extends Component
     protected function loadOptions(): void
     {
         $this->selectOptions = [
-            'users' => User::orderBy('name')->pluck('name', 'id')->toArray(),
+            'users' => User::orderBy('name')->limit(200)->pluck('name', 'id')->toArray(),
             'departments' => Department::orderBy('name')->pluck('name', 'id')->toArray(),
             'positions' => Position::orderBy('name')->pluck('name', 'id')->toArray(),
             'employment_statuses' => EmploymentStatus::orderBy('name')->pluck('name', 'id')->toArray(),
             'employees' => Employee::where('id', '!=', $this->employee->id)
                 ->orderBy('first_name')
-                ->get()
-                ->pluck('full_name', 'id')
+                ->limit(200)
+                ->get(['id', 'first_name', 'last_name'])
+                ->pluck(fn ($e) => "{$e->first_name} {$e->last_name}", 'id')
                 ->toArray(),
             'provinces' => Province::orderBy('name')->pluck('name', 'id')->toArray(),
             'districts' => $this->province_id
@@ -109,7 +110,9 @@ class EditEmployee extends Component
 
         $this->form->validate();
 
-        $dto = UpdateEmployeeDTO::fromArray([
+        $canEditSalary = auth()->user()?->can('salary.edit', $this->employee) ?? false;
+
+        $validated = [
             'employee_number' => $this->form->employee_number,
             'username' => $this->form->username,
             'first_name' => $this->form->first_name,
@@ -128,11 +131,13 @@ class EditEmployee extends Component
             'parent_id' => $this->form->parent_id,
             'user_id' => $this->form->user_id,
             'hire_date' => $this->form->hire_date,
-            'salary' => $this->form->salary,
+            'salary' => $canEditSalary ? $this->form->salary : null,
             'is_active' => $this->form->is_active,
             'is_manager' => $this->form->is_manager,
             'metadata' => $this->form->metadata,
-        ]);
+        ];
+
+        $dto = UpdateEmployeeDTO::fromArray($validated);
 
         $action = new UpdateEmployeeAction;
         $updatedEmployee = $action->execute($this->employee, $dto);

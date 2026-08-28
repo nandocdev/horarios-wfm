@@ -68,14 +68,14 @@ test('actualiza un empleado exitosamente', function () {
 
     $updated = (new UpdateEmployeeAction)->execute(
         $employee,
-        new UpdateEmployeeDTO(
-            first_name: 'María Actualizada',
-            last_name: 'García',
-            email: 'maria.nueva@example.com',
-            hire_date: '2024-01-01',
-            is_active: false,
-            is_manager: true,
-        )
+        UpdateEmployeeDTO::fromArray([
+            'first_name' => 'María Actualizada',
+            'last_name' => 'García',
+            'email' => 'maria.nueva@example.com',
+            'hire_date' => '2024-01-01',
+            'is_active' => false,
+            'is_manager' => true,
+        ])
     );
 
     expect($updated->first_name)->toBe('María Actualizada');

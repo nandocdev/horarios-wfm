@@ -111,7 +111,9 @@
                 </flux:select>
 
                 <flux:input label="Fecha de contratación *" wire:model="form.hire_date" type="date" />
+                @can('salaryEdit', $employee)
                 <flux:input label="Salario" wire:model="form.salary" type="number" step="0.01" placeholder="50000.00" />
+                @endcan
 
                 <flux:checkbox label="Es gerente" wire:model="form.is_manager" />
                 <flux:checkbox label="Activo" wire:model="form.is_active" />

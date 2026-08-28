@@ -179,11 +179,13 @@ class PerformanceScorecard extends Component
             ? Team::all()
             : Team::whereIn('id', $managedTeamIds)->get();
 
-        $employeesList = $employees->findAgentsByPositions(self::POSITION_IDS, $this->teamId);
+        $employeesList = collect($employees->findAgentsByPositions(self::POSITION_IDS, $this->teamId));
+        $selectedEmployee = $this->employeeId ? $employees->find($this->employeeId) : null;
 
         return view('operations::livewire.performance-scorecard', [
             'teams' => $teams,
             'employees' => $employeesList,
+            'selectedEmployee' => $selectedEmployee,
         ]);
     }
 }

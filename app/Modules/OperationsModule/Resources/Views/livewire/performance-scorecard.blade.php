@@ -2,7 +2,7 @@
     <header data-tour="performance-header" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div class="flex items-center gap-2">
             <div>
-                <flux:heading size="xl" level="1">Desempeño {{ $employeeId ? ($employees->firstWhere('id', (int)$employeeId)?->full_name ?? 'Seleccionado') : 'Selecciona un empleado' }}</flux:heading>
+                <flux:heading size="xl" level="1">Desempeño {{ $employeeId ? ($selectedEmployee?->full_name ?? ($selectedEmployee?->getFullName() ?? (collect($employees)->firstWhere('id', (int)$employeeId)?->full_name ?? 'Seleccionado'))) : 'Selecciona un empleado' }}</flux:heading>
                 <flux:subheading>Análisis de adherencia y productividad de Contact Center</flux:subheading>
             </div>
 

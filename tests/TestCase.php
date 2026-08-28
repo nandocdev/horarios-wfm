@@ -7,6 +7,7 @@ namespace Tests;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
+use Spatie\Permission\PermissionRegistrar;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -24,6 +25,8 @@ abstract class TestCase extends BaseTestCase
 
             self::$migrated = true;
         }
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $this->startTransaction();
     }

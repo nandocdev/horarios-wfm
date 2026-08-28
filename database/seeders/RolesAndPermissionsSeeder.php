@@ -72,6 +72,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'employees.manageTeamAssignments',
             'employees.export',
             'employees.import',
+            'employees.salary.view',
+            'employees.salary.view.all',
+            'employees.salary.edit',
+            'employees.salary.edit.all',
 
             // Communications Module - Contenido
             'news.viewAny',
@@ -388,6 +392,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'knowledge.viewAny',
             'workflows.viewAny',
             'workflows.approve',
+            'employees.salary.view',
         ]);
 
         // Director
@@ -417,6 +422,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'knowledge.viewAny',
             'quality.evaluations.view',
             'quality.dashboard.view',
+            'employees.salary.view',
+            'employees.salary.edit',
         ]);
 
         // 4. CREACIÓN DE ROLES ESPECÍFICOS DE CALIDAD

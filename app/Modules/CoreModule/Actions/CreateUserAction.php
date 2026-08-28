@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Modules\CoreModule\Actions;
 
-use App\Modules\CoreModule\Concerns\ProfileValidationRules;
 use App\Modules\CoreModule\DTOs\UserDTO;
 use App\Modules\CoreModule\Models\User;
 use Illuminate\Support\Facades\DB;

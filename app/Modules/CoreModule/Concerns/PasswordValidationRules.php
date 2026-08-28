@@ -13,13 +13,15 @@ use Illuminate\Validation\Rules\Password;
  * Política institucional: mínimo 8 caracteres con complejidad.
  * Alineado con OWASP/NIST 800-63B.
  */
-trait PasswordValidationRules {
+trait PasswordValidationRules
+{
     /**
      * Get the validation rules used to validate passwords.
      *
      * @return array<int, Rule|array<mixed>|string>
      */
-    protected function passwordRules(): array {
+    protected function passwordRules(): array
+    {
         return [
             'required',
             'string',
@@ -33,7 +35,8 @@ trait PasswordValidationRules {
      *
      * @return array<int, Rule|array<mixed>|string>
      */
-    protected function currentPasswordRules(): array {
+    protected function currentPasswordRules(): array
+    {
         return ['required', 'string', 'current_password'];
     }
 }

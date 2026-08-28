@@ -241,6 +241,14 @@ return [
                 'processes' => 5,
                 'timeout' => 300, // 5 minutos máximo por cálculo WFM
             ],
+            'supervisor-realtime' => [
+                'connection' => 'redis',
+                'queue' => ['realtime-sync'],
+                'balance' => 'simple',
+                'processes' => 2,
+                'tries' => 3,
+                'timeout' => 180,
+            ],
         ],
 
         'local' => [
@@ -253,6 +261,14 @@ return [
                 'balance' => 'simple',
                 'processes' => 2,
                 'timeout' => 300, // 5 minutos máximo por cálculo WFM
+            ],
+            'supervisor-realtime' => [
+                'connection' => 'redis',
+                'queue' => ['realtime-sync'],
+                'balance' => 'simple',
+                'processes' => 1,
+                'tries' => 3,
+                'timeout' => 180,
             ],
         ],
     ],

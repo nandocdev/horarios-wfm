@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Modules\ConnectModule\Jobs\CiscoSync;
 use App\Modules\AnalyticsModule\Actions\CalculateDailyKpisAction;
 use App\Modules\AnalyticsModule\Jobs\RefreshDataMartJob;
+use App\Modules\ConnectModule\Jobs\CiscoSync;
 use App\Modules\ConnectModule\Jobs\CuicRealtimeSyncJob;
 use App\Modules\OperationsModule\Jobs\AggregateIntervalMetricsJob;
 use App\Modules\QualityModule\Jobs\RecalculateQueueStats;
@@ -86,14 +86,18 @@ Schedule::command('alerts:evaluate')
     ->withoutOverlapping()
     ->runInBackground();
 
-// Disparar el primer eslabón de la cadena de sincronización a las 05:00 AM
-Schedule::job(new \App\Modules\ConnectModule\Jobs\CiscoSync(true))->dailyAt('05:00');
+// Disparar/mantener la cadena de sincronización de estados Cisco (con guard WithoutOverlapping)
+Schedule::job(new CiscoSync(true))
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
 
 // Ejecutar el ETL cada 5 minutos
 Schedule::command('cuic:sync')->everyFiveMinutes()->withoutOverlapping();
 
-// Disparar la cadena de sincronización en tiempo real de métricas CSQ
-Schedule::job(new CuicRealtimeSyncJob)->dailyAt('05:00')->withoutOverlapping();
+// Disparar/mantener la sincronización en tiempo real de métricas CSQ
+Schedule::job(new CuicRealtimeSyncJob)
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
 
 // WFM: Calcular reportes diarios de operadores (después de la sync de telemetría)
 Schedule::command('wfm:calculate-daily-reports')

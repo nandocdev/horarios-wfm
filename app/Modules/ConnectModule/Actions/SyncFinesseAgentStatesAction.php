@@ -10,6 +10,7 @@ use App\Modules\ConnectModule\Models\AgentStateTransition;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Shared\Infrastructure\Cisco\CiscoFinesseClient;
 use App\Shared\Support\Cache\CachePolicyService;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -34,11 +35,13 @@ class SyncFinesseAgentStatesAction
 
         $employeeCacheKey = 'cisco_active_employees:'.sha1(implode('|', $ciscoUsers));
 
-        $employees = $this->cachePolicy->remember('connect', 'employees', "active_by_users:".substr($employeeCacheKey, 25, 8), function () use ($ciscoUsers) {
+        $employees = $this->cachePolicy->remember('connect', 'employees', 'active_by_users:'.substr($employeeCacheKey, 25, 8), function () use ($ciscoUsers) {
             return Employee::where('is_active', true)
-                ->whereNotNull('username')
-                ->whereIn('username', $ciscoUsers)
-                ->get(['id', 'username', 'metadata'])
+                ->where(function ($q) use ($ciscoUsers) {
+                    $q->whereIn('username', $ciscoUsers)
+                        ->orWhereIn('cisco_username', $ciscoUsers);
+                })
+                ->get(['id', 'username', 'cisco_username', 'metadata'])
                 ->toArray();
         });
 
@@ -52,7 +55,20 @@ class SyncFinesseAgentStatesAction
         $errorCount = 0;
 
         foreach ($employees as $employee) {
-            $uccxId = $employee['metadata']['uccx_id'] ?? $employee['username'];
+            $uccxId = null;
+            if (! empty($employee['cisco_username']) && in_array($employee['cisco_username'], $ciscoUsers, true)) {
+                $uccxId = (string) $employee['cisco_username'];
+            } elseif (! empty($employee['username']) && in_array($employee['username'], $ciscoUsers, true)) {
+                $uccxId = (string) $employee['username'];
+            } elseif (! empty($employee['metadata']['uccx_id']) && in_array($employee['metadata']['uccx_id'], $ciscoUsers, true)) {
+                $uccxId = (string) $employee['metadata']['uccx_id'];
+            } else {
+                $uccxId = (string) ($employee['cisco_username'] ?? ($employee['username'] ?? ($employee['metadata']['uccx_id'] ?? '')));
+            }
+
+            if (empty($uccxId)) {
+                continue;
+            }
 
             try {
                 $data = $this->client->getAgentInfo($uccxId);
@@ -155,7 +171,7 @@ class SyncFinesseAgentStatesAction
         array $dialogInfo = [],
     ): void {
         $rawState = $data['state'] ?? 'UNKNOWN';
-        $state = strtoupper($rawState);
+        $state = strtoupper((string) $rawState);
         $reasonCode = $data['reasonCode'] ?? null;
         $stateChangeTime = $data['stateChangeTime'] ?? null;
 
@@ -167,19 +183,19 @@ class SyncFinesseAgentStatesAction
             $reasonCode = strtoupper((string) $reasonCode);
         }
 
-        // Validar transición usando la enum AgentState
-        $isValid = AgentState::isValidTransition(
-            strtoupper($existingState?->current_state ?? 'OFFLINE'),
-            $state
-        ) ?? false;
-
-        // Si la transición es inválida y no es una transición que requiera re-login, la registramos como UNKNOWN
-        if (! $isValid && ! AgentState::RELOGIN_REQUIRED->contains($state)) {
-            Log::warning("Transición de estado inválida para agente {$externalId}: ".strtoupper($existingState?->current_state ?? 'OFFLINE')." -> {$state}");
-            // Continuamos pero marcamos como UNKNOWN para no perder la trazabilidad
-        }
-
         $existingState = AgentRealtimeState::where('employee_id', $employeeId)->first();
+        $fromState = strtoupper((string) ($existingState?->current_state ?? 'OFFLINE'));
+
+        // Validar transición usando la enum AgentState
+        $isValid = AgentState::isValidTransition($fromState, $state);
+
+        $reloginRequiredValues = array_map(fn ($case) => $case->value, AgentState::RELOGIN_REQUIRED);
+        $isReloginRequired = in_array($state, $reloginRequiredValues, true);
+
+        // Si la transición es inválida y no requiere re-login, registramos warning
+        if (! $isValid && ! $isReloginRequired && $fromState !== $state) {
+            Log::warning("Transición de estado inusual para agente {$externalId}: {$fromState} -> {$state}");
+        }
 
         // Ignorar fallos de teléfono transitorios para no romper trazabilidad de WFM
         $isPhoneFailure = $reasonCode !== null && (
@@ -189,8 +205,7 @@ class SyncFinesseAgentStatesAction
 
         if ($isPhoneFailure && $existingState) {
             // Actualizamos solo metadatos, manteniendo el estado y tiempo anterior
-            // Aún así, registramos la transición para auditoría
-            $this->logStateTransition($employeeId, $existingState->current_state, $state, $reasonCode, now()->utc());
+            $this->logStateTransition($employeeId, $externalId, $fromState, $state, $reasonCode, now()->utc());
 
             DB::table('agent_realtime_states')
                 ->where('employee_id', $employeeId)
@@ -217,47 +232,49 @@ class SyncFinesseAgentStatesAction
                 if ($lastChangedAt->isFuture()) {
                     $lastChangedAt = now()->utc();
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 Log::error("Error parseando stateChangeTime ({$stateChangeTime}) para agente {$externalId}: ".$e->getMessage());
                 $lastChangedAt = now()->utc();
             }
-        } else {
-            if ($existingState
-                && AgentState::isValidTransition(
-                    strtoupper((string) $existingState->current_state),
-                    $state
-                )
-            ) {
-                // Solo mantenemos el timestamp si la transición es válida y el estado no cambió
-                $lastChangedAt = Carbon::parse($existingState->last_changed_at)->utc();
-            }
+        } elseif ($existingState && $existingState->last_changed_at && $existingState->current_state === $state) {
+            $lastChangedAt = Carbon::parse($existingState->last_changed_at)->utc();
         }
 
         // Siempre registrar la transición en AgentStateTransition para auditoría inmutable
-        $this->logStateTransition($employeeId, $existingState?->current_state ?? 'OFFLINE', $state, $reasonCode, $lastChangedAt);
+        $this->logStateTransition($employeeId, $externalId, $fromState, $state, $reasonCode, $lastChangedAt);
 
-        // Actualizar o crear el estado realtime (solo si el estado cambió o pasó suficiente tiempo)
+        // Actualizar o crear el estado realtime
         $stateChanged = ! $existingState
             || strtoupper((string) $existingState->current_state) !== $state
             || ($reasonCode ?? '') !== ($existingState->reason_code ?? '');
 
-        if ($stateChanged) {
+        $payload = [
+            'external_id' => $externalId,
+            'current_state' => $state,
+            'reason_code' => $reasonCode,
+            'last_changed_at' => $lastChangedAt->toIso8601String(),
+            'metadata' => json_encode(array_merge($data, [
+                'state_change_time_original' => $stateChangeTime,
+                'last_sync_at' => now()->utc()->toIso8601String(),
+                'parsed_at_utc' => $lastChangedAt->toIso8601String(),
+                'call_info' => $dialogInfo,
+            ])),
+            'updated_at' => now(),
+        ];
+
+        if ($stateChanged || ! $existingState) {
             DB::table('agent_realtime_states')->updateOrInsert(
                 ['employee_id' => $employeeId],
-                [
-                    'external_id' => $externalId,
-                    'current_state' => $state,
-                    'reason_code' => $reasonCode,
-                    'last_changed_at' => $lastChangedAt->toIso8601String(),
-                    'metadata' => json_encode(array_merge($data, [
-                        'state_change_time_original' => $stateChangeTime,
-                        'last_sync_at' => now()->utc()->toIso8601String(),
-                        'parsed_at_utc' => $lastChangedAt->toIso8601String(),
-                        'call_info' => $dialogInfo,
-                    ])),
-                    'updated_at' => now(),
-                ]
+                $payload
             );
+        } else {
+            // Mantener updated_at fresco para el indicador de sincronización en tiempo real
+            DB::table('agent_realtime_states')
+                ->where('employee_id', $employeeId)
+                ->update([
+                    'metadata' => $payload['metadata'],
+                    'updated_at' => now(),
+                ]);
         }
     }
 
@@ -269,19 +286,24 @@ class SyncFinesseAgentStatesAction
      */
     private function logStateTransition(
         int $employeeId,
+        string $externalId,
         string $fromState,
         string $toState,
         ?string $reasonCode,
         CarbonInterface $transitionTime,
     ): void {
-        AgentStateTransition::create([
-            'agent_login_id' => null, // Se llenará si hay información de login
-            'employee_id' => $employeeId,
-            'transition_time' => $transitionTime,
-            'agent_state' => $toState,
-            'reason_code' => $reasonCode,
-            'duration' => 0, // Se calculará posteriormente si es necesario
-        ]);
+        AgentStateTransition::firstOrCreate(
+            [
+                'agent_login_id' => $externalId,
+                'transition_time' => $transitionTime,
+                'agent_state' => $toState,
+            ],
+            [
+                'employee_id' => $employeeId,
+                'reason_code' => $reasonCode,
+                'duration' => 0,
+            ]
+        );
     }
 
     /**

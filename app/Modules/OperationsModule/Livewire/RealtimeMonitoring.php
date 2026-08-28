@@ -179,8 +179,13 @@ class RealtimeMonitoring extends Component
         $managedTeamIds = $employee?->getManagedTeamIds() ?? [];
 
         $query = Employee::query()
-            ->whereIn('position_id', [1, 2, 5, 11, 13])
             ->with(['team', 'position']);
+
+        if ($this->positionFilter) {
+            $query->where('position_id', $this->positionFilter);
+        } else {
+            $query->whereIn('position_id', [1, 2, 5, 11, 13]);
+        }
 
         if ($this->onlyActive) {
             $query->where('is_active', true);
@@ -192,10 +197,6 @@ class RealtimeMonitoring extends Component
 
         if ($this->teamId) {
             $query->where('team_id', $this->teamId);
-        }
-
-        if ($this->positionFilter) {
-            $query->where('position_id', $this->positionFilter);
         }
 
         if ($this->search) {

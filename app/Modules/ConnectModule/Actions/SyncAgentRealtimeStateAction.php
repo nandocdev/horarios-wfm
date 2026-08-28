@@ -43,10 +43,13 @@ class SyncAgentRealtimeStateAction
 
             $updateData = [
                 'employee_id' => $employeeId,
-                'current_state' => strtoupper($state),
-                'state_duration' => $duration,
+                'current_state' => strtoupper((string) $state),
                 'reason_code' => $reasonCode,
-                'last_changed_at' => now()->subSeconds($duration),
+                'last_changed_at' => now()->subSeconds($duration)->toIso8601String(),
+                'metadata' => json_encode(array_merge($data, [
+                    'duration' => $duration,
+                    'synced_from' => 'cuic_snapshot',
+                ])),
                 'updated_at' => now(),
             ];
 

@@ -70,17 +70,17 @@ class CiscoSync implements ShouldQueue
             try {
                 $dataStats = $syncDataAction->execute();
                 Log::info("CiscoSync Master Data: Procesados: {$dataStats['total_cisco_users']}, Actualizados: {$dataStats['updated_employees']}, Desajustes: {$dataStats['team_mismatches']}");
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 Log::warning('CiscoSync: No se pudieron sincronizar los datos maestros: '.$e->getMessage());
             }
         }
 
         try {
             $syncStatesAction->execute();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('CiscoSync Failure: '.$e->getMessage());
+        } finally {
+            self::dispatch(false)->delay(now()->addSeconds(5));
         }
-
-        self::dispatch(false)->delay(now()->addSeconds(5));
     }
 }

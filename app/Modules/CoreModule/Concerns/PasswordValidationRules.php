@@ -31,6 +31,22 @@ trait PasswordValidationRules
     }
 
     /**
+     * Reglas para cambio de contraseña por administrador.
+     * No requiere confirmación (un solo campo) y es opcional.
+     * Cuando el campo viene vacío se autogenera o se mantiene la clave actual.
+     *
+     * @return array<int, Rule|array<mixed>|string>
+     */
+    protected function adminPasswordRules(): array
+    {
+        return [
+            'nullable',
+            'string',
+            Password::min(8),
+        ];
+    }
+
+    /**
      * Get the validation rules used to validate the current password.
      *
      * @return array<int, Rule|array<mixed>|string>

@@ -35,9 +35,17 @@ class UserForm extends Form
 
     /**
      * Define las reglas de validación dinámicas.
+     *
+     * Admin: password opcional, sin confirmación (un solo campo).
+     * Usuario (self-service): requiere confirmed (ver Security settings).
      */
     public function rules(): array
     {
+        // Admin no requiere confirmación: si viene vacío se omite, si viene con valor debe cumplir min 8
+        $passwordRules = empty($this->password)
+            ? ['nullable']
+            : $this->adminPasswordRules();
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
@@ -46,10 +54,7 @@ class UserForm extends Form
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->user?->id),
             ],
-            'password' => array_merge(
-                [$this->user ? 'nullable' : 'required'],
-                $this->passwordRules()
-            ),
+            'password' => $passwordRules,
             'is_active' => ['boolean'],
             'force_password_change' => ['boolean'],
             'roles' => ['array'],

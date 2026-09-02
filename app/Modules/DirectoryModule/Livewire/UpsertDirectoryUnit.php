@@ -62,13 +62,31 @@ class UpsertDirectoryUnit extends Component
     {
         array_unshift($this->form->services, [
             'name' => '',
+            'is_person' => true,
+            'office_number' => '',
             'door_id' => '',
             'attention_hours' => '',
             'results_hours' => '',
             'contact_role' => '',
             'contact_extension' => '',
             'contact_email' => '',
+            'phones' => [],
         ]);
+    }
+
+    public function addPhone(int $serviceIndex): void
+    {
+        $this->form->services[$serviceIndex]['phones'][] = [
+            'number' => '',
+            'type' => 'CISCO',
+            'description' => '',
+        ];
+    }
+
+    public function removePhone(int $serviceIndex, int $phoneIndex): void
+    {
+        unset($this->form->services[$serviceIndex]['phones'][$phoneIndex]);
+        $this->form->services[$serviceIndex]['phones'] = array_values($this->form->services[$serviceIndex]['phones']);
     }
 
     public function removeService(int $index): void
@@ -141,15 +159,23 @@ class UpsertDirectoryUnit extends Component
             ->first();
 
         if ($existing) {
+            $existing->loadMissing(['services.phones']);
             $this->unit = $existing;
             $this->form->services = $existing->services->map(fn ($service) => [
                 'name' => $service->name,
+                'is_person' => $service->is_person,
+                'office_number' => $service->office_number,
                 'door_id' => $service->door_id,
                 'attention_hours' => $service->attention_hours,
                 'results_hours' => $service->results_hours,
                 'contact_role' => $service->contact_role,
                 'contact_extension' => $service->contact_extension,
                 'contact_email' => $service->contact_email,
+                'phones' => $service->phones->map(fn ($p) => [
+                    'number' => $p->number,
+                    'type' => $p->type,
+                    'description' => $p->description,
+                ])->all(),
             ])->all();
         } else {
             $this->unit = null;

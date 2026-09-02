@@ -24,10 +24,24 @@ class CreateUnitAction
                 'building_id' => $buildingId,
                 'sector' => $dto->sector,
                 'level' => $dto->new_level ?? $dto->level,
+                'door_range' => $dto->door_range,
+                'wing_sector' => $dto->wing_sector,
+                'attention_schedule' => $dto->attention_schedule,
                 'is_active' => $dto->is_active,
             ]);
 
-            $unit->services()->createMany($dto->services);
+            foreach ($dto->services as $svc) {
+                $phones = $svc['phones'] ?? [];
+                unset($svc['phones']);
+                // compat: mantener contact_extension como primer teléfono si existe
+                if (! empty($svc['contact_extension']) && empty($phones)) {
+                    $phones[] = ['number' => $svc['contact_extension'], 'type' => 'CISCO', 'description' => null];
+                }
+                $service = $unit->services()->create($svc);
+                if (! empty($phones)) {
+                    $service->phones()->createMany($phones);
+                }
+            }
 
             return $unit;
         });
@@ -42,14 +56,32 @@ class CreateUnitAction
             return $dto->building_id;
         }
 
-        return Building::firstOrCreate(
+        $attrs = [
+            'director_name' => $dto->director_name,
+            'subdirector_name' => $dto->subdirector_name,
+            'administrator_name' => $dto->administrator_name,
+            'is_active' => $dto->is_active,
+        ];
+        if ($dto->color_identifier !== null) {
+            $attrs['color_identifier'] = $dto->color_identifier;
+        }
+        if ($dto->description !== null) {
+            $attrs['description'] = $dto->description;
+        }
+
+        $building = Building::firstOrCreate(
             ['name' => $dto->new_building],
-            [
-                'director_name' => $dto->director_name,
-                'subdirector_name' => $dto->subdirector_name,
-                'administrator_name' => $dto->administrator_name,
-                'is_active' => $dto->is_active,
-            ]
-        )->id;
+            $attrs
+        );
+
+        // Si edificio ya existía pero vienen nuevos metadatos, actualizarlos
+        if ($dto->color_identifier !== null && $building->color_identifier === null) {
+            $building->update(['color_identifier' => $dto->color_identifier]);
+        }
+        if ($dto->description !== null && $building->description === null) {
+            $building->update(['description' => $dto->description]);
+        }
+
+        return $building->id;
     }
 }

@@ -33,6 +33,9 @@ class Unit extends Model
         'building_id',
         'sector',
         'level',
+        'door_range',
+        'wing_sector',
+        'attention_schedule',
         'is_active',
     ];
 
@@ -54,6 +57,21 @@ class Unit extends Model
     public function services(): HasMany
     {
         return $this->hasMany(DirectoryService::class, 'unit_id');
+    }
+
+    public function phones(): HasMany
+    {
+        return $this->hasMany(DirectoryUnitPhone::class, 'unit_id');
+    }
+
+    public function rules(): HasMany
+    {
+        return $this->hasMany(DirectoryServiceRule::class, 'unit_id');
+    }
+
+    public function faqs(): HasMany
+    {
+        return $this->hasMany(DirectoryFaq::class, 'unit_id');
     }
 
     /**

@@ -7,6 +7,8 @@ namespace App\Modules\DirectoryModule\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Especialidad (servicio) ofrecida en una puerta/consultorio de un piso,
@@ -32,6 +34,8 @@ class DirectoryService extends Model
     protected $fillable = [
         'unit_id',
         'name',
+        'is_person',
+        'office_number',
         'door_id',
         'attention_hours',
         'results_hours',
@@ -40,11 +44,25 @@ class DirectoryService extends Model
         'contact_email',
     ];
 
+    protected $casts = [
+        'is_person' => 'boolean',
+    ];
+
     /**
      * Piso donde se ofrece el servicio.
      */
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'unit_id');
+    }
+
+    public function phones(): HasMany
+    {
+        return $this->hasMany(DirectoryPhone::class, 'service_id');
+    }
+
+    public function unitPhones(): HasManyThrough
+    {
+        return $this->hasManyThrough(DirectoryUnitPhone::class, Unit::class, 'id', 'unit_id', 'unit_id', 'id');
     }
 }

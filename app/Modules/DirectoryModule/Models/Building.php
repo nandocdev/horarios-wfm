@@ -30,6 +30,8 @@ class Building extends Model
 
     protected $fillable = [
         'name',
+        'color_identifier',
+        'description',
         'director_name',
         'subdirector_name',
         'administrator_name',

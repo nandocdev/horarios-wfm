@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Modules\DirectoryModule\Providers;
 
+use App\Modules\DirectoryModule\Console\ImportDirectoryPdfCommand;
+use App\Modules\DirectoryModule\Console\ImportDirectoryXlsxCommand;
 use App\Modules\DirectoryModule\Livewire\ManageDirectoryUnits;
 use App\Modules\DirectoryModule\Livewire\UpsertDirectoryUnit;
 use App\Modules\DirectoryModule\Models\Unit;
@@ -32,6 +34,13 @@ class ModuleServiceProvider extends ServiceProvider
 
             Livewire::component('directory.manage-units', ManageDirectoryUnits::class);
             Livewire::component('directory.upsert-unit', UpsertDirectoryUnit::class);
+        }
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                ImportDirectoryPdfCommand::class,
+                ImportDirectoryXlsxCommand::class,
+            ]);
         }
     }
 }

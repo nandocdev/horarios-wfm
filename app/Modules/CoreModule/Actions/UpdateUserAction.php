@@ -45,8 +45,6 @@ class UpdateUserAction
                 $requestedRoles = array_values(array_unique($dto->roles));
 
                 // Validar que todos los roles solicitados existan en BD
-                $existingRoles = User::getPermissionsViaRoles()->pluck('name')->unique();
-                // Más simple: verificar contra tabla roles
                 $validRoles = Role::whereIn('name', $requestedRoles)->pluck('name')->toArray();
                 $invalidRoles = array_diff($requestedRoles, $validRoles);
 

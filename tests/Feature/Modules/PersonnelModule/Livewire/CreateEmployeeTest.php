@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature\Modules\PersonnelModule\Livewire;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\GeoModule\Models\District;
-use App\Modules\GeoModule\Models\Province;
-use App\Modules\GeoModule\Models\Township;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Directorate;
 use App\Modules\OrganizationModule\Models\Position;
@@ -15,6 +12,9 @@ use App\Modules\PersonnelModule\Livewire\CreateEmployee;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use Livewire\Livewire;
+use Src\Location\Infrastructure\Persistence\Models\District;
+use Src\Location\Infrastructure\Persistence\Models\Province;
+use Src\Location\Infrastructure\Persistence\Models\Township;
 
 beforeEach(function () {
     $this->user = User::factory()->create();

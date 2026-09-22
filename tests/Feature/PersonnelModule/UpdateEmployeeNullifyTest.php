@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\GeoModule\Models\District;
-use App\Modules\GeoModule\Models\Province;
-use App\Modules\GeoModule\Models\Township;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Directorate;
 use App\Modules\OrganizationModule\Models\Position;
@@ -15,6 +12,9 @@ use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use App\Modules\PersonnelModule\Models\Team;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Src\Location\Infrastructure\Persistence\Models\District;
+use Src\Location\Infrastructure\Persistence\Models\Province;
+use Src\Location\Infrastructure\Persistence\Models\Township;
 
 uses(DatabaseTransactions::class);
 

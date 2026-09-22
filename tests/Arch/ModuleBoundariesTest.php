@@ -33,7 +33,6 @@ $modules = [
     'DirectoryModule',
     'DocumentationModule',
     'FilesystemModule',
-    'GeoModule',
     'HelpdeskModule',
     'KnowledgeModule',
     'OperationsModule',

@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\GeoModule\Models\District;
-use App\Modules\GeoModule\Models\Province;
-use App\Modules\GeoModule\Models\Township;
+use Src\Location\Infrastructure\Persistence\Models\District;
+use Src\Location\Infrastructure\Persistence\Models\Province;
+use Src\Location\Infrastructure\Persistence\Models\Township;
 
 it('muestra catalogo de ubicaciones con provincias, distritos y corregimientos', function () {
     $admin = User::factory()->create();
@@ -18,7 +18,7 @@ it('muestra catalogo de ubicaciones con provincias, distritos y corregimientos',
     $response = $this->actingAs($admin)->get('/location');
 
     $response->assertOk();
-    $response->assertViewIs('geo::location_index');
+    $response->assertViewIs('location::location_index');
     $response->assertViewHas('provinces');
 
     $loadedProvinces = $response->viewData('provinces');

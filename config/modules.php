@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Modules\CoreModule\Providers\ModuleServiceProvider;
+use Src\Location\Infrastructure\Providers\LocationModuleProvider;
 
 return [
     /*
@@ -24,7 +25,7 @@ return [
 
         // ─── Módulos de Organización (dependen de CoreModule) ───
         App\Modules\OrganizationModule\Providers\ModuleServiceProvider::class,  // OrganizationModule: Direcciones, departamentos, cargos
-        App\Modules\GeoModule\Providers\ModuleServiceProvider::class,           // GeoModule: Provincias, distritos, corregimientos
+        LocationModuleProvider::class,     // Location: Provincias, distritos, corregimientos (src/Location, renombrado Geo→Location)
         App\Modules\PersonnelModule\Providers\ModuleServiceProvider::class,     // PersonnelModule: Empleados, equipos, asignaciones
 
         // ─── Módulos de Operaciones (dependen de PersonnelModule) ───

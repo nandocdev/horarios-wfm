@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Livewire;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\GeoModule\Models\District;
-use App\Modules\GeoModule\Models\Province;
-use App\Modules\GeoModule\Models\Township;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Actions\CreateEmployeeAction;
@@ -16,6 +13,7 @@ use App\Modules\PersonnelModule\Livewire\Forms\EmployeeForm;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use Livewire\Component;
+use Src\Location\Application\Contracts\LocationCatalogInterface;
 
 class CreateEmployee extends Component
 {
@@ -38,13 +36,15 @@ class CreateEmployee extends Component
 
     public function getSelectOptionsProperty(): array
     {
+        $location = app(LocationCatalogInterface::class);
+
         return [
-            'provinces' => Province::orderBy('name')->pluck('name', 'id'),
+            'provinces' => $location->listProvinces()->pluck('name', 'id'),
             'districts' => $this->province_id
-                ? District::where('province_id', $this->province_id)->orderBy('name')->pluck('name', 'id')
+                ? $location->listDistricts((int) $this->province_id)->pluck('name', 'id')
                 : collect(),
             'townships' => $this->district_id
-                ? Township::where('district_id', $this->district_id)->orderBy('name')->pluck('name', 'id')
+                ? $location->listTownships((int) $this->district_id)->pluck('name', 'id')
                 : collect(),
             'departments' => Department::orderBy('name')->pluck('name', 'id'),
             'positions' => Position::orderBy('name')->pluck('name', 'id'),

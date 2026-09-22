@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Livewire;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\GeoModule\Models\District;
-use App\Modules\GeoModule\Models\Province;
-use App\Modules\GeoModule\Models\Township;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Actions\UpdateEmployeeAction;
@@ -16,6 +13,7 @@ use App\Modules\PersonnelModule\Livewire\Forms\EmployeeForm;
 use App\Modules\PersonnelModule\Models\Employee;
 use App\Modules\PersonnelModule\Models\EmploymentStatus;
 use Livewire\Component;
+use Src\Location\Application\Contracts\LocationCatalogInterface;
 
 class EditEmployee extends Component
 {
@@ -35,11 +33,12 @@ class EditEmployee extends Component
 
         $this->employee = $employee;
 
-        $township = $employee->township_id ? Township::find($employee->township_id) : null;
-        $district = $township ? District::find($township->district_id) : null;
+        $location = app(LocationCatalogInterface::class);
+        $township = $employee->township_id ? $location->findTownship((int) $employee->township_id) : null;
+        $district = $township ? $location->findDistrict((int) $township->districtId) : null;
 
-        $this->province_id = $district?->province_id;
-        $this->district_id = $township?->district_id;
+        $this->province_id = $district?->provinceId;
+        $this->district_id = $township?->districtId;
 
         $this->form->fill([
             'employee_number' => $employee->employee_number,
@@ -70,6 +69,8 @@ class EditEmployee extends Component
 
     protected function loadOptions(): void
     {
+        $location = app(LocationCatalogInterface::class);
+
         $this->selectOptions = [
             'users' => User::orderBy('name')->limit(200)->pluck('name', 'id')->toArray(),
             'departments' => Department::orderBy('name')->pluck('name', 'id')->toArray(),
@@ -81,12 +82,12 @@ class EditEmployee extends Component
                 ->get(['id', 'first_name', 'last_name'])
                 ->pluck(fn ($e) => "{$e->first_name} {$e->last_name}", 'id')
                 ->toArray(),
-            'provinces' => Province::orderBy('name')->pluck('name', 'id')->toArray(),
+            'provinces' => $location->listProvinces()->pluck('name', 'id')->toArray(),
             'districts' => $this->province_id
-                ? District::where('province_id', $this->province_id)->orderBy('name')->pluck('name', 'id')->toArray()
+                ? $location->listDistricts((int) $this->province_id)->pluck('name', 'id')->toArray()
                 : [],
             'townships' => $this->district_id
-                ? Township::where('district_id', $this->district_id)->orderBy('name')->pluck('name', 'id')->toArray()
+                ? $location->listTownships((int) $this->district_id)->pluck('name', 'id')->toArray()
                 : [],
         ];
     }

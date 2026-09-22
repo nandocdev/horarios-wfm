@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders;
+namespace Src\Location\Infrastructure\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -12,13 +12,9 @@ use Src\Location\Infrastructure\Persistence\Models\Township;
 
 class PanamaGeographySeeder extends Seeder
 {
-    // @deprecated Delegado a Src\Location\Infrastructure\Database\Seeders\PanamaGeographySeeder — mantener por BC hasta refactor/personnel
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        DB::transaction(function () {
+        DB::transaction(function (): void {
             $this->seedProvinces();
             $this->seedDistricts();
             $this->seedTownships();
@@ -30,7 +26,7 @@ class PanamaGeographySeeder extends Seeder
         $csvPath = database_path('data/provincias.csv');
 
         if (! file_exists($csvPath)) {
-            throw new \Exception("Archivo CSV de provincias no encontrado: {$csvPath}");
+            throw new \RuntimeException("Archivo CSV de provincias no encontrado: {$csvPath}");
         }
 
         $provinces = $this->readCsv($csvPath);
@@ -47,7 +43,7 @@ class PanamaGeographySeeder extends Seeder
         $csvPath = database_path('data/distritos.csv');
 
         if (! file_exists($csvPath)) {
-            throw new \Exception("Archivo CSV de distritos no encontrado: {$csvPath}");
+            throw new \RuntimeException("Archivo CSV de distritos no encontrado: {$csvPath}");
         }
 
         $districts = $this->readCsv($csvPath);
@@ -65,7 +61,7 @@ class PanamaGeographySeeder extends Seeder
         $csvPath = database_path('data/corregimientos.csv');
 
         if (! file_exists($csvPath)) {
-            throw new \Exception("Archivo CSV de corregimientos no encontrado: {$csvPath}");
+            throw new \RuntimeException("Archivo CSV de corregimientos no encontrado: {$csvPath}");
         }
 
         $townships = $this->readCsv($csvPath);
@@ -79,23 +75,28 @@ class PanamaGeographySeeder extends Seeder
     }
 
     /**
-     * Lee un archivo CSV y devuelve un array de filas.
+     * @return array<int, array<string, string>>
      */
     private function readCsv(string $filePath): array
     {
         $data = [];
         $header = null;
 
-        if (($handle = fopen($filePath, 'r')) !== false) {
-            while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-                if (! $header) {
-                    $header = $row;
-                } else {
-                    $data[] = array_combine($header, $row);
-                }
-            }
-            fclose($handle);
+        $handle = fopen($filePath, 'r');
+
+        if ($handle === false) {
+            return $data;
         }
+
+        while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+            if ($header === null) {
+                $header = $row;
+            } else {
+                $data[] = array_combine($header, $row);
+            }
+        }
+
+        fclose($handle);
 
         return $data;
     }

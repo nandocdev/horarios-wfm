@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Modules\PersonnelModule\Models;
 
 use App\Modules\CoreModule\Models\User;
-use App\Modules\GeoModule\Models\Township;
 use App\Modules\OrganizationModule\Models\Department;
 use App\Modules\OrganizationModule\Models\Position;
 use App\Modules\PersonnelModule\Enums\Gender;
@@ -17,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Src\Location\Infrastructure\Persistence\Models\Township;
 
 class Employee extends Model implements EmployeeInterface
 {

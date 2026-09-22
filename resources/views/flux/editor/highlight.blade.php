@@ -1,0 +1,1 @@
+<flux:editor.button icon="paint-brush" tooltip="{{ __('Highlight') }}" x-on:click="$root.editor?.chain().focus().toggleHighlight().run()" x-bind:data-active="$root.editor?.isActive('highlight') ? '' : null" />

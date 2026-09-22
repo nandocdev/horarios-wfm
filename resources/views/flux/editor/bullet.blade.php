@@ -1,0 +1,1 @@
+<flux:editor.button icon="list-bullet" tooltip="{{ __('Bullet list') }}" x-on:click="$root.editor?.chain().focus().toggleBulletList().run()" x-bind:data-active="$root.editor?.isActive('bulletList') ? '' : null" />

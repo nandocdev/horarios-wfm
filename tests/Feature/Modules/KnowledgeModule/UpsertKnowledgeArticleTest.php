@@ -56,6 +56,28 @@ test('supervisor can create an article with queues and tags', function () {
     expect(ArticleVersion::where('article_id', $article->id)->count())->toBe(1);
 });
 
+test('supervisor can create an article with validity dates and metadata', function () {
+    $this->actingAs($this->supervisor);
+
+    $publishedAt = now()->addHour()->format('Y-m-d\TH:i');
+    $expiresAt = now()->addDays(30)->format('Y-m-d\TH:i');
+
+    Livewire::test(UpsertKnowledgeArticle::class)
+        ->set('form.title', 'Procedimiento Temporal con Vigencia')
+        ->set('form.content', '<p>Detalles vigentes por tiempo limitado</p>')
+        ->set('form.status', 'published')
+        ->set('form.published_at', $publishedAt)
+        ->set('form.expires_at', $expiresAt)
+        ->set('form.queues', [$this->queue->id])
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $article = KnowledgeArticle::where('title', 'Procedimiento Temporal con Vigencia')->first();
+    expect($article)->not->toBeNull();
+    expect($article->published_at)->not->toBeNull();
+    expect($article->expires_at)->not->toBeNull();
+});
+
 test('malicious scripts are stripped from content on create', function () {
     $this->actingAs($this->supervisor);
 
@@ -115,4 +137,17 @@ test('operator without manage permission cannot access the create page', functio
     $this->actingAs($operator);
 
     $this->get(route('knowledge.create'))->assertForbidden();
+});
+
+test('supervisor sees editorial workflow and operational distribution sidebar on create page', function () {
+    $this->actingAs($this->supervisor);
+
+    $response = $this->get(route('knowledge.create'));
+
+    $response->assertOk()
+        ->assertSee('Flujo Editorial')
+        ->assertSee('Distribución Operativa')
+        ->assertSee('Vigente Desde')
+        ->assertSee('Vigente Hasta')
+        ->assertSee('Guía Rápida de Formato HTML');
 });

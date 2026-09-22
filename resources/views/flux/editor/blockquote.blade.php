@@ -1,0 +1,1 @@
+<flux:editor.button icon="chat-bubble-left-right" tooltip="{{ __('Blockquote') }}" x-on:click="$root.editor?.chain().focus().toggleBlockquote().run()" x-bind:data-active="$root.editor?.isActive('blockquote') ? '' : null" />

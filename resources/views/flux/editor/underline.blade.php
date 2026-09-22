@@ -1,0 +1,1 @@
+<flux:editor.button icon="underline" tooltip="{{ __('Underline') }}" x-on:click="$root.editor?.chain().focus().toggleUnderline().run()" x-bind:data-active="$root.editor?.isActive('underline') ? '' : null" />

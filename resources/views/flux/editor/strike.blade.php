@@ -1,0 +1,1 @@
+<flux:editor.button icon="strikethrough" tooltip="{{ __('Strikethrough') }}" x-on:click="$root.editor?.chain().focus().toggleStrike().run()" x-bind:data-active="$root.editor?.isActive('strike') ? '' : null" />

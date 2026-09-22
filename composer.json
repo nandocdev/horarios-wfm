@@ -45,6 +45,7 @@
         "psr-4": {
             "App\\": "app/",
             "App\\Shared\\": "app/Shared/",
+            "Src\\": "src/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }

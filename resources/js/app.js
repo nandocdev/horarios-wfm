@@ -1,48 +1,62 @@
-import './bootstrap';
-import './tours';
-import ApexCharts from 'apexcharts';
+import "./bootstrap";
+import "./tours";
+import "./flux-editor";
+import ApexCharts from "apexcharts";
 
 window.ApexCharts = ApexCharts;
 
-const escapeHtml = (value) => String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+const escapeHtml = (value) =>
+    String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 
 const chartCallbacks = {
     percent: () => (value) => `${value}%`,
     seconds: () => (value) => `${Number(value).toFixed(0)}s`,
-    aht: () => (value) => value ? `${Number(value).toFixed(1)}s` : '-',
-    integer: () => (value) => Number.isInteger(value) ? value : '',
-    calls: () => (value) => Number.isInteger(value) ? `${value} llamadas` : value,
+    aht: () => (value) => (value ? `${Number(value).toFixed(1)}s` : "-"),
+    integer: () => (value) => (Number.isInteger(value) ? value : ""),
+    calls: () => (value) =>
+        Number.isInteger(value) ? `${value} llamadas` : value,
     agentCount: () => (value) => `${value} agentes`,
-    totalMinutes: () => (widget) => `${widget.globals.seriesTotals.reduce((total, value) => total + value, 0)} min`,
-    agentTotal: () => (widget) => widget.globals.seriesTotals.reduce((total, value) => total + value, 0),
-    timeOfDay: ({ shiftStart = 0 } = {}) => (value) => {
-        let totalMinutes = shiftStart + Number(value);
-        if (totalMinutes < 0) {
-            totalMinutes += 1440;
-        }
+    totalMinutes: () => (widget) =>
+        `${widget.globals.seriesTotals.reduce((total, value) => total + value, 0)} min`,
+    agentTotal: () => (widget) =>
+        widget.globals.seriesTotals.reduce((total, value) => total + value, 0),
+    timeOfDay:
+        ({ shiftStart = 0 } = {}) =>
+        (value) => {
+            let totalMinutes = shiftStart + Number(value);
+            if (totalMinutes < 0) {
+                totalMinutes += 1440;
+            }
 
-        const hours = Math.floor(totalMinutes / 60) % 24;
-        const minutes = Math.floor(totalMinutes % 60);
+            const hours = Math.floor(totalMinutes / 60) % 24;
+            const minutes = Math.floor(totalMinutes % 60);
 
-        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-    },
-    scatterTooltip: ({ shiftStart = 0 } = {}) => ({ seriesIndex, dataPointIndex, w }) => {
-        const point = w.config.series[seriesIndex].data[dataPointIndex];
-        const time = chartCallbacks.timeOfDay({ shiftStart })(point.x);
+            return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+        },
+    scatterTooltip:
+        ({ shiftStart = 0 } = {}) =>
+        ({ seriesIndex, dataPointIndex, w }) => {
+            const point = w.config.series[seriesIndex].data[dataPointIndex];
+            const time = chartCallbacks.timeOfDay({ shiftStart })(point.x);
 
-        return `<div class="px-3 py-2 text-xs">`
-            + `<strong>${escapeHtml(w.config.series[seriesIndex].name)}</strong><br>`
-            + `Hora: ${time}<br>`
-            + `Talk Time: ${escapeHtml(point.y)}s`
-            + '</div>';
-    },
+            return (
+                `<div class="px-3 py-2 text-xs">` +
+                `<strong>${escapeHtml(w.config.series[seriesIndex].name)}</strong><br>` +
+                `Hora: ${time}<br>` +
+                `Talk Time: ${escapeHtml(point.y)}s` +
+                "</div>"
+            );
+        },
     legendTotal: () => (seriesName, opts) => {
-        const total = opts.w.globals.series[opts.seriesIndex].reduce((a, b) => a + b, 0);
+        const total = opts.w.globals.series[opts.seriesIndex].reduce(
+            (a, b) => a + b,
+            0,
+        );
         return `${seriesName} (total: ${total})`;
     },
 };
@@ -50,7 +64,7 @@ const chartCallbacks = {
 window.ChartCallbacks = chartCallbacks;
 
 const clone = (value) => {
-    if (typeof structuredClone === 'function') {
+    if (typeof structuredClone === "function") {
         try {
             return structuredClone(value);
         } catch {
@@ -66,19 +80,24 @@ const resolveCallbacks = (value) => {
         return value.map(resolveCallbacks);
     }
 
-    if (value && typeof value === 'object') {
+    if (value && typeof value === "object") {
         if (value.__callback) {
             const callbackFactory = chartCallbacks[value.__callback];
 
-            if (! callbackFactory) {
-                throw new Error(`Callback ApexCharts no registrado: ${value.__callback}`);
+            if (!callbackFactory) {
+                throw new Error(
+                    `Callback ApexCharts no registrado: ${value.__callback}`,
+                );
             }
 
             return callbackFactory(value.params ?? {});
         }
 
         return Object.fromEntries(
-            Object.entries(value).map(([key, item]) => [key, resolveCallbacks(item)]),
+            Object.entries(value).map(([key, item]) => [
+                key,
+                resolveCallbacks(item),
+            ]),
         );
     }
 
@@ -93,7 +112,7 @@ const apexChart = (encodedOptions) => ({
     init() {
         this.create();
 
-        if (typeof ResizeObserver !== 'undefined') {
+        if (typeof ResizeObserver !== "undefined") {
             this.resizeObserver = new ResizeObserver(() => this.resize());
             this.resizeObserver.observe(this.$el);
         }
@@ -111,12 +130,15 @@ const apexChart = (encodedOptions) => ({
             this.chart.render();
         } catch (error) {
             this.chart = null;
-            console.error('[ApexChart] No se pudo renderizar el gráfico.', error);
+            console.error(
+                "[ApexChart] No se pudo renderizar el gráfico.",
+                error,
+            );
         }
     },
 
     update(data = {}) {
-        if (! this.chart) {
+        if (!this.chart) {
             this.create();
 
             return;
@@ -147,7 +169,10 @@ const apexChart = (encodedOptions) => ({
                 this.chart.updateSeries(data.series, false);
             }
         } catch (error) {
-            console.error('[ApexChart] No se pudo actualizar el gráfico.', error);
+            console.error(
+                "[ApexChart] No se pudo actualizar el gráfico.",
+                error,
+            );
         }
     },
 
@@ -156,21 +181,28 @@ const apexChart = (encodedOptions) => ({
     },
 
     resize() {
-        if (! this.chart) {
+        if (!this.chart) {
             return;
         }
 
         try {
-            this.chart.updateOptions({
-                chart: { width: this.$el.clientWidth },
-            }, false, false);
+            this.chart.updateOptions(
+                {
+                    chart: { width: this.$el.clientWidth },
+                },
+                false,
+                false,
+            );
         } catch (error) {
-            console.error('[ApexChart] No se pudo redimensionar el gráfico.', error);
+            console.error(
+                "[ApexChart] No se pudo redimensionar el gráfico.",
+                error,
+            );
         }
     },
 
     refresh() {
-        if (! this.chart) {
+        if (!this.chart) {
             this.create();
 
             return;
@@ -179,7 +211,10 @@ const apexChart = (encodedOptions) => ({
         try {
             this.chart.updateOptions(this.buildOptions(), false, true);
         } catch (error) {
-            console.error('[ApexChart] No se pudo refrescar el gráfico.', error);
+            console.error(
+                "[ApexChart] No se pudo refrescar el gráfico.",
+                error,
+            );
         }
     },
 
@@ -201,13 +236,13 @@ window.ChartComponent = apexChart;
 
 let alpineRegistered = false;
 const registerApexChart = () => {
-    if (! window.Alpine || alpineRegistered) {
+    if (!window.Alpine || alpineRegistered) {
         return;
     }
 
-    window.Alpine.data('apexChart', apexChart);
+    window.Alpine.data("apexChart", apexChart);
     alpineRegistered = true;
 };
 
-document.addEventListener('alpine:init', registerApexChart);
+document.addEventListener("alpine:init", registerApexChart);
 registerApexChart();

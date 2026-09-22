@@ -1,0 +1,1 @@
+<flux:editor.button tooltip="{{ __('Superscript') }}" x-on:click="$root.editor?.chain().focus().toggleSuperscript().run()" x-bind:data-active="$root.editor?.isActive('superscript') ? '' : null"><span class="text-[11px] font-bold">x<sup>2</sup></span></flux:editor.button>

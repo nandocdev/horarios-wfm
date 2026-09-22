@@ -1,0 +1,1 @@
+<flux:editor.button tooltip="{{ __('Subscript') }}" x-on:click="$root.editor?.chain().focus().toggleSubscript().run()" x-bind:data-active="$root.editor?.isActive('subscript') ? '' : null"><span class="text-[11px] font-bold">x<sub>2</sub></span></flux:editor.button>

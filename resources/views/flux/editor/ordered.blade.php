@@ -1,0 +1,1 @@
+<flux:editor.button icon="numbered-list" tooltip="{{ __('Ordered list') }}" x-on:click="$root.editor?.chain().focus().toggleOrderedList().run()" x-bind:data-active="$root.editor?.isActive('orderedList') ? '' : null" />
